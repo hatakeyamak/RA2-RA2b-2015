@@ -118,10 +118,34 @@ void initMCscales(){
    cout<<endl;
 }
 
-void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+//void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+//Ahmad
+class templatePlotsFunc{///this is the main class
 
-  TString sampleKeyStringT(sampleKeyString);
+///Some variables
+TString sampleKeyStringT;
 
+int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
+double template_avg_npv, template_tru_npv;
+int template_nJets;
+double template_evtWeight;
+double template_met, template_metphi;
+double template_mht, template_ht;     
+int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
+double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
+
+//define different cuts here
+bool threejet(){if(template_nJets>=3)return true; return false;}
+bool ht(){if(template_ht>=500) return true; return false;}
+bool mht(){if(template_mht>=200)return true; return false;}
+bool dphi(){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
+
+
+public:
+//constructor
+templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+
+sampleKeyStringT=sampleKeyString;
   keyStringCachedVec.push_back(sampleKeyString);
   double sampleScaleMC = 1.0; int sampleColor = 1;
   for(int ib=0; ib<nMC; ib++){
@@ -160,18 +184,6 @@ void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::stri
      TString keyStringT(keyString);
 //     if( keyStringT.Contains("Data") ){ scaleMC = dataScale; isData = true; }
 
-     int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
-     double template_avg_npv, template_tru_npv;
-     int template_nJets;
-     double template_evtWeight;
-     double template_met, template_metphi;
-//Ahmad
-double template_mht, template_ht;     
-double dPhi0_CUT; // calculated using AK4 jets with Pt > 30 GeV and slimmedMETs. 
-double dPhi1_CUT; // 
-double dPhi2_CUT; // 
-
-     int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
 
      vector<TLorentzVector> *template_oriJetsVec = new vector<TLorentzVector>(); vector<double> *template_recoJetsBtagCSVS = new vector<double>();
 
@@ -214,18 +226,8 @@ double dPhi2_CUT; //
 ///Ahmad
 template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &template_ht);
 template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);    
-template_AUX->SetBranchAddress("dPhi0_CUT", &dPhi0_CUT);
-template_AUX->SetBranchAddress("dPhi1_CUT", &dPhi1_CUT);
-template_AUX->SetBranchAddress("dPhi2_CUT", &dPhi2_CUT);
 
-
-/*
-///Ahmad
-//define different cuts here
- bool threejet(){if(template_nJets>=3)return true; return false;}
- bool ht(){if(template_ht>=500) return true; return false;}
- bool mht(){if(template_mht>=200)return true; return false;}
- */
+ 
 
 
 
@@ -268,7 +270,7 @@ template_AUX->SetBranchAddress("dPhi2_CUT", &dPhi2_CUT);
         int cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
         vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
 
-        double dPhi0 = dPhiVec[0], dPhi1 = dPhiVec[1], dPhi2 = dPhiVec[2];
+        dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
 
         bool passExtraCuts = true;
         bool passnJets = true, passdPhis = true, passBJets = true, passMET = true;
@@ -342,7 +344,10 @@ template_AUX->SetBranchAddress("dPhi2_CUT", &dPhi2_CUT);
   h1_nJetsVec.push_back((TH1D*)template_h1_nJets->Clone()); h1_nJets_allhadVec.push_back((TH1D*)template_h1_nJets_allhad->Clone()); h1_nJets_leptonicVec.push_back((TH1D*)template_h1_nJets_leptonic->Clone());
 
   h1_vtxSizeVec.push_back((TH1D*)template_h1_vtxSize->Clone());
-}
+
+}//end of class constructor templatePlotsFunc
+};//end of class templatePlotsFunc
+
 
 void forCSA14(){
  
