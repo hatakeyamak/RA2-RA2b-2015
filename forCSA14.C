@@ -165,7 +165,12 @@ void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::stri
      int template_nJets;
      double template_evtWeight;
      double template_met, template_metphi;
-     
+//Ahmad
+double template_mht, template_ht;     
+double dPhi0_CUT; // calculated using AK4 jets with Pt > 30 GeV and slimmedMETs. 
+double dPhi1_CUT; // 
+double dPhi2_CUT; // 
+
      int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
 
      vector<TLorentzVector> *template_oriJetsVec = new vector<TLorentzVector>(); vector<double> *template_recoJetsBtagCSVS = new vector<double>();
@@ -180,6 +185,7 @@ void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::stri
      TTree * template_AUX = treeVec[ist];
      template_AUX->SetBranchStatus("*", 0);
 
+///the variables
      template_AUX->SetBranchStatus("run", 1); template_AUX->SetBranchAddress("run", &template_run);
      template_AUX->SetBranchStatus("event", 1); template_AUX->SetBranchAddress("event", &template_event);
      template_AUX->SetBranchStatus("lumi", 1); template_AUX->SetBranchAddress("lumi", &template_lumi);
@@ -196,14 +202,37 @@ void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::stri
      template_AUX->SetBranchStatus("met", 1); template_AUX->SetBranchAddress("met", &template_met);
      template_AUX->SetBranchStatus("metphi", 1); template_AUX->SetBranchAddress("metphi", &template_metphi);
      template_AUX->SetBranchStatus("nIsoTrks_CUT",1); template_AUX->SetBranchAddress("nIsoTrks_CUT", &template_nIsoTrks_CUT);
-     template_AUX->SetBranchStatus("nMuons", 1); template_AUX->SetBranchAddress("nMuons", &template_nMuons);
-     template_AUX->SetBranchStatus("nElectrons", 1); template_AUX->SetBranchAddress("nElectrons", &template_nElectrons);
+   //  template_AUX->SetBranchStatus("nMuons", 1); template_AUX->SetBranchAddress("nMuons", &template_nMuons);
+   //  template_AUX->SetBranchStatus("nElectrons", 1); template_AUX->SetBranchAddress("nElectrons", &template_nElectrons);
 
      template_AUX->SetBranchStatus("genDecayLVec", 1); template_AUX->SetBranchAddress("genDecayLVec", &template_genDecayLVec);
      template_AUX->SetBranchStatus("genDecayPdgIdVec", 1); template_AUX->SetBranchAddress("genDecayPdgIdVec", &template_genDecayPdgIdVec);
      template_AUX->SetBranchStatus("genDecayIdxVec", 1); template_AUX->SetBranchAddress("genDecayIdxVec", &template_genDecayIdxVec);
      template_AUX->SetBranchStatus("genDecayMomIdxVec", 1); template_AUX->SetBranchAddress("genDecayMomIdxVec", &template_genDecayMomIdxVec);
      template_AUX->SetBranchStatus("genDecayStrVec", 1); template_AUX->SetBranchAddress("genDecayStrVec", &template_genDecayStrVec);
+
+///Ahmad
+template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &template_ht);
+template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);    
+template_AUX->SetBranchAddress("dPhi0_CUT", &dPhi0_CUT);
+template_AUX->SetBranchAddress("dPhi1_CUT", &dPhi1_CUT);
+template_AUX->SetBranchAddress("dPhi2_CUT", &dPhi2_CUT);
+
+
+/*
+///Ahmad
+//define different cuts here
+ bool threejet(){if(template_nJets>=3)return true; return false;}
+ bool ht(){if(template_ht>=500) return true; return false;}
+ bool mht(){if(template_mht>=200)return true; return false;}
+ */
+
+
+
+
+
+
+
 
      int template_Entries = template_AUX->GetEntries();
      std::cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<"  scaleMC : "<<scaleMC<<std::endl;
@@ -214,6 +243,7 @@ void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::stri
      template_cntEventsWeighted =0; template_cntEventsWeightedSquared =0;
      template_cntAftBaselineWeighted =0; template_cntAftBaselineWeightedSquared =0;
 
+////Loop over all events
      for(int ie=0; ie<template_Entries; ie++){
 
         template_AUX->GetEntry(ie);
