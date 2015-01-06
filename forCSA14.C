@@ -155,13 +155,14 @@ double template_mht, template_ht, template_mhtphi;
 int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
 double weight;
+char tempname[200];
 vector<TH1D > vec;
 map<int, string> cutname;
 map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
 map<string, histClass> histobjmap;
 histClass histObj;
-
+string Process;
 
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
@@ -197,8 +198,8 @@ return false;
 
 public:
 //constructor
-templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
-
+templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
+Process=sampleKeyString;
 sampleKeyStringT=sampleKeyString;
   keyStringCachedVec.push_back(sampleKeyString);
   double sampleScaleMC = 1.0; int sampleColor = 1;
@@ -225,7 +226,7 @@ vec.push_back(RA2NJet_hist);
 
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
 cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;cutname[5]="RA2noleptoncut" ;cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
-for(int i=0; i< cutname.size();i++){
+for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
 }
 
@@ -425,13 +426,28 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill( &eveinfvec[0] ,&itt-
 }//end of bg_type determination
 }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
+}////end of loop over all events
 
+//open a file to write the histograms
+sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),Process.c_str(),inputnumber.c_str());
+TFile *resFile = new TFile(tempname, "RECREATE");
+TDirectory *cdtoitt;
+TDirectory *cdtoit;
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
+cdtoitt = resFile->mkdir((itt->first).c_str());
+cdtoitt->cd();
+for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+cdtoit = cdtoitt->mkdir((it->first).c_str());
+cdtoit->cd();
+for(int i=0; i<=3; i++){//since we only have 4 type of histograms
+sprintf(tempname,"%s_%s_hist%d",(itt->first).c_str(),(it->first).c_str(),i);
+it->second[i].Write(tempname);
+}
+cdtoitt->cd();
+}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-     }////end of loop over all events
-
      template_cntEventsWeightedScaledMC += template_cntEventsWeighted * scaleMC;
      template_cntEventsWeightedErrorScaledMC += template_cntEventsWeighted * scaleMC * scaleMC;
 
@@ -489,7 +505,7 @@ void forCSA14(){
   TChain *TTJets_AUX = new TChain(treeStrT+"/AUX");
   for(unsigned int in=0; in<filesTTJetsVec.size(); in++){ TTJets_AUX->Add(filesTTJetsVec.at(in).c_str()); }
   treeVec.push_back(TTJets_AUX); subSampleKeysVec.push_back("TTbar");
-  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar");
+  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar",0,"Results","00");
 
   std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 */
@@ -500,7 +516,7 @@ void forCSA14(){
   TChain *TTJets_PUS14_AUX = new TChain(treeStrT+"/AUX");
   for(unsigned int in=0; in<filesTTJets_PUS14Vec.size(); in++){ TTJets_PUS14_AUX->Add(filesTTJets_PUS14Vec.at(in).c_str()); }
   treeVec.push_back(TTJets_PUS14_AUX); subSampleKeysVec.push_back("TTbar_PUS14");
-  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PUS14");
+  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PUS14",0,"Results","00");
 
   std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
@@ -510,7 +526,7 @@ void forCSA14(){
   TChain *TTJets_PU20bx25_AUX = new TChain(treeStrT+"/AUX");
   for(unsigned int in=0; in<filesTTJets_PU20bx25Vec.size(); in++){ TTJets_PU20bx25_AUX->Add(filesTTJets_PU20bx25Vec.at(in).c_str()); }
   treeVec.push_back(TTJets_PU20bx25_AUX); subSampleKeysVec.push_back("TTbar_PU20bx25");
-  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PU20bx25");
+  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PU20bx25",0,"Results","00");
 
   std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
@@ -520,7 +536,7 @@ void forCSA14(){
   TChain *TTJets_8TeV_AUX = new TChain(treeStrT+"/AUX");
   for(unsigned int in=0; in<filesTTJets_8TeVVec.size(); in++){ TTJets_8TeV_AUX->Add(filesTTJets_8TeVVec.at(in).c_str()); }
   treeVec.push_back(TTJets_8TeV_AUX); subSampleKeysVec.push_back("TTbar_8TeV");
-  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_8TeV");
+  templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_8TeV",0,"Results","00");
 
   std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
