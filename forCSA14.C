@@ -1,3 +1,5 @@
+//This is a root macro. Run it with root -l -b -q forCSA14.C++
+
 #include "tophead.h"
 #include "tdrstyle.C"
 #include "TColor.h"
@@ -57,7 +59,6 @@ vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double me
 TRandom3 *picker =0;
 
 //const TString treeStrT = "stdStop_histAndTree"; TString extraDrawStrT = "";
-//Ahmad
 const TString treeStrT = "stopTreeMaker"; TString extraDrawStrT = "";
 
 static const double dataLumi = (803.197 + 82.136 + 4.385*1000 + 6.397*1000 + 495.003 + 7.266*1000)/1000.; // in fb-1
@@ -118,8 +119,28 @@ void initMCscales(){
    cout<<endl;
 }
 
+class histClass{
+double * a;
+TH1D * b_hist;
+public:
+void fill(double * eveinfarr_, TH1D * hist_){
+a = eveinfarr_;
+b_hist=hist_;
+(*b_hist).Fill(*a);
+for(int i=1; i<=3 ; i++){
+(*(b_hist+i)).Fill(*(a+i),*a);
+}
+}
+};
+
+
+bool bg_type(string bg_ ,vector<TLorentzVector> * pvec){
+if(bg_=="allEvents"){return 1;}
+
+} //end of function bg_type
+
+
 //void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
-//Ahmad
 class templatePlotsFunc{///this is the main class
 
 ///Some variables
@@ -130,15 +151,48 @@ double template_avg_npv, template_tru_npv;
 int template_nJets;
 double template_evtWeight;
 double template_met, template_metphi;
-double template_mht, template_ht;     
+double template_mht, template_ht, template_mhtphi;     
 int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
+double weight;
+vector<TH1D > vec;
+map<int, string> cutname;
+map<string , vector<TH1D> > cut_histvec_map;
+map<string, map<string , vector<TH1D> > > map_map;
+map<string, histClass> histobjmap;
+histClass histObj;
+
 
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
 bool ht(){if(template_ht>=500) return true; return false;}
 bool mht(){if(template_mht>=200)return true; return false;}
 bool dphi(){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
+bool nolep(){if(template_nElectrons==0 && template_nMuons==0)return true; return false;}
+bool fourjet(){if(template_nJets >= 4)return true; return false;}
+bool fivejet(){if(template_nJets >= 5)return true; return false;}
+bool sixjet(){if(template_nJets >= 6)return true; return false;}
+bool highMht(){if(template_mht>=1000)return true; return false;}
+bool highHt(){if(template_ht>=2500)return true; return false;}
+
+
+
+///apply the cuts here
+bool checkcut(string ss){
+if(ss == cutname[0])return true;
+if(ss== cutname[1]){if(threejet())return true;}
+if(ss== cutname[2]){if(threejet() && ht())return true;}
+if(ss== cutname[3]){if(threejet()&&ht()&&mht())return true;}
+if(ss== cutname[4]){if(threejet()&&ht()&&mht()&&dphi())return true;}
+if(ss== cutname[5]){if(threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
+if(ss== cutname[6]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
+if(ss== cutname[7]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
+if(ss== cutname[8]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
+if(ss== cutname[9]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
+if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
+if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
+return false;
+}
 
 
 public:
@@ -159,6 +213,31 @@ sampleKeyStringT=sampleKeyString;
   template_cntEventsWeightedErrorScaledMC = 0; 
   template_cntAftBaselineWeightedScaledMC = 0; template_cntAftBaselineWeightedErrorScaledMC = 0;
 
+//build a vector of histograms
+TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
+vec.push_back(weight_hist);
+TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
+vec.push_back(RA2HT_hist);
+TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
+vec.push_back(RA2MHT_hist);
+TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
+vec.push_back(RA2NJet_hist);
+
+//initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
+cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;cutname[5]="RA2noleptoncut" ;cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
+for(int i=0; i< cutname.size();i++){
+cut_histvec_map[cutname[i]]=vec;
+}
+
+//initialize a map between string and maps. copy the map of histvecs into each
+map_map["allEvents"]=cut_histvec_map;
+
+//initialize histobjmap
+for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
+histobjmap[it->first]=histObj;
+}
+
+///////////////// Hongxuan
   TH1D *template_h1_met = new TH1D(sampleKeyStringT+"_h1_met", sampleKeyStringT+":  met; met", 100, 0, 1000); template_h1_met->Sumw2();
   TH1D *template_h1_metphi = new TH1D(sampleKeyStringT+"_h1_metphi", sampleKeyStringT+":  metphi; metphi", 100, -3.2, 3.2); template_h1_metphi->Sumw2();
 
@@ -172,6 +251,9 @@ sampleKeyStringT=sampleKeyString;
   TH1D *template_h1_nJets_allhad = new TH1D(sampleKeyStringT+"_h1_nJets_allhad", sampleKeyStringT+":  number of jets; nJets_allhad", 20, 0, 20); template_h1_nJets_allhad->Sumw2();
   TH1D *template_h1_nJets_leptonic = new TH1D(sampleKeyStringT+"_h1_nJets_leptonic", sampleKeyStringT+":  number of jets; nJets_leptonic", 20, 0, 20); template_h1_nJets_leptonic->Sumw2();
   TH1D *template_h1_vtxSize = new TH1D(sampleKeyStringT+"_h1_vtxSize", sampleKeyStringT+":  number of vertices; vtxSize", 100, 0, 100); template_h1_vtxSize->Sumw2();
+////////////////////////////////////////////////////////////////////////////////////
+//
+
 
   for(unsigned int ist=0; ist<subSampleKeysVec.size(); ist++){
  
@@ -212,8 +294,9 @@ sampleKeyStringT=sampleKeyString;
      template_AUX->SetBranchStatus("recoJetsBtag_0", 1); template_AUX->SetBranchAddress("recoJetsBtag_0", &template_recoJetsBtagCSVS);
      template_AUX->SetBranchStatus("evtWeight", 1); template_AUX->SetBranchAddress("evtWeight", &template_evtWeight);
      template_AUX->SetBranchStatus("met", 1); template_AUX->SetBranchAddress("met", &template_met);
-     template_AUX->SetBranchStatus("metphi", 1); template_AUX->SetBranchAddress("metphi", &template_metphi);
      template_AUX->SetBranchStatus("nIsoTrks_CUT",1); template_AUX->SetBranchAddress("nIsoTrks_CUT", &template_nIsoTrks_CUT);
+     template_AUX->SetBranchStatus("metphi", 1); template_AUX->SetBranchAddress("metphi", &template_metphi);
+     template_AUX->SetBranchStatus("mhtphi", 1); template_AUX->SetBranchAddress("mhtphi", &template_mhtphi);
    //  template_AUX->SetBranchStatus("nMuons", 1); template_AUX->SetBranchAddress("nMuons", &template_nMuons);
    //  template_AUX->SetBranchStatus("nElectrons", 1); template_AUX->SetBranchAddress("nElectrons", &template_nElectrons);
 
@@ -223,18 +306,10 @@ sampleKeyStringT=sampleKeyString;
      template_AUX->SetBranchStatus("genDecayMomIdxVec", 1); template_AUX->SetBranchAddress("genDecayMomIdxVec", &template_genDecayMomIdxVec);
      template_AUX->SetBranchStatus("genDecayStrVec", 1); template_AUX->SetBranchAddress("genDecayStrVec", &template_genDecayStrVec);
 
-///Ahmad
 template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &template_ht);
 template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);    
 
  
-
-
-
-
-
-
-
 
      int template_Entries = template_AUX->GetEntries();
      std::cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<"  scaleMC : "<<scaleMC<<std::endl;
@@ -268,7 +343,8 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
         int cntNJetsPt30Eta24 = countJets((*template_oriJetsVec), pt30Eta24Arr);
         int cntNJetsPt50Eta24 = countJets((*template_oriJetsVec), pt50Eta24Arr);
         int cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
-        vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
+//        vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
+        vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_mhtphi, 3, dphiArr);
 
         dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
 
@@ -321,7 +397,40 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
               printf("((%d,%d/%d):(%6.2f/%6.2f))  ", pdgId, template_genDecayIdxVec->at(iv), template_genDecayMomIdxVec->at(iv), template_genDecayLVec->at(iv).E(), template_genDecayLVec->at(iv).Pt());
            }
         }
-     }
+
+
+//////
+weight=1;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
+double eveinfvec[] = {weight, template_ht, template_mht , cntNJetsPt50Eta24 }; //the last one gives the RA2 defined number of jets.
+
+//loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+
+//determine what type of background should pass
+if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside this
+
+//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+
+////loop over cut names and fill the histograms
+for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+if(checkcut(ite->first)==true){histobjmap[ite->first].fill( &eveinfvec[0] ,&itt->second[ite->first][0]);}
+}//end of loop over cut names
+
+
+////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+
+
+}//end of bg_type determination
+}//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+     }////end of loop over all events
 
      template_cntEventsWeightedScaledMC += template_cntEventsWeighted * scaleMC;
      template_cntEventsWeightedErrorScaledMC += template_cntEventsWeighted * scaleMC * scaleMC;
