@@ -123,11 +123,11 @@ class histClass{
 double * a;
 TH1D * b_hist;
 public:
-void fill(double * eveinfarr_, TH1D * hist_){
+void fill(int Nhists, double * eveinfarr_, TH1D * hist_){
 a = eveinfarr_;
 b_hist=hist_;
 (*b_hist).Fill(*a);
-for(int i=1; i<=3 ; i++){
+for(int i=1; i<=Nhists ; i++){
 (*(b_hist+i)).Fill(*(a+i),*a);
 }
 }
@@ -148,22 +148,22 @@ TString sampleKeyStringT;
 
 int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
 double template_avg_npv, template_tru_npv;
-int template_nJets;
+int template_nJets , nbtag ;
 double template_evtWeight;
 double template_met, template_metphi;
 double template_mht, template_ht, template_mhtphi;     
 int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
-double weight;
 char tempname[200];
 vector<TH1D > vec;
 map<int, string> cutname;
+map<int, string> eventType;
 map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
 map<string, histClass> histobjmap;
 histClass histObj;
 string Process;
-
+int Nhists;
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
 bool ht(){if(template_ht>=500) return true; return false;}
@@ -223,16 +223,23 @@ TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
 vec.push_back(RA2MHT_hist);
 TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
 vec.push_back(RA2NJet_hist);
+TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
+vec.push_back(RA2NBtag_hist);
 
+Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
 cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;cutname[5]="RA2noleptoncut" ;cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
 for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
 }
 
-//initialize a map between string and maps. copy the map of histvecs into each
-map_map["allEvents"]=cut_histvec_map;
 
+eventType[0]="allEvents";
+
+//initialize a map between string and maps. copy the map of histvecs into each
+for(int i=0; i< eventType.size();i++){
+map_map[eventType[i]]=cut_histvec_map;
+}
 //initialize histobjmap
 for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
 histobjmap[it->first]=histObj;
@@ -400,11 +407,14 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
         }
 
 
-//////
-weight=1;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+nbtag=0;
+//Number of B-jets
+for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
+if(template_recoJetsBtagCSVS->at(i) > 0.679)nbtag+=1;
+}//end of the loop 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {weight, template_ht, template_mht , cntNJetsPt50Eta24 }; //the last one gives the RA2 defined number of jets.
+double eveinfvec[] = {template_evtWeight, template_ht, template_mht , cntNJetsPt50Eta24, nbtag }; //the last one gives the RA2 defined number of jets.
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -416,7 +426,7 @@ if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside 
 
 ////loop over cut names and fill the histograms
 for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
-if(checkcut(ite->first)==true){histobjmap[ite->first].fill( &eveinfvec[0] ,&itt->second[ite->first][0]);}
+if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
 }//end of loop over cut names
 
 
@@ -433,17 +443,31 @@ sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),Process.c_str(),inputnum
 TFile *resFile = new TFile(tempname, "RECREATE");
 TDirectory *cdtoitt;
 TDirectory *cdtoit;
-for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
-cdtoitt = resFile->mkdir((itt->first).c_str());
-cdtoitt->cd();
+
+// Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
+ for(int iet=0;iet<(int)eventType.size();iet++){
+ for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
+ if (eventType[iet]==itt->first){
+ //KH
+ //std::cout << (itt->first).c_str() << std::endl;
+ cdtoitt = resFile->mkdir((itt->first).c_str());
+ cdtoitt->cd();
+
+for(int i=0; i< (int)cutname.size();i++){
 for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+if (cutname[i]==it->first){
 cdtoit = cdtoitt->mkdir((it->first).c_str());
 cdtoit->cd();
-for(int i=0; i<=3; i++){//since we only have 4 type of histograms
-sprintf(tempname,"%s_%s_hist%d",(itt->first).c_str(),(it->first).c_str(),i);
+int nHist = it->second.size();
+for(int i=0; i<nHist; i++){//since we only have 4 type of histograms 
+sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
 it->second[i].Write(tempname);
 }
 cdtoitt->cd();
+}
+}
+}
+}
 }
 }
 
