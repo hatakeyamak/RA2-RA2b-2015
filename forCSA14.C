@@ -152,7 +152,7 @@ int template_nJets , nbtag ;
 double template_evtWeight;
 double template_met, template_metphi;
 double template_mht, template_ht, template_mhtphi;     
-int template_nMuons, template_nElectrons, template_nIsoTrks_CUT;
+int template_nMuons, template_nElectrons, template_nIsoTrks_CUT,nLeptons;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
 char tempname[200];
 vector<TH1D > vec;
@@ -163,7 +163,7 @@ map<string, map<string , vector<TH1D> > > map_map;
 map<string, histClass> histobjmap;
 histClass histObj;
 string Process;
-int Nhists;
+int Nhists,n_elec_mu,n_elec_mu_tot;
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
 bool ht(){if(template_ht>=500) return true; return false;}
@@ -225,6 +225,8 @@ TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 vec.push_back(RA2NBtag_hist);
+TH1D RA2NLep_hist = TH1D("NLep","Number of Lepton Distribution",20,0,20);
+vec.push_back(RA2NLep_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
@@ -305,8 +307,8 @@ histobjmap[it->first]=histObj;
      template_AUX->SetBranchStatus("nIsoTrks_CUT",1); template_AUX->SetBranchAddress("nIsoTrks_CUT", &template_nIsoTrks_CUT);
      template_AUX->SetBranchStatus("metphi", 1); template_AUX->SetBranchAddress("metphi", &template_metphi);
      template_AUX->SetBranchStatus("mhtphi", 1); template_AUX->SetBranchAddress("mhtphi", &template_mhtphi);
-   //  template_AUX->SetBranchStatus("nMuons", 1); template_AUX->SetBranchAddress("nMuons", &template_nMuons);
-   //  template_AUX->SetBranchStatus("nElectrons", 1); template_AUX->SetBranchAddress("nElectrons", &template_nElectrons);
+     template_AUX->SetBranchStatus("nMuons", 1); template_AUX->SetBranchAddress("nMuons", &template_nMuons);
+     template_AUX->SetBranchStatus("nElectrons", 1); template_AUX->SetBranchAddress("nElectrons", &template_nElectrons);
 
      template_AUX->SetBranchStatus("genDecayLVec", 1); template_AUX->SetBranchAddress("genDecayLVec", &template_genDecayLVec);
      template_AUX->SetBranchStatus("genDecayPdgIdVec", 1); template_AUX->SetBranchAddress("genDecayPdgIdVec", &template_genDecayPdgIdVec);
@@ -328,6 +330,7 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
      template_cntEventsWeighted =0; template_cntEventsWeightedSquared =0;
      template_cntAftBaselineWeighted =0; template_cntAftBaselineWeightedSquared =0;
 
+n_elec_mu_tot=0;
 ////Loop over all events
      for(int ie=0; ie<template_Entries; ie++){
 
@@ -400,6 +403,7 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
         if( verbose >=1 ){
            std::cout<<"\nie : "<<ie<<std::endl; 
            std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
+           printf("((pdgId,index/MomIndex):(E/Pt)) \n");
            for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
               int pdgId = template_genDecayPdgIdVec->at(iv);
               printf("((%d,%d/%d):(%6.2f/%6.2f))  ", pdgId, template_genDecayIdxVec->at(iv), template_genDecayMomIdxVec->at(iv), template_genDecayLVec->at(iv).E(), template_genDecayLVec->at(iv).Pt());
@@ -408,13 +412,30 @@ template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones. 
+
+n_elec_mu=0;
+for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+int pdgId = template_genDecayPdgIdVec->at(iv);
+if( abs(pdgId) == 11 || abs(pdgId) == 13 ) n_elec_mu++;
+//template_genDecayIdxVec
+//
+}
+n_elec_mu_tot+=n_elec_mu;
+if(ie < 100){
+printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
+}
+
 nbtag=0;
 //Number of B-jets
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
 if(template_recoJetsBtagCSVS->at(i) > 0.679)nbtag+=1;
 }//end of the loop 
+
+nLeptons= (int)(template_nElectrons+template_nMuons);
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {template_evtWeight, template_ht, template_mht , cntNJetsPt50Eta24, nbtag }; //the last one gives the RA2 defined number of jets.
+double eveinfvec[] = {template_evtWeight, template_ht, template_mht , cntNJetsPt50Eta24, nbtag,nLeptons }; //the last one gives the RA2 defined number of jets.
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -438,6 +459,7 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] 
 
 }////end of loop over all events
 
+cout << "# of True Elec+Muon: " << n_elec_mu_tot <<endl;
 //open a file to write the histograms
 sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),Process.c_str(),inputnumber.c_str());
 TFile *resFile = new TFile(tempname, "RECREATE");
