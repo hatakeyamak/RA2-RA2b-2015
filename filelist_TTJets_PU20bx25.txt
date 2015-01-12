@@ -1,0 +1,1 @@
+/afs/cern.ch/work/b/borzou/MinAOD/CMSSW_7_0_6_patch1/src/stopFlatNtuples_1.root
