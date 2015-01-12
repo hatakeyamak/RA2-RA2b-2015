@@ -1,16 +1,9 @@
-//This is a root macro. Run it with root -l -b -q forCSA14.C++
 #include "tophead.h"
 #include "tdrstyle.C"
 #include "TColor.h"
 #include "TF1.h"
 #include "TLegend.h"
-/*#ifdef __MAKECINT__
-#pragma link C++ class vector<int>;
-#pragma link C++ class vector<vector<int> >;
-#pragma link C++ class vector<vector<vector<int> > >;
-#pragma link C++ class vector<TLorentzVector>;
-#pragma link C++ class vector<vector<TLorentzVector> >;
-#endif*/
+
 using namespace std;
 const double cutCSVS = 0.679;
 const double defaultMETcut = 200;
@@ -86,6 +79,7 @@ printf("%30s xSec : %8.3e nEvt : %10d scale : %10.8f\n", mcStr[ib].c_str(), xSec
 }
 cout<<endl;
 }
+
 class histClass{
 double * a;
 TH1D * b_hist;
@@ -99,11 +93,15 @@ for(int i=1; i<=Nhists ; i++){
 }
 }
 };
+
 bool bg_type(string bg_ ,vector<TLorentzVector> * pvec){
 if(bg_=="allEvents"){return 1;}
 } //end of function bg_type
+
 //void templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+
 class templatePlotsFunc{///this is the main class
+
 ///Some variables
 TString sampleKeyStringT;
 int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
@@ -124,6 +122,27 @@ map<string, histClass> histobjmap;
 histClass histObj;
 string Process;
 int Nhists,n_elec_mu,n_elec_mu_tot,n_tau_had,n_tau_had_tot,nLostLepton;
+
+int loose_nIsoTrks; // number of isolated tracks with Pt>5 GeV and relIso < 0.5
+vector<double> *loose_isoTrks_charge; // charge of the loose isolated tracks (see loose_nIsoTrks)
+vector<double> *loose_isoTrks_iso; // isolation values (divided by Pt to get relIso) for the loose isolated tracks
+vector<int> *loose_isoTrks_pdgId; // pdg id of the loose isolated tracks
+vector<TLorentzVector> *loose_isoTrksLVec; // TLorentzVector of the loose isolated tracks (see loose_nIsoTrks)
+//
+int nIsoTrks_CUT; // number of isolated tracks with Pt>10 GeV, dR<0.3, dz<0.05 and relIso<0.1
+vector<int> *forVetoIsoTrksidx; // indices of the isolated tracks (see nIsoTrks_CUT) (pointing to pfCandidate collection)
+//
+vector<double> *trksForIsoVeto_charge; // charges of the charged tracks for isolated veto studies
+vector<int> *trksForIsoVeto_pdgId; // pdg id of the charged tracks for isolated veto studies
+vector<int> *trksForIsoVeto_idx; // indices of the charged tracks for isolated veto studies (pointing to pfCandidate collection)
+//
+vector<double> *trksForIsoVeto_dz; // dz of the charged tracks for isolated veto studies
+vector<double> *loose_isoTrks_dz; // dz of the loose isolated tracks
+vector<double> *loose_isoTrks_mtw; // MT of the loose isolated tracks and MET
+vector<int> *loose_isoTrks_idx; // indices of the loose isolated tracks (pointing to pfCandidate collection)
+vector<TLorentzVector> *trksForIsoVetoLVec; // TLorentzVector of the charged tracks for isolated veto studies
+
+
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
 bool ht(){if(template_ht>=500) return true; return false;}
@@ -135,6 +154,7 @@ bool fivejet(){if(template_nJets >= 5)return true; return false;}
 bool sixjet(){if(template_nJets >= 6)return true; return false;}
 bool highMht(){if(template_mht>=1000)return true; return false;}
 bool highHt(){if(template_ht>=2500)return true; return false;}
+
 ///apply the cuts here
 bool checkcut(string ss){
 if(ss == cutname[0])return true;
@@ -151,22 +171,27 @@ if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&high
 if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
 return false;
 }
+
 public:
 //constructor
 templatePlotsFunc(std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
 Process=sampleKeyString;
 sampleKeyStringT=sampleKeyString;
 keyStringCachedVec.push_back(sampleKeyString);
+
 double sampleScaleMC = 1.0; int sampleColor = 1;
+
 for(int ib=0; ib<nMC; ib++){
 TString permcStrT(mcStr[ib]);
 if( permcStrT.Contains(sampleKeyString) ) { sampleColor = colors[ib]; }
 }
+
 scaleMCCachedVec.push_back( sampleScaleMC );
 colorCachedVec.push_back( sampleColor );
 template_cntEventsWeightedScaledMC = 0;
 template_cntEventsWeightedErrorScaledMC = 0;
 template_cntAftBaselineWeightedScaledMC = 0; template_cntAftBaselineWeightedErrorScaledMC = 0;
+
 //build a vector of histograms
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
 vec.push_back(weight_hist);
@@ -182,21 +207,28 @@ TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,2
 vec.push_back(NLostLep_hist);
 TH1D nGenTauHad_hist = TH1D("nGenTauHad","Number of Gen. Had. Tau",20,0,20);
 vec.push_back(nGenTauHad_hist);
+
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
+
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
 cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;cutname[5]="RA2noleptoncut" ;cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
+
 for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
 }
+
 eventType[0]="allEvents";
+
 //initialize a map between string and maps. copy the map of histvecs into each
 for(int i=0; i< eventType.size();i++){
 map_map[eventType[i]]=cut_histvec_map;
 }
+
 //initialize histobjmap
 for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
 histobjmap[it->first]=histObj;
 }
+
 ///////////////// Hongxuan
 TH1D *template_h1_met = new TH1D(sampleKeyStringT+"_h1_met", sampleKeyStringT+": met; met", 100, 0, 1000); template_h1_met->Sumw2();
 TH1D *template_h1_metphi = new TH1D(sampleKeyStringT+"_h1_metphi", sampleKeyStringT+": metphi; metphi", 100, -3.2, 3.2); template_h1_metphi->Sumw2();
@@ -252,25 +284,51 @@ template_AUX->SetBranchStatus("genDecayMomIdxVec", 1); template_AUX->SetBranchAd
 template_AUX->SetBranchStatus("genDecayStrVec", 1); template_AUX->SetBranchAddress("genDecayStrVec", &template_genDecayStrVec);
 template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &template_ht);
 template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);
+
+template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddress("loose_nIsoTrks", &loose_nIsoTrks);
+/*template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
+template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBranchAddress("trksForIsoVeto_charge", &trksForIsoVeto_charge);*/
+//template_AUX->SetBranchStatus("trksForIsoVeto_dz","1");template_AUX->SetBranchAddress("trksForIsoVeto_dz", &trksForIsoVeto_dz);
+//####template_AUX->SetBranchStatus("loose_isoTrks_charge","1");template_AUX->SetBranchAddress("loose_isoTrks_charge", &loose_isoTrks_charge);
+//template_AUX->SetBranchStatus("loose_isoTrks_dz","1");template_AUX->SetBranchAddress("loose_isoTrks_dz", &loose_isoTrks_dz);
+//####template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
+//template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
+//####template_AUX->SetBranchStatus("trksForIsoVeto_pdgId","1");template_AUX->SetBranchAddress("trksForIsoVeto_pdgId", &trksForIsoVeto_pdgId);
+//template_AUX->SetBranchStatus("trksForIsoVeto_idx","1");template_AUX->SetBranchAddress("trksForIsoVeto_idx", &trksForIsoVeto_idx);
+//####template_AUX->SetBranchStatus("loose_isoTrks_pdgId","1");template_AUX->SetBranchAddress("loose_isoTrks_pdgId", &loose_isoTrks_pdgId);
+//template_AUX->SetBranchStatus("loose_isoTrks_idx","1");template_AUX->SetBranchAddress("loose_isoTrks_idx", &loose_isoTrks_idx);
+//####template_AUX->SetBranchStatus("forVetoIsoTrksidx","1");template_AUX->SetBranchAddress("forVetoIsoTrksidx", &forVetoIsoTrksidx);
+//template_AUX->SetBranchStatus("trksForIsoVetoLVec","1");template_AUX->SetBranchAddress("trksForIsoVetoLVec", &trksForIsoVetoLVec);
+//####template_AUX->SetBranchStatus("loose_isoTrksLVec","1");template_AUX->SetBranchAddress("loose_isoTrksLVec", &loose_isoTrksLVec);
+
 int template_Entries = template_AUX->GetEntries();
 std::cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<" scaleMC : "<<scaleMC<<std::endl;
 ofstream evtlistFile;
+
 if( keyStringT.Contains("Data") ) evtlistFile.open("evtlistData_aftAllCuts.txt");
+
 template_cntEventsWeighted =0; template_cntEventsWeightedSquared =0;
 template_cntAftBaselineWeighted =0; template_cntAftBaselineWeightedSquared =0;
 n_elec_mu_tot=0;
 n_tau_had_tot=0;
+
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
+
 template_AUX->GetEntry(ie);
+
 if( ie==0 || ie == template_Entries-1 || ie%(template_Entries/10) == 0 ) std::cout<<"\n Processing the "<<ie<<"th event ..."<<std::endl;
+
 double puWeight = 1.0;
+
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
 // puWeight = weightTruNPV(NumPUInteractions);
 }
+
 if( template_oriJetsVec->size() != template_recoJetsBtagCSVS->size() ){
 std::cout<<"template_oriJetsVec->size : "<<template_oriJetsVec->size()<<" template_recoJetsBtagCSVS : "<<template_recoJetsBtagCSVS->size()<<std::endl;
 }
+
 TLorentzVector metLVec; metLVec.SetPtEtaPhiM(template_met, 0, template_metphi, 0);
 int cntCSVS = countCSVS((*template_oriJetsVec), (*template_recoJetsBtagCSVS), cutCSVS, bTagArr);
 int cntNJetsPt30 = countJets((*template_oriJetsVec), pt30Arr);
@@ -295,6 +353,7 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 6 ) cntgenTop ++;
 if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ) cntleptons++;
 }
+
 template_cntEventsWeighted += template_evtWeight * puWeight;
 template_cntEventsWeightedSquared += pow(template_evtWeight * puWeight, 2.0);
 template_h1_vtxSize->Fill(template_vtxSize, template_evtWeight * puWeight * scaleMC);
@@ -310,6 +369,7 @@ template_h1_nJets_leptonic->Fill(cntNJetsPt30Eta24, template_evtWeight * puWeigh
 template_h1_met_leptonic->Fill(template_met, template_evtWeight * puWeight * scaleMC);
 template_h1_metphi_leptonic->Fill(template_metphi, template_evtWeight * puWeight * scaleMC);
 }
+
 if( verbose >=1 ){
 std::cout<<"\nie : "<<ie<<std::endl;
 std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
@@ -319,7 +379,15 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), template_genDecayMomIdxVec->at(iv), template_genDecayLVec->at(iv).E(), template_genDecayLVec->at(iv).Pt());
 }
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////
+//Isolated track section
+if(ie<100){
+cout << "event#: " << ie << endl;
+printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),loose_isoTrksLVec->size());
+}
+
 ///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones.
 n_elec_mu=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
@@ -332,6 +400,7 @@ printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template
 }*/
 nLostLepton=n_elec_mu-template_nElectrons-template_nMuons;
 //cout << " event #: " << ie << endl;
+
 n_tau_had=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
 int pdgId = template_genDecayPdgIdVec->at(iv);
@@ -348,29 +417,41 @@ n_tau_had++;
 }
 }
 n_tau_had_tot+=n_tau_had;
+
 nbtag=0;
 //Number of B-jets
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
 if(template_recoJetsBtagCSVS->at(i) > 0.679)nbtag+=1;
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
+
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 double eveinfvec[] = {template_evtWeight, template_ht, template_mht , cntNJetsPt50Eta24, nbtag,nLostLepton,n_tau_had }; //the last one gives the RA2 defined number of jets.
+
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+
 //determine what type of background should pass
 if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside this
+
 //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+
 ////loop over cut names and fill the histograms
 for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
 }//end of loop over cut names
+
 ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+
 }//end of bg_type determination
+
 }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
 }////end of loop over all events
+
 cout << "# of hadronic tau: " << n_tau_had_tot << endl;
 cout << "# of True Elec+Muon: " << n_elec_mu_tot <<endl;
+
 //open a file to write the histograms
 sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),Process.c_str(),inputnumber.c_str());
 TFile *resFile = new TFile(tempname, "RECREATE");
@@ -402,6 +483,7 @@ cdtoitt->cd();
 }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template_cntEventsWeightedScaledMC += template_cntEventsWeighted * scaleMC;
 template_cntEventsWeightedErrorScaledMC += template_cntEventsWeighted * scaleMC * scaleMC;
 }
@@ -415,8 +497,12 @@ h1_met_leptonicVec.push_back((TH1D*)template_h1_met_leptonic->Clone());
 h1_metphi_leptonicVec.push_back((TH1D*)template_h1_metphi_leptonic->Clone());
 h1_nJetsVec.push_back((TH1D*)template_h1_nJets->Clone()); h1_nJets_allhadVec.push_back((TH1D*)template_h1_nJets_allhad->Clone()); h1_nJets_leptonicVec.push_back((TH1D*)template_h1_nJets_leptonic->Clone());
 h1_vtxSizeVec.push_back((TH1D*)template_h1_vtxSize->Clone());
+
 }//end of class constructor templatePlotsFunc
 };//end of class templatePlotsFunc
+
+
+
 int main(){
 std::cout<<"\n"<<std::endl; timer.Print(); timer.Start();
 picker = new TRandom3(glbfSeed);
