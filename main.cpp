@@ -1,3 +1,15 @@
+#include <cmath>
+#include <string>
+#include <vector>
+#include <map>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "TLorentzVector.h"
+#include <stdio.h>
 #include "tophead.h"
 #include "tdrstyle.C"
 #include "TColor.h"
@@ -367,7 +379,8 @@ template_AUX->GetEntry(ie);
 
 if(ie>10000)break;
 
-if( ie==0 || ie == template_Entries-1 || ie%(template_Entries/10) == 0 ) std::cout<<"\n Processing the "<<ie<<"th event ..."<<std::endl;
+//A counter
+if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
 double puWeight = 1.0;
 
@@ -538,7 +551,7 @@ cdtoitt->cd();
 template_cntEventsWeightedScaledMC += template_cntEventsWeighted * scaleMC;
 template_cntEventsWeightedErrorScaledMC += template_cntEventsWeighted * scaleMC * scaleMC;
 }
-template_cntEventsWeightedErrorScaledMC = sqrt(template_cntEventsWeightedErrorScaledMC);
+/*template_cntEventsWeightedErrorScaledMC = sqrt(template_cntEventsWeightedErrorScaledMC);
 std::cout<<sampleKeyString.c_str()<<"_cntEventsWeightedScaledMC : "<<template_cntEventsWeightedScaledMC<<" +- "<<template_cntEventsWeightedErrorScaledMC<<std::endl;
 h1_metVec.push_back((TH1D*)template_h1_met->Clone());
 h1_metphiVec.push_back((TH1D*)template_h1_metphi->Clone());
@@ -548,13 +561,26 @@ h1_met_leptonicVec.push_back((TH1D*)template_h1_met_leptonic->Clone());
 h1_metphi_leptonicVec.push_back((TH1D*)template_h1_metphi_leptonic->Clone());
 h1_nJetsVec.push_back((TH1D*)template_h1_nJets->Clone()); h1_nJets_allhadVec.push_back((TH1D*)template_h1_nJets_allhad->Clone()); h1_nJets_leptonicVec.push_back((TH1D*)template_h1_nJets_leptonic->Clone());
 h1_vtxSizeVec.push_back((TH1D*)template_h1_vtxSize->Clone());
-
+*/
 }//end of class constructor templatePlotsFunc
 };//end of class templatePlotsFunc
 
 
 
-int main(){
+int main(int argc, char *argv[]){
+
+/////////////////////////////////////
+if (argc != 5)
+{
+std::cout << "Please enter something like:  ./main \"filelist_WJets_PU20bx25_100_200.txt\" \"WJets_PU20bx25_100_200\" \"Results\" \"00\" " << std::endl;
+return EXIT_FAILURE;
+}
+const string InRootList = argv[1];
+const string subSampleKey = argv[2];
+const string OutDir = argv[3];
+const string inputNum = argv[4];
+//////////////////////////////////////
+
 std::cout<<"\n"<<std::endl; timer.Print(); timer.Start();
 picker = new TRandom3(glbfSeed);
 gROOT->ProcessLine(".L tdrstyle.C");
@@ -564,12 +590,28 @@ initPUinput("PUData_dist.root", "pileup"); //Handles pileup. Coudln't figure out
 std::vector<TTree*> treeVec;
 std::vector<std::string> subSampleKeysVec;
 char filenames[500], names[500];
+
+////////////////////////////////////////
+
+std::vector<std::string> filesVec;
+///read the file names from the .txt files and load them to a vector.
+ifstream fin(InRootList.c_str());while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
+
+std::cout<< "\nProcessing " << subSampleKey << " ... " << endl;
+treeVec.clear(); subSampleKeysVec.clear();
+TChain *sample_AUX = new TChain(treeStrT+"/AUX");
+for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
+treeVec.push_back(sample_AUX); subSampleKeysVec.push_back(subSampleKey);
+templatePlotsFunc(treeVec, subSampleKeysVec, subSampleKey,0,OutDir,inputNum);
+std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
+
+
 std::vector<std::string> filesTTJets_8TeVVec, filesTTJets_PUS14Vec, filesTTJets_PU20bx25Vec,filesWJets_PU20bx25_100_200_Vec;
 ///read the file names from the .txt files and load them to a vector.
 ifstream finTTJets_8TeV("filelist_TTJets_8TeV.txt"); while( finTTJets_8TeV.getline(filenames, 500) ){ filesTTJets_8TeVVec.push_back(filenames); }
 ifstream finTTJets_PUS14("filelist_TTJets_PUS14.txt"); while( finTTJets_PUS14.getline(filenames, 500) ){ filesTTJets_PUS14Vec.push_back(filenames); }
 ifstream finTTJets_PU20bx25("filelist_TTJets_PU20bx25.txt"); while( finTTJets_PU20bx25.getline(filenames, 500) ){ filesTTJets_PU20bx25Vec.push_back(filenames); }
-
+/*
 ifstream finWJets_PU20bx25_100_200("filelist_WJets_PU20bx25_100_200.txt"); while( finWJets_PU20bx25_100_200.getline(filenames, 500) ){ filesWJets_PU20bx25_100_200_Vec.push_back(filenames); }
 
 // WJets_PU20bx25_100_200
@@ -580,7 +622,7 @@ for(unsigned int in=0; in<filesWJets_PU20bx25_100_200_Vec.size(); in++){ WJets_P
 treeVec.push_back(WJets_PU20bx25_100_200_AUX); subSampleKeysVec.push_back("W_PU20bx25_100_200");
 templatePlotsFunc(treeVec, subSampleKeysVec, "W_PU20bx25_100_200",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
-
+*/
 
 /*
 // TTJets
@@ -591,17 +633,16 @@ for(unsigned int in=0; in<filesTTJetsVec.size(); in++){ TTJets_AUX->Add(filesTTJ
 treeVec.push_back(TTJets_AUX); subSampleKeysVec.push_back("TTbar");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
-*/
 
+*/
 // TTJets_PUS14
-std::cout<<"\nProcessing TTJets_PUS14 ... "<<std::endl;
+//std::cout<<"\nProcessing TTJets_PUS14 ... "<<std::endl;
 treeVec.clear(); subSampleKeysVec.clear();
 TChain *TTJets_PUS14_AUX = new TChain(treeStrT+"/AUX");
 for(unsigned int in=0; in<filesTTJets_PUS14Vec.size(); in++){ TTJets_PUS14_AUX->Add(filesTTJets_PUS14Vec.at(in).c_str()); }
 treeVec.push_back(TTJets_PUS14_AUX); subSampleKeysVec.push_back("TTbar_PUS14");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PUS14",0,"Results","00");
-std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
-
+//std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
 // TTJets_PU20bx25
 std::cout<<"\nProcessing TTJets_PU20bx25 ... "<<std::endl;
@@ -621,9 +662,10 @@ treeVec.push_back(TTJets_8TeV_AUX); subSampleKeysVec.push_back("TTbar_8TeV");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_8TeV",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
+
 // Plotting
 // For the frame
-tdrStyle->SetFrameBorderMode(0);
+/*tdrStyle->SetFrameBorderMode(0);
 tdrStyle->SetFrameBorderSize(1);
 tdrStyle->SetFrameFillColor(kBlack);
 tdrStyle->SetFrameFillStyle(0);
@@ -650,14 +692,14 @@ tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.15);
 tdrStyle->SetPadLeftMargin(0.15); tdrStyle->SetPadRightMargin(0.15);
 tdrStyle->SetOptStat(1111);
 tdrStyle->SetHistLineWidth(1);
-tdrStyle->SetPaintTextFormat("4.2f");
+tdrStyle->SetPaintTextFormat("4.2f");*/
 unsigned int ntype = keyStringCachedVec.size();
 std::cout<<"\nntype : "<<ntype<<std::endl;
 TCanvas *cs = new TCanvas("cs", "cs", 1200, 900);
 int divW=2, divH=2;
 cs->Divide(divW, divH);
-cs->Print("allINone_"+treeStrT+".pdf[");
-draw1DallINone(cs, divW*divH, h1_metVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
+////cs->Print("allINone_"+treeStrT+".pdf[");
+/*draw1DallINone(cs, divW*divH, h1_metVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
 draw1DallINone(cs, divW*divH, h1_metphiVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
 draw1DallINone(cs, divW*divH, h1_met_allhadVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
 draw1DallINone(cs, divW*divH, h1_metphi_allhadVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
@@ -666,9 +708,9 @@ draw1DallINone(cs, divW*divH, h1_metphi_leptonicVec, 1, extraDrawStrT); cs->Prin
 draw1DallINone(cs, divW*divH, h1_nJetsVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
 draw1DallINone(cs, divW*divH, h1_nJets_allhadVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
 draw1DallINone(cs, divW*divH, h1_nJets_leptonicVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
-draw1DallINone(cs, divW*divH, h1_vtxSizeVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");
-cs->Print("allINone_"+treeStrT+".pdf]");
-TFile * outfile = new TFile("out_CSA14.root", "RECREATE");
+draw1DallINone(cs, divW*divH, h1_vtxSizeVec, 1, extraDrawStrT); cs->Print("allINone_"+treeStrT+".pdf");*/
+//cs->Print("allINone_"+treeStrT+".pdf]");
+/*TFile * outfile = new TFile("out_CSA14.root", "RECREATE");
 for(unsigned int iv=0; iv<h1_metVec.size(); iv++){
 h1_metVec[iv]->Write(); h1_metphiVec[iv]->Write();
 h1_met_allhadVec[iv]->Write(); h1_metphi_allhadVec[iv]->Write();
@@ -676,7 +718,7 @@ h1_met_leptonicVec[iv]->Write(); h1_metphi_leptonicVec[iv]->Write();
 h1_nJetsVec[iv]->Write(); h1_nJets_allhadVec[iv]->Write(); h1_nJets_leptonicVec[iv]->Write();
 h1_vtxSizeVec[iv]->Write();
 }
-outfile->Write(); outfile->Close();
+outfile->Write(); outfile->Close();*/
 }
 // Handle my default value of trunpv==-1, this is the case for data.
 double weightTruNPV(int trunpv){
