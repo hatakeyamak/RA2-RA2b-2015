@@ -154,6 +154,8 @@ bool fivejet(){if(template_nJets >= 5)return true; return false;}
 bool sixjet(){if(template_nJets >= 6)return true; return false;}
 bool highMht(){if(template_mht>=1000)return true; return false;}
 bool highHt(){if(template_ht>=2500)return true; return false;}
+bool btag_2(){if(nbtag >= 2)return true; return false;}
+bool isoTrk(){if(loose_nIsoTrks!=0)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
@@ -169,6 +171,32 @@ if(ss== cutname[8]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return
 if(ss== cutname[9]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
 if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
 if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
+if(ss== cutname[12]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
+if(ss== cutname[13]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
+if(ss== cutname[14]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
+if(ss== cutname[15]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
+if(ss== cutname[16]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[17]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
+if(ss== cutname[18]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[19]){if(btag_2())return true;}
+if(ss== cutname[20]){if(btag_2()&&threejet())return true;}
+if(ss== cutname[21]){if(btag_2()&&threejet() && ht())return true;}
+if(ss== cutname[22]){if(btag_2()&&threejet()&&ht()&&mht())return true;}
+if(ss== cutname[23]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi())return true;}
+if(ss== cutname[24]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
+if(ss== cutname[25]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
+if(ss== cutname[26]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
+if(ss== cutname[27]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
+if(ss== cutname[28]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
+if(ss== cutname[29]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
+if(ss== cutname[30]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
+if(ss== cutname[31]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
+if(ss== cutname[32]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
+if(ss== cutname[33]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
+if(ss== cutname[34]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
+if(ss== cutname[35]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[36]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
+if(ss== cutname[37]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
 return false;
 }
 
@@ -211,7 +239,27 @@ vec.push_back(nGenTauHad_hist);
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
-cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;cutname[5]="RA2noleptoncut" ;cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
+cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;
+cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;
+cutname[5]="RA2noleptoncut" ;
+cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;
+cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;
+cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
+
+cutname[12]="RA2noleptoncut_isoTrk" ;
+cutname[13]="RA24Jetcut_isoTrk" ;cutname[14]="RA25Jetcut_isoTrk" ;
+cutname[15]="RA26Jetcut_isoTrk" ;cutname[16]="RA2allbutHT2500cut_isoTrk" ;
+cutname[17]="RA2allbutMHT1000cut_isoTrk";cutname[18]= "RA2allcut_isoTrk";
+
+cutname[19]="2b";cutname[20]="b2_3Jetcut";cutname[21]="b2_HT500cut" ;
+cutname[22]="b2_MHT200cut" ;cutname[23]="b2_delphicut" ;cutname[24]="b2_noleptoncut" ;
+cutname[25]="b2_4Jetcut" ;cutname[26]="b2_5Jetcut" ;cutname[27]="b2_6Jetcut" ;
+cutname[28]="b2_allbutHT2500cut" ;cutname[29]="b2_allbutMHT1000cut";cutname[30]= "b2_allcut";
+
+cutname[31]="b2_noleptoncut_isoTrk" ;
+cutname[32]="b2_4Jetcut_isoTrk" ;cutname[33]="b2_5Jetcut_isoTrk" ;cutname[34]="b2_6Jetcut_isoTrk" ;
+cutname[35]="b2_allbutHT2500cut_isoTrk" ;cutname[36]="b2_allbutMHT1000cut_isoTrk";cutname[37]= "b2_allcut_isoTrk";
+
 
 for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
@@ -286,12 +334,12 @@ template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &te
 template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);
 
 template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddress("loose_nIsoTrks", &loose_nIsoTrks);
-/*template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
-template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBranchAddress("trksForIsoVeto_charge", &trksForIsoVeto_charge);*/
+template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
+template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBranchAddress("trksForIsoVeto_charge", &trksForIsoVeto_charge);
 //template_AUX->SetBranchStatus("trksForIsoVeto_dz","1");template_AUX->SetBranchAddress("trksForIsoVeto_dz", &trksForIsoVeto_dz);
-//####template_AUX->SetBranchStatus("loose_isoTrks_charge","1");template_AUX->SetBranchAddress("loose_isoTrks_charge", &loose_isoTrks_charge);
+//template_AUX->SetBranchStatus("loose_isoTrks_charge","1");template_AUX->SetBranchAddress("loose_isoTrks_charge", &loose_isoTrks_charge);
 //template_AUX->SetBranchStatus("loose_isoTrks_dz","1");template_AUX->SetBranchAddress("loose_isoTrks_dz", &loose_isoTrks_dz);
-//####template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
+//template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
 //template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
 //####template_AUX->SetBranchStatus("trksForIsoVeto_pdgId","1");template_AUX->SetBranchAddress("trksForIsoVeto_pdgId", &trksForIsoVeto_pdgId);
 //template_AUX->SetBranchStatus("trksForIsoVeto_idx","1");template_AUX->SetBranchAddress("trksForIsoVeto_idx", &trksForIsoVeto_idx);
@@ -316,6 +364,8 @@ n_tau_had_tot=0;
 for(int ie=0; ie<template_Entries; ie++){
 
 template_AUX->GetEntry(ie);
+
+if(ie>10000)break;
 
 if( ie==0 || ie == template_Entries-1 || ie%(template_Entries/10) == 0 ) std::cout<<"\n Processing the "<<ie<<"th event ..."<<std::endl;
 
@@ -383,10 +433,11 @@ printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), te
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////
 //Isolated track section
-if(ie<100){
+/*if(ie<100){
 cout << "event#: " << ie << endl;
 printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),loose_isoTrksLVec->size());
 }
+*/
 
 ///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones.
 n_elec_mu=0;
@@ -513,11 +564,24 @@ initPUinput("PUData_dist.root", "pileup"); //Handles pileup. Coudln't figure out
 std::vector<TTree*> treeVec;
 std::vector<std::string> subSampleKeysVec;
 char filenames[500], names[500];
-std::vector<std::string> filesTTJets_8TeVVec, filesTTJets_PUS14Vec, filesTTJets_PU20bx25Vec;
+std::vector<std::string> filesTTJets_8TeVVec, filesTTJets_PUS14Vec, filesTTJets_PU20bx25Vec,filesWJets_PU20bx25_100_200_Vec;
 ///read the file names from the .txt files and load them to a vector.
 ifstream finTTJets_8TeV("filelist_TTJets_8TeV.txt"); while( finTTJets_8TeV.getline(filenames, 500) ){ filesTTJets_8TeVVec.push_back(filenames); }
 ifstream finTTJets_PUS14("filelist_TTJets_PUS14.txt"); while( finTTJets_PUS14.getline(filenames, 500) ){ filesTTJets_PUS14Vec.push_back(filenames); }
 ifstream finTTJets_PU20bx25("filelist_TTJets_PU20bx25.txt"); while( finTTJets_PU20bx25.getline(filenames, 500) ){ filesTTJets_PU20bx25Vec.push_back(filenames); }
+
+ifstream finWJets_PU20bx25_100_200("filelist_WJets_PU20bx25_100_200.txt"); while( finWJets_PU20bx25_100_200.getline(filenames, 500) ){ filesWJets_PU20bx25_100_200_Vec.push_back(filenames); }
+
+// WJets_PU20bx25_100_200
+std::cout<<"\nProcessing WJets_PU20bx25_100_200 ... "<<std::endl;
+treeVec.clear(); subSampleKeysVec.clear();
+TChain *WJets_PU20bx25_100_200_AUX = new TChain(treeStrT+"/AUX");
+for(unsigned int in=0; in<filesWJets_PU20bx25_100_200_Vec.size(); in++){ WJets_PU20bx25_100_200_AUX->Add(filesWJets_PU20bx25_100_200_Vec.at(in).c_str()); }
+treeVec.push_back(WJets_PU20bx25_100_200_AUX); subSampleKeysVec.push_back("W_PU20bx25_100_200");
+templatePlotsFunc(treeVec, subSampleKeysVec, "W_PU20bx25_100_200",0,"Results","00");
+std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
+
+
 /*
 // TTJets
 std::cout<<"\nProcessing TTJets ... "<<std::endl;
@@ -528,6 +592,7 @@ treeVec.push_back(TTJets_AUX); subSampleKeysVec.push_back("TTbar");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 */
+
 // TTJets_PUS14
 std::cout<<"\nProcessing TTJets_PUS14 ... "<<std::endl;
 treeVec.clear(); subSampleKeysVec.clear();
@@ -536,6 +601,8 @@ for(unsigned int in=0; in<filesTTJets_PUS14Vec.size(); in++){ TTJets_PUS14_AUX->
 treeVec.push_back(TTJets_PUS14_AUX); subSampleKeysVec.push_back("TTbar_PUS14");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PUS14",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
+
+
 // TTJets_PU20bx25
 std::cout<<"\nProcessing TTJets_PU20bx25 ... "<<std::endl;
 treeVec.clear(); subSampleKeysVec.clear();
@@ -544,6 +611,7 @@ for(unsigned int in=0; in<filesTTJets_PU20bx25Vec.size(); in++){ TTJets_PU20bx25
 treeVec.push_back(TTJets_PU20bx25_AUX); subSampleKeysVec.push_back("TTbar_PU20bx25");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_PU20bx25",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
+
 // TTJets_8TeV
 std::cout<<"\nProcessing TTJets_8TeV ... "<<std::endl;
 treeVec.clear(); subSampleKeysVec.clear();
@@ -552,6 +620,7 @@ for(unsigned int in=0; in<filesTTJets_8TeVVec.size(); in++){ TTJets_8TeV_AUX->Ad
 treeVec.push_back(TTJets_8TeV_AUX); subSampleKeysVec.push_back("TTbar_8TeV");
 templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar_8TeV",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
+
 // Plotting
 // For the frame
 tdrStyle->SetFrameBorderMode(0);
