@@ -220,17 +220,18 @@ sampleKeyStringT=sampleKeyString;
 keyStringCachedVec.push_back(sampleKeyString);
 
 double sampleScaleMC = 1.0; int sampleColor = 1;
-
+/*
 for(int ib=0; ib<nMC; ib++){
 TString permcStrT(mcStr[ib]);
 if( permcStrT.Contains(sampleKeyString) ) { sampleColor = colors[ib]; }
 }
-
+*/
 scaleMCCachedVec.push_back( sampleScaleMC );
 colorCachedVec.push_back( sampleColor );
 template_cntEventsWeightedScaledMC = 0;
 template_cntEventsWeightedErrorScaledMC = 0;
 template_cntAftBaselineWeightedScaledMC = 0; template_cntAftBaselineWeightedErrorScaledMC = 0;
+
 
 //build a vector of histograms
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -290,7 +291,7 @@ histobjmap[it->first]=histObj;
 }
 
 ///////////////// Hongxuan
-TH1D *template_h1_met = new TH1D(sampleKeyStringT+"_h1_met", sampleKeyStringT+": met; met", 100, 0, 1000); template_h1_met->Sumw2();
+/*TH1D *template_h1_met = new TH1D(sampleKeyStringT+"_h1_met", sampleKeyStringT+": met; met", 100, 0, 1000); template_h1_met->Sumw2();
 TH1D *template_h1_metphi = new TH1D(sampleKeyStringT+"_h1_metphi", sampleKeyStringT+": metphi; metphi", 100, -3.2, 3.2); template_h1_metphi->Sumw2();
 TH1D *template_h1_met_allhad = new TH1D(sampleKeyStringT+"_h1_met_allhad", sampleKeyStringT+": met_allhad; met_allhad", 100, 0, 1000); template_h1_met_allhad->Sumw2();
 TH1D *template_h1_metphi_allhad = new TH1D(sampleKeyStringT+"_h1_metphi_allhad", sampleKeyStringT+": metphi_allhad; metphi_allhad", 100, -3.2, 3.2); template_h1_metphi_allhad->Sumw2();
@@ -300,6 +301,7 @@ TH1D *template_h1_nJets = new TH1D(sampleKeyStringT+"_h1_nJets", sampleKeyString
 TH1D *template_h1_nJets_allhad = new TH1D(sampleKeyStringT+"_h1_nJets_allhad", sampleKeyStringT+": number of jets; nJets_allhad", 20, 0, 20); template_h1_nJets_allhad->Sumw2();
 TH1D *template_h1_nJets_leptonic = new TH1D(sampleKeyStringT+"_h1_nJets_leptonic", sampleKeyStringT+": number of jets; nJets_leptonic", 20, 0, 20); template_h1_nJets_leptonic->Sumw2();
 TH1D *template_h1_vtxSize = new TH1D(sampleKeyStringT+"_h1_vtxSize", sampleKeyStringT+": number of vertices; vtxSize", 100, 0, 100); template_h1_vtxSize->Sumw2();
+*/
 ////////////////////////////////////////////////////////////////////////////////////
 //
 for(unsigned int ist=0; ist<subSampleKeysVec.size(); ist++){
@@ -377,7 +379,7 @@ for(int ie=0; ie<template_Entries; ie++){
 
 template_AUX->GetEntry(ie);
 
-if(ie>10000)break;
+//if(ie>1000000)break;
 
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
@@ -419,7 +421,7 @@ if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ) cntleptons++;
 
 template_cntEventsWeighted += template_evtWeight * puWeight;
 template_cntEventsWeightedSquared += pow(template_evtWeight * puWeight, 2.0);
-template_h1_vtxSize->Fill(template_vtxSize, template_evtWeight * puWeight * scaleMC);
+/*template_h1_vtxSize->Fill(template_vtxSize, template_evtWeight * puWeight * scaleMC);
 template_h1_nJets->Fill(cntNJetsPt30Eta24, template_evtWeight * puWeight * scaleMC);
 template_h1_met->Fill(template_met, template_evtWeight * puWeight * scaleMC);
 template_h1_metphi->Fill(template_metphi, template_evtWeight * puWeight * scaleMC);
@@ -432,7 +434,7 @@ template_h1_nJets_leptonic->Fill(cntNJetsPt30Eta24, template_evtWeight * puWeigh
 template_h1_met_leptonic->Fill(template_met, template_evtWeight * puWeight * scaleMC);
 template_h1_metphi_leptonic->Fill(template_metphi, template_evtWeight * puWeight * scaleMC);
 }
-
+*/
 if( verbose >=1 ){
 std::cout<<"\nie : "<<ie<<std::endl;
 std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
@@ -611,6 +613,7 @@ std::vector<std::string> filesTTJets_8TeVVec, filesTTJets_PUS14Vec, filesTTJets_
 ifstream finTTJets_8TeV("filelist_TTJets_8TeV.txt"); while( finTTJets_8TeV.getline(filenames, 500) ){ filesTTJets_8TeVVec.push_back(filenames); }
 ifstream finTTJets_PUS14("filelist_TTJets_PUS14.txt"); while( finTTJets_PUS14.getline(filenames, 500) ){ filesTTJets_PUS14Vec.push_back(filenames); }
 ifstream finTTJets_PU20bx25("filelist_TTJets_PU20bx25.txt"); while( finTTJets_PU20bx25.getline(filenames, 500) ){ filesTTJets_PU20bx25Vec.push_back(filenames); }
+
 /*
 ifstream finWJets_PU20bx25_100_200("filelist_WJets_PU20bx25_100_200.txt"); while( finWJets_PU20bx25_100_200.getline(filenames, 500) ){ filesWJets_PU20bx25_100_200_Vec.push_back(filenames); }
 
@@ -635,6 +638,7 @@ templatePlotsFunc(treeVec, subSampleKeysVec, "TTbar",0,"Results","00");
 std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
 
 */
+
 // TTJets_PUS14
 //std::cout<<"\nProcessing TTJets_PUS14 ... "<<std::endl;
 treeVec.clear(); subSampleKeysVec.clear();

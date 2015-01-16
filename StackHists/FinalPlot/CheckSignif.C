@@ -24,11 +24,12 @@ double zbi(double n_on, double mu_b_hat, double sigma_b){
   return Z_Bi;
 }
 
-CheckSignif(string cutname="RA2nocut", string histname="NJet", double xmin=0.0, double lumi=3000.){
+CheckSignif(string cutname="RA2nocut", string histname="NJet", double xmin=0.0, double lumi=300.){
 
   //
-  TFile * BJfile  =new TFile("../PhaseII4_BJ_14TEV_140PileUp.root","R");
-  TFile * TTfile  =new TFile("../PhaseII4_TT_14TEV_140PileUp.root","R");
+  TFile * BJfile  =new TFile("../WJets_PU20bx25.root","R");
+  TFile * TTfile  =new TFile("../TTJets_PU20bx25.root","R");
+/*
   TFile * Bfile   =new TFile("../PhaseII4_B_14TEV_140PileUp.root","R");  
   TFile * BBfile  =new TFile("../PhaseII4_BB_14TEV_140PileUp.root","R");
   TFile * BBBfile =new TFile("../PhaseII4_BBB_14TEV_140PileUp.root","R");
@@ -38,20 +39,13 @@ CheckSignif(string cutname="RA2nocut", string histname="NJet", double xmin=0.0, 
   TFile * LLBfile =new TFile("../PhaseII4_LLB_14TEV_140PileUp.root","R");
   TFile * TBfile  =new TFile("../PhaseII4_TB_14TEV_140PileUp.root","R");
   TFile * TJfile  =new TFile("../PhaseII4_TJ_14TEV_140PileUp.root","R");
+*/
   //  TFile * TTBfile =new TFile("../PhaseII4_TTB_14TEV_140PileUp.root","R");
   //
   THStack * tempstack;
   THStack * finalstack = new THStack("finalstack","Final Plot");
   TH1D * temphist;
   char tempname[200];
-
-  ///add Wlv to the finalstack
-  sprintf(tempname,"Wlv/%s/%s_%s_Wlv",cutname.c_str(),histname.c_str(),cutname.c_str());
-  tempstack = (THStack *)BJfile->Get(tempname)->Clone();
-  temphist = (TH1D *) tempstack->GetStack()->Last();
-if(temphist->Integral()!=temphist->GetSumOfWeights())printf("+++++\n+++++\nWARNING\nWARNING\n++++\n+++++\nIntegral is not the same as sum of weights");
-printf("Wlv: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());  
-double Nwlv= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
 
 
   ///add TTbar to the finalstack
@@ -62,22 +56,17 @@ if(temphist->Integral()!=temphist->GetSumOfWeights())printf("+++++\n+++++\nWARNI
 printf("TTbar: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());
 double Ntt= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
 
-  ///add Zvv to the finalstack
-  sprintf(tempname,"Zvv/%s/%s_%s_Zvv",cutname.c_str(),histname.c_str(),cutname.c_str());
-  tempstack = (THStack *)BJfile->Get(tempname)->Clone();
-  temphist = (TH1D *) tempstack->GetStack()->Last();
-if(temphist->Integral()!=temphist->GetSumOfWeights())printf("+++++\n+++++\nWARNING\nWARNING\n++++\n+++++\nIntegral is not the same as sum of weights");
-printf("Zvv: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());
-double Nzvv= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
 
-  ///do NOT add BJ allEvents, but check the number of events
+  ///add WJets to the finalstack
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   tempstack = (THStack *)BJfile->Get(tempname)->Clone();
   temphist = (TH1D *) tempstack->GetStack()->Last();
 if(temphist->Integral()!=temphist->GetSumOfWeights())printf("+++++\n+++++\nWARNING\nWARNING\n++++\n+++++\nIntegral is not the same as sum of weights");
-printf("BJ: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());
-double Nbj= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
+printf("WJets: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());  
+double Nwj= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
 
+
+/*
   ///add B to the finalstack
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   tempstack = (THStack *)Bfile->Get(tempname)->Clone();
@@ -155,11 +144,11 @@ double Ntb= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->Get
 if(temphist->Integral()!=temphist->GetSumOfWeights())printf("+++++\n+++++\nWARNING\nWARNING\n++++\n+++++\nIntegral is not the same as sum of weights");
 printf("TJ: +++++ Integral From Xmin: %f, Integral: %f, SumofWeights: %f \n ",temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast()),temphist->Integral(), temphist->GetSumOfWeights());
 double Ntj= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->GetXaxis()->GetLast());
-
+*/
 
   // Signal
   //--------
-  TFile * Sigfile =new TFile("../PhaseII4_FullExceptStopv4_14TEV_140PileUp.root","R");
+  TFile * Sigfile =new TFile("../T1tttt_1200_mLSP_800_00.root","R");
 
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
 
@@ -171,7 +160,7 @@ double Ntj= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->Get
  
   //KH
   //double totalBG=Nwlv+Nzvv+Ntt+Nb+Nbb+Nbbb+Nh+Nll+Nllb+Nbjj+Ntb+Ntj;
-  double totalBG=Nbj+Ntt+Nb+Nbb+Nbbb+Nh+Nll+Nllb+Nbjj+Ntb+Ntj;
+  double totalBG=Nwj+Ntt;
   double delBG=0.3*totalBG;
   double delBGsquare=pow(delBG,2);
 
@@ -181,7 +170,7 @@ double Ntj= temphist->Integral(temphist->GetXaxis()->FindBin(xmin),temphist->Get
 
   //KH 
   //double significance=Nsig/sqrt(Nsig+totalBG+delBGsquare);
-  double significance=Nsig/sqrt(totalBG+delBGsquare);
+  double significance=Nsig/sqrt(totalBG);
   
   double zbii = zbi((totalBG+Nsig),totalBG ,sqrt(delBGsquare));
 
