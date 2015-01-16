@@ -5,10 +5,10 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
-  gROOT->LoadMacro("tdrstyle.C");
-  setTDRStyle();
+//  gROOT->LoadMacro("tdrstyle.C");
+//  setTDRStyle();
 
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+//  gROOT->LoadMacro("CMS_lumi_v2.C");
 
   writeExtraText = false;       // if extra text
   extraText  = "Preliminary";  // default extra text is "Preliminary"
@@ -42,8 +42,9 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //
-  TFile * BJfile  =new TFile("../PhaseII4_BJ_14TEV_140PileUp.root","R");
-  TFile * TTfile  =new TFile("../PhaseII4_TT_14TEV_140PileUp.root","R");
+  TFile * BJfile  =new TFile("../WJets_PU20bx25.root","R");
+  TFile * TTfile  =new TFile("../TTJets_PU20bx25.root","R");
+/*
   TFile * Bfile   =new TFile("../PhaseII4_B_14TEV_140PileUp.root","R");  
   TFile * BBfile  =new TFile("../PhaseII4_BB_14TEV_140PileUp.root","R");
   TFile * BBBfile =new TFile("../PhaseII4_BBB_14TEV_140PileUp.root","R");
@@ -54,10 +55,12 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   TFile * TBfile  =new TFile("../PhaseII4_TB_14TEV_140PileUp.root","R");
   TFile * TJfile  =new TFile("../PhaseII4_TJ_14TEV_140PileUp.root","R");
   TFile * TTBfile =new TFile("../PhaseII4_TTB_14TEV_140PileUp.root","R");
+*/
   //
   THStack * tempstack;
   THStack * finalstack = new THStack("finalstack","");
-  TH1D * temphist, * VJhist, * Thist, * Otherhist, * TThist, * VVhist;
+//  TH1D * temphist, * VJhist, * Thist, * Otherhist, * TThist, * VVhist;
+  TH1D * temphist, * VJhist, * TThist;
   char tempname[200];
   char xtitlename[200];
   char ytitlename[200];
@@ -114,7 +117,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   // VJhist: B+BJ+BJJ
   // TThist: TT
   // 
-
+/*
   ///add BBB to the finalstack
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   tempstack = (THStack *)BBBfile->Get(tempname)->Clone();
@@ -179,17 +182,19 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   tempstack = (THStack *)Bfile->Get(tempname)->Clone();
   VJhist = (TH1D *) tempstack->GetStack()->Last();
 
-  ///add BJ to the finalstack
-  sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-  tempstack = (THStack *)BJfile->Get(tempname)->Clone();
-  temphist = (TH1D *) tempstack->GetStack()->Last();
-  VJhist->Add(temphist);
 
   ///add BJJ to the finalstack
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   tempstack = (THStack *)BJJfile->Get(tempname)->Clone();
   temphist = (TH1D *) tempstack->GetStack()->Last();
   VJhist->Add(temphist);
+  VJhist->SetFillColor(46);
+*/
+
+  ///add BJ to the finalstack
+  sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+  tempstack = (THStack *)BJfile->Get(tempname)->Clone();
+  VJhist = (TH1D *) tempstack->GetStack()->Last();
   VJhist->SetFillColor(46);
   if(histname=="MHT" && rebin_MHT!=1) VJhist->Rebin(rebin_MHT);
   if(histname=="HT"  && rebin_HT!=1)  VJhist->Rebin(rebin_HT);
@@ -207,9 +212,9 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   ///
   catLeg1->AddEntry(TThist,"t#bar{t}","f");
   catLeg1->AddEntry(VJhist,"V + jets","f");
-  catLeg1->AddEntry(Thist,"Single Top","f");
-  catLeg1->AddEntry(VVhist,"VV","f");
-  catLeg1->AddEntry(Otherhist,"Other BG","f");
+//  catLeg1->AddEntry(Thist,"Single Top","f");
+//  catLeg1->AddEntry(VVhist,"VV","f");
+//  catLeg1->AddEntry(Otherhist,"Other BG","f");
   //
 
   ///Draw the background stack
@@ -224,7 +229,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
     finalstack->GetXaxis()->SetLimits(0., 10.);
     if (scale=="log"){
       gPad->SetLogy();
-      finalstack->SetMaximum(1000.);    
+ //     finalstack->SetMaximum(1000.);    
       finalstack->SetMinimum(0.1);    
     }
   }
@@ -234,7 +239,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
     sprintf(xtitlename,"Number of jets");
     sprintf(ytitlename,"Events");
     finalstack->GetXaxis()->SetLimits(0., 20.);
-    finalstack->SetMaximum(7.);
+//    finalstack->SetMaximum(7.);
     if (cutname=="RA2noleptoncutht2500mht1300") finalstack->SetMaximum(100.);
   }
   //
@@ -245,7 +250,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
     finalstack->GetXaxis()->SetLimits(500., 3000.);
     if (scale=="log"){
       gPad->SetLogy();
-      finalstack->SetMaximum(1000.);    
+ //     finalstack->SetMaximum(1000.);    
       finalstack->SetMinimum(0.3);    
     }
   }
@@ -255,10 +260,10 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
     sprintf(ytitlename,"Events / 200 GeV");
     finalstack->GetXaxis()->SetLimits(1000., 5000.);
     finalstack->GetXaxis()->SetNdivisions(505);
-    finalstack->SetMaximum(15.);
+//    finalstack->SetMaximum(15.);
     if (scale=="log"){
       gPad->SetLogy();
-      finalstack->SetMaximum(1000.);    
+ //     finalstack->SetMaximum(1000.);    
       finalstack->SetMinimum(0.3);    
     }
   }
@@ -280,7 +285,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
  
   //------------------------------
   // Signal
-  TFile * Sigfile =new TFile("../PhaseII4_FullExceptStopv4_14TEV_140PileUp.root","R");
+  TFile * Sigfile =new TFile("../T1tttt_1200_mLSP_800_00.root","R");
 
   //Draw the signal on the same canvas
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
@@ -295,7 +300,7 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   if(histname=="HT"  && rebin_HT!=1)  temphist->Rebin(rebin_HT);
   temphist->Draw("SAME");
   std::cout << temphist->GetSumOfWeights() << std::endl;
-  catLeg1->AddEntry(temphist,"STOC","l");
+  catLeg1->AddEntry(temphist,"Signal","l");
 
   gPad->RedrawAxis();
 
@@ -309,10 +314,11 @@ drawPlot(string cutname="RA2nocut", string histname="NJet", string scale="log"){
   //For official documents
   // writing the lumi information and the CMS "logo"
   //
+/*
   {
     CMS_lumi_v2( c1, iPeriod, iPos );
   }
-
+*/
   c1->Update();
   c1->RedrawAxis();
   c1->GetFrame()->Draw();
