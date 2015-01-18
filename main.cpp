@@ -124,6 +124,7 @@ double template_met, template_metphi;
 double template_mht, template_ht, template_mhtphi;
 int template_nMuons, template_nElectrons, template_nIsoTrks_CUT,nLeptons;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
+double delphi12;
 char tempname[200];
 vector<TH1D > vec;
 map<int, string> cutname;
@@ -154,7 +155,6 @@ vector<double> *loose_isoTrks_mtw; // MT of the loose isolated tracks and MET
 vector<int> *loose_isoTrks_idx; // indices of the loose isolated tracks (pointing to pfCandidate collection)
 vector<TLorentzVector> *trksForIsoVetoLVec; // TLorentzVector of the charged tracks for isolated veto studies
 
-
 //define different cuts here
 bool threejet(){if(template_nJets>=3)return true; return false;}
 bool ht(){if(template_ht>=500) return true; return false;}
@@ -168,6 +168,7 @@ bool highMht(){if(template_mht>=1000)return true; return false;}
 bool highHt(){if(template_ht>=2500)return true; return false;}
 bool btag_2(){if(nbtag >= 2)return true; return false;}
 bool isoTrk(){if(loose_nIsoTrks!=0)return true; return false;}
+bool delphiJ1J2(){if(delphi12<2.5)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
@@ -175,40 +176,42 @@ if(ss == cutname[0])return true;
 if(ss== cutname[1]){if(threejet())return true;}
 if(ss== cutname[2]){if(threejet() && ht())return true;}
 if(ss== cutname[3]){if(threejet()&&ht()&&mht())return true;}
-if(ss== cutname[4]){if(threejet()&&ht()&&mht()&&dphi())return true;}
-if(ss== cutname[5]){if(threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
-if(ss== cutname[6]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
-if(ss== cutname[7]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
-if(ss== cutname[8]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
-if(ss== cutname[9]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
-if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
-if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
-if(ss== cutname[12]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
-if(ss== cutname[13]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
-if(ss== cutname[14]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
-if(ss== cutname[15]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
-if(ss== cutname[16]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
-if(ss== cutname[17]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
-if(ss== cutname[18]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[4]){if(threejet()&&ht()&&mht()&&delphiJ1J2())return true;}
+if(ss== cutname[5]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep())return true;}
+if(ss== cutname[6]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fourjet())return true;}
+if(ss== cutname[7]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fivejet())return true;}
+if(ss== cutname[8]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet())return true;}
+if(ss== cutname[9]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highMht())return true;}
+if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt())return true;}
+if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
+if(ss== cutname[12]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&isoTrk())return true;}
+if(ss== cutname[13]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fourjet()&&isoTrk())return true;}
+if(ss== cutname[14]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fivejet()&&isoTrk())return true;}
+if(ss== cutname[15]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&isoTrk())return true;}
+if(ss== cutname[16]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[17]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
+if(ss== cutname[18]){if(threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
 if(ss== cutname[19]){if(btag_2())return true;}
 if(ss== cutname[20]){if(btag_2()&&threejet())return true;}
 if(ss== cutname[21]){if(btag_2()&&threejet() && ht())return true;}
 if(ss== cutname[22]){if(btag_2()&&threejet()&&ht()&&mht())return true;}
-if(ss== cutname[23]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi())return true;}
-if(ss== cutname[24]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
-if(ss== cutname[25]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
-if(ss== cutname[26]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
-if(ss== cutname[27]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
-if(ss== cutname[28]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
-if(ss== cutname[29]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
-if(ss== cutname[30]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
-if(ss== cutname[31]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
-if(ss== cutname[32]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
-if(ss== cutname[33]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
-if(ss== cutname[34]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
-if(ss== cutname[35]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
-if(ss== cutname[36]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
-if(ss== cutname[37]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[23]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2())return true;}
+if(ss== cutname[24]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep())return true;}
+if(ss== cutname[25]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fourjet())return true;}
+if(ss== cutname[26]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fivejet())return true;}
+if(ss== cutname[27]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet())return true;}
+if(ss== cutname[28]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highMht())return true;}
+if(ss== cutname[29]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt())return true;}
+if(ss== cutname[30]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
+if(ss== cutname[31]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&isoTrk())return true;}
+if(ss== cutname[32]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fourjet()&&isoTrk())return true;}
+if(ss== cutname[33]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&fivejet()&&isoTrk())return true;}
+if(ss== cutname[34]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&isoTrk())return true;}
+if(ss== cutname[35]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
+if(ss== cutname[36]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
+if(ss== cutname[37]){if(btag_2()&&threejet()&&ht()&&mht()&&delphiJ1J2()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
+
+
 return false;
 }
 
@@ -317,6 +320,9 @@ vector<int> *template_genDecayPdgIdVec =0, *template_genDecayIdxVec =0, *templat
 vector<string> *template_genDecayStrVec =0, *template_smsModelFileNameStrVec =0, *template_smsModelStrVec =0;
 double template_smsModelMotherMass, template_smsModelDaughterMass;
 vector<TLorentzVector> *template_genJetsLVec_myak5GenJetsNoNu =0, *template_genJetsLVec_myak5GenJetsNoNuNoStopDecays =0, *template_genJetsLVec_myak5GenJetsNoNuOnlyStopDecays =0;
+//vector<TLorentzVector> *muonsLVec; // TLorentzVector of the muons
+//vector<TLorentzVector> *template_elesLVec; // TLorentzVector of the electrons
+
 TTree * template_AUX = treeVec[ist];
 template_AUX->SetBranchStatus("*", 0);
 ///the variables
@@ -363,6 +369,9 @@ template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBran
 //template_AUX->SetBranchStatus("trksForIsoVetoLVec","1");template_AUX->SetBranchAddress("trksForIsoVetoLVec", &trksForIsoVetoLVec);
 //####template_AUX->SetBranchStatus("loose_isoTrksLVec","1");template_AUX->SetBranchAddress("loose_isoTrksLVec", &loose_isoTrksLVec);
 
+//template_AUX->SetBranchStatus("muonsLVec","1");template_AUX->SetBranchAddress("muonsLVec", &muonsLVec);
+//template_AUX->SetBranchStatus("elesLVec","1");template_AUX->SetBranchAddress("elesLVec", &template_elesLVec);
+
 int template_Entries = template_AUX->GetEntries();
 std::cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<" scaleMC : "<<scaleMC<<std::endl;
 ofstream evtlistFile;
@@ -374,15 +383,26 @@ template_cntAftBaselineWeighted =0; template_cntAftBaselineWeightedSquared =0;
 n_elec_mu_tot=0;
 n_tau_had_tot=0;
 
+
+//////////////
+///Temporary
+//int spike[]={1744747,5677166,6998579,11914191,12697016,12855489,12855744,12882112,12929634,13590915,13775071,13813924,13937866,14147203,15404604,15506060,15800935,16042143,16275974,16731997,16939446,17544423,20226465,20906872,23449833,23812799};
+/////////////
+
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
 
+//int ie;
+/*for(int is=0; is < 26; is++){
+ie=spike[is];*/
+
 template_AUX->GetEntry(ie);
 
-//if(ie>1000000)break;
+//if(ie>10000)break;
 
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
+
 
 double puWeight = 1.0;
 
@@ -403,6 +423,7 @@ int cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
 // vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
 vector<double> dPhiVec = calcDPhi((*template_oriJetsVec), template_mhtphi, 3, dphiArr);
 dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
+delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());
 bool passExtraCuts = true;
 bool passnJets = true, passdPhis = true, passBJets = true, passMET = true;
 if( cntNJetsPt70Eta24 < nJetsSelPt70Eta24 ){ passExtraCuts = false; passnJets = false; }
@@ -513,6 +534,25 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] 
 
 }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
+//////////////////In this section we would like to find the problematic events, spikes, etc. This section should be commented when maintenance is not needed. 
+
+/*if(template_ht > 4000. && template_mht>200.){
+printf("event#: %d ############################ \n HighMET : MET:%8.1f, MHT:%8.1f \n",ie,template_met,template_mht);
+if(template_recoJetsBtagCSVS->size()!=template_oriJetsVec->size())printf("There is something wrong with the jet and btga vector sizes. \n");
+for(int i = 0; i < cntNJetsPt50Eta24; ++i){
+printf("HighMET : Jet Pt:%8.2f Eta:%5.2f Phi:%5.2f  Beta:%8.2f BTag Value:%g \n",template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi(),template_oriJetsVec->at(i).Beta(),template_recoJetsBtagCSVS->at(i));
+}
+
+printf("dPhi0: %g dPhi1: %g dPhi2: %g \n",dPhi0,dPhi1,dPhi2);
+printf("delphi12: %g \n",delphi12);
+
+
+}
+*/
+////////////////////////////// End of maintenance section
+
+
+
 }////end of loop over all events
 
 cout << "# of hadronic tau: " << n_tau_had_tot << endl;
@@ -612,7 +652,7 @@ std::vector<std::string> filesTTJets_8TeVVec, filesTTJets_PUS14Vec, filesTTJets_
 ///read the file names from the .txt files and load them to a vector.
 ifstream finTTJets_8TeV("filelist_TTJets_8TeV.txt"); while( finTTJets_8TeV.getline(filenames, 500) ){ filesTTJets_8TeVVec.push_back(filenames); }
 ifstream finTTJets_PUS14("filelist_TTJets_PUS14.txt"); while( finTTJets_PUS14.getline(filenames, 500) ){ filesTTJets_PUS14Vec.push_back(filenames); }
-ifstream finTTJets_PU20bx25("filelist_TTJets_PU20bx25.txt"); while( finTTJets_PU20bx25.getline(filenames, 500) ){ filesTTJets_PU20bx25Vec.push_back(filenames); }
+ifstream finTTJets_PU20bx25("filelist_TTJets_PU20bx25.txt"); while( finTTJets_PU20bx25.getline(filenames, 500) ){filesTTJets_PU20bx25Vec.push_back(filenames); }
 
 /*
 ifstream finWJets_PU20bx25_100_200("filelist_WJets_PU20bx25_100_200.txt"); while( finWJets_PU20bx25_100_200.getline(filenames, 500) ){ filesWJets_PU20bx25_100_200_Vec.push_back(filenames); }
