@@ -114,8 +114,8 @@ double template_smsModelMotherMass, template_smsModelDaughterMass;
 vector<TLorentzVector> *template_genJetsLVec_myak5GenJetsNoNu, *template_genJetsLVec_myak5GenJetsNoNuNoStopDecays, *template_genJetsLVec_myak5GenJetsNoNuOnlyStopDecays;
 TTree * template_AUX;
 ofstream evtlistFile;
-double puWeight, delphi12;
-int cntCSVS, cntNJetsPt30, cntNJetsPt30Eta24, cntNJetsPt50Eta24, cntNJetsPt70Eta24;
+double puWeight, totWeight, delphi12;
+int cntCSVS, cntNJetsPt30, cntNJetsPt30Eta24, cntNJetsPt50Eta24, cntNJetsPt70Eta24, cntgenTop, cntleptons;
 TLorentzVector metLVec;
 vector<double> dPhiVec;
 
@@ -326,7 +326,6 @@ if(ie>10000)break;
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
 puWeight = 1.0;
-
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
 // puWeight = weightTruNPV(NumPUInteractions);
 }
@@ -335,7 +334,6 @@ if( template_oriJetsVec->size() != template_recoJetsBtagCSVS->size() ){
 std::cout<<"template_oriJetsVec->size : "<<template_oriJetsVec->size()<<" template_recoJetsBtagCSVS : "<<template_recoJetsBtagCSVS->size()<<std::endl;
 }
 
-cout << "event#: " <<ie <<  endl;
 metLVec.SetPtEtaPhiM(template_met, 0, template_metphi, 0);
 cntCSVS = countCSVS((*template_oriJetsVec), (*template_recoJetsBtagCSVS), cutCSVS, bTagArr);
 cntNJetsPt30 = countJets((*template_oriJetsVec), pt30Arr);
@@ -347,27 +345,162 @@ dPhiVec = calcDPhi((*template_oriJetsVec), template_mhtphi, 3, dphiArr);
 dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
 delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());
 
-
-
+// Parsing the gen information ...
+cntgenTop = 0, cntleptons =0;
+for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+int pdgId = template_genDecayPdgIdVec->at(iv);
+if( abs(pdgId) == 6 ) cntgenTop ++;
+if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ) cntleptons++;
 }
 
+if( verbose >=1 ){
+std::cout<<"\nie : "<<ie<<std::endl;
+std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
+printf("((pdgId,index/MomIndex):(E/Pt)) \n");
+for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+int pdgId = template_genDecayPdgIdVec->at(iv);
+printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), template_genDecayMomIdxVec->at(iv), template_genDecayLVec->at(iv).E(), template_genDecayLVec->at(iv).Pt());
 }
-};
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////
+////Isolated track section
+/*if(ie<100){
+ * cout << "event#: " << ie << endl;
+ * printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),loose_isoTrksLVec->size());
+ * }
+ * */
+
+///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones.
+n_elec_mu=0;
+for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+int pdgId = template_genDecayPdgIdVec->at(iv);
+if( abs(pdgId) == 11 || abs(pdgId) == 13 ) n_elec_mu++;
+}
+n_elec_mu_tot+=n_elec_mu;
+/*if(ie < 100){
+ * printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
+ * }*/
+nLostLepton=n_elec_mu-template_nElectrons-template_nMuons;
+
+n_tau_had=0;
+for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+int pdgId = template_genDecayPdgIdVec->at(iv);
+if( abs(pdgId) == 15 ){
+int index=template_genDecayIdxVec->at(iv);
+for(int ivv=0; ivv<(int)template_genDecayLVec->size(); ivv++){
+int MomIndex=template_genDecayMomIdxVec->at(ivv);
+int secpdg = template_genDecayPdgIdVec->at(ivv);
+if(MomIndex==index && secpdg > 40){
+//printf("This is a tau. TauIndex: %d, TauDaughterID: %d \n",MomIndex, secpdg);
+n_tau_had++;
+}
+}
+}
+}
+n_tau_had_tot+=n_tau_had;
+
+nbtag=0;
+//Number of B-jets
+for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
+if(template_recoJetsBtagCSVS->at(i) > 0.679)nbtag+=1;
+}//end of the loop
+nLeptons= (int)(template_nElectrons+template_nMuons);
+
+totWeight=template_evtWeight*puWeight;
+
+//build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
+double eveinfvec[] = {totWeight, template_ht, template_mht ,(double) cntNJetsPt50Eta24,(double) nbtag,(double) nLostLepton,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
+
+//loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+
+////determine what type of background should pass
+if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside this
+//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+
+//////loop over cut names and fill the histograms
+for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
+}//end of loop over cut names
+
+////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+
+}//end of bg_type determination
+
+}//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
+//////////////////In this section we would like to find the problematic events, spikes, etc. This section should be commented when maintenance is not needed.
+if(template_ht > 4000. && template_mht>200.){
+  printf("event#: %d ############################ \n HighMET : MET:%8.1f, MHT:%8.1f \n",ie,template_met,template_mht);
+  if(template_recoJetsBtagCSVS->size()!=template_oriJetsVec->size())printf("There is something wrong with the jet and btga vector sizes. \n");
+  for(int i = 0; i < cntNJetsPt50Eta24; ++i){
+  printf("HighMET : Jet Pt:%8.2f Eta:%5.2f Phi:%5.2f  Beta:%8.2f BTag Value:%g \n",template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi(),template_oriJetsVec->at(i).Beta(),template_recoJetsBtagCSVS->at(i));
+  }
+ 
+ printf("dPhi0: %g dPhi1: %g dPhi2: %g \n",dPhi0,dPhi1,dPhi2);
+ printf("delphi12: %g \n",delphi12);
+
+
+ }
+
+////////////////////////////// End of maintenance section
+
+
+}////end of loop over all events
+
+//open a file to write the histograms
+sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
+TFile *resFile = new TFile(tempname, "RECREATE");
+TDirectory *cdtoitt;
+TDirectory *cdtoit;
+// Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
+for(int iet=0;iet<(int)eventType.size();iet++){
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
+if (eventType[iet]==itt->first){
+//KH
+////std::cout << (itt->first).c_str() << std::endl;
+cdtoitt = resFile->mkdir((itt->first).c_str());
+cdtoitt->cd();
+for(int i=0; i< (int)cutname.size();i++){
+for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+if (cutname[i]==it->first){
+cdtoit = cdtoitt->mkdir((it->first).c_str());
+cdtoit->cd();
+int nHist = it->second.size();
+for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
+sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
+it->second[i].Write(tempname);
+}
+cdtoitt->cd();
+}
+}
+}
+}
+}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+}//end of class constructor templatePlotsFunc
+};//end of class templatePlotsFunc
 
 
 
 int main(int argc, char *argv[]){
 
 /////////////////////////////////////
-if (argc != 5)
+if (argc != 6)
 {
-std::cout << "Please enter something like:  ./main \"filelist_WJets_PU20bx25_100_200.txt\" \"WJets_PU20bx25_100_200\" \"Results\" \"00\" " << std::endl;
+std::cout << "Please enter something like:  ./main \"filelist_WJets_PU20bx25_100_200.txt\" \"WJets_PU20bx25_100_200\" \"Results\" \"00\" \"0\" " << std::endl;
 return EXIT_FAILURE;
 }
 const string InRootList = argv[1];
 const string subSampleKey = argv[2];
 const string OutDir = argv[3];
 const string inputNum = argv[4];
+const string verbosity = argv[5];
 //////////////////////////////////////
 
 initPUinput("PUData_dist.root", "pileup"); //Handles pileup. Coudln't figure out how. For later ???????????????????????????????
@@ -380,7 +513,7 @@ cout<< "\nProcessing " << subSampleKey << " ... " << endl;
 TChain *sample_AUX = new TChain("stopTreeMaker/AUX");
 for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
 
-templatePlotsFunc(sample_AUX, subSampleKey,0,OutDir,inputNum);
+templatePlotsFunc(sample_AUX, subSampleKey,atoi(verbosity.c_str()),OutDir,inputNum);
 
 }
 
