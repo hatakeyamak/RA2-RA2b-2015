@@ -320,10 +320,11 @@ for(int ie=0; ie<template_Entries; ie++){
 
 template_AUX->GetEntry(ie);
 
-if(ie>10000)break;
 
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
+
+//if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -335,15 +336,20 @@ std::cout<<"template_oriJetsVec->size : "<<template_oriJetsVec->size()<<" templa
 }
 
 metLVec.SetPtEtaPhiM(template_met, 0, template_metphi, 0);
-cntCSVS = countCSVS((*template_oriJetsVec), (*template_recoJetsBtagCSVS), cutCSVS, bTagArr);
-cntNJetsPt30 = countJets((*template_oriJetsVec), pt30Arr);
-cntNJetsPt30Eta24 = countJets((*template_oriJetsVec), pt30Eta24Arr);
-cntNJetsPt50Eta24 = countJets((*template_oriJetsVec), pt50Eta24Arr);
-cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
-//dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
+if(template_oriJetsVec->size()==0)cntCSVS=0;else cntCSVS = countCSVS((*template_oriJetsVec), (*template_recoJetsBtagCSVS), cutCSVS, bTagArr);
+if(template_oriJetsVec->size()==0)cntNJetsPt30=0;else cntNJetsPt30 = countJets((*template_oriJetsVec), pt30Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt30Eta24=0;else cntNJetsPt30Eta24 = countJets((*template_oriJetsVec), pt30Eta24Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt50Eta24=0;else cntNJetsPt50Eta24 = countJets((*template_oriJetsVec), pt50Eta24Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt70Eta24=0;else cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
+if(template_oriJetsVec->size()==0){
+dPhi0=-99.; dPhi1 =-99.;dPhi2 =-99.;delphi12=-99.;
+}
+else{ 
 dPhiVec = calcDPhi((*template_oriJetsVec), template_mhtphi, 3, dphiArr);
+//dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
 dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
-delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());
+if(template_oriJetsVec->size() > 1)delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());else delphi12=-99.;
+}
 
 // Parsing the gen information ...
 cntgenTop = 0, cntleptons =0;
@@ -352,7 +358,6 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 6 ) cntgenTop ++;
 if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ) cntleptons++;
 }
-
 if( verbose >=1 ){
 std::cout<<"\nie : "<<ie<<std::endl;
 std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
