@@ -114,7 +114,7 @@ double template_smsModelMotherMass, template_smsModelDaughterMass;
 vector<TLorentzVector> *template_genJetsLVec_myak5GenJetsNoNu, *template_genJetsLVec_myak5GenJetsNoNuNoStopDecays, *template_genJetsLVec_myak5GenJetsNoNuOnlyStopDecays;
 TTree * template_AUX;
 ofstream evtlistFile;
-double puWeight, totWeight, delphi12;
+double puWeight, totWeight, delphi12, HT;
 int cntCSVS, cntNJetsPt30, cntNJetsPt30Eta24, cntNJetsPt50Eta24, cntNJetsPt70Eta24, cntgenTop, cntleptons;
 TLorentzVector metLVec;
 vector<double> dPhiVec;
@@ -122,59 +122,216 @@ vector<double> dPhiVec;
 
 
 //define different cuts here
-bool threejet(){if(template_nJets>=3)return true; return false;}
-bool ht(){if(template_ht>=500) return true; return false;}
-bool mht(){if(template_mht>=200)return true; return false;}
+bool ht_500(){if(HT>=500) return true; return false;}
+bool ht_500_800(){if(HT>=500 && HT<800) return true; return false;}
+bool ht_500_1200(){if(HT>=500 && HT<1200)return true; return false;}
+bool ht_800_1200(){if(HT>=800 && HT<1200)return true; return false;}
+bool ht_800(){if(HT>=800)return true; return false;}
+bool ht_1200(){if(HT>=1200)return true; return false;}
+bool mht_200(){if(template_mht>=200)return true; return false;}
+bool mht_200_500(){if(template_mht>=200 && template_mht<500)return true; return false;}
+bool mht_500_750(){if(template_mht>=500 && template_mht<750)return true; return false;}
+bool mht_750(){if(template_mht>=750)return true; return false;}
 bool dphi(){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
 bool nolep(){if(template_nElectrons==0 && template_nMuons==0)return true; return false;}
-bool fourjet(){if(template_nJets >= 4)return true; return false;}
-bool fivejet(){if(template_nJets >= 5)return true; return false;}
-bool sixjet(){if(template_nJets >= 6)return true; return false;}
-bool highMht(){if(template_mht>=1000)return true; return false;}
-bool highHt(){if(template_ht>=2500)return true; return false;}
-bool btag_2(){if(nbtag >= 2)return true; return false;}
-bool isoTrk(){if(loose_nIsoTrks!=0)return true; return false;}
+bool Njet_4(){if(cntNJetsPt30Eta24 >= 4)return true; return false;}
+bool Njet_4_6(){if(cntNJetsPt30Eta24 >= 4 && cntNJetsPt30Eta24 <= 6)return true; return false;}
+bool Njet_7_8(){if(cntNJetsPt30Eta24 >= 7 && cntNJetsPt30Eta24 <= 8)return true; return false;}
+bool Njet_9(){if(cntNJetsPt30Eta24 >= 9)return true; return false;}
+bool btag_0(){if(nbtag == 0)return true; return false;}
+bool btag_1(){if(nbtag == 1)return true; return false;}
+bool btag_2(){if(nbtag == 2)return true; return false;}
+bool btag_3(){if(nbtag >= 3)return true; return false;}
+bool isoTrk(){if(loose_nIsoTrks==0)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
 if(ss == cutname[0])return true;
-if(ss== cutname[1]){if(threejet())return true;}
-if(ss== cutname[2]){if(threejet() && ht())return true;}
-if(ss== cutname[3]){if(threejet()&&ht()&&mht())return true;}
-if(ss== cutname[4]){if(threejet()&&ht()&&mht()&&dphi())return true;}
-if(ss== cutname[5]){if(threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
-if(ss== cutname[6]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
-if(ss== cutname[7]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
-if(ss== cutname[8]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
-if(ss== cutname[9]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
-if(ss== cutname[10]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
-if(ss== cutname[11]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
-if(ss== cutname[12]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
-if(ss== cutname[13]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
-if(ss== cutname[14]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
-if(ss== cutname[15]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
-if(ss== cutname[16]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
-if(ss== cutname[17]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
-if(ss== cutname[18]){if(threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
-if(ss== cutname[19]){if(btag_2())return true;}
-if(ss== cutname[20]){if(btag_2()&&threejet())return true;}
-if(ss== cutname[21]){if(btag_2()&&threejet() && ht())return true;}
-if(ss== cutname[22]){if(btag_2()&&threejet()&&ht()&&mht())return true;}
-if(ss== cutname[23]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi())return true;}
-if(ss== cutname[24]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep())return true;}
-if(ss== cutname[25]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet())return true;}
-if(ss== cutname[26]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet())return true;}
-if(ss== cutname[27]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet())return true;}
-if(ss== cutname[28]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht())return true;}
-if(ss== cutname[29]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt())return true;}
-if(ss== cutname[30]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht())return true;}
-if(ss== cutname[31]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&isoTrk())return true;}
-if(ss== cutname[32]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fourjet()&&isoTrk())return true;}
-if(ss== cutname[33]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&fivejet()&&isoTrk())return true;}
-if(ss== cutname[34]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&isoTrk())return true;}
-if(ss== cutname[35]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highMht()&&isoTrk())return true;}
-if(ss== cutname[36]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&isoTrk())return true;}
-if(ss== cutname[37]){if(btag_2()&&threejet()&&ht()&&mht()&&dphi()&&nolep()&&sixjet()&&highHt()&&highMht()&&isoTrk())return true;}
+
+if(ss== cutname[1]){if(Njet_4())return true;}
+if(ss== cutname[2]){if(Njet_4() && ht_500())return true;}
+if(ss== cutname[3]){if(Njet_4()&&ht_500()&&mht_200())return true;}
+if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&nolep())return true;}
+if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi())return true;}
+if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[7]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[8]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[9]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[10]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[11]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[12]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0())return true;}
+
+if(ss== cutname[13]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[14]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[15]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[16]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[17]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[18]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1())return true;}
+
+if(ss== cutname[19]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[20]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[21]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[22]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[23]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[24]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2())return true;}
+
+if(ss== cutname[25]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[26]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[27]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[28]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[29]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[30]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[31]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[32]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[33]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[34]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[35]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[36]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0())return true;}
+
+if(ss== cutname[37]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[38]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[39]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[40]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[41]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[42]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1())return true;}
+
+if(ss== cutname[43]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[44]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[45]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[46]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[47]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[48]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2())return true;}
+
+if(ss== cutname[49]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[50]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[51]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[52]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[53]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[54]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[55]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[56]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[57]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[58]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[59]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[60]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0())return true;}
+
+if(ss== cutname[61]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[62]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[63]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[64]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[65]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1())return true;}
+if(ss== cutname[66]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1())return true;}
+
+if(ss== cutname[67]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[68]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[69]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[70]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[71]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2())return true;}
+if(ss== cutname[72]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2())return true;}
+
+if(ss== cutname[73]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[74]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[75]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[76]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[77]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3())return true;}
+if(ss== cutname[78]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[79]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[80]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[81]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[82]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[83]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[84]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+
+if(ss== cutname[85]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[86]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[87]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[88]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[89]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[90]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+
+if(ss== cutname[91]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[92]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[93]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[94]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[95]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[96]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+
+if(ss== cutname[97]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[98]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[99]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[100]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[101]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[102]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[103]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[104]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[105]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[106]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[107]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[108]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+
+if(ss== cutname[109]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[110]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[111]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[112]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[113]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[114]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+
+if(ss== cutname[115]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[116]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[117]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[118]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[119]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[120]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+
+if(ss== cutname[121]){if(Njet_7_8()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[122]){if(Njet_7_8()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[123]){if(Njet_7_8()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[124]){if(Njet_7_8()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[125]){if(Njet_7_8()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[126]){if(Njet_7_8()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+if(ss== cutname[127]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[128]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[129]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[130]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[131]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+if(ss== cutname[132]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0()&&isoTrk())return true;}
+
+if(ss== cutname[133]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[134]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[135]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[136]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[137]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+if(ss== cutname[138]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_1()&&isoTrk())return true;}
+
+if(ss== cutname[139]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[140]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[141]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[142]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[143]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+if(ss== cutname[144]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_2()&&isoTrk())return true;}
+
+if(ss== cutname[145]){if(Njet_9()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[146]){if(Njet_9()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[147]){if(Njet_9()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[148]){if(Njet_9()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[149]){if(Njet_9()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+if(ss== cutname[150]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3()&&isoTrk())return true;}
+//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 return false;
 }
 
@@ -201,26 +358,203 @@ vec.push_back(nGenTauHad_hist);
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
-cutname[0]="RA2nocut";cutname[1]="RA23Jetcut";cutname[2]="RA2HT500cut" ;
-cutname[3]="RA2MHT200cut" ;cutname[4]="RA2delphicut" ;
-cutname[5]="RA2noleptoncut" ;
-cutname[6]="RA24Jetcut" ;cutname[7]="RA25Jetcut" ;
-cutname[8]="RA26Jetcut" ;cutname[9]="RA2allbutHT2500cut" ;
-cutname[10]="RA2allbutMHT1000cut";cutname[11]= "RA2allcut";
+cutname[0]="nocut";cutname[1]="Njet_4";cutname[2]="ht_500" ;cutname[3]="mht_200";
+cutname[4]="nolep" ;cutname[5]="delphi";cutname[6]="iso";
+/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+cutname[7]="Njet4_6ht500_800mht200_500btag0";
+cutname[8]="Njet4_6ht800_1200mht200_500btag0";
+cutname[9]="Njet4_6ht_1200mht_200_500btag0";
+cutname[10]="Njet4_6ht500_1200mht500_750btag0";
+cutname[11]="Njet4_6ht1200mht500_750btag0";
+cutname[12]="Njet4_6ht800mht750btag0";
 
-cutname[12]="RA2noleptoncut_isoTrk" ;
-cutname[13]="RA24Jetcut_isoTrk" ;cutname[14]="RA25Jetcut_isoTrk" ;
-cutname[15]="RA26Jetcut_isoTrk" ;cutname[16]="RA2allbutHT2500cut_isoTrk" ;
-cutname[17]="RA2allbutMHT1000cut_isoTrk";cutname[18]= "RA2allcut_isoTrk";
+cutname[13]="Njet4_6ht500_800mht200_500btag1";
+cutname[14]="Njet4_6ht800_1200mht200_500btag1";
+cutname[15]="Njet4_6ht_1200mht_200_500btag1";
+cutname[16]="Njet4_6ht500_1200mht500_750btag1";
+cutname[17]="Njet4_6ht1200mht500_750btag1";
+cutname[18]="Njet4_6ht800mht750btag1";
 
-cutname[19]="2b";cutname[20]="b2_3Jetcut";cutname[21]="b2_HT500cut" ;
-cutname[22]="b2_MHT200cut" ;cutname[23]="b2_delphicut" ;cutname[24]="b2_noleptoncut" ;
-cutname[25]="b2_4Jetcut" ;cutname[26]="b2_5Jetcut" ;cutname[27]="b2_6Jetcut" ;
-cutname[28]="b2_allbutHT2500cut" ;cutname[29]="b2_allbutMHT1000cut";cutname[30]= "b2_allcut";
+cutname[19]="Njet4_6ht500_800mht200_500btag2";
+cutname[20]="Njet4_6ht800_1200mht200_500btag2";
+cutname[21]="Njet4_6ht_1200mht_200_500btag2";
+cutname[22]="Njet4_6ht500_1200mht500_750btag2";
+cutname[23]="Njet4_6ht1200mht500_750btag2";
+cutname[24]="Njet4_6ht800mht750btag2";
 
-cutname[31]="b2_noleptoncut_isoTrk" ;
-cutname[32]="b2_4Jetcut_isoTrk" ;cutname[33]="b2_5Jetcut_isoTrk" ;cutname[34]="b2_6Jetcut_isoTrk" ;
-cutname[35]="b2_allbutHT2500cut_isoTrk" ;cutname[36]="b2_allbutMHT1000cut_isoTrk";cutname[37]= "b2_allcut_isoTrk";
+cutname[25]="Njet4_6ht500_800mht200_500btag3";
+cutname[26]="Njet4_6ht800_1200mht200_500btag3";
+cutname[27]="Njet4_6ht_1200mht_200_500btag3";
+cutname[28]="Njet4_6ht500_1200mht500_750btag3";
+cutname[29]="Njet4_6ht1200mht500_750btag3";
+cutname[30]="Njet4_6ht800mht750btag3";
+/////////////////////////////////////////////////////////////////////////////////
+cutname[31]="Njet7_8ht500_800mht200_500btag0";
+cutname[32]="Njet7_8ht800_1200mht200_500btag0";
+cutname[33]="Njet7_8ht_1200mht_200_500btag0";
+cutname[34]="Njet7_8ht500_1200mht500_750btag0";
+cutname[35]="Njet7_8ht1200mht500_750btag0";
+cutname[36]="Njet7_8ht800mht750btag0";
+
+cutname[37]="Njet7_8ht500_800mht200_500btag1";
+cutname[38]="Njet7_8ht800_1200mht200_500btag1";
+cutname[39]="Njet7_8ht_1200mht_200_500btag1";
+cutname[40]="Njet7_8ht500_1200mht500_750btag1";
+cutname[41]="Njet7_8ht1200mht500_750btag1";
+cutname[42]="Njet7_8ht800mht750btag1";
+
+cutname[43]="Njet7_8ht500_800mht200_500btag2";
+cutname[44]="Njet7_8ht800_1200mht200_500btag2";
+cutname[45]="Njet7_8ht_1200mht_200_500btag2";
+cutname[46]="Njet7_8ht500_1200mht500_750btag2";
+cutname[47]="Njet7_8ht1200mht500_750btag2";
+cutname[48]="Njet7_8ht800mht750btag2";
+
+cutname[49]="Njet7_8ht500_800mht200_500btag3";
+cutname[50]="Njet7_8ht800_1200mht200_500btag3";
+cutname[51]="Njet7_8ht_1200mht_200_500btag3";
+cutname[52]="Njet7_8ht500_1200mht500_750btag3";
+cutname[53]="Njet7_8ht1200mht500_750btag3";
+cutname[54]="Njet7_8ht800mht750btag3";
+/////////////////////////////////////////////////////////////////////////////////
+cutname[55]="Njet9ht500_800mht200_500btag0";
+cutname[56]="Njet9ht800_1200mht200_500btag0";
+cutname[57]="Njet9ht_1200mht_200_500btag0";
+cutname[58]="Njet9ht500_1200mht500_750btag0";
+cutname[59]="Njet9ht1200mht500_750btag0";
+cutname[60]="Njet9ht800mht750btag0";
+
+cutname[61]="Njet9ht500_800mht200_500btag1";
+cutname[62]="Njet9ht800_1200mht200_500btag1";
+cutname[63]="Njet9ht_1200mht_200_500btag1";
+cutname[64]="Njet9ht500_1200mht500_750btag1";
+cutname[65]="Njet9ht1200mht500_750btag1";
+cutname[66]="Njet9ht800mht750btag1";
+
+cutname[67]="Njet9ht500_800mht200_500btag2";
+cutname[68]="Njet9ht800_1200mht200_500btag2";
+cutname[69]="Njet9ht_1200mht_200_500btag2";
+cutname[70]="Njet9ht500_1200mht500_750btag2";
+cutname[71]="Njet9ht1200mht500_750btag2";
+cutname[72]="Njet9ht800mht750btag2";
+
+cutname[73]="Njet9ht500_800mht200_500btag3";
+cutname[74]="Njet9ht800_1200mht200_500btag3";
+cutname[75]="Njet9ht_1200mht_200_500btag3";
+cutname[76]="Njet9ht500_1200mht500_750btag3";
+cutname[77]="Njet9ht1200mht500_750btag3";
+cutname[78]="Njet9ht800mht750btag3";
+/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+cutname[79]="Njet4_6ht500_800mht200_500btag0iso";
+cutname[80]="Njet4_6ht800_1200mht200_500btag0iso";
+cutname[81]="Njet4_6ht_1200mht_200_500btag0iso";
+cutname[82]="Njet4_6ht500_1200mht500_750btag0iso";
+cutname[83]="Njet4_6ht1200mht500_750btag0iso";
+cutname[84]="Njet4_6ht800mht750btag0iso";
+
+cutname[85]="Njet4_6ht500_800mht200_500btag1iso";
+cutname[86]="Njet4_6ht800_1200mht200_500btag1iso";
+cutname[87]="Njet4_6ht_1200mht_200_500btag1iso";
+cutname[88]="Njet4_6ht500_1200mht500_750btag1iso";
+cutname[89]="Njet4_6ht1200mht500_750btag1iso";
+cutname[90]="Njet4_6ht800mht750btag1iso";
+
+cutname[91]="Njet4_6ht500_800mht200_500btag2iso";
+cutname[92]="Njet4_6ht800_1200mht200_500btag2iso";
+cutname[93]="Njet4_6ht_1200mht_200_500btag2iso";
+cutname[94]="Njet4_6ht500_1200mht500_750btag2iso";
+cutname[95]="Njet4_6ht1200mht500_750btag2iso";
+cutname[96]="Njet4_6ht800mht750btag2iso";
+
+cutname[97]="Njet4_6ht500_800mht200_500btag3iso";
+cutname[98]="Njet4_6ht800_1200mht200_500btag3iso";
+cutname[99]="Njet4_6ht_1200mht_200_500btag3iso";
+cutname[100]="Njet4_6ht500_1200mht500_750btag3iso";
+cutname[101]="Njet4_6ht1200mht500_750btag3iso";
+cutname[102]="Njet4_6ht800mht750btag3iso";
+/////////////////////////////////////////////////////////////////////////////////
+cutname[103]="Njet7_8ht500_800mht200_500btag0iso";
+cutname[104]="Njet7_8ht800_1200mht200_500btag0iso";
+cutname[105]="Njet7_8ht_1200mht_200_500btag0iso";
+cutname[106]="Njet7_8ht500_1200mht500_750btag0iso";
+cutname[107]="Njet7_8ht1200mht500_750btag0iso";
+cutname[108]="Njet7_8ht800mht750btag0iso";
+
+cutname[109]="Njet7_8ht500_800mht200_500btag1iso";
+cutname[110]="Njet7_8ht800_1200mht200_500btag1iso";
+cutname[111]="Njet7_8ht_1200mht_200_500btag1iso";
+cutname[112]="Njet7_8ht500_1200mht500_750btag1iso";
+cutname[113]="Njet7_8ht1200mht500_750btag1iso";
+cutname[114]="Njet7_8ht800mht750btag1iso";
+
+cutname[115]="Njet7_8ht500_800mht200_500btag2iso";
+cutname[116]="Njet7_8ht800_1200mht200_500btag2iso";
+cutname[117]="Njet7_8ht_1200mht_200_500btag2iso";
+cutname[118]="Njet7_8ht500_1200mht500_750btag2iso";
+cutname[119]="Njet7_8ht1200mht500_750btag2iso";
+cutname[120]="Njet7_8ht800mht750btag2iso";
+
+cutname[121]="Njet7_8ht500_800mht200_500btag3iso";
+cutname[122]="Njet7_8ht800_1200mht200_500btag3iso";
+cutname[123]="Njet7_8ht_1200mht_200_500btag3iso";
+cutname[124]="Njet7_8ht500_1200mht500_750btag3iso";
+cutname[125]="Njet7_8ht1200mht500_750btag3iso";
+cutname[126]="Njet7_8ht800mht750btag3iso";
+/////////////////////////////////////////////////////////////////////////////////
+cutname[127]="Njet9ht500_800mht200_500btag0iso";
+cutname[128]="Njet9ht800_1200mht200_500btag0iso";
+cutname[129]="Njet9ht_1200mht_200_500btag0iso";
+cutname[130]="Njet9ht500_1200mht500_750btag0iso";
+cutname[131]="Njet9ht1200mht500_750btag0iso";
+cutname[132]="Njet9ht800mht750btag0iso";
+
+cutname[133]="Njet9ht500_800mht200_500btag1iso";
+cutname[134]="Njet9ht800_1200mht200_500btag1iso";
+cutname[135]="Njet9ht_1200mht_200_500btag1iso";
+cutname[136]="Njet9ht500_1200mht500_750btag1iso";
+cutname[137]="Njet9ht1200mht500_750btag1iso";
+cutname[138]="Njet9ht800mht750btag1iso";
+
+cutname[139]="Njet9ht500_800mht200_500btag2iso";
+cutname[140]="Njet9ht800_1200mht200_500btag2iso";
+cutname[141]="Njet9ht_1200mht_200_500btag2iso";
+cutname[142]="Njet9ht500_1200mht500_750btag2iso";
+cutname[143]="Njet9ht1200mht500_750btag2iso";
+cutname[144]="Njet9ht800mht750btag2iso";
+
+cutname[145]="Njet9ht500_800mht200_500btag3iso";
+cutname[146]="Njet9ht800_1200mht200_500btag3iso";
+cutname[147]="Njet9ht_1200mht_200_500btag3iso";
+cutname[148]="Njet9ht500_1200mht500_750btag3iso";
+cutname[149]="Njet9ht1200mht500_750btag3iso";
+cutname[150]="Njet9ht800mht750btag3iso";
+/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 for(int i=0; i<(int) cutname.size();i++){
@@ -415,8 +749,16 @@ nLeptons= (int)(template_nElectrons+template_nMuons);
 
 totWeight=template_evtWeight*puWeight;
 
+///HT calculation. This is because the predefined HT,template_ht, is calculated with jets with pt>50 and eta>2.5. 
+HT=0;
+for(int i=0; i< template_oriJetsVec->size();i++){
+double pt=template_oriJetsVec->at(i).Pt();
+double eta=template_oriJetsVec->at(i).Eta();
+if(pt>30. && fabs(eta)>2.4)HT+=pt;
+}
+
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {totWeight, template_ht, template_mht ,(double) cntNJetsPt50Eta24,(double) nbtag,(double) nLostLepton,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
+double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) nLostLepton,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
