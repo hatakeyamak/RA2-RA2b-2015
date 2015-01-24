@@ -133,6 +133,7 @@ bool mht_200_500(){if(template_mht>=200 && template_mht<500)return true; return 
 bool mht_500_750(){if(template_mht>=500 && template_mht<750)return true; return false;}
 bool mht_750(){if(template_mht>=750)return true; return false;}
 bool dphi(){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
+bool nomuon(){if(template_nMuons==0)return true; return false;}
 bool nolep(){if(template_nElectrons==0 && template_nMuons==0)return true; return false;}
 bool Njet_4(){if(cntNJetsPt30Eta24 >= 4)return true; return false;}
 bool Njet_4_6(){if(cntNJetsPt30Eta24 >= 4 && cntNJetsPt30Eta24 <= 6)return true; return false;}
@@ -142,7 +143,7 @@ bool btag_0(){if(nbtag == 0)return true; return false;}
 bool btag_1(){if(nbtag == 1)return true; return false;}
 bool btag_2(){if(nbtag == 2)return true; return false;}
 bool btag_3(){if(nbtag >= 3)return true; return false;}
-bool isoTrk(){if(loose_nIsoTrks==0)return true; return false;}
+bool isoTrk(){if(template_nIsoTrks_CUT==0)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
@@ -329,7 +330,7 @@ if(ss== cutname[150]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3(
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-
+if(ss== cutname[151]){if(Njet_4()&&ht_500()&&mht_200()&&nomuon())return true;}
 
 
 return false;
@@ -537,26 +538,8 @@ cutname[150]="Njet9ht800mht750btag3iso";
 /////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
+cutname[151]="nomuon";
 ////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
 }
@@ -658,7 +641,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>10000)break;
+///if(ie>1000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -754,7 +737,7 @@ HT=0;
 for(int i=0; i< template_oriJetsVec->size();i++){
 double pt=template_oriJetsVec->at(i).Pt();
 double eta=template_oriJetsVec->at(i).Eta();
-if(pt>30. && fabs(eta)>2.4)HT+=pt;
+if(pt>30. && fabs(eta)<2.4)HT+=pt;
 }
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -779,18 +762,17 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] 
 }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
 //////////////////In this section we would like to find the problematic events, spikes, etc. This section should be commented when maintenance is not needed.
+if(sampleKeyString.find("TTJet")!=string::npos || sampleKeyString.find("TTbar")!=string::npos){
 if(template_ht > 4000. && template_mht>200.){
   printf("event#: %d ############################ \n HighMET : MET:%8.1f, MHT:%8.1f \n",ie,template_met,template_mht);
   if(template_recoJetsBtagCSVS->size()!=template_oriJetsVec->size())printf("There is something wrong with the jet and btga vector sizes. \n");
   for(int i = 0; i < cntNJetsPt50Eta24; ++i){
   printf("HighMET : Jet Pt:%8.2f Eta:%5.2f Phi:%5.2f  Beta:%8.2f BTag Value:%g \n",template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi(),template_oriJetsVec->at(i).Beta(),template_recoJetsBtagCSVS->at(i));
-  }
- 
+  } 
  printf("dPhi0: %g dPhi1: %g dPhi2: %g \n",dPhi0,dPhi1,dPhi2);
  printf("delphi12: %g \n",delphi12);
-
-
- }
+}
+}//end of if
 
 ////////////////////////////// End of maintenance section
 
