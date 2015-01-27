@@ -71,7 +71,7 @@ int template_nJets , nbtag ;
 double template_evtWeight;
 double template_met, template_metphi;
 double template_mht, template_ht, template_mhtphi;
-int template_nMuons, template_nElectrons, template_nIsoTrks_CUT,nLeptons;
+int template_nMuons, template_nElectrons, template_nIsoTrks_CUT,nIsoTrk_,nLeptons;
 double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT?????????
 //double delphi12;
 char tempname[200];
@@ -88,7 +88,7 @@ int loose_nIsoTrks; // number of isolated tracks with Pt>5 GeV and relIso < 0.5
 vector<double> *loose_isoTrks_charge; // charge of the loose isolated tracks (see loose_nIsoTrks)
 vector<double> *loose_isoTrks_iso; // isolation values (divided by Pt to get relIso) for the loose isolated tracks
 vector<int> *loose_isoTrks_pdgId; // pdg id of the loose isolated tracks
-vector<TLorentzVector> *loose_isoTrksLVec; // TLorentzVector of the loose isolated tracks (see loose_nIsoTrks)
+vector<TLorentzVector> * template_loose_isoTrksLVec; // TLorentzVector of the loose isolated tracks (see loose_nIsoTrks)
 //
 int nIsoTrks_CUT; // number of isolated tracks with Pt>10 GeV, dR<0.3, dz<0.05 and relIso<0.1
 vector<int> *forVetoIsoTrksidx; // indices of the isolated tracks (see nIsoTrks_CUT) (pointing to pfCandidate collection)
@@ -120,7 +120,6 @@ TLorentzVector metLVec;
 vector<double> dPhiVec;
 
 
-
 //define different cuts here
 bool ht_500(){if(HT>=500) return true; return false;}
 bool ht_500_800(){if(HT>=500 && HT<800) return true; return false;}
@@ -143,7 +142,7 @@ bool btag_0(){if(nbtag == 0)return true; return false;}
 bool btag_1(){if(nbtag == 1)return true; return false;}
 bool btag_2(){if(nbtag == 2)return true; return false;}
 bool btag_3(){if(nbtag >= 3)return true; return false;}
-bool isoTrk(){if(template_nIsoTrks_CUT==0)return true; return false;}
+bool isoTrk(){if(nIsoTrk_ ==0)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
@@ -559,6 +558,11 @@ histobjmap[it->first]=histObj;
 isData = false;
 keyString = sampleKeyString;
 TString keyStringT(keyString);
+//KH---begins - prepares a few vectors
+template_loose_isoTrksLVec = new vector<TLorentzVector>();
+loose_isoTrks_iso = new vector<double>();
+loose_isoTrks_mtw = new vector<double>();
+//KH---ends
 template_oriJetsVec = new vector<TLorentzVector>();template_recoJetsBtagCSVS = new vector<double>();
 template_genDecayLVec =0;
 template_genDecayPdgIdVec =0;template_genDecayIdxVec =0;template_genDecayMomIdxVec =0;
@@ -595,22 +599,23 @@ template_AUX->SetBranchStatus("genDecayMomIdxVec", 1); template_AUX->SetBranchAd
 template_AUX->SetBranchStatus("genDecayStrVec", 1); template_AUX->SetBranchAddress("genDecayStrVec", &template_genDecayStrVec);
 template_AUX->SetBranchStatus("ht", 1); template_AUX->SetBranchAddress("ht", &template_ht);
 template_AUX->SetBranchStatus("mht", 1); template_AUX->SetBranchAddress("mht", &template_mht);
-
+template_AUX->SetBranchStatus("loose_isoTrksLVec","1");template_AUX->SetBranchAddress("loose_isoTrksLVec", &template_loose_isoTrksLVec);
+template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
+template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
 template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddress("loose_nIsoTrks", &loose_nIsoTrks);
+
+
 //template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
 //template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBranchAddress("trksForIsoVeto_charge", &trksForIsoVeto_charge);
 //template_AUX->SetBranchStatus("trksForIsoVeto_dz","1");template_AUX->SetBranchAddress("trksForIsoVeto_dz", &trksForIsoVeto_dz);
 //template_AUX->SetBranchStatus("loose_isoTrks_charge","1");template_AUX->SetBranchAddress("loose_isoTrks_charge", &loose_isoTrks_charge);
 //template_AUX->SetBranchStatus("loose_isoTrks_dz","1");template_AUX->SetBranchAddress("loose_isoTrks_dz", &loose_isoTrks_dz);
-//template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
-//template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
 //####template_AUX->SetBranchStatus("trksForIsoVeto_pdgId","1");template_AUX->SetBranchAddress("trksForIsoVeto_pdgId", &trksForIsoVeto_pdgId);
 //template_AUX->SetBranchStatus("trksForIsoVeto_idx","1");template_AUX->SetBranchAddress("trksForIsoVeto_idx", &trksForIsoVeto_idx);
 //####template_AUX->SetBranchStatus("loose_isoTrks_pdgId","1");template_AUX->SetBranchAddress("loose_isoTrks_pdgId", &loose_isoTrks_pdgId);
 //template_AUX->SetBranchStatus("loose_isoTrks_idx","1");template_AUX->SetBranchAddress("loose_isoTrks_idx", &loose_isoTrks_idx);
 //####template_AUX->SetBranchStatus("forVetoIsoTrksidx","1");template_AUX->SetBranchAddress("forVetoIsoTrksidx", &forVetoIsoTrksidx);
 //template_AUX->SetBranchStatus("trksForIsoVetoLVec","1");template_AUX->SetBranchAddress("trksForIsoVetoLVec", &trksForIsoVetoLVec);
-//####template_AUX->SetBranchStatus("loose_isoTrksLVec","1");template_AUX->SetBranchAddress("loose_isoTrksLVec", &loose_isoTrksLVec);
 
 int template_Entries = template_AUX->GetEntries();
 cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<endl;
@@ -641,7 +646,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-///if(ie>1000)break;
+//if(ie>1000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -690,7 +695,7 @@ printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), te
 ////Isolated track section
 /*if(ie<100){
  * cout << "event#: " << ie << endl;
- * printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),loose_isoTrksLVec->size());
+ * printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),template_loose_isoTrksLVec->size());
  * }
  * */
 
@@ -739,6 +744,19 @@ double pt=template_oriJetsVec->at(i).Pt();
 double eta=template_oriJetsVec->at(i).Eta();
 if(pt>30. && fabs(eta)<2.4)HT+=pt;
 }
+
+/// nIsoTrk_ calculation.
+//printf("\n  loose_isoTrksLVec->size(): %d ,loose_isoTrks_mtw->size(): %d ,loose_isoTrks_iso->size(): %d ",template_loose_isoTrksLVec->size(),loose_isoTrks_mtw->size(),loose_isoTrks_iso->size());
+nIsoTrk_ =0;
+for(int i=0;i< (int) template_loose_isoTrksLVec->size();i++){
+double pt = template_loose_isoTrksLVec->at(i).Pt();
+double eta = fabs(template_loose_isoTrksLVec->at(i).Eta());
+double reliso = loose_isoTrks_iso->at(i);
+double mt_w = loose_isoTrks_mtw->at(i);//This is transverse mass of track and missing Et. 
+if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
+}
+//cout << "nIso: " << nIsoTrk_ << endl;
+
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) nLostLepton,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
