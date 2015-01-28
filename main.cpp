@@ -717,7 +717,6 @@ n_elec_mu_tot+=n_elec_mu;
 /*if(ie < 100){
  * printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
  * }*/
-nLostLepton=n_elec_mu-template_nElectrons-template_nMuons;
 
 n_tau_had=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
@@ -769,7 +768,7 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) nLostLepton,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
+double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double)  n_elec_mu,(double) n_tau_had }; //the last one gives the RA2 defined number of jets.
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
