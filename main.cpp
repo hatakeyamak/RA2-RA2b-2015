@@ -330,7 +330,10 @@ if(ss== cutname[150]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3(
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 if(ss== cutname[151]){if(Njet_4()&&ht_500()&&mht_200()&&nomuon())return true;}
-
+if(ss== cutname[152]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_0())return true;}
+if(ss== cutname[153]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_1())return true;}
+if(ss== cutname[154]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_2())return true;}
+if(ss== cutname[155]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_3())return true;}
 
 return false;
 }
@@ -538,6 +541,11 @@ cutname[150]="Njet9ht800mht750btag3iso";
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 cutname[151]="nomuon";
+cutname[152]="CSVM_0";
+cutname[153]="CSVM_1";
+cutname[154]="CSVM_2";
+cutname[155]="CSVM_3";
+
 ////////////////////////////////////////////////////////////////////////////////////////
 for(int i=0; i<(int) cutname.size();i++){
 cut_histvec_map[cutname[i]]=vec;
@@ -646,7 +654,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>1000)break;
+if(ie>50000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -717,9 +725,9 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 15 ){
 int index=template_genDecayIdxVec->at(iv);
 for(int ivv=0; ivv<(int)template_genDecayLVec->size(); ivv++){
-int MomIndex=template_genDecayMomIdxVec->at(ivv);
 int secpdg = template_genDecayPdgIdVec->at(ivv);
-if(MomIndex==index && secpdg > 40){
+int MomIndex=template_genDecayMomIdxVec->at(ivv);
+if(MomIndex==index && secpdg > 40){ ///pdgID of hadrons are higher than 40. 
 //printf("This is a tau. TauIndex: %d, TauDaughterID: %d \n",MomIndex, secpdg);
 n_tau_had++;
 }
@@ -731,7 +739,9 @@ n_tau_had_tot+=n_tau_had;
 nbtag=0;
 //Number of B-jets
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
-if(template_recoJetsBtagCSVS->at(i) > 0.679)nbtag+=1;
+double pt=template_oriJetsVec->at(i).Pt();
+double eta=template_oriJetsVec->at(i).Eta();
+if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
