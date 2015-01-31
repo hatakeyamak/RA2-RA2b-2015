@@ -13,12 +13,13 @@
 #include <stdio.h>
 #include "TColor.h"
 #include "TF1.h"
-#include "TH1.h"
 #include "TLegend.h"
 #include "TVector3.h"
 #include "TFile.h"
 #include "TChain.h"
-
+#include "TH1.h"
+#include "TVector2.h" 
+#include "TCanvas.h"
 
 using namespace std;
 
@@ -37,7 +38,53 @@ static const double pt70Arr[] = { -1, -1, 70, -1 };
 
 
 ////Functions and Classses
+int countJets(const vector<TLorentzVector> &inputJets, const double *jetCutsArr);
+int countJets(const vector<TLorentzVector> &inputJets, const double minAbsEta = -1.0, const double maxAbsEta = -1.0, const double minPt = 30.0, const double maxPt = -1.0);
+int countCSVS(const vector<TLorentzVector> &inputJets, const vector<double> &inputCSVS, const double CSVS, const double *jetCutsArr);
+int countCSVS(const vector<TLorentzVector> &inputJets, const vector<double> &inputCSVS, const double CSVS = 0.679, const double minAbsEta = -1.0, const double maxAbsEta = -1.0, const double minPt = 30.0, const double maxPt = -1.0);
+vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const double *jetCutsArr);
+vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi = 3, const double minAbsEta = -1, const double maxAbsEta = 4.7, const double minPt = 30, const double maxPt = -1);
 
+
+int initPUinput(const std::string &puDatafileName, const std::string &puDatahistName);
+
+double deltaPhi(double phi1, double phi2) {
+return TVector2::Phi_mpi_pi(phi1-phi2);
+}
+
+double deltaR(double eta1, double eta2, double phi1, double phi2) {
+double dphi = deltaPhi(phi1,phi2);
+double deta = eta1 - eta2;
+return sqrt( deta*deta + dphi*dphi );
+}
+
+void TauResponse_checkPtBin(unsigned int ptBin) {
+if( ptBin > 3 ) {
+std::cerr << "\n\nERROR in TauResponse: pt bin " << ptBin << " out of binning" << std::endl;
+throw std::exception();
+}
+}
+
+TString TauResponse_name(unsigned int ptBin) {
+TauResponse_checkPtBin(ptBin);
+TString name = "hTauResp_";
+name += ptBin;
+return name;
+}
+
+unsigned int TauResponse_ptBin(double pt) {
+if( pt < 10.) {
+std::cerr << "\n\nERROR in TauResponse::ptBin" << std::endl;
+std::cerr << " No response available for pt = " << pt << " < " << 10 << std::endl;
+throw std::exception();
+}
+
+unsigned int bin = 0;
+if( pt > 30. ) bin = 1;
+if( pt > 50. ) bin = 2;
+if( pt > 100. ) bin = 3;
+return bin;
+}
 
 
 bool bg_type(string bg_ ,vector<TLorentzVector> * pvec){
@@ -45,6 +92,32 @@ if(bg_=="allEvents"){return 1;}
 } //end of function bg_type
 
 class templatePlotsFunc{///this is the main class
+
+///Some functions
+
+bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi,vector<TLorentzVector> vecLvec, double deltaRMax){
+matchedObjIdx = -1;
+double deltaRMin = 100000.;
+
+for(int objIdx = 0; objIdx < (int) vecLvec.size(); ++objIdx){
+const double dr = deltaR(genTauEta,vecLvec[objIdx].Eta(),genTauPhi,vecLvec[objIdx].Phi());
+if( dr < deltaRMin ){
+deltaRMin = dr;
+matchedObjIdx = objIdx;
+}
+}//end of loop over vec_Jet_30_24_Lvec
+
+bool match = false;
+if( deltaRMin < deltaRMax ) {
+match = true;
+} else {
+matchedObjIdx = -1;
+}
+
+return match;
+}
+
+
 ///Some variables
 int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
 double template_avg_npv, template_tru_npv;
@@ -57,6 +130,7 @@ double dPhi0, dPhi1, dPhi2; /// delta phi of first three jet with respect to MHT
 //double delphi12;
 char tempname[200];
 vector<TH1D > vec;
+map<int, string> cutname;
 map<int, string> eventType;
 map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
@@ -97,18 +171,21 @@ int cntCSVS, cntNJetsPt30, cntNJetsPt30Eta24, cntNJetsPt50Eta24, cntNJetsPt70Eta
 TLorentzVector metLVec;
 vector<double> dPhiVec;
 
-
 double genTauEta;
 double genTauPt;
 double genTauPhi;
+vector<TLorentzVector> vec_Jet_30_24_Lvec;
+TLorentzVector tempLvec;
+int TauResponse_nBins;
 
 public:
 //constructor
 templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
-//////
+
 genTauEta=-999.0;
 genTauPt=-999.0;
 genTauPhi=-999.0;
+TauResponse_nBins=4;
 
 //build a vector of histograms
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -128,8 +205,20 @@ vec.push_back(nGenTauHad_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
+////////////////////////////////////////////////////////////////////////////////////////
 eventType[0]="allEvents";
 
+/////////////////////////////////////////////
+ // The tau response templates
+// They are filled for different bins in generated tau-lepton pt.
+std::vector<TH1*> hTauResp(TauResponse_nBins);
+for(unsigned int i = 0; i < TauResponse_nBins; ++i){
+hTauResp.at(i) = new TH1D(TauResponse_name(i),";p_{T}(visible) / p_{T}(generated);Probability",50,0.,2.5);
+hTauResp.at(i)->Sumw2();
+}
+
+
+/////////////////////////////////////////////
 isData = false;
 keyString = sampleKeyString;
 TString keyStringT(keyString);
@@ -193,7 +282,6 @@ template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddr
 //template_AUX->SetBranchStatus("trksForIsoVetoLVec","1");template_AUX->SetBranchAddress("trksForIsoVetoLVec", &trksForIsoVetoLVec);
 
 int template_Entries = template_AUX->GetEntries();
-cout << " hello " << endl;
 cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<endl;
 
 if( keyStringT.Contains("Data") ) evtlistFile.open("evtlistData_aftAllCuts.txt");
@@ -201,8 +289,16 @@ if( keyStringT.Contains("Data") ) evtlistFile.open("evtlistData_aftAllCuts.txt")
 n_elec_mu_tot=0;
 n_tau_had_tot=0;
 
+
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
+
+//////////////
+//Temporary
+//int ie;
+//for(int is=0; is < 26; is++){
+//ie=spike[is];
+/////////////
 
 template_AUX->GetEntry(ie);
 
@@ -210,7 +306,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-if(ie>50000)break;
+//if(ie>1000000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -222,6 +318,36 @@ std::cout<<"template_oriJetsVec->size : "<<template_oriJetsVec->size()<<" templa
 }
 
 metLVec.SetPtEtaPhiM(template_met, 0, template_metphi, 0);
+if(template_oriJetsVec->size()==0)cntCSVS=0;else cntCSVS = countCSVS((*template_oriJetsVec), (*template_recoJetsBtagCSVS), cutCSVS, bTagArr);
+if(template_oriJetsVec->size()==0)cntNJetsPt30=0;else cntNJetsPt30 = countJets((*template_oriJetsVec), pt30Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt30Eta24=0;else cntNJetsPt30Eta24 = countJets((*template_oriJetsVec), pt30Eta24Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt50Eta24=0;else cntNJetsPt50Eta24 = countJets((*template_oriJetsVec), pt50Eta24Arr);
+if(template_oriJetsVec->size()==0)cntNJetsPt70Eta24=0;else cntNJetsPt70Eta24 = countJets((*template_oriJetsVec), pt70Eta24Arr);
+if(template_oriJetsVec->size()==0){
+dPhi0=-99.; dPhi1 =-99.;dPhi2 =-99.;delphi12=-99.;
+}
+else{ 
+dPhiVec = calcDPhi((*template_oriJetsVec), template_mhtphi, 3, dphiArr);
+//dPhiVec = calcDPhi((*template_oriJetsVec), template_metphi, 3, dphiArr);
+dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
+if(template_oriJetsVec->size() > 1)delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());else delphi12=-99.;
+}
+
+///HT calculation. This is because the predefined HT,template_ht, is calculated with jets with pt>50 and eta>2.5. 
+HT=0;
+vec_Jet_30_24_Lvec.clear();
+for(int i=0; i< template_oriJetsVec->size();i++){
+double pt=template_oriJetsVec->at(i).Pt();
+double eta=template_oriJetsVec->at(i).Eta();
+double phi=template_oriJetsVec->at(i).Phi();
+double e=template_oriJetsVec->at(i).E();
+if(pt>30. && fabs(eta)<2.4){
+HT+=pt;
+tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
+vec_Jet_30_24_Lvec.push_back(tempLvec); // this vector contains the lorentz vector of reconstructed jets with pt>30 and eta< 2.4
+}
+}
+
 
 // Parsing the gen information ...
 cntgenTop = 0, cntleptons =0;
@@ -240,13 +366,26 @@ printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), te
 }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////
+////Isolated track section
+/*if(ie<100){
+ * cout << "event#: " << ie << endl;
+ * printf("loose_nIsoTrks: %d, nIsoTrks_CUT: %d, trksForIsoVeto_charge.size(): %d, loose_isoTrks_charge.size(): %d, loose_isoTrks_iso.size(): %d, trksForIsoVeto_pdgId->size(): %d, loose_isoTrks_pdgId->size(): %d, forVetoIsoTrksidx->size(): %d, loose_isoTrksLVec->size(): %d \n",loose_nIsoTrks,nIsoTrks_CUT,trksForIsoVeto_charge->size(),loose_isoTrks_charge->size(),loose_isoTrks_iso->size(),trksForIsoVeto_pdgId->size(),loose_isoTrks_pdgId->size(), forVetoIsoTrksidx->size(),template_loose_isoTrksLVec->size());
+ * }
+ * */
+
+///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones.
 n_elec_mu=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
 int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 11 || abs(pdgId) == 13 ) n_elec_mu++;
 }
 n_elec_mu_tot+=n_elec_mu;
-
+/*if(ie < 100){
+ * printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
+ * }*/
+//
 n_tau_had=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
 int pdgId = template_genDecayPdgIdVec->at(iv);
@@ -258,16 +397,60 @@ int MomIndex=template_genDecayMomIdxVec->at(ivv);
 if(MomIndex==index && secpdg > 40){ ///pdgID of hadrons are higher than 40. 
 //printf("This is a tau. TauIndex: %d, TauDaughterID: %d \n",MomIndex, secpdg);
 n_tau_had++;
-}
-}
 
+genTauPt=template_genDecayLVec->at(iv).Pt();
 genTauEta=template_genDecayLVec->at(iv).Eta();
-
-
-
+genTauPhi=template_genDecayLVec->at(iv).Phi();
 }
 }
-cout << " # tau hadronic: " << n_tau_had  << endl;
+}
+}
+
+if(n_tau_had>1)cout << "\n Warning! \n Warning! There are are more than one hadronic tau in the event \n Warning \n Warning! There are are more than one hadronic tau in the event \n " << endl;
+
+// Use only events where the tau is inside the muon acceptance
+// because lateron we will apply the response to muon+jet events
+if( genTauPt < 10. ) continue;
+if( std::abs(genTauEta) > 2.4 ) continue;
+
+// Do the matching
+int tauJetIdx = -1;
+const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+
+if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,vec_Jet_30_24_Lvec,deltaRMax) ) continue;//this also determines tauJetIdx
+
+/*printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
+if(tauJetIdx!=-1){
+printf("vec_Jet_30_24_Lvec[tauJetIdx].Eta(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Phi(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Pt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",vec_Jet_30_24_Lvec[tauJetIdx].Eta(),vec_Jet_30_24_Lvec[tauJetIdx].Phi(),vec_Jet_30_24_Lvec[tauJetIdx].Pt(),genTauEta,genTauPhi,genTauPt);
+}*/
+
+
+// Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
+int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
+for(int jetIdx = 0; jetIdx <(int) vec_Jet_30_24_Lvec.size(); ++jetIdx) { // Loop over reco jets
+// Skip this jet if it is the tau
+if( jetIdx == tauJetIdx ) continue;
+// Calculate NJet
+if(  vec_Jet_30_24_Lvec[jetIdx].Pt() > 30. && std::abs(vec_Jet_30_24_Lvec[jetIdx].Eta()) < 2.4 ) selNJet++;
+} // End of loop over reco jets
+
+// Select only events with at least 2 HT jets
+if( selNJet < 2 ) continue;
+
+// Fill histogram with relative visible energy of the tau
+// ("tau response template") for hadronically decaying taus
+for(int jetIdx = 0; jetIdx < (int) template_oriJetsVec->size(); ++jetIdx) { // Loop over reco jets
+// Select tau jet
+if( jetIdx == tauJetIdx ) {
+// Get the response pt bin for the tau
+const double tauJetPt = template_oriJetsVec->at(jetIdx).Pt();
+const unsigned int ptBin = TauResponse_ptBin(genTauPt);
+// Fill the corresponding response template
+hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
+break; // End the jet loop once the tau jet has been found
+}
+} // End of loop over reco jets
+
 nbtag=0;
 //Number of B-jets
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
@@ -279,13 +462,7 @@ nLeptons= (int)(template_nElectrons+template_nMuons);
 
 totWeight=template_evtWeight*puWeight;
 
-///HT calculation. This is because the predefined HT,template_ht, is calculated with jets with pt>50 and eta>2.5. 
-HT=0;
-for(int i=0; i< template_oriJetsVec->size();i++){
-double pt=template_oriJetsVec->at(i).Pt();
-double eta=template_oriJetsVec->at(i).Eta();
-if(pt>30. && fabs(eta)<2.4)HT+=pt;
-}
+
 
 /// nIsoTrk_ calculation.
 //printf("\n  loose_isoTrksLVec->size(): %d ,loose_isoTrks_mtw->size(): %d ,loose_isoTrks_iso->size(): %d ",template_loose_isoTrksLVec->size(),loose_isoTrks_mtw->size(),loose_isoTrks_iso->size());
@@ -299,59 +476,26 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 }
 //cout << "nIso: " << nIsoTrk_ << endl;
 
-
-//loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
-for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
-
-////determine what type of background should pass
-if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside this
-//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
-
-
-////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
-
-}//end of bg_type determination
-
-}//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
-
-
-////////////////////////////// End of maintenance section
-
-
 }////end of loop over all events
-/*
-//open a file to write the histograms
-sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
-TFile *resFile = new TFile(tempname, "RECREATE");
-TDirectory *cdtoitt;
-TDirectory *cdtoit;
-// Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
-for(int iet=0;iet<(int)eventType.size();iet++){
-for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
-if (eventType[iet]==itt->first){
-//KH
-////std::cout << (itt->first).c_str() << std::endl;
-cdtoitt = resFile->mkdir((itt->first).c_str());
-cdtoitt->cd();
-for(int i=0; i< (int)cutname.size();i++){
-for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
-if (cutname[i]==it->first){
-cdtoit = cdtoitt->mkdir((it->first).c_str());
-cdtoit->cd();
-int nHist = it->second.size();
-for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
-sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
-it->second[i].Write(tempname);
-}
-cdtoitt->cd();
+
+
+ // Normalize the response distributions to get the probability density
+for(unsigned int i = 0; i < hTauResp.size(); ++i) {
+if( hTauResp.at(i)->Integral("width") > 0. ) {
+////////////////////////////////////if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+hTauResp.at(i)->Scale(1./hTauResp.at(i)->Integral("width"));
 }
 }
+
+// --- Save the Histograms to File -----------------------------------
+TFile outFile("HadTau_TauResponseTemplates.root","RECREATE");
+TCanvas *c1 = new TCanvas("c1","TauResponseTemplates",10,10,700,900);
+for(unsigned int i = 0; i < hTauResp.size(); ++i) {
+hTauResp.at(i)->Write();
+hTauResp.at(i)->SetLineColor(i);
+hTauResp.at(i)->Draw("same");
 }
-}
-}
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-*/
+c1->Print("HadTau_TauResponseTemplates.pdf");
 
 }//end of class constructor templatePlotsFunc
 };//end of class templatePlotsFunc
@@ -387,4 +531,61 @@ templatePlotsFunc(sample_AUX, subSampleKey,atoi(verbosity.c_str()),OutDir,inputN
 }
 
 
+
+
+
+int countCSVS(const vector<TLorentzVector> &inputJets, const vector<double> &inputCSVS, const double CSVS, const double *jetCutsArr){
+return countCSVS(inputJets, inputCSVS, CSVS, jetCutsArr[0], jetCutsArr[1], jetCutsArr[2], jetCutsArr[3]);
+}
+int countCSVS(const vector<TLorentzVector> &inputJets, const vector<double> &inputCSVS, const double CSVS, const double minAbsEta, const double maxAbsEta, const double minPt, const double maxPt){
+int cntNJets =0;
+for(unsigned int ij=0; ij<inputJets.size(); ij++){
+double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+if( ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+&& ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+&& ( minPt == -1 || perjetpt >= minPt )
+&& ( maxPt == -1 || perjetpt < maxPt ) ){
+if( inputCSVS[ij] > CSVS ) cntNJets ++;
+}
+}
+return cntNJets;
+}
+
+int countJets(const vector<TLorentzVector> &inputJets, const double *jetCutsArr){
+return countJets(inputJets, jetCutsArr[0], jetCutsArr[1], jetCutsArr[2], jetCutsArr[3]);
+}
+int countJets(const vector<TLorentzVector> &inputJets, const double minAbsEta, const double maxAbsEta, const double minPt, const double maxPt){
+int cntNJets =0;
+for(unsigned int ij=0; ij<inputJets.size(); ij++){
+double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+if( ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+&& ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+&& ( minPt == -1 || perjetpt >= minPt )
+&& ( maxPt == -1 || perjetpt < maxPt ) ){
+cntNJets ++;
+}
+}
+return cntNJets;
+}
+vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const double *jetCutsArr){
+return calcDPhi(inputJets, metphi, nDPhi, jetCutsArr[0], jetCutsArr[1], jetCutsArr[2], jetCutsArr[3]);
+}
+vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const double minAbsEta, const double maxAbsEta, const double minPt, const double maxPt){
+int cntNJets =0;
+vector<double> outDPhiVec(nDPhi, 999);
+for(unsigned int ij=0; ij<inputJets.size(); ij++){
+double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+if( ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+&& ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+&& ( minPt == -1 || perjetpt >= minPt )
+&& ( maxPt == -1 || perjetpt < maxPt ) ){
+if( cntNJets < nDPhi ){
+double perDPhi = fabs(TVector2::Phi_mpi_pi( inputJets[ij].Phi() - metphi ));
+outDPhiVec[cntNJets] = perDPhi;
+}
+cntNJets ++;
+}
+}
+return outDPhiVec;///this is a vector whose components are delta phi of each jet with met.
+}
 
