@@ -1,3 +1,4 @@
+// Determine the tau response templates which are distribution functions of the ratio (tauJet pt)/(reconstructed Jet pt) at diffrent pt. 
 #include "TTree.h"
 #include <cmath>
 #include <string>
@@ -73,13 +74,13 @@ return name;
 }
 
 unsigned int TauResponse_ptBin(double pt) {
-if( pt < 10.) {
+if( pt < 20.) {
 std::cerr << "\n\nERROR in TauResponse::ptBin" << std::endl;
-std::cerr << " No response available for pt = " << pt << " < " << 10 << std::endl;
+std::cerr << " No response available for pt = " << pt << " < " << 20 << std::endl;
 throw std::exception();
 }
 
-unsigned int bin = 0;
+unsigned int bin=0;
 if( pt > 30. ) bin = 1;
 if( pt > 50. ) bin = 2;
 if( pt > 100. ) bin = 3;
@@ -216,6 +217,11 @@ for(unsigned int i = 0; i < TauResponse_nBins; ++i){
 hTauResp.at(i) = new TH1D(TauResponse_name(i),";p_{T}(visible) / p_{T}(generated);Probability",50,0.,2.5);
 hTauResp.at(i)->Sumw2();
 }
+/////////////////////////////////////
+///The Purpose of the following two histograms is to find the probability as function of pt with wich a tau lepton decays hadronically. One is filled with any tau in the event while the other with only hadronic tau. At the end we divide them. That gives a distributions wich will be used later when simulating Jet_tau's with muons.
+TH1D * genTauPtHist = new TH1D("genTauPtHist","genTauPt",10,0,250);
+TH1D * genHadTauPtHist = new TH1D("genHadTauPtHist","genHadTauPt",10,0,250);
+/////////////////////////////////////
 
 
 /////////////////////////////////////////////
@@ -306,7 +312,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>1000000)break;
+//if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -387,38 +393,45 @@ n_elec_mu_tot+=n_elec_mu;
  * }*/
 //
 n_tau_had=0;
+int tempN=0;///test99 
+if(verbose!=0)printf("\n############ \n event: %d \n ",ie);///test99
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
 int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 15 ){
+if(verbose!=0)tempN+=1;///test99
+genTauPt=template_genDecayLVec->at(iv).Pt();
+genTauEta=template_genDecayLVec->at(iv).Eta();
+genTauPhi=template_genDecayLVec->at(iv).Phi();
+genTauPtHist->Fill(genTauPt);
 int index=template_genDecayIdxVec->at(iv);
 for(int ivv=0; ivv<(int)template_genDecayLVec->size(); ivv++){
 int secpdg = template_genDecayPdgIdVec->at(ivv);
 int MomIndex=template_genDecayMomIdxVec->at(ivv);
-if(MomIndex==index && secpdg > 40){ ///pdgID of hadrons are higher than 40. 
-//printf("This is a tau. TauIndex: %d, TauDaughterID: %d \n",MomIndex, secpdg);
+if(verbose!=0){////////////test99
+if(tempN==1){printf("index: %d  pdgID: %d  MomIndex: %d  pt: %g  phi: %g  eta: %g \n ",template_genDecayIdxVec->at(ivv),secpdg,MomIndex,template_genDecayLVec->at(ivv).Pt(),template_genDecayLVec->at(ivv).Phi(),template_genDecayLVec->at(ivv).Eta());
+}}
+///////////
+if(MomIndex==index && abs(secpdg) > 40){ ///pdgID of hadrons are higher than 40. 
+if(verbose!=0){printf("\n \n Found a Hadronic Tau \n \n TauIndex: %d, TauDaughterID: %d  pt: %g  phi: %g  eta: %g \n\n",MomIndex, secpdg,template_genDecayLVec->at(ivv).Pt(),template_genDecayLVec->at(ivv).Phi(),template_genDecayLVec->at(ivv).Eta());} //test99
 n_tau_had++;
-
-genTauPt=template_genDecayLVec->at(iv).Pt();
-genTauEta=template_genDecayLVec->at(iv).Eta();
-genTauPhi=template_genDecayLVec->at(iv).Phi();
+genHadTauPtHist->Fill(genTauPt);
 }
 }
 }
 }
-
-if(n_tau_had>1)cout << "\n Warning! \n Warning! There are are more than one hadronic tau in the event \n Warning \n Warning! There are are more than one hadronic tau in the event \n " << endl;
+if(n_tau_had>1 && verbose!=0)printf("\n Event: %d,  Warning! \n Warning! There are are more than one hadronic tau in the event \n Warning \n Warning! There are are more than one hadronic tau in the event \n ",ie);
 
 // Use only events where the tau is inside the muon acceptance
 // because lateron we will apply the response to muon+jet events
-if( genTauPt < 10. ) continue;
+if( genTauPt < 20. ) continue;
 if( std::abs(genTauEta) > 2.4 ) continue;
 
 // Do the matching
 int tauJetIdx = -1;
 const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
 
-if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,vec_Jet_30_24_Lvec,deltaRMax) ) continue;//this also determines tauJetIdx
-
+//if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,vec_Jet_30_24_Lvec,deltaRMax) ) continue;//this also determines tauJetIdx
+if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax) ) continue;//this also determines tauJetIdx
 /*printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
 if(tauJetIdx!=-1){
 printf("vec_Jet_30_24_Lvec[tauJetIdx].Eta(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Phi(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Pt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",vec_Jet_30_24_Lvec[tauJetIdx].Eta(),vec_Jet_30_24_Lvec[tauJetIdx].Phi(),vec_Jet_30_24_Lvec[tauJetIdx].Pt(),genTauEta,genTauPhi,genTauPt);
@@ -446,6 +459,7 @@ if( jetIdx == tauJetIdx ) {
 const double tauJetPt = template_oriJetsVec->at(jetIdx).Pt();
 const unsigned int ptBin = TauResponse_ptBin(genTauPt);
 // Fill the corresponding response template
+if(ie==192) printf("ptBin: %d \n",ptBin);
 hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
 break; // End the jet loop once the tau jet has been found
 }
@@ -478,6 +492,8 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 
 }////end of loop over all events
 
+///calculate the probability with which tau decays hadronically as function of pt
+genHadTauPtHist->Divide(genTauPtHist);
 
  // Normalize the response distributions to get the probability density
 for(unsigned int i = 0; i < hTauResp.size(); ++i) {
@@ -493,10 +509,11 @@ TCanvas *c1 = new TCanvas("c1","TauResponseTemplates",10,10,700,900);
 for(unsigned int i = 0; i < hTauResp.size(); ++i) {
 hTauResp.at(i)->Write();
 hTauResp.at(i)->SetLineColor(i);
-hTauResp.at(i)->Draw("same");
+//hTauResp.at(i)->Draw("same");
 }
-c1->Print("HadTau_TauResponseTemplates.pdf");
-
+//c1->Print("HadTau_TauResponseTemplates.pdf");
+genHadTauPtHist->Write();
+genHadTauPtHist->Draw();
 }//end of class constructor templatePlotsFunc
 };//end of class templatePlotsFunc
 

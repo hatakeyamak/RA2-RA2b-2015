@@ -151,17 +151,19 @@ if(ss == cutname[0])return true;
 if(ss== cutname[1]){if(Njet_4())return true;}
 if(ss== cutname[2]){if(Njet_4() && ht_500())return true;}
 if(ss== cutname[3]){if(Njet_4()&&ht_500()&&mht_200())return true;}
-if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&nolep())return true;}
-if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi())return true;}
-if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk())return true;}
+if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&nomuon())return true;}
+if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&nolep())return true;}
+if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi())return true;}
+if(ss== cutname[7]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk())return true;}
+
+if(ss== cutname[8]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_0())return true;}
+if(ss== cutname[9]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_1())return true;}
+if(ss== cutname[10]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_2())return true;}
+if(ss== cutname[11]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_3())return true;}
+/*
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-if(ss== cutname[7]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
-if(ss== cutname[8]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
-if(ss== cutname[9]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
-if(ss== cutname[10]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
-if(ss== cutname[11]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
 if(ss== cutname[12]){if(Njet_4_6()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_0())return true;}
 
 if(ss== cutname[13]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_1())return true;}
@@ -329,11 +331,12 @@ if(ss== cutname[150]){if(Njet_9()&&ht_800()&&mht_750()&&nolep()&&dphi()&&btag_3(
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-if(ss== cutname[151]){if(Njet_4()&&ht_500()&&mht_200()&&nomuon())return true;}
-if(ss== cutname[152]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_0())return true;}
-if(ss== cutname[153]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_1())return true;}
-if(ss== cutname[154]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_2())return true;}
-if(ss== cutname[155]){if(Njet_4()&&ht_500()&&mht_200()&&nolep()&&dphi()&&isoTrk()&&btag_3())return true;}
+if(ss== cutname[151]){if(Njet_4_6()&&ht_500_800()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[152]){if(Njet_4_6()&&ht_800_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[153]){if(Njet_4_6()&&ht_1200()&&mht_200_500()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[154]){if(Njet_4_6()&&ht_500_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+if(ss== cutname[155]){if(Njet_4_6()&&ht_1200()&&mht_500_750()&&nolep()&&dphi()&&btag_0())return true;}
+*/
 
 return false;
 }
@@ -362,16 +365,18 @@ Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
 //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
 cutname[0]="nocut";cutname[1]="Njet_4";cutname[2]="ht_500" ;cutname[3]="mht_200";
-cutname[4]="nolep" ;cutname[5]="delphi";cutname[6]="iso";
+cutname[4]="nomuon";
+cutname[5]="nolep" ;cutname[6]="delphi";cutname[7]="iso";
 /////////////////////////////////////////////////////////////////////////////////
+cutname[8]="CSVM_0";
+cutname[9]="CSVM_1";
+cutname[10]="CSVM_2";
+cutname[11]="CSVM_3";
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-cutname[7]="Njet4_6ht500_800mht200_500btag0";
-cutname[8]="Njet4_6ht800_1200mht200_500btag0";
-cutname[9]="Njet4_6ht_1200mht_200_500btag0";
-cutname[10]="Njet4_6ht500_1200mht500_750btag0";
-cutname[11]="Njet4_6ht1200mht500_750btag0";
+
+/*
 cutname[12]="Njet4_6ht800mht750btag0";
 
 cutname[13]="Njet4_6ht500_800mht200_500btag1";
@@ -540,11 +545,12 @@ cutname[150]="Njet9ht800mht750btag3iso";
 /////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-cutname[151]="nomuon";
-cutname[152]="CSVM_0";
-cutname[153]="CSVM_1";
-cutname[154]="CSVM_2";
-cutname[155]="CSVM_3";
+cutname[151]="Njet4_6ht500_800mht200_500btag0";
+cutname[152]="Njet4_6ht800_1200mht200_500btag0";
+cutname[153]="Njet4_6ht_1200mht_200_500btag0";
+cutname[154]="Njet4_6ht500_1200mht500_750btag0";
+cutname[155]="Njet4_6ht1200mht500_750btag0";
+*/
 
 ////////////////////////////////////////////////////////////////////////////////////////
 for(int i=0; i<(int) cutname.size();i++){
@@ -717,7 +723,7 @@ n_elec_mu_tot+=n_elec_mu;
 /*if(ie < 100){
  * printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
  * }*/
-
+//
 n_tau_had=0;
 for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
 int pdgId = template_genDecayPdgIdVec->at(iv);
@@ -726,7 +732,7 @@ int index=template_genDecayIdxVec->at(iv);
 for(int ivv=0; ivv<(int)template_genDecayLVec->size(); ivv++){
 int secpdg = template_genDecayPdgIdVec->at(ivv);
 int MomIndex=template_genDecayMomIdxVec->at(ivv);
-if(MomIndex==index && secpdg > 40){ ///pdgID of hadrons are higher than 40. 
+if(MomIndex==index && abs(secpdg) > 40){ ///pdgID of hadrons are higher than 40. 
 //printf("This is a tau. TauIndex: %d, TauDaughterID: %d \n",MomIndex, secpdg);
 n_tau_had++;
 }
