@@ -110,26 +110,17 @@ class templatePlotsFunc{///this is the main class
 
 ///Some functions
 
-bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi,vector<TLorentzVector> vecLvec, double deltaRMax){
-matchedObjIdx = -1;
-double deltaRMin = 100000.;
+int findMatchedObject(double genTauEta, double genTauPhi,vector<TLorentzVector> vecLvec, double deltaRMax){
 
+int matchedObjIdx=-1;
 for(int objIdx = 0; objIdx < (int) vecLvec.size(); ++objIdx){
 const double dr = deltaR(genTauEta,vecLvec[objIdx].Eta(),genTauPhi,vecLvec[objIdx].Phi());
-if( dr < deltaRMin ){
-deltaRMin = dr;
+if( dr < deltaRMax ){
 matchedObjIdx = objIdx;
+break;
 }
 }//end of loop over vec_Jet_30_24_Lvec
-
-bool match = false;
-if( deltaRMin < deltaRMax ) {
-match = true;
-} else {
-matchedObjIdx = -1;
-}
-
-return match;
+return matchedObjIdx;
 }
 
 double getRandom(double muPt_){
@@ -241,12 +232,12 @@ if(ss== cutname[1]){if(Njet_4())return true;}
 if(ss== cutname[2]){if(Njet_4() && ht_500())return true;}
 if(ss== cutname[3]){if(Njet_4()&&ht_500()&&mht_200())return true;}
 if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
-if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk())return true;}
+if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
 
-if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk()&&btag_0())return true;}
-if(ss== cutname[7]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk()&&btag_1())return true;}
-if(ss== cutname[8]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk()&&btag_2())return true;}
-if(ss== cutname[9]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk()&&btag_3())return true;}
+if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_0())return true;}
+if(ss== cutname[7]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_1())return true;}
+if(ss== cutname[8]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_2())return true;}
+if(ss== cutname[9]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_3())return true;}
 
 return false;
 }
@@ -265,7 +256,7 @@ TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
 vec.push_back(RA2HT_hist);
 TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
 vec.push_back(RA2MHT_hist);
-TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
+TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 vec.push_back(RA2NBtag_hist);
@@ -452,7 +443,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-if(ie>100000)break;
+//if(ie>100000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -479,6 +470,8 @@ dPhi0 = dPhiVec[0]; dPhi1 = dPhiVec[1]; dPhi2 = dPhiVec[2];
 if(template_oriJetsVec->size() > 1)delphi12= fabs(template_oriJetsVec->at(0).Phi()-template_oriJetsVec->at(1).Phi());else delphi12=-99.;
 }
 
+if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
+
 ///HT calculation. This is because the predefined HT,template_ht, is calculated with jets with pt>50 and eta>2.5. 
 HT=0;
 vec_Jet_30_24_Lvec.clear();
@@ -487,13 +480,13 @@ double pt=template_oriJetsVec->at(i).Pt();
 double eta=template_oriJetsVec->at(i).Eta();
 double phi=template_oriJetsVec->at(i).Phi();
 double e=template_oriJetsVec->at(i).E();
+if(verbose!=0)printf(" \n Jets: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
 if(pt>30. && fabs(eta)<2.4){
 HT+=pt;
 tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
 vec_Jet_30_24_Lvec.push_back(tempLvec); // this vector contains the lorentz vector of reconstructed jets with pt>30 and eta< 2.4
 }
 }
-
 
 // Parsing the gen information ...
 cntgenTop = 0, cntleptons =0;
@@ -570,6 +563,7 @@ double phi=muonsLVec->at(i).Phi();
 double e=muonsLVec->at(i).E();
 double relIso=muonsRelIso->at(i);
 if(pt>10. && fabs(eta)<2.4 && relIso < 0.2){
+if(verbose!=0)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
 tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
 vec_recoMuonLvec.push_back(tempLvec);
 }
@@ -589,6 +583,7 @@ vec_recoElecLvec.push_back(tempLvec);
 }
 }
 
+if(verbose!=0)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n  ****************************** \n ",vec_recoMuonLvec.size(),vec_recoElecLvec.size());
 //if( template_nMuons == 1 && template_nElectrons == 0 ) {
 if( vec_recoMuonLvec.size() == 1 && vec_recoElecLvec.size() == 0 ){
 muPt =  vec_recoMuonLvec[0].Pt();
@@ -603,15 +598,20 @@ simTauJetPt = scale * muPt;
 simTauJetEta = muEta;
 simTauJetPhi = muPhi;
 
-///From now on we assume there is no muon in the event but we have an extra jet. 
+///The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And, its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet. 
 
+//Identify the jet containing the muon
+if(verbose!=0){const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+int JetIdx=findMatchedObject(muEta,muPhi,* template_oriJetsVec,deltaRMax);
+printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
+}
 
 //New HT:
-HT+=simTauJetPt;
+HT=HT+simTauJetPt-muPt;
 
 //New MHT
-double mhtX = template_mht*cos(template_mhtphi)-simTauJetPt*cos(simTauJetPhi);///the minus sign is because of Mht definition.
-double mhtY = template_mht*sin(template_mhtphi)-simTauJetPt*sin(simTauJetPhi);
+double mhtX = template_mht*cos(template_mhtphi)-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
+double mhtY = template_mht*sin(template_mhtphi)-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
 //printf("############ \n  mhtX: %g, mhtY: %g \n",mhtX,mhtY);
 //printf("template_mht: %g, template_mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",template_mht,template_mhtphi,simTauJetPt,simTauJetPhi);
@@ -626,7 +626,7 @@ else template_mhtphi = -3.14+atan(mhtY/mhtX);
 //printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
 
 //add the simTau Jet to the list if it satisfy the conditions
-if(fabs(simTauJetEta)<2.4 && simTauJetPt>30.)cntNJetsPt30Eta24+=1;
+if(fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.)cntNJetsPt30Eta24+=1;
 
 
 n_tau_had_tot_fromData+=1;
@@ -645,7 +645,7 @@ if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
-totWeight=template_evtWeight*puWeight*0.56;//the 0.56 is because only 56% of tau's decay hadronically
+totWeight=template_evtWeight*puWeight*0.64*1/(0.9*0.75);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag};

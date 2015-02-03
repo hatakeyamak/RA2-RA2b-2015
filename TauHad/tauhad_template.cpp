@@ -49,6 +49,20 @@ vector<double> calcDPhi(const vector<TLorentzVector> &inputJets, const double me
 
 int initPUinput(const std::string &puDatafileName, const std::string &puDatahistName);
 
+class histClass{
+double * a;
+TH1D * b_hist;
+public:
+void fill(int Nhists, double * eveinfarr_, TH1D * hist_){
+a = eveinfarr_;
+b_hist=hist_;
+(*b_hist).Fill(*a);
+for(int i=1; i<=Nhists ; i++){
+(*(b_hist+i)).Fill(*(a+i),*a);
+}
+}
+};
+
 double deltaPhi(double phi1, double phi2) {
 return TVector2::Phi_mpi_pi(phi1-phi2);
 }
@@ -89,7 +103,7 @@ return bin;
 
 
 bool bg_type(string bg_ ,vector<TLorentzVector> * pvec){
-if(bg_=="allEvents"){return 1;}
+if(bg_=="EventsWith_0RecoMuon_0RecoElectron_1tauJet"){return 1;}
 } //end of function bg_type
 
 class templatePlotsFunc{///this is the main class
@@ -135,6 +149,8 @@ map<int, string> cutname;
 map<int, string> eventType;
 map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
+map<string, histClass> histobjmap;
+histClass histObj;
 int Nhists,n_elec_mu,n_elec_mu_tot,n_tau_had,n_tau_had_tot,nLostLepton;
 
 int loose_nIsoTrks; // number of isolated tracks with Pt>5 GeV and relIso < 0.5
@@ -179,6 +195,49 @@ vector<TLorentzVector> vec_Jet_30_24_Lvec;
 TLorentzVector tempLvec;
 int TauResponse_nBins;
 
+//define different cuts here
+bool ht_500(){if(HT>=500) return true; return false;}
+bool ht_500_800(){if(HT>=500 && HT<800) return true; return false;}
+bool ht_500_1200(){if(HT>=500 && HT<1200)return true; return false;}
+bool ht_800_1200(){if(HT>=800 && HT<1200)return true; return false;}
+bool ht_800(){if(HT>=800)return true; return false;}
+bool ht_1200(){if(HT>=1200)return true; return false;}
+bool mht_200(){if(template_mht>=200)return true; return false;}
+bool mht_200_500(){if(template_mht>=200 && template_mht<500)return true; return false;}
+bool mht_500_750(){if(template_mht>=500 && template_mht<750)return true; return false;}
+bool mht_750(){if(template_mht>=750)return true; return false;}
+bool dphi(){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
+bool nomuon(){if(template_nMuons==0)return true; return false;}
+bool nolep(){if(template_nElectrons==0 && template_nMuons==0)return true; return false;}
+bool Njet_4(){if(cntNJetsPt30Eta24 >= 4)return true; return false;}
+bool Njet_4_6(){if(cntNJetsPt30Eta24 >= 4 && cntNJetsPt30Eta24 <= 6)return true; return false;}
+bool Njet_7_8(){if(cntNJetsPt30Eta24 >= 7 && cntNJetsPt30Eta24 <= 8)return true; return false;}
+bool Njet_9(){if(cntNJetsPt30Eta24 >= 9)return true; return false;}
+bool btag_0(){if(nbtag == 0)return true; return false;}
+bool btag_1(){if(nbtag == 1)return true; return false;}
+bool btag_2(){if(nbtag == 2)return true; return false;}
+bool btag_3(){if(nbtag >= 3)return true; return false;}
+bool isoTrk(){if(nIsoTrk_ ==0)return true; return false;}
+
+///apply the cuts here
+bool checkcut(string ss){
+if(ss == cutname[0]){if(nolep())return true;}
+
+if(ss== cutname[1]){if(nolep()&&Njet_4())return true;}
+if(ss== cutname[2]){if(nolep()&&Njet_4() && ht_500())return true;}
+if(ss== cutname[3]){if(nolep()&&Njet_4()&&ht_500()&&mht_200())return true;}
+if(ss== cutname[4]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
+if(ss== cutname[5]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
+
+if(ss== cutname[6]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_0())return true;}
+if(ss== cutname[7]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_1())return true;}
+if(ss== cutname[8]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_2())return true;}
+if(ss== cutname[9]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_3())return true;}
+
+return false;
+}
+
+
 public:
 //constructor
 templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
@@ -206,8 +265,36 @@ vec.push_back(nGenTauHad_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
+//initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
+cutname[0]="nocut";cutname[1]="Njet_4";cutname[2]="ht_500" ;cutname[3]="mht_200";
+cutname[4]="delphi";cutname[5]="iso";
+/////////////////////////////////////////////////////////////////////////////////
+cutname[6]="CSVM_0";
+cutname[7]="CSVM_1";
+cutname[8]="CSVM_2";
+cutname[9]="CSVM_3";
+//////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-eventType[0]="allEvents";
+
+////////////////////////////////////////////////////////////////////////////////////////
+for(int i=0; i<(int) cutname.size();i++){
+cut_histvec_map[cutname[i]]=vec;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+eventType[0]="EventsWith_0RecoMuon_0RecoElectron_1tauJet";
+
+//initialize a map between string and maps. copy the map of histvecs into each
+for(int i=0; i< eventType.size();i++){
+map_map[eventType[i]]=cut_histvec_map;
+}
+
+//initialize histobjmap
+for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
+histobjmap[it->first]=histObj;
+}
+
+
 
 /////////////////////////////////////////////
  // The tau response templates
@@ -312,7 +399,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>10000)break;
+//if(ie>100000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -438,6 +525,43 @@ printf("vec_Jet_30_24_Lvec[tauJetIdx].Eta(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].P
 }*/
 
 
+///////////////////////////////
+///////////Closure Test Section
+///////////////////////////////
+
+totWeight=template_evtWeight*puWeight;
+
+//build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
+double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag};
+
+//loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+
+////determine what type of background should pass
+if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside this
+//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+
+//////loop over cut names and fill the histograms
+for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
+}//end of loop over cut names
+
+////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+
+}//end of bg_type determination
+
+}//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
+
+
+///////////////////////////////
+////End of Closure Test Section
+///////////////////////////////
+
+
+
+
+
 // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
 int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
 for(int jetIdx = 0; jetIdx <(int) vec_Jet_30_24_Lvec.size(); ++jetIdx) { // Loop over reco jets
@@ -474,7 +598,6 @@ if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
-totWeight=template_evtWeight*puWeight;
 
 
 
@@ -491,6 +614,39 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 //cout << "nIso: " << nIsoTrk_ << endl;
 
 }////end of loop over all events
+
+//open a file to write the histograms
+sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
+TFile *resFile = new TFile(tempname, "RECREATE");
+TDirectory *cdtoitt;
+TDirectory *cdtoit;
+// Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
+for(int iet=0;iet<(int)eventType.size();iet++){
+for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
+if (eventType[iet]==itt->first){
+//KH
+////std::cout << (itt->first).c_str() << std::endl;
+cdtoitt = resFile->mkdir((itt->first).c_str());
+cdtoitt->cd();
+for(int i=0; i< (int)cutname.size();i++){
+for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+if (cutname[i]==it->first){
+cdtoit = cdtoitt->mkdir((it->first).c_str());
+cdtoit->cd();
+int nHist = it->second.size();
+for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
+sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
+it->second[i].Write(tempname);
+}
+cdtoitt->cd();
+}
+}
+}
+}
+}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 ///calculate the probability with which tau decays hadronically as function of pt
 genHadTauPtHist->Divide(genTauPtHist);
