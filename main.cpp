@@ -352,7 +352,7 @@ TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
 vec.push_back(RA2HT_hist);
 TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
 vec.push_back(RA2MHT_hist);
-TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
+TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 vec.push_back(RA2NBtag_hist);

@@ -254,7 +254,7 @@ TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
 vec.push_back(RA2HT_hist);
 TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
 vec.push_back(RA2MHT_hist);
-TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",10,0,20);
+TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 vec.push_back(RA2NBtag_hist);
@@ -511,7 +511,7 @@ if(n_tau_had>1 && verbose!=0)printf("\n Event: %d,  Warning! \n Warning! There a
 // Use only events where the tau is inside the muon acceptance
 // because lateron we will apply the response to muon+jet events
 if( genTauPt < 20. ) continue;
-if( std::abs(genTauEta) > 2.4 ) continue;
+if( std::abs(genTauEta) > 2.1 ) continue;
 
 // Do the matching
 int tauJetIdx = -1;
