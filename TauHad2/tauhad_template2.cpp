@@ -197,6 +197,8 @@ vector<TLorentzVector> vec_recoElecLvec;
 double muPt;
 double muEta;
 double muPhi;
+double muMtW;
+vector<double> vec_recoMuMTW;
 vector<TH1*> vec_resp;
 double simTauJetPt; 
 double simTauJetEta;
@@ -232,7 +234,7 @@ if(ss== cutname[1]){if(Njet_4())return true;}
 if(ss== cutname[2]){if(Njet_4() && ht_500())return true;}
 if(ss== cutname[3]){if(Njet_4()&&ht_500()&&mht_200())return true;}
 if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
-if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
+if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk())return true;}
 
 if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_0())return true;}
 if(ss== cutname[7]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_1())return true;}
@@ -260,6 +262,11 @@ TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 vec.push_back(RA2NBtag_hist);
+TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
+vec.push_back(RA2MuonPt_hist);
+TH1D RA2MtW_hist = TH1D("MtW","Mt of W Distribution",10,0,120);
+vec.push_back(RA2MtW_hist);
+
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
@@ -443,7 +450,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>100000)break;
+//if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -554,7 +561,8 @@ n_tau_had_tot+=n_tau_had;
 // tau-reponse template to simulate the tau measurement
 // - use the simulated tau-pt to predict HT, MHT, and N(jets)
 
-///select muons with pt>10. eta<2.4 relIso<.2
+///select muons with pt>20. eta<2.1 relIso<.2
+vec_recoMuMTW.clear();
 vec_recoMuonLvec.clear();
 for(int i=0; i< muonsLVec->size(); i++){ 
 double pt=muonsLVec->at(i).Pt();
@@ -562,10 +570,12 @@ double eta=muonsLVec->at(i).Eta();
 double phi=muonsLVec->at(i).Phi();
 double e=muonsLVec->at(i).E();
 double relIso=muonsRelIso->at(i);
-if(pt>10. && fabs(eta)<2.4 && relIso < 0.2){
+double mu_mt_w =muonsMtw->at(i); 
+if(pt>20. && fabs(eta)< 2.1 && relIso < 0.2 && mu_mt_w < 100.){
 if(verbose!=0)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
 tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
 vec_recoMuonLvec.push_back(tempLvec);
+vec_recoMuMTW.push_back(mu_mt_w);
 }
 }
 
@@ -589,6 +599,7 @@ if( vec_recoMuonLvec.size() == 1 && vec_recoElecLvec.size() == 0 ){
 muPt =  vec_recoMuonLvec[0].Pt();
 muEta = vec_recoMuonLvec[0].Eta();
 muPhi = vec_recoMuonLvec[0].Phi();
+muMtW = vec_recoMuMTW[0];
 
 // Get random number from tau-response template
 // The template is chosen according to the muon pt
@@ -648,7 +659,7 @@ nLeptons= (int)(template_nElectrons+template_nMuons);
 totWeight=template_evtWeight*puWeight*0.64*1/(0.9*0.75);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag};
+double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, (double) muMtW};
 
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"

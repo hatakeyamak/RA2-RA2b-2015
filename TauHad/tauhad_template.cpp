@@ -110,7 +110,7 @@ class templatePlotsFunc{///this is the main class
 
 ///Some functions
 
-bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi,vector<TLorentzVector> vecLvec, double deltaRMax){
+bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi,vector<TLorentzVector> vecLvec, double deltaRMax, int ver){
 matchedObjIdx = -1;
 double deltaRMin = 100000.;
 
@@ -125,6 +125,9 @@ matchedObjIdx = objIdx;
 bool match = false;
 if( deltaRMin < deltaRMax ) {
 match = true;
+
+if(ver!=0)printf("\n Mathed recoJet info: deltaRMin: %g matchedIdx: %d Pt: %g eta: %g phi: %g \n ",deltaRMin,matchedObjIdx,vecLvec[matchedObjIdx].Pt(),vecLvec[matchedObjIdx].Eta(),vecLvec[matchedObjIdx].Phi());
+
 } else {
 matchedObjIdx = -1;
 }
@@ -151,7 +154,7 @@ map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
 map<string, histClass> histobjmap;
 histClass histObj;
-int Nhists,n_elec_mu,n_elec_mu_tot,n_tau_had,n_tau_had_tot,nLostLepton;
+int Nhists,n_elec_mu,n_elec_mu_tot,n_tau_had,n_2tau_had_tot,n_tau_had_tot,nLostLepton;
 
 int loose_nIsoTrks; // number of isolated tracks with Pt>5 GeV and relIso < 0.5
 vector<double> *loose_isoTrks_charge; // charge of the loose isolated tracks (see loose_nIsoTrks)
@@ -171,6 +174,10 @@ vector<double> *loose_isoTrks_dz; // dz of the loose isolated tracks
 vector<double> *loose_isoTrks_mtw; // MT of the loose isolated tracks and MET
 vector<int> *loose_isoTrks_idx; // indices of the loose isolated tracks (pointing to pfCandidate collection)
 vector<TLorentzVector> *trksForIsoVetoLVec; // TLorentzVector of the charged tracks for isolated veto studies
+vector<int>  *W_emuVec; /// gen info. electron and muon from W. 
+vector<int>  *W_tau_emuVec; /// gen info. tau from W.
+vector<int>  *W_tau_prongsVec; // gen info. 
+
 bool isData;
 string keyString;
 vector<TLorentzVector> *template_oriJetsVec;
@@ -193,7 +200,7 @@ double genTauPt;
 double genTauPhi;
 vector<TLorentzVector> vec_Jet_30_24_Lvec;
 TLorentzVector tempLvec;
-int TauResponse_nBins;
+int TauResponse_nBins,Nfailed;
 
 //define different cuts here
 bool ht_500(){if(HT>=500) return true; return false;}
@@ -221,18 +228,20 @@ bool isoTrk(){if(nIsoTrk_ ==0)return true; return false;}
 
 ///apply the cuts here
 bool checkcut(string ss){
-if(ss == cutname[0]){if(nolep())return true;}
+if(ss == cutname[0]){return true;}
 
-if(ss== cutname[1]){if(nolep()&&Njet_4())return true;}
-if(ss== cutname[2]){if(nolep()&&Njet_4() && ht_500())return true;}
-if(ss== cutname[3]){if(nolep()&&Njet_4()&&ht_500()&&mht_200())return true;}
-if(ss== cutname[4]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
-if(ss== cutname[5]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
+if(ss== cutname[1]){if(Njet_4())return true;}
+if(ss== cutname[2]){if(Njet_4() && ht_500())return true;}
+if(ss== cutname[3]){if(Njet_4()&&ht_500()&&mht_200())return true;}
+if(ss== cutname[4]){if(Njet_4()&&ht_500()&&mht_200()&&dphi())return true;}
+if(ss== cutname[5]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&isoTrk())return true;}
 
-if(ss== cutname[6]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_0())return true;}
-if(ss== cutname[7]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_1())return true;}
-if(ss== cutname[8]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_2())return true;}
-if(ss== cutname[9]){if(nolep()&&Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_3())return true;}
+if(ss== cutname[6]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_0())return true;}
+if(ss== cutname[7]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_1())return true;}
+if(ss== cutname[8]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_2())return true;}
+if(ss== cutname[9]){if(Njet_4()&&ht_500()&&mht_200()&&dphi()&&btag_3())return true;}
+
+
 
 return false;
 }
@@ -301,7 +310,7 @@ histobjmap[it->first]=histObj;
 // They are filled for different bins in generated tau-lepton pt.
 std::vector<TH1*> hTauResp(TauResponse_nBins);
 for(unsigned int i = 0; i < TauResponse_nBins; ++i){
-hTauResp.at(i) = new TH1D(TauResponse_name(i),";p_{T}(visible) / p_{T}(generated);Probability",50,0.,2.5);
+hTauResp.at(i) = new TH1D(TauResponse_name(i),";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
 hTauResp.at(i)->Sumw2();
 }
 /////////////////////////////////////
@@ -325,6 +334,8 @@ template_genDecayLVec =0;
 template_genDecayPdgIdVec =0;template_genDecayIdxVec =0;template_genDecayMomIdxVec =0;
 vector<string> *template_genDecayStrVec =0, *template_smsModelFileNameStrVec =0, *template_smsModelStrVec =0;
 template_genJetsLVec_myak5GenJetsNoNu =0; template_genJetsLVec_myak5GenJetsNoNuNoStopDecays =0; template_genJetsLVec_myak5GenJetsNoNuOnlyStopDecays =0;
+W_emuVec=0; W_tau_emuVec=0; W_tau_prongsVec=0;  
+
 template_AUX = ttree_;
 template_AUX->SetBranchStatus("*", 0);
 
@@ -360,6 +371,9 @@ template_AUX->SetBranchStatus("loose_isoTrksLVec","1");template_AUX->SetBranchAd
 template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso);
 template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
 template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddress("loose_nIsoTrks", &loose_nIsoTrks);
+template_AUX->SetBranchStatus("W_emuVec","1");template_AUX->SetBranchAddress("W_emuVec", &W_emuVec);
+template_AUX->SetBranchStatus("W_tau_emuVec","1");template_AUX->SetBranchAddress("W_tau_emuVec", &W_tau_emuVec);
+template_AUX->SetBranchStatus("W_tau_prongsVec","1");template_AUX->SetBranchAddress("W_tau_prongsVec", &W_tau_prongsVec);
 
 
 //template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
@@ -380,8 +394,9 @@ cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<endl;
 if( keyStringT.Contains("Data") ) evtlistFile.open("evtlistData_aftAllCuts.txt");
 
 n_elec_mu_tot=0;
+n_2tau_had_tot=0;
 n_tau_had_tot=0;
-
+Nfailed=0;
 
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
@@ -399,7 +414,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>100000)break;
+//if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -506,23 +521,72 @@ genHadTauPtHist->Fill(genTauPt);
 }
 }
 }
-if(n_tau_had>1 && verbose!=0)printf("\n Event: %d,  Warning! \n Warning! There are are more than one hadronic tau in the event \n Warning \n Warning! There are are more than one hadronic tau in the event \n ",ie);
+///what is missed in this process of identifying the hadronic tau is when tau decays to w again and the w decays to hadrons. Anyways in this way also there are some netrinos emitted and this events also enters our search region. So we better use W_tau_prongsVec->size(). If it is not zero then we have hadronic tau. 
+
+if(n_tau_had==1  && verbose!=0)n_tau_had_tot+=1;
+if(n_tau_had>1 && verbose!=0){
+n_2tau_had_tot+=1;
+printf("\n Event: %d,  Warning! \n Warning! There  are more than one hadronic tau in the event \n Warning \n Warning! There are are more than one hadronic tau in the event \n ",ie);
+
+}
+
+//printf("W_emuVec size: %d W_tau_emuVec size: %d W_tau_prongsVec size: %d  \n ",W_emuVec->size(),W_tau_emuVec->size(),W_tau_prongsVec->size());
+
+//we are interested in hadronically decaying taus only
+if(W_tau_prongsVec->size()==0)continue;
+
+///we want no muon and electron in the event
+if(W_emuVec->size()!=0 || W_tau_emuVec->size()!=0)continue;
 
 // Use only events where the tau is inside the muon acceptance
 // because lateron we will apply the response to muon+jet events
-if( genTauPt < 20. ) continue;
-if( std::abs(genTauEta) > 2.1 ) continue;
+////////////////////////////////////////////////////////////////////////////if( genTauPt < 20. ) continue;
+////////////////////////////////////////////////////////////////////////////if( std::abs(genTauEta) > 2.1 ) continue;
 
 // Do the matching
 int tauJetIdx = -1;
 const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
 
 //if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,vec_Jet_30_24_Lvec,deltaRMax) ) continue;//this also determines tauJetIdx
-if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax) ) continue;//this also determines tauJetIdx
-/*printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
+
+//cout << "Matched: " << findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax,verbose) << endl;
+
+if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax,verbose) ){
+if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 )Nfailed+=1; 
+continue;}//this also determines tauJetIdx
+
+if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
 if(tauJetIdx!=-1){
 printf("vec_Jet_30_24_Lvec[tauJetIdx].Eta(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Phi(): %g ,vec_Jet_30_24_Lvec[tauJetIdx].Pt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",vec_Jet_30_24_Lvec[tauJetIdx].Eta(),vec_Jet_30_24_Lvec[tauJetIdx].Phi(),vec_Jet_30_24_Lvec[tauJetIdx].Pt(),genTauEta,genTauPhi,genTauPt);
-}*/
+}}
+
+
+
+nbtag=0;
+//Number of B-jets
+for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
+double pt=template_oriJetsVec->at(i).Pt();
+double eta=template_oriJetsVec->at(i).Eta();
+if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
+}//end of the loop
+nLeptons= (int)(template_nElectrons+template_nMuons);
+
+
+
+
+/// nIsoTrk_ calculation.
+//printf("\n  loose_isoTrksLVec->size(): %d ,loose_isoTrks_mtw->size(): %d ,loose_isoTrks_iso->size(): %d ",template_loose_isoTrksLVec->size(),loose_isoTrks_mtw->size(),loose_isoTrks_iso->size());
+nIsoTrk_ =0;
+for(int i=0;i< (int) template_loose_isoTrksLVec->size();i++){
+double pt = template_loose_isoTrksLVec->at(i).Pt();
+double eta = fabs(template_loose_isoTrksLVec->at(i).Eta());
+double reliso = loose_isoTrks_iso->at(i);
+double mt_w = loose_isoTrks_mtw->at(i);//This is transverse mass of track and missing Et. 
+if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
+}
+//cout << "nIso: " << nIsoTrk_ << endl;
+
+
 
 
 ///////////////////////////////
@@ -559,6 +623,10 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] 
 ///////////////////////////////
 
 
+// Use only events where the tau is inside the muon acceptance
+// because lateron we will apply the response to muon+jet events
+if( genTauPt < 20. ) continue;
+if( std::abs(genTauEta) > 2.1 ) continue;
 
 
 
@@ -574,6 +642,8 @@ if(  vec_Jet_30_24_Lvec[jetIdx].Pt() > 30. && std::abs(vec_Jet_30_24_Lvec[jetIdx
 // Select only events with at least 2 HT jets
 if( selNJet < 2 ) continue;
 
+
+
 // Fill histogram with relative visible energy of the tau
 // ("tau response template") for hadronically decaying taus
 for(int jetIdx = 0; jetIdx < (int) template_oriJetsVec->size(); ++jetIdx) { // Loop over reco jets
@@ -583,38 +653,22 @@ if( jetIdx == tauJetIdx ) {
 const double tauJetPt = template_oriJetsVec->at(jetIdx).Pt();
 const unsigned int ptBin = TauResponse_ptBin(genTauPt);
 // Fill the corresponding response template
-if(ie==192) printf("ptBin: %d \n",ptBin);
 hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
 break; // End the jet loop once the tau jet has been found
 }
 } // End of loop over reco jets
 
-nbtag=0;
-//Number of B-jets
-for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
-double pt=template_oriJetsVec->at(i).Pt();
-double eta=template_oriJetsVec->at(i).Eta();
-if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
-}//end of the loop
-nLeptons= (int)(template_nElectrons+template_nMuons);
 
 
-
-
-/// nIsoTrk_ calculation.
-//printf("\n  loose_isoTrksLVec->size(): %d ,loose_isoTrks_mtw->size(): %d ,loose_isoTrks_iso->size(): %d ",template_loose_isoTrksLVec->size(),loose_isoTrks_mtw->size(),loose_isoTrks_iso->size());
-nIsoTrk_ =0;
-for(int i=0;i< (int) template_loose_isoTrksLVec->size();i++){
-double pt = template_loose_isoTrksLVec->at(i).Pt();
-double eta = fabs(template_loose_isoTrksLVec->at(i).Eta());
-double reliso = loose_isoTrks_iso->at(i);
-double mt_w = loose_isoTrks_mtw->at(i);//This is transverse mass of track and missing Et. 
-if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
-}
-//cout << "nIso: " << nIsoTrk_ << endl;
 
 }////end of loop over all events
 
+printf(" \n \n We have failed %d times to match a jet with the hadronic GenTau. Number of successful attemts is the number of entries in the nocut histogram. \n \n",Nfailed);
+
+if(verbose!=0){
+printf(" \n # of times tau hadronic were in the event: %d \n ",n_tau_had_tot);
+printf(" \n # of times 2 tau hadronic were in the event: %d \n ",n_2tau_had_tot);
+}
 //open a file to write the histograms
 sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
 TFile *resFile = new TFile(tempname, "RECREATE");
