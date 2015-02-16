@@ -1,3 +1,4 @@
+/////
 #ifndef EVENT_H
 #define EVENT_H
 
@@ -23,6 +24,7 @@
 #include "TH1.h"
 #include "TVector2.h" 
 #include "TCanvas.h"
+#include "TBranch.h"
 
 using namespace std;
 
@@ -60,7 +62,8 @@ using namespace std;
 class Events {
 
   ///Some variables
-    int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
+    UInt_t template_run, template_event, template_lumi;
+    int  template_nm1, template_n0, template_np1, template_vtxSize;
     double template_avg_npv, template_tru_npv;
     int template_nJets , nbtag ;
     double template_evtWeight;
@@ -122,27 +125,28 @@ class Events {
     vector<int>  *W_emuVec; /// gen info. electron and muon from W.
     vector<int>  *W_tau_emuVec; /// gen info. tau from W.
     vector<int>  *W_tau_prongsVec; // gen info.
- 
+
+
+   TBranch        *b_elesLVec;    
   
 public:
 //constructor
-  Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0);
+  Events(TChain * ttree_, const std::string sampleKeyString="ttbar");
 
 //Functions
-  bool loadNext();
-  int nJets() const; 
-  double weight() const ;
-  double ht() const ;
-  double mht() const ;
-  double mhtPhi() const ;
-  double deltaPhi1() const ;
-  double deltaPhi2() const ;
-  double deltaPhi3() const ;
-  vector<int>  *W_emuVec_() const; 
-  vector<int>  *W_tau_emuVec_() const;
-  vector<int>  *W_tau_prongsVec_() const;
-  vector<double>  *muonsMtw_() const;
-
+  double weight(int iee) const ;
+  double ht(int iee) ;
+  double mht(int iee) const ;
+  double mhtPhi(int iee) const ;
+  vector<double> deltaPhiV(int iee) ;
+  vector<int>  *W_emuVec_(int iee) const; 
+  vector<int>  *W_tau_emuVec_(int iee) const;
+  vector<int>  *W_tau_prongsVec_(int iee) const;
+  vector<double>  *muonsMtw_(int iee) const;
+  vector<TLorentzVector> *muonsLVec_(int iee) const;
+  vector<TLorentzVector> *template_genDecayLVec_(int iee) const;
+  vector<TLorentzVector>  vLJets(int iee) ; 
+  vector<int> *template_genDecayPdgIdVec_(int iee) const, *template_genDecayIdxVec_(int iee) const, *template_genDecayMomIdxVec_(int iee) const;
 
 
 };//end of class Events
