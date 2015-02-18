@@ -1,10 +1,6 @@
-  
-   
 
-  // This code gives the acceptance in Njet-Mht binning 
-  // while iso&reco in Njet-ht-mht. 
-
-
+  // Here all acc and iso&reco are given in Njet-Nbtag-ht-mht
+  //........................................................//
 
 #include "TTree.h"
 #include <cmath>
@@ -112,18 +108,6 @@ std::vector<double> effNJetsBinEdges() {
   return bins;
 }
 
-// Find bin. Fills 'bin' with index [0, h::GetNbinsX()-1] of bin that
-// contains 'val'. Returns false if 'val' smaller binning, true otherwise.
-bool findBin(TH1* h, const double val, unsigned int& bin) {
-  const bool insideBinning = val >= h->GetXaxis()->GetBinLowEdge(1);
-  if( insideBinning ) {
-    bin = h->FindBin(val)-1;
-    if( static_cast<int>(bin) == h->GetNbinsX() ) bin--; // in case of val larger than binning
-  }
-
-  return insideBinning;
-}
-
 
 //global variables.
 vector<double> puWeights_;
@@ -203,10 +187,23 @@ if(bg_=="allEvents"){return 1;}
     return match;
   }
 
+  // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
+    string findBin(int njet,int nbtag,double ht,double mht){
+
+      ostringstream binS;
+      int bNjet, bNbtag, bHt, bMht;
+      if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;else bNjet=9; 
+      if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
+      if(ht >= 500 && ht <800)bHt=1;else if(ht >= 800 && ht <1200)bHt=2;else if(ht >= 1200)bHt=3;else bHt=9;
+      if(mht >= 200 && mht <500)bMht=1;else if(mht >= 500 && mht <750)bMht=2;else if(mht >= 750)bMht=3;else bMht=9;
+      binS << 1000*bNjet+100*bNbtag+10*bHt+bMht ;
+
+      return binS.str();
+    }
+
 
 
 class templatePlotsFunc{///this is the main class
-
 
 ///Some variables
 int template_run, template_event, template_lumi, template_nm1, template_n0, template_np1, template_vtxSize;
@@ -312,52 +309,49 @@ public:
 templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
 
 /////////////////////////////////////////////////////////////////////////////////////
+  // A map is needed between strings like "1232" or "2143" that specify the searc bins
+  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
+    int binN=0;
+    map <string , int> binMap;
+    map <int , string> invbinMap;    
+
+    for(int bNjet=1; bNjet<=3;  bNjet++){
+      for(int bNbtag=1; bNbtag<=4; bNbtag++){
+        for(int bHt=1; bHt<=3; bHt++){
+          for(int bMht=1;bMht<=3;bMht++){
+            ostringstream binS;
+            binS << 1000*bNjet+100*bNbtag+10*bHt+bMht ;
+            binN++;
+            binMap[binS.str()]=binN;
+            invbinMap[binN]=binS.str();
+            cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << endl; 
+          }
+        }
+      }
+    }
+    
 // Determine the acceptance and the identification and isolation efficiencies
   // We want to determine efficiencies, so we always have
   // two histograms: the distribution before and after the
   // respective selection cut
 
   // For muon-acceptance determination. The acceptance is determined
-  // in bins of MHT and N(jets)
-  std::vector<double> accMhtBins   = accMHTBinEdges();
-  std::vector<double> accNJetsBins = accNJetsBinEdges();
-  TH2* hNJetsVsMhtAll = new TH2D("hNJetsVsMhtAll",";#slash{H}_{T} [GeV];N(jets)",
-                                 accMhtBins.size()-1,&(accMhtBins.front()),
-                                 accNJetsBins.size()-1,&(accNJetsBins.front()));
-  hNJetsVsMhtAll->Sumw2();
-  TH2* hNJetsVsMhtInAcc = static_cast<TH2*>(hNJetsVsMhtAll->Clone("hNJetsVsMhtInAcc"));
+  // in bins of Njet, Nbtag, ht, and mht.
+  // There are 3 Njet bins, 4 Nbtag bins, 3 ht bins, and 3 mht bins. = 3X4X3X3 = 108 bins.
+  int totNbins=binMap.size();
+  TH1* hAccAll = new TH1D("hAccAll","Histogram of Acceptance -- All",totNbins,1,totNbins);
+  // label the bins
+  //for(map<string,int>::iterator it=binMap.begin();it!=binMap.end();it++){
+  //  hAccAll->GetXaxis()->SetBinLabel( it->second, it->first.c_str() );
+  //}
+  hAccAll->Sumw2();
+  TH1* hAccPass = static_cast<TH1*>(hAccAll->Clone("hAccPass"));
 
   // For muon reconstruction and isolation efficiencies. The efficiencies are
-  // determined in bins of HT, MHT, and N(jets)
-  std::vector<double> effNJetsBins = effNJetsBinEdges();
-  TH1* hEffNJetsBinning = new TH1D(LeptonEfficiency::nameEffNJetsBinning(),
-                                   "Define the NJets binning;N(Jets)",
-                                   effNJetsBins.size()-1,&(effNJetsBins.front()));
-  std::vector<double> effHTBins  = effHTBinEdges();
-  std::vector<double> effMHTBins = effMHTBinEdges();
-  std::vector<TH2*> hRecoAll;
-  std::vector<TH2*> hRecoPass;
-  std::vector<TH2*> hIsoAll;
-  std::vector<TH2*> hIsoPass;
+  // determined in bins of Njet, Nbtag, ht, and mht.
 
-  for(unsigned int i = 0; i < effNJetsBins.size()-1; ++i) {
-
-    hRecoAll.push_back( new TH2D( "hReco"+LeptonEfficiency::nJetBinId(i)+"All",";H_{T} [GeV];#slash{H}_{T} [GeV]",
-                                  effHTBins.size()-1,&(effHTBins.front()),
-                                  effMHTBins.size()-1,&(effMHTBins.front()) ) );
-    hRecoAll.back()->Sumw2();
-    hRecoAll.back()->GetXaxis()->SetNdivisions(505); //505=05+100*5. So we have 05 primary div and 5 secondary div.
-    hRecoPass.push_back( static_cast<TH2*>(hRecoAll.back()->Clone("hReco"+LeptonEfficiency::nJetBinId(i)+"Pass")) );
-
-    hIsoAll.push_back( new TH2D( "hIso"+LeptonEfficiency::nJetBinId(i)+"All",";H_{T} [GeV];#slash{H}_{T} [GeV]",
-                                 effHTBins.size()-1,&(effHTBins.front()),
-                                 effMHTBins.size()-1,&(effMHTBins.front()) ) );
-    hIsoAll.back()->Sumw2();
-    hIsoAll.back()->GetXaxis()->SetNdivisions(505);
-    hIsoPass.push_back( static_cast<TH2*>(hIsoAll.back()->Clone("hIso"+LeptonEfficiency::nJetBinId(i)+"Pass")) );
-
-  }
-if(verbose!=0)printf("Jets # of bins: %d \n" ,hRecoAll.size());
+  TH1* hIsoRecoAll  = static_cast<TH1*>(hAccAll->Clone("hIsoRecoAll"));
+  TH1* hIsoRecoPass = static_cast<TH1*>(hAccAll->Clone("hIsoRecoPass"));
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -483,7 +477,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>1000000)break;
+//if(ie>100000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -616,31 +610,32 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
     // ask for exactly one muon
     if( genMuonVec.size() > 1 ) continue;
 
+
     if( !( isMuon ) ) continue;
 
     // Acceptance determination 1: Counter for all events
     // with muons at generator level
-    hNJetsVsMhtAll->Fill(template_mht,cntNJetsPt30Eta24);
+
+    hAccAll->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] ); 
 
     // Check if generator-level muon is in acceptance
     if( genMuonVec[0].Pt() > LeptonAcceptance::muonPtMin() && std::abs(genMuonVec[0].Eta()) < LeptonAcceptance::muonEtaMax() ) {
     if(verbose!=0)printf("Muon is in acceptance \n ");
       // Acceptance determination 2: Counter for only those events
       // with generator-level muons inside acceptance
-      hNJetsVsMhtInAcc->Fill(template_mht,cntNJetsPt30Eta24);
+      hAccPass->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
 
       // Reconstruction-efficiency determination 1: Counter for all events
       // with generator-level muons inside acceptance, regardless of whether
       // the muon has also been reconstructed or not.
-      unsigned int nJetIdx = 0;
-      if( !findBin(hEffNJetsBinning,cntNJetsPt30Eta24,nJetIdx) ){
-        std::cerr << "ERROR: jet multiplicity nJets = " << cntNJetsPt30Eta24 << " out of lepton-efficiency binning" << std::endl;
-        throw std::exception();
-      }
-      hRecoAll.at(nJetIdx)->Fill(HT,template_mht);
+      hIsoRecoAll->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()]);
 
     // Check if the muon has been reconstructed: check if a reconstructed
     // muon is present in the event that matches the generator-level muon
+          // Isolation-efficiency determination 1: Counter for all events with a
+          // reconstructed muon that has a generator-level muon match inside the
+          // the acceptance, regardless of whether the reconstructed muon is also
+          // isolated or not.
 
       // in R and in pt
       int matchedMuonIdx = -1;
@@ -655,16 +650,6 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
           // and matches generated pt
       if(verbose!=0)printf("Muon is reconstructed \n ");
 
-          // Reconstruction-efficiency determination 2: Counter for those events
-          // with generator-level muons inside acceptance where the muon has also
-          // been reconstructed.
-          hRecoPass.at(nJetIdx)->Fill(HT,template_mht);
-
-          // Isolation-efficiency determination 1: Counter for all events with a
-          // reconstructed muon that has a generator-level muon match inside the
-          // the acceptance, regardless of whether the reconstructed muon is also
-          // isolated or not.
-          hIsoAll.at(nJetIdx)->Fill(HT,template_mht);
 
           // Check if the muon is also isolated: check if an isolated muon is present
           // in the event that matches the reconstructed muon in R
@@ -673,9 +658,12 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
             // Muon is isolated
           if(verbose!=0)printf("Muon is isolated \n ");
 
+          // Reconstruction-efficiency determination 2: Counter for those events
+          // with generator-level muons inside acceptance where the muon has also
+          // been reconstructed.
             // Isolation-efficiency determination 2: Counter for those events where
             // the muon is also isolated.
-            hIsoPass.at(nJetIdx)->Fill(HT,template_mht);
+            hIsoRecoPass->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
 
           } // End of muon is isolated
 
@@ -697,38 +685,23 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
 // Lost lepton section
 
   // Compute acceptance
-  TH2* hAcc = static_cast<TH2*>(hNJetsVsMhtInAcc->Clone(LeptonAcceptance::nameMuonAcc()));
-  hAcc->Divide(hNJetsVsMhtAll);
+  TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
+  hAcc->Divide(hAccAll);
 
   // Compute efficiencies
-  std::vector<TH2*> hRecoEff;
-  std::vector<TH2*> hIsoEff;
-  for(unsigned int i = 0; i < hRecoAll.size(); ++i) {
-    TH2* h = static_cast<TH2*>(hRecoPass.at(i)->Clone(LeptonEfficiency::nameMuonRecoEff(i)));
-    h->Divide(hRecoAll.at(i));
-    hRecoEff.push_back(h);
-
-    h = static_cast<TH2*>(hIsoPass.at(i)->Clone(LeptonEfficiency::nameMuonIsoEff(i)));
-    h->Divide(hIsoAll.at(i));
-    hIsoEff.push_back(h);
-  }
+  TH1* hEff = static_cast<TH1*>(hIsoRecoPass->Clone("hEff"));
+  hEff->Divide(hIsoRecoAll);
 
 
   // --- Save the Histograms to File -----------------------------------
-  sprintf(tempname,"%s/LostLepton_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
+  sprintf(tempname,"%s/LostLepton2_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),sampleKeyString.c_str(),inputnumber.c_str());
   TFile outFile(tempname,"RECREATE");
   hAcc->Write();
-  for(unsigned int i = 0; i < hRecoEff.size(); ++i) {
-    hRecoEff.at(i)->Write();
-    hIsoEff.at(i)->Write();
-  }
-  hEffNJetsBinning->Write();
-  for(unsigned int i = 0; i < hRecoAll.size(); ++i) {
-    hRecoAll.at(i)->Write();
-    hRecoPass.at(i)->Write();
-    hIsoAll.at(i)->Write();
-    hIsoPass.at(i)->Write();
-  }
+  hEff->Write();
+  hAccAll->Write();
+  hAccPass->Write();
+  hIsoRecoAll->Write();
+  hIsoRecoPass->Write();
   outFile.Close();
 
 
