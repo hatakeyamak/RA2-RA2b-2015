@@ -29,7 +29,7 @@
 #include "interface/Selection.h"
 #include "interface/LeptonAcceptance.h"
 #include "interface/utils.h"
-
+#include "interface/utils2.h"
 
 
 using namespace std;
@@ -187,19 +187,6 @@ if(bg_=="allEvents"){return 1;}
     return match;
   }
 
-  // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
-    string findBin(int njet,int nbtag,double ht,double mht){
-
-      ostringstream binS;
-      int bNjet, bNbtag, bHt, bMht;
-      if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;else bNjet=9; 
-      if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
-      if(ht >= 500 && ht <800)bHt=1;else if(ht >= 800 && ht <1200)bHt=2;else if(ht >= 1200)bHt=3;else bHt=9;
-      if(mht >= 200 && mht <500)bMht=1;else if(mht >= 500 && mht <750)bMht=2;else if(mht >= 750)bMht=3;else bMht=9;
-      binS << 1000*bNjet+100*bNbtag+10*bHt+bMht ;
-
-      return binS.str();
-    }
 
 
 
@@ -311,7 +298,7 @@ templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int
 /////////////////////////////////////////////////////////////////////////////////////
   // A map is needed between strings like "1232" or "2143" that specify the searc bins
   // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
-    int binN=0;
+/*    int binN=0;
     map <string , int> binMap;
     map <int , string> invbinMap;    
 
@@ -329,7 +316,7 @@ templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int
         }
       }
     }
-    
+    */
 // Determine the acceptance and the identification and isolation efficiencies
   // We want to determine efficiencies, so we always have
   // two histograms: the distribution before and after the
@@ -338,10 +325,10 @@ templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int
   // For muon-acceptance determination. The acceptance is determined
   // in bins of Njet, Nbtag, ht, and mht.
   // There are 3 Njet bins, 4 Nbtag bins, 3 ht bins, and 3 mht bins. = 3X4X3X3 = 108 bins.
-  int totNbins=binMap.size();
+  int totNbins=utils2::BinMap().size();
   TH1* hAccAll = new TH1D("hAccAll","Histogram of Acceptance -- All",totNbins,1,totNbins);
   // label the bins
-  //for(map<string,int>::iterator it=binMap.begin();it!=binMap.end();it++){
+  //for(map<string,int>::iterator it=utils2::BinMap().begin();it!=utils2::BinMap().end();it++){
   //  hAccAll->GetXaxis()->SetBinLabel( it->second, it->first.c_str() );
   //}
   hAccAll->Sumw2();
@@ -477,7 +464,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>100000)break;
+if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -616,19 +603,19 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
     // Acceptance determination 1: Counter for all events
     // with muons at generator level
 
-    hAccAll->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] ); 
+    hAccAll->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] ); 
 
     // Check if generator-level muon is in acceptance
     if( genMuonVec[0].Pt() > LeptonAcceptance::muonPtMin() && std::abs(genMuonVec[0].Eta()) < LeptonAcceptance::muonEtaMax() ) {
     if(verbose!=0)printf("Muon is in acceptance \n ");
       // Acceptance determination 2: Counter for only those events
       // with generator-level muons inside acceptance
-      hAccPass->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+      hAccPass->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
 
       // Reconstruction-efficiency determination 1: Counter for all events
       // with generator-level muons inside acceptance, regardless of whether
       // the muon has also been reconstructed or not.
-      hIsoRecoAll->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()]);
+      hIsoRecoAll->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()]);
 
     // Check if the muon has been reconstructed: check if a reconstructed
     // muon is present in the event that matches the generator-level muon
@@ -663,7 +650,7 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
           // been reconstructed.
             // Isolation-efficiency determination 2: Counter for those events where
             // the muon is also isolated.
-            hIsoRecoPass->Fill( binMap[findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+            hIsoRecoPass->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
 
           } // End of muon is isolated
 

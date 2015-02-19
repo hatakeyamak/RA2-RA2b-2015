@@ -15,7 +15,7 @@ OBJS2          = lostLepton2.o
 PROGRAM       = run
 PROGRAM2       = run2
 
-HEADERS       = interface/utils.h interface/Selection.h interface/HistReader.h  interface/LeptonAcceptance.h  interface/LeptonEfficiency.h
+HEADERS       = interface/utils.h interface/Selection.h interface/HistReader.h  interface/LeptonAcceptance.h  interface/LeptonEfficiency.h interface/utils2.h
 
 %.o : %.C $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
