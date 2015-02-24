@@ -23,6 +23,8 @@
 #include "TVector2.h" 
 #include "TCanvas.h"
 
+#include "../LostLep/interface/utils2.h"
+
 using namespace std;
 
 //global variables.
@@ -255,16 +257,22 @@ TauResponse_nBins=4;
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
 vec.push_back(weight_hist);
 TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
+RA2HT_hist.Sumw2();
 vec.push_back(RA2HT_hist);
 TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
+RA2MHT_hist.Sumw2();
 vec.push_back(RA2MHT_hist);
 TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
+RA2NJet_hist.Sumw2();
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
+RA2NBtag_hist.Sumw2();
 vec.push_back(RA2NBtag_hist);
 TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
+RA2MuonPt_hist.Sumw2();
 vec.push_back(RA2MuonPt_hist);
 TH1D RA2MtW_hist = TH1D("MtW","Mt of W Distribution",10,0,120);
+RA2MtW_hist.Sumw2();
 vec.push_back(RA2MtW_hist);
 
 
@@ -301,7 +309,17 @@ histobjmap[it->first]=histObj;
 
 
 
-/////////////////////////////////////////////
+////Open some files and get the histograms ........................................//
+
+  // Acceptance and efficiencies 
+  TFile * MuEffAcc_file = new TFile("../LostLep/LostLepton2_MuonEfficienciesFromTTbar_.root","R");
+  sprintf(histname,"hAcc");
+  TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
+  TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
+  // get the map between the strings repressenting the bins and the bin numbers
+//  map<string,int> binMap = utils2::BinMap();
+  map<string,int> binMap = utils2::BinMap_NoB();
+
 TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates.root","R");
 for(int i=0; i<TauResponse_nBins; i++){
 sprintf(histname,"hTauResp_%d",i);
@@ -450,7 +468,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>10000)break;
+//if(ie>5200000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -656,7 +674,34 @@ if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
-totWeight=template_evtWeight*puWeight*0.64*1/(0.9*0.75);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
+  // get the effieciencies and acceptance
+    // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
+    double Eff;
+    if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
+//      Eff = hEff->GetBinContent(binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht)]); 
+      Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+    }else{
+      Eff=0.75;
+    }
+
+    // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
+    double Acc;
+    if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
+//      Acc = hAcc->GetBinContent(binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht)]);
+      Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+    }else{
+      Acc=0.9;
+    }
+
+    if(verbose!=0)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,nbtag,HT,template_mht,                                              binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);  
+
+if(Acc==0 || Eff==0){printf("ie: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",ie,Eff,Acc, cntNJetsPt30Eta24,nbtag,HT,template_mht);}
+if(Acc==0)Acc=0.9;
+if(Eff==0)Eff=0.75;
+
+
+
+totWeight=template_evtWeight*puWeight*0.64*1/(Acc*Eff);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, (double) muMtW};

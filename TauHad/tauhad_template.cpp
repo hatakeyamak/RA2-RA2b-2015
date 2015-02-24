@@ -260,16 +260,22 @@ TauResponse_nBins=4;
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
 vec.push_back(weight_hist);
 TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
+RA2HT_hist.Sumw2();
 vec.push_back(RA2HT_hist);
 TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
+RA2MHT_hist.Sumw2();
 vec.push_back(RA2MHT_hist);
 TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
+RA2NJet_hist.Sumw2();
 vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
+RA2NBtag_hist.Sumw2();
 vec.push_back(RA2NBtag_hist);
 TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,20);
+NLostLep_hist.Sumw2();
 vec.push_back(NLostLep_hist);
 TH1D nGenTauHad_hist = TH1D("nGenTauHad","Number of Gen. Had. Tau",20,0,20);
+nGenTauHad_hist.Sumw2();
 vec.push_back(nGenTauHad_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.

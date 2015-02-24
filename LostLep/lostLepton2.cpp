@@ -296,27 +296,6 @@ public:
 templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0, string Outdir="Results", string inputnumber="00"){
 
 /////////////////////////////////////////////////////////////////////////////////////
-  // A map is needed between strings like "1232" or "2143" that specify the searc bins
-  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
-/*    int binN=0;
-    map <string , int> binMap;
-    map <int , string> invbinMap;    
-
-    for(int bNjet=1; bNjet<=3;  bNjet++){
-      for(int bNbtag=1; bNbtag<=4; bNbtag++){
-        for(int bHt=1; bHt<=3; bHt++){
-          for(int bMht=1;bMht<=3;bMht++){
-            ostringstream binS;
-            binS << 1000*bNjet+100*bNbtag+10*bHt+bMht ;
-            binN++;
-            binMap[binS.str()]=binN;
-            invbinMap[binN]=binS.str();
-            cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << endl; 
-          }
-        }
-      }
-    }
-    */
 // Determine the acceptance and the identification and isolation efficiencies
   // We want to determine efficiencies, so we always have
   // two histograms: the distribution before and after the
@@ -324,22 +303,24 @@ templatePlotsFunc(TTree * ttree_, const std::string sampleKeyString="ttbar", int
 
   // For muon-acceptance determination. The acceptance is determined
   // in bins of Njet, Nbtag, ht, and mht.
-  // There are 3 Njet bins, 4 Nbtag bins, 3 ht bins, and 3 mht bins. = 3X4X3X3 = 108 bins.
-  int totNbins=utils2::BinMap().size();
-  TH1* hAccAll = new TH1D("hAccAll","Histogram of Acceptance -- All",totNbins,1,totNbins);
-  // label the bins
-  //for(map<string,int>::iterator it=utils2::BinMap().begin();it!=utils2::BinMap().end();it++){
-  //  hAccAll->GetXaxis()->SetBinLabel( it->second, it->first.c_str() );
-  //}
-  hAccAll->Sumw2();
-  TH1* hAccPass = static_cast<TH1*>(hAccAll->Clone("hAccPass"));
-
+  // There are 3 Njet bins, 4 Nbtag bins, 6 HtMht bins. = 3X4X6 = 72 bins.
   // For muon reconstruction and isolation efficiencies. The efficiencies are
   // determined in bins of Njet, Nbtag, ht, and mht.
 
-  TH1* hIsoRecoAll  = static_cast<TH1*>(hAccAll->Clone("hIsoRecoAll"));
-  TH1* hIsoRecoPass = static_cast<TH1*>(hAccAll->Clone("hIsoRecoPass"));
+//  map<string,int> binMap = utils2::BinMap();
+    map<string,int> binMap = utils2::BinMap_NoB();
 
+  int totNbins=binMap.size();
+
+  TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins,1,totNbins);
+  TH1* hIsoRecoAll = new TH1D("hIsoRecoAll","Efficiency -- All",totNbins,1,totNbins);
+  TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins,1,totNbins);
+  TH1* hIsoRecoPass = new TH1D("hIsoRecoPass","Efficiency -- Pass",totNbins,1,totNbins);
+
+  hAccAll->Sumw2();
+  hIsoRecoAll->Sumw2();
+  hAccPass->Sumw2();
+  hIsoRecoPass->Sumw2();
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -464,7 +445,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-if(ie>10000)break;
+//if(ie>10000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -603,19 +584,22 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
     // Acceptance determination 1: Counter for all events
     // with muons at generator level
 
-    hAccAll->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] ); 
+//    hAccAll->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] ); 
+    hAccAll->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()] );
 
     // Check if generator-level muon is in acceptance
     if( genMuonVec[0].Pt() > LeptonAcceptance::muonPtMin() && std::abs(genMuonVec[0].Eta()) < LeptonAcceptance::muonEtaMax() ) {
     if(verbose!=0)printf("Muon is in acceptance \n ");
       // Acceptance determination 2: Counter for only those events
       // with generator-level muons inside acceptance
-      hAccPass->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+//      hAccPass->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+      hAccPass->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()] );
 
       // Reconstruction-efficiency determination 1: Counter for all events
       // with generator-level muons inside acceptance, regardless of whether
       // the muon has also been reconstructed or not.
-      hIsoRecoAll->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()]);
+//      hIsoRecoAll->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()]);
+      hIsoRecoAll->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()]);
 
     // Check if the muon has been reconstructed: check if a reconstructed
     // muon is present in the event that matches the generator-level muon
@@ -650,7 +634,8 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
           // been reconstructed.
             // Isolation-efficiency determination 2: Counter for those events where
             // the muon is also isolated.
-            hIsoRecoPass->Fill( utils2::BinMap()[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+//            hIsoRecoPass->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
+            hIsoRecoPass->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()] );
 
           } // End of muon is isolated
 
@@ -673,11 +658,17 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
 
   // Compute acceptance
   TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
-  hAcc->Divide(hAccAll);
+  hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
 
   // Compute efficiencies
   TH1* hEff = static_cast<TH1*>(hIsoRecoPass->Clone("hEff"));
-  hEff->Divide(hIsoRecoAll);
+  hEff->Divide(hIsoRecoPass,hIsoRecoAll,1,1,"B");
+
+  if(verbose!=0){
+    for(int j=1; j<= totNbins; j++){
+    printf("hAccAll: %g hAccPass: %g hAcc: %g      hIsoRecoAll: %g hIsoRecoPass: %g hEff: %g \n ",hAccAll->GetBinContent(j),hAccPass->GetBinContent(j),hAcc->GetBinContent(j),hIsoRecoAll->GetBinContent(j),hIsoRecoPass->GetBinContent(j),hEff->GetBinContent(j));
+    }
+  }
 
 
   // --- Save the Histograms to File -----------------------------------
