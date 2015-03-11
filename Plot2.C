@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Plot2(string cutname="nocut", string histname="MHT"){
+Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_"){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,11 @@ Plot2(string cutname="nocut", string histname="MHT"){
   
   vector<TFile *> filevec;
   
-  sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_TTbar_.root");
+    
+  sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
-  sprintf(tempname,"TauHad2/HadTauEstimation_TTbar_.root");
+  sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
+  // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
   filevec.push_back(TFile::Open(tempname,"R"));
 
   //
@@ -112,7 +114,8 @@ Plot2(string cutname="nocut", string histname="MHT"){
   // draw top figure
   canvas_up->cd();
 
-  TH1D * GenHist, * EstHist, * thist;
+  THStack * tempstack;
+  TH1D * GenHist, * EstHist,* thist;
   TH1D * histTemplate;
 
   double HT_x_max=2500.;
@@ -123,6 +126,24 @@ Plot2(string cutname="nocut", string histname="MHT"){
   
   for(int i=0; i<filevec.size(); i++){
 
+if(sample.find("stacked")!=string::npos){
+
+    if(i==0){
+      sprintf(tempname,"EventsWith_0RecoMuon_0RecoElectron_1tauJet/%s/%s_%s_EventsWith_0RecoMuon_0RecoElectron_1tauJet",cutname.c_str(),histname.c_str(),cutname.c_str());
+      tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
+      GenHist=(TH1D*) tempstack->GetStack()->Last();
+    }
+    if(i==1){
+      sprintf(tempname,"EventsWith_1RecoMuon_0RecoElectron/%s/%s_%s_EventsWith_1RecoMuon_0RecoElectron",cutname.c_str(),histname.c_str(),cutname.c_str());
+      tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
+      EstHist=(TH1D*) tempstack->GetStack()->Last();
+    }
+    tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
+    thist=(TH1D*) tempstack->GetStack()->Last();
+    thist->SetLineColor(2*i+2);
+
+}
+else{
     if(i==0){
       sprintf(tempname,"EventsWith_0RecoMuon_0RecoElectron_1tauJet/%s/%s_%s_EventsWith_0RecoMuon_0RecoElectron_1tauJet",cutname.c_str(),histname.c_str(),cutname.c_str());
       GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
@@ -133,7 +154,7 @@ Plot2(string cutname="nocut", string histname="MHT"){
     }
     thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
     thist->SetLineColor(2*i+2);
-
+}
     // Setting style
     if(i==0){
       thist->SetMaximum(1.4);
@@ -172,18 +193,18 @@ Plot2(string cutname="nocut", string histname="MHT"){
     if(histname=="NBtag"){
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(12000);
+      thist->SetMaximum(15000);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
     
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(6000);
+      thist->SetMaximum(10000);
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
     }
-
-    thist->Draw("same");
+    if(i==0)thist->Draw("same hist");
+    else thist->Draw("same");
     if(i==0)sprintf(tempname,"#tau_{hadronic} BG");
     if(i==1)sprintf(tempname,"Data driven estimate");
     catLeg1->AddEntry(thist,tempname,"l");
@@ -196,10 +217,17 @@ Plot2(string cutname="nocut", string histname="MHT"){
   // Bottom ratio plot
   //
   // ----------
-
+/*  for(int j=0; j<=10; j++){
+  printf("j: %d EstHist: %g GenHist: %g \n ",j,EstHist->GetBinContent(j),GenHist->GetBinContent(j) );
+  }*/
   //KH -- flip the numerator and denominator
   EstHist->Divide(GenHist);
   //GenHist->Divide(EstHist);
+
+/*  for(int j=0; j<=10; j++){
+  printf("j: %d Divide: %g \n ",j,EstHist->GetBinContent(j) );
+  }
+*/
 
   // draw bottom figure
   canvas_dw->cd();
@@ -262,7 +290,7 @@ Plot2(string cutname="nocut", string histname="MHT"){
   tline->SetLineStyle(2);
   tline->Draw();
 
-  sprintf(tempname,"%s_%s_Plot.pdf",cutname.c_str(),histname.c_str());
+  sprintf(tempname,"%s_%s_%s_Plot.pdf",sample.c_str(),cutname.c_str(),histname.c_str());
   canvas->Print(tempname);
 
 }
