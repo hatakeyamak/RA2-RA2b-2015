@@ -29,7 +29,7 @@ using namespace std;
 
 //global variables.
 vector<double> puWeights_;
-const double cutCSVS = 0.679;
+const double cutCSVS = 0.814;
 
 static const double pt30Arr[] = { -1, -1, 30, -1 };
 static const double pt30Eta24Arr[] = { -1, 2.4, 30, -1 };
@@ -61,7 +61,10 @@ a = eveinfarr_;
 b_hist=hist_;
 (*b_hist).Fill(*a);
 for(int i=1; i<=Nhists ; i++){
-(*(b_hist+i)).Fill(*(a+i),*a);
+
+if(i==Nhists)(*(b_hist+i)).Fill(*(a+i));
+else (*(b_hist+i)).Fill(*(a+i),*a);
+
 }
 }
 };
@@ -274,7 +277,9 @@ vec.push_back(RA2MuonPt_hist);
 TH1D RA2MtW_hist = TH1D("MtW","Mt of W Distribution",10,0,120);
 RA2MtW_hist.Sumw2();
 vec.push_back(RA2MtW_hist);
-
+TH1D Bjet_mu_hist = TH1D("Bjet_mu_hist","Is Muon from Bjet? ",2,0,2);
+Bjet_mu_hist.Sumw2();
+vec.push_back(Bjet_mu_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
@@ -311,8 +316,13 @@ histobjmap[it->first]=histObj;
 
 ////Open some files and get the histograms ........................................//
 
+  // Probability of muon coming from Tau
+  TFile * Prob_Tau_mu_file = new TFile("../TauHad/Probability_Tau_mu_stacked.root","R");
+  sprintf(histname,"hProb_Tau_mu");
+  TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
+
   // Acceptance and efficiencies 
-  TFile * MuEffAcc_file = new TFile("../LostLep/LostLepton2_MuonEfficienciesFromTTbar_.root","R");
+  TFile * MuEffAcc_file = new TFile("../LostLep/LostLepton2_MuonEfficiencies_stacked.root","R");
   sprintf(histname,"hAcc");
   TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
   TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
@@ -320,14 +330,11 @@ histobjmap[it->first]=histObj;
 //  map<string,int> binMap = utils2::BinMap();
   map<string,int> binMap = utils2::BinMap_NoB();
 
-TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates.root","R");
+TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_stacked.root","R");
 for(int i=0; i<TauResponse_nBins; i++){
 sprintf(histname,"hTauResp_%d",i);
 vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
 }
-
-const TString &respTempl = "../TauHad/HadTau_TauResponseTemplates.root";
-
 
 const bool isMC = true;
 
@@ -452,6 +459,8 @@ n_elec_mu_tot=0;
 n_tau_had_tot=0;
 n_tau_had_tot_fromData=0;
 
+  printf("Note that the last histogram in each subdirectory will be written withoug weight. \n This histogram shows the number of times muon is from Bjet.  \n ");
+
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
 
@@ -468,7 +477,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>5200000)break;
+//if(ie>100000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -629,11 +638,18 @@ simTauJetPhi = muPhi;
 
 ///The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And, its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet. 
 
-//Identify the jet containing the muon
-if(verbose!=0){const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
-int JetIdx=findMatchedObject(muEta,muPhi,* template_oriJetsVec,deltaRMax);
-printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
-}
+  //Identify the jet containing the muon
+  const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+  int JetIdx=findMatchedObject(muEta,muPhi,* template_oriJetsVec,deltaRMax);
+
+  if(verbose!=0){printf(" \n **************************************** \n JetIdx: %d \n CSVS: %g. It is B if larger than %g \n ",JetIdx,template_recoJetsBtagCSVS->at(JetIdx),cutCSVS);
+  }
+
+
+  // See if muon is coming from Bjet
+  // This determines how often muon comes from a Bjet
+  int num_Bjet_mu=0;
+  if(JetIdx!=-1 && template_recoJetsBtagCSVS->at(JetIdx) > cutCSVS )num_Bjet_mu=1;
 
 //New HT:
 HT=HT+simTauJetPt-muPt;
@@ -670,7 +686,7 @@ nbtag=0;
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
 double pt=template_oriJetsVec->at(i).Pt();
 double eta=template_oriJetsVec->at(i).Eta();
-if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
+if(template_recoJetsBtagCSVS->at(i) > cutCSVS && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
@@ -699,13 +715,21 @@ if(Acc==0 || Eff==0){printf("ie: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nb
 if(Acc==0)Acc=0.9;
 if(Eff==0)Eff=0.75;
 
+  // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation. 
+  double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));  
 
-
-totWeight=template_evtWeight*puWeight*0.64*1/(Acc*Eff);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
+totWeight=template_evtWeight*puWeight*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.56 is because only 56% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation. 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
-double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, (double) muMtW};
+  
+  double eveinfvec[8];
 
+  if(num_Bjet_mu==0){
+    eveinfvec = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, (double) muMtW                                  , (double)num_Bjet_mu};
+  }else if(num_Bjet_mu==1){
+    // We don't want Bjet_Muon in our control sample.
+    eveinfvec = {totWeight, -99., -99.,(double) -99.,(double) -99.,(double) -99., (double) -99., (double)num_Bjet_mu};   
+  }
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -716,7 +740,9 @@ if(bg_type(itt->first , template_genDecayLVec)==true){//all the cuts are inside 
 
 //////loop over cut names and fill the histograms
 for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
-if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
+
+  if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);}
+
 }//end of loop over cut names
 
 ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
@@ -740,7 +766,6 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 
 } // End if exactly one muon
 }////end of loop over all events
-//printf("genTau: %d , Tau: %d \n ",n_tau_had_tot,n_tau_had_tot_fromData);
 
 
 //open a file to write the histograms

@@ -10,11 +10,10 @@ LD            = g++
 
 LIBS = $(shell root-config --glibs)
 
-OBJS          = tauhad_template.o
-OBJS2	      = Stack.o
+OBJS          = tauhad_template2.o
+OBJS2          = Stack.o
 PROGRAM       = run
-PROGRAM2      = Stack
-
+PROGRAM2       = Stack
 
 %.o : %.C $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
@@ -25,7 +24,6 @@ PROGRAM2      = Stack
 %.o : %.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-all : $(PROGRAM) $(PROGRAM2)
 
 .PHONY : all
 
@@ -34,7 +32,9 @@ $(PROGRAM): $(OBJS)
 	@$(LD) $(OBJS) $(LIBS) -o $(PROGRAM)
 	@echo "done"
 
+
 $(PROGRAM2): $(OBJS2)
 	@echo "Linking $(PROGRAM2) ..."
 	@$(LD) $(OBJS2) $(LIBS) -o $(PROGRAM2)
 	@echo "done"
+

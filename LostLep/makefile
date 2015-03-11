@@ -11,9 +11,11 @@ LD            = g++
 LIBS = $(shell root-config --glibs)
 
 OBJS          = lostLepton.o
-OBJS2          = lostLepton2.o
+OBJS2         = lostLepton2.o
+OBJS3         = Stack.o
 PROGRAM       = run
-PROGRAM2       = run2
+PROGRAM2      = run2
+PROGRAM3      = Stack
 
 HEADERS       = interface/utils.h interface/Selection.h interface/HistReader.h  interface/LeptonAcceptance.h  interface/LeptonEfficiency.h interface/utils2.h
 
@@ -40,3 +42,9 @@ $(PROGRAM2): $(OBJS2)
 	@echo "Linking $(PROGRAM2) ..."
 	@$(LD) $(OBJS2) $(LIBS) -o $(PROGRAM2)
 	@echo "done"
+
+$(PROGRAM3): $(OBJS3)
+	@echo "Linking $(PROGRAM3) ..."
+	@$(LD) $(OBJS3) $(LIBS) -o $(PROGRAM3)
+	@echo "done"
+

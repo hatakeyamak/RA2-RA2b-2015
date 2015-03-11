@@ -50,11 +50,12 @@ void plot_TauTemplate(int icomp=0){
   //
   
 //  TFile *file_08TeV         = new TFile("tauTemplatesRes_8TeV.root","R"); 
-  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates.root","R"); 
+  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates_stacked.root","R"); 
   TFile *file_13TeV_Koushik = new TFile("HadTau_TauResponseTemplates_PHYS14_13TeV.root","R"); 
+  TFile *file_13TeV_TTbar   = new TFile("HadTau_TauResponseTemplates_TTbar_.root","R");
 
   TH1D * thist;
-  catLeg1->SetHeader("p_{T}(#tau^{tau}) [GeV]");
+  catLeg1->SetHeader("p_{T}(#tau^{had}) [GeV]");
 
   for(int i=0;i<4;i++){
     sprintf(tempname,"hTauResp_%d",i);
@@ -62,6 +63,7 @@ void plot_TauTemplate(int icomp=0){
     sprintf(tempname2,"hTauResp_%d_AB",i);
     thist->SetName(tempname2);
     thist->SetLineColor(i+1);
+    thist->SetFillColor(0);
     thist->SetLineWidth(3);
 
     if(i==0){
@@ -78,6 +80,9 @@ void plot_TauTemplate(int icomp=0){
       thist->GetYaxis()->SetTitleSize(0.05);
       thist->GetYaxis()->SetTitleOffset(1.25);
       thist->GetYaxis()->SetTitleFont(42);
+      thist->GetXaxis()->SetTitle("p_{T}(visible)/p_{T}(generated_{#tau})");
+      thist->GetYaxis()->SetTitle("Probability");
+
     }
 
     thist->Draw("same,hist");
@@ -107,6 +112,26 @@ void plot_TauTemplate(int icomp=0){
     catLeg1->AddEntry(thist_km,tempname,"l");
   }
   }
+
+  if (icomp==2){
+  for(int i=0;i<4;i++){
+    sprintf(tempname,"hTauResp_%d",i);
+    thist_ttbar = (TH1D*)file_13TeV_TTbar->Get(tempname)->Clone();
+    sprintf(tempname2,"hTauResp_%d_TTbar",i);
+    thist_ttbar->SetName(tempname2);
+    thist_ttbar->SetLineColor(i+1);
+    thist_ttbar->SetFillColor(0);
+    thist_ttbar->SetLineWidth(3);
+    thist_ttbar->SetLineStyle(3);
+    thist_ttbar->Draw("same,hist");
+    if(i==0)sprintf(tempname,"20 - 30: TTbar");
+    if(i==1)sprintf(tempname,"30 - 50: TTbar");
+    if(i==2)sprintf(tempname,"50 - 100: TTbar");
+    if(i==3)sprintf(tempname,">100: TTbar");
+    catLeg1->AddEntry(thist_ttbar,tempname,"l");
+  }
+  }
+
 
   catLeg1->Draw();  
 
