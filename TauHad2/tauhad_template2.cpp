@@ -274,6 +274,9 @@ vec.push_back(RA2NBtag_hist);
 TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
 RA2MuonPt_hist.Sumw2();
 vec.push_back(RA2MuonPt_hist);
+TH1D simTauJetPt_hist = TH1D("simTauJetPt","Pt of simulated tau Jet",80,0,400);
+simTauJetPt_hist.Sumw2();
+vec.push_back(simTauJetPt_hist);
 TH1D RA2MtW_hist = TH1D("MtW","Mt of W Distribution",10,0,120);
 RA2MtW_hist.Sumw2();
 vec.push_back(RA2MtW_hist);
@@ -722,13 +725,13 @@ totWeight=template_evtWeight*puWeight*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
   
-  double eveinfvec[8];
+  double eveinfvec[9];
 
   if(num_Bjet_mu==0){
-    eveinfvec = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, (double) muMtW                                  , (double)num_Bjet_mu};
+    eveinfvec = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, simTauJetPt, (double) muMtW                                  , (double)num_Bjet_mu};
   }else if(num_Bjet_mu==1){
     // We don't want Bjet_Muon in our control sample.
-    eveinfvec = {totWeight, -99., -99.,(double) -99.,(double) -99.,(double) -99., (double) -99., (double)num_Bjet_mu};   
+    eveinfvec = {totWeight, -99., -99., -99., -99., -99., -99., -99., (double)num_Bjet_mu};   
   }
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
