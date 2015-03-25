@@ -1,0 +1,1 @@
+/home/borzou/MiniAOD/CMSSW_7_2_3_patch1/src/AllHadronicSUSY/TreeMaker/test/ReducedSelection-HT.root

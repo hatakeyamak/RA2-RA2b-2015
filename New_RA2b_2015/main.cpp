@@ -1,0 +1,216 @@
+
+//Lost Lepton Efficiency and Acceptance maps
+#include "Events.h"
+#include "Selection.h"
+#include "interface/LeptonEfficiency.h"
+#include "interface/Selection.h"
+#include "TTree.h"
+#include <string>
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "TChain.h"
+#include <cmath>
+#include <map>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include "TLorentzVector.h"
+#include <stdio.h>
+#include "TColor.h"
+#include "TF1.h"
+#include "TLegend.h"
+#include "TVector3.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TVector2.h"
+#include "TCanvas.h"
+#include "TH2.h"
+
+using namespace std;
+
+
+class histClass{
+  double * a;
+  TH1D * b_hist;
+
+  public:
+  void fill(int Nhists, double * eveinfarr_, TH1D * hist_){
+    a = eveinfarr_;
+    b_hist=hist_;
+
+    (*b_hist).Fill(*a);
+
+    for(int i=1; i<=Nhists ; i++){
+      (*(b_hist+i)).Fill(*(a+i),*a);
+    }
+  }
+};
+
+
+
+
+
+
+
+int main(int argc, char *argv[]){
+
+  /////////////////////////////////////
+  if (argc != 6)
+  {
+  std::cout << "Please enter something like: ./run \"filelist_WJets_PU20bx25_100_200.txt\" \"WJets_PU20bx25_100_200\" \"Results\" \"00\" \"0\" " << std::endl;
+  return EXIT_FAILURE;
+  }
+  //get the inputs from user
+  const string InRootList = argv[1];
+  const string subSampleKey = argv[2];
+  const string Outdir = argv[3];
+  const string inputnumber = argv[4];
+  const string verbosity = argv[5];
+  //////////////////////////////////////
+  int verbose = atoi(verbosity.c_str());
+
+  //some varaibles
+  char filenames[500];
+  vector<string> filesVec;
+  ifstream fin(InRootList.c_str());
+  TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
+
+  char tempname[200];
+  vector<TH1D > vec;
+  map<int, string> eventType;
+  map<string , vector<TH1D> > cut_histvec_map;
+  map<string, map<string , vector<TH1D> > > map_map;
+  map<string, histClass> histobjmap;
+  histClass histObj;
+
+  //build a vector of histograms
+  TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
+  vec.push_back(weight_hist);
+  TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
+  vec.push_back(RA2HT_hist);
+  TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
+  vec.push_back(RA2MHT_hist);
+  TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
+  vec.push_back(RA2NJet_hist);
+  TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
+  vec.push_back(RA2NBtag_hist);
+  TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,20);
+  vec.push_back(NLostLep_hist);
+  int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
+
+  ///read the file names from the .txt files and load them to a vector.
+  while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
+
+  cout<< "\nProcessing " << subSampleKey << " ... " << endl;
+
+  for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
+
+  // --- Analyse the events --------------------------------------------
+
+  // Interface to the event content
+  Events * evt = new Events(sample_AUX, subSampleKey,verbose);
+
+  // Get a pointer to the Selection class  
+  Selection * sel = new Selection();
+
+  // For each selection, cut, make a vector containing the same histograms as those in vec
+  for(int i=0; i<(int) sel->cutName().size();i++){
+    cut_histvec_map[sel->cutName()[i]]=vec;
+  }
+
+  // Define different event categories 
+  eventType[0]="allEvents";
+
+  //initialize a map between string and maps. copy the map of histvecs into each
+  for(int i=0; i< eventType.size();i++){
+    map_map[eventType[i]]=cut_histvec_map;
+  }
+
+  //initialize histobjmap
+  for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
+    histobjmap[it->first]=histObj;
+  }
+
+  // Loop over the events (tree entries)
+  int eventN=0;
+  while( evt->loadNext() ){
+
+    // Print out some information
+    if(verbose!=0){
+      printf(" ########################### \n event #: %d \n",eventN);
+      printf("ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),evt->nIso(),evt->nLeptons());
+    }
+
+    // Total weight
+    double totWeight = evt->weight()*1.;
+
+    // Build and array that contains the quantities we need a histogram for.
+    // Here order is important and must be the same as RA2nocutvec
+    double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double) evt->nLeptons() }; //the last one gives the RA2 defined number of jets.     
+
+
+    //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+    for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+
+      ////determine what type of background should pass
+      if(itt->first=="allEvents"){//all the cuts are inside this
+
+        //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+
+        //////loop over cut names and fill the histograms
+        for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+
+          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+            histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+          } 
+        }//end of loop over cut names
+
+        ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+
+      }//end of bg_type determination
+    }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
+
+
+  } // End of loop over events
+
+
+  //open a file to write the histograms
+  sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+  TFile *resFile = new TFile(tempname, "RECREATE");
+  TDirectory *cdtoitt;
+  TDirectory *cdtoit;
+
+  // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
+  for(int iet=0;iet<(int)eventType.size();iet++){
+    for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
+      if (eventType[iet]==itt->first){
+        //KH
+        ////std::cout << (itt->first).c_str() << std::endl;
+        cdtoitt = resFile->mkdir((itt->first).c_str());
+        cdtoitt->cd();
+        for(int i=0; i< (int)sel->cutName().size();i++){
+          for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+            if (sel->cutName()[i]==it->first){
+              cdtoit = cdtoitt->mkdir((it->first).c_str());
+              cdtoit->cd();
+              int nHist = it->second.size();
+              for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
+                sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
+                it->second[i].Write(tempname);
+              }
+              cdtoitt->cd();
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
+
+}
