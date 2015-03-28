@@ -1,5 +1,5 @@
 #include "Events.h"
-
+#include <vector>
 
 
   //Constructor
@@ -21,6 +21,14 @@
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
      minDeltaPhiN=-99.;
+
+     GenMuNum=-1;
+//     GenMuPt=new vector<double>();   //[GenMuNum]
+testVec=new vector<double>();
+//     GenMuEta=-99.;   //[GenMuNum]
+//     GenMuPhi=-99.;   //[GenMuNum]
+
+
      fChain = ttree_;
     
     /// the variables
@@ -40,6 +48,12 @@
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN);
 
+     fChain->SetBranchAddress("GenMuNum", &GenMuNum);
+     fChain->SetBranchAddress("GenMuPt", GenMuPt);
+     fChain->SetBranchAddress("GenMuEta", GenMuEta);
+     fChain->SetBranchAddress("GenMuPhi", GenMuPhi);
+
+fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
     template_Entries = fChain->GetEntries();
     
@@ -73,6 +87,8 @@
       }
 
       fChain->GetEntry(currentEntry_);
+
+printf("size: %d Vec[0]: %g \n \n \n ", testVec->size(),testVec->at(0));
       return true;
 
     }
@@ -105,3 +121,19 @@
   double Events::deltaPhi1() const { return DeltaPhi1; }
   double Events::deltaPhi2() const { return DeltaPhi2; }
   double Events::deltaPhi3() const { return DeltaPhi3; }
+
+  // Gen Muon 
+  int Events::nGenMu() const { return GenMuNum;}
+
+  
+//  std::vector<double> Events::Pt_GenMu() const { 
+//    std::vector<double> tempV;
+//    tempV.assign(&GenMuPt[0],&GenMuPt[0]+2);
+//std::vector<double> tempV(GenMuPt,GenMuPt+sizeof(GenMuPt)/sizeof(double));
+//    return tempV;
+//  }
+
+//  double Events::Eta_GenMu() const { return GenMuEta;}
+//  double Events::Phi_GenMu() const { return GenMuPhi;}
+
+
