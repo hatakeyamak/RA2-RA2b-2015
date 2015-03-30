@@ -22,11 +22,24 @@
      DeltaPhi3=-99.;
      minDeltaPhiN=-99.;
 
-     GenMuNum=-1;
-//     GenMuPt=new vector<double>();   //[GenMuNum]
-testVec=new vector<double>();
-//     GenMuEta=-99.;   //[GenMuNum]
-//     GenMuPhi=-99.;   //[GenMuNum]
+     GenMu_GenMuFromTau=new int();
+     GenTau_GenTauHad=new int();
+     GenElec_GenElecFromTau=new int();
+
+     GenMuPtVec=new vector<double>();   
+     GenMuEtaVec=new vector<double>();   
+     GenMuPhiVec=new vector<double>();   
+     GenElecPtVec=new vector<double>();
+     GenElecEtaVec=new vector<double>();
+     GenElecPhiVec=new vector<double>();
+     GenTauPtVec=new vector<double>();
+     GenTauEtaVec=new vector<double>();
+     GenTauPhiVec=new vector<double>();
+     JetsPtVec=new vector<double>();
+     JetsEtaVec=new vector<double>();
+     JetsPhiVec=new vector<double>();
+
+     testVec=new vector<double>();
 
 
      fChain = ttree_;
@@ -47,21 +60,27 @@ testVec=new vector<double>();
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN);
-
-     fChain->SetBranchAddress("GenMuNum", &GenMuNum);
-     fChain->SetBranchAddress("GenMuPt", GenMuPt);
-     fChain->SetBranchAddress("GenMuEta", GenMuEta);
-     fChain->SetBranchAddress("GenMuPhi", GenMuPhi);
+     
+   fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
+   fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
+   fChain->SetBranchAddress("GenMuPhiVec", &GenMuPhiVec);
+   fChain->SetBranchAddress("GenMu_GenMuFromTau", GenMu_GenMuFromTau);
+   fChain->SetBranchAddress("GenElecPtVec", &GenElecPtVec);
+   fChain->SetBranchAddress("GenElecEtaVec", &GenElecEtaVec);
+   fChain->SetBranchAddress("GenElecPhiVec", &GenElecPhiVec);
+   fChain->SetBranchAddress("GenElec_GenElecFromTau", GenElec_GenElecFromTau);
+   fChain->SetBranchAddress("GenTauPtVec", &GenTauPtVec);
+   fChain->SetBranchAddress("GenTauEtaVec", &GenTauEtaVec);
+   fChain->SetBranchAddress("GenTauPhiVec", &GenTauPhiVec);
+   fChain->SetBranchAddress("GenTau_GenTauHad", GenTau_GenTauHad);
+   fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
+   fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
+   fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
     template_Entries = fChain->GetEntries();
     
-
-
-
-
-
 
 
   }//end of class constructor Event
@@ -88,7 +107,6 @@ fChain->SetBranchAddress("testVec", &testVec);
 
       fChain->GetEntry(currentEntry_);
 
-printf("size: %d Vec[0]: %g \n \n \n ", testVec->size(),testVec->at(0));
       return true;
 
     }
@@ -123,7 +141,49 @@ printf("size: %d Vec[0]: %g \n \n \n ", testVec->size(),testVec->at(0));
   double Events::deltaPhi3() const { return DeltaPhi3; }
 
   // Gen Muon 
-  int Events::nGenMu() const { return GenMuNum;}
+   vector<double>  Events::GenMuPtVec_() const { return *GenMuPtVec ;}
+   vector<double>  Events::GenMuEtaVec_() const { return *GenMuEtaVec ;}
+   vector<double>  Events::GenMuPhiVec_() const { return *GenMuPhiVec ;}
+
+   vector<double>  Events::GenElecPtVec_() const { return *GenElecPtVec ;}
+   vector<double>  Events::GenElecEtaVec_() const { return *GenElecEtaVec ;}
+   vector<double>  Events::GenElecPhiVec_() const { return *GenElecPhiVec ;}
+
+
+   vector<double>  Events::GenTauPtVec_() const { return *GenTauPtVec ;}
+   vector<double>  Events::GenTauEtaVec_() const { return *GenTauEtaVec ;}
+   vector<double>  Events::GenTauPhiVec_() const { return *GenTauPhiVec ;}
+
+   vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
+   vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}
+   vector<double>  Events::JetsPhiVec_() const { return *JetsPhiVec ;}
+
+   vector<int>     Events::GenMuFromTauVec_() const {
+     vector<int> tempVec;
+     for(int i=0; i< GenMuPtVec->size(); i++){
+        tempVec.push_back((int)*(GenMu_GenMuFromTau+i)==1);
+     }
+     return tempVec;
+   }
+
+   vector<int>     Events::GenElecFromTauVec_() const {
+     vector<int> tempVec;
+     for(int i=0; i< GenElecPtVec->size(); i++){
+        tempVec.push_back((int)*(GenElec_GenElecFromTau+i)==1);
+     }
+     return tempVec;
+  }
+
+
+  vector<int>     Events::GenTauHadVec_() const { 
+    vector<int> tempVec;
+    for(int i=0; i< GenTauPtVec->size(); i++){
+      tempVec.push_back((int) *(GenTau_GenTauHad+i) ==1);
+    }
+    return tempVec;
+  }
+
+
 
   
 //  std::vector<double> Events::Pt_GenMu() const { 

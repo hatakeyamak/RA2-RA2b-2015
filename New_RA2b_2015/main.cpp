@@ -2,8 +2,6 @@
 //Lost Lepton Efficiency and Acceptance maps
 #include "Events.h"
 #include "Selection.h"
-#include "interface/LeptonEfficiency.h"
-#include "interface/Selection.h"
 #include "TTree.h"
 #include <string>
 #include <vector>
@@ -146,6 +144,9 @@ int main(int argc, char *argv[]){
 
     // Total weight
     double totWeight = evt->weight()*1.;
+
+//printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
+//printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec

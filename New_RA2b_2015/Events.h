@@ -47,27 +47,28 @@ using namespace std;
    int             template_Entries; 
 
 
-vector<double>  *testVec;
+   vector<double>  *testVec;
 
-   UShort_t        GenMuNum;
-   double         GenMuPt[];   //[GenMuNum]
-   double         GenMuEta[];   //[GenMuNum]
-   double         GenMuPhi[];   //[GenMuNum]
-   Int_t           GenMu_GenMuFromTau;   //[GenMuNum]
-   UShort_t        GenElecNum;
-   Float_t         GenElecPt;   //[GenElecNum]
-   Float_t         GenElecEta;   //[GenElecNum]
-   Float_t         GenElecPhi;   //[GenElecNum]
-   Int_t           GenElec_GenElecFromTau;   //[GenElecNum]
-   UShort_t        GenTauNum;
-   Float_t         GenTauPt;   //[GenTauNum]
-   Float_t         GenTauEta;   //[GenTauNum]
-   Float_t         GenTauPhi;   //[GenTauNum]
-   Int_t           GenTau_GenTauHad;   //[GenTauNum]
-   UShort_t        JetsNum;
-   Float_t         JetsPt;   //[JetsNum]
-   Float_t         JetsEta;   //[JetsNum]
-   Float_t         JetsPhi;   //[JetsNum]
+   vector<double>  *GenMuPtVec;
+   vector<double>  *GenMuEtaVec;
+   vector<double>  *GenMuPhiVec;
+
+   vector<double>  *GenElecPtVec;
+   vector<double>  *GenElecEtaVec;
+   vector<double>  *GenElecPhiVec;
+
+
+   vector<double>  *GenTauPtVec;
+   vector<double>  *GenTauEtaVec;
+   vector<double>  *GenTauPhiVec;
+
+   vector<double>  *JetsPtVec;
+   vector<double>  *JetsEtaVec;
+   vector<double>  *JetsPhiVec;
+
+   Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
+   Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
+   Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
 
 
 public:
@@ -87,9 +88,27 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double deltaPhi2() const ;
   double deltaPhi3() const ;
   int nGenMu() const ;
-//  std::vector<double> Pt_GenMu() const;
-//  double Eta_GenMu() const;
-//  double Phi_GenMu() const;
+
+   vector<double>  GenMuPtVec_() const;
+   vector<double>  GenMuEtaVec_() const;
+   vector<double>  GenMuPhiVec_() const;
+
+   vector<double>  GenElecPtVec_() const;
+   vector<double>  GenElecEtaVec_() const;
+   vector<double>  GenElecPhiVec_() const;
+
+
+   vector<double>  GenTauPtVec_() const;
+   vector<double>  GenTauEtaVec_() const;
+   vector<double>  GenTauPhiVec_() const;
+
+   vector<double>  JetsPtVec_() const;
+   vector<double>  JetsEtaVec_() const;
+   vector<double>  JetsPhiVec_() const;
+
+   vector<int>     GenMuFromTauVec_() const;   
+   vector<int>     GenElecFromTauVec_() const;   
+   vector<int>     GenTauHadVec_() const;   
 
 };//end of class Events
 #endif
