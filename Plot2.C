@@ -141,6 +141,7 @@ if(sample.find("stacked")!=string::npos){
     tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
     thist=(TH1D*) tempstack->GetStack()->Last();
     thist->SetLineColor(2*i+2);
+    thist->SetFillColor(0);
 
 }
 else{
@@ -154,6 +155,7 @@ else{
     }
     thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
     thist->SetLineColor(2*i+2);
+
 }
     // Setting style
     if(i==0){
@@ -175,7 +177,7 @@ else{
     if(histname=="HT"){
       sprintf(xtitlename,"H_{T} (GeV)");
       sprintf(ytitlename,"Events / 200 GeV");
-      thist->SetMaximum(50000);
+      thist->SetMaximum(5000);
       thist->SetMinimum(0.7);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
       gPad->SetLogy();
@@ -184,7 +186,7 @@ else{
     if(histname=="MHT"){
       sprintf(xtitlename,"#slash{H}_{T} (GeV)");
       sprintf(ytitlename,"Events / 100 GeV");
-      thist->SetMaximum(50000);
+      thist->SetMaximum(5000);
       thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
@@ -193,14 +195,14 @@ else{
     if(histname=="NBtag"){
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(15000);
+      thist->SetMaximum(3000);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
     
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(10000);
+      thist->SetMaximum(2000);
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
     }
     if(i==0)thist->Draw("same hist");

@@ -651,8 +651,8 @@ simTauJetPhi = muPhi;
 
   // See if muon is coming from Bjet
   // This determines how often muon comes from a Bjet
-  int num_Bjet_mu=0;
-  if(JetIdx!=-1 && template_recoJetsBtagCSVS->at(JetIdx) > cutCSVS )num_Bjet_mu=1;
+  int num_NonW_mu=0;
+  if(JetIdx!=-1 && template_recoJetsBtagCSVS->at(JetIdx) > cutCSVS )num_NonW_mu=1;
 
 //New HT:
 HT=HT+simTauJetPt-muPt;
@@ -727,11 +727,11 @@ totWeight=template_evtWeight*puWeight*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0
   
   double eveinfvec[9];
 
-  if(num_Bjet_mu==0){
-    eveinfvec = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, simTauJetPt, (double) muMtW                                  , (double)num_Bjet_mu};
-  }else if(num_Bjet_mu==1){
+  if(num_NonW_mu==0){
+    eveinfvec = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double) nbtag,(double) muPt, simTauJetPt, (double) muMtW                                  , (double)num_NonW_mu};
+  }else if(num_NonW_mu==1){
     // We don't want Bjet_Muon in our control sample.
-    eveinfvec = {totWeight, -99., -99., -99., -99., -99., -99., -99., (double)num_Bjet_mu};   
+    eveinfvec = {totWeight, -99., -99., -99., -99., -99., -99., -99., (double)num_NonW_mu};   
   }
 
 //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"

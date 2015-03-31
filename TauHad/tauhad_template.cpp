@@ -26,7 +26,7 @@ using namespace std;
 
 //global variables.
 vector<double> puWeights_;
-const double cutCSVS = 0.679;
+const double cutCSVS = 0.814;
 
 static const double pt30Arr[] = { -1, -1, 30, -1 };
 static const double pt30Eta24Arr[] = { -1, 2.4, 30, -1 };
@@ -154,7 +154,7 @@ map<string , vector<TH1D> > cut_histvec_map;
 map<string, map<string , vector<TH1D> > > map_map;
 map<string, histClass> histobjmap;
 histClass histObj;
-int Nhists,n_elec_mu,n_elec_mu_tot,n_tau_had,n_2tau_had_tot,n_tau_had_tot,nLostLepton;
+int Nhists,n_tau_had,n_2tau_had_tot,n_tau_had_tot,nLostLepton;
 
 int loose_nIsoTrks; // number of isolated tracks with Pt>5 GeV and relIso < 0.5
 vector<double> *loose_isoTrks_charge; // charge of the loose isolated tracks (see loose_nIsoTrks)
@@ -200,7 +200,7 @@ double genTauPt;
 double genTauPhi;
 vector<TLorentzVector> vec_Jet_30_24_Lvec;
 TLorentzVector tempLvec;
-int TauResponse_nBins,Nfailed;
+int TauResponse_nBins;
 
 //define different cuts here
 bool ht_500(){if(HT>=500) return true; return false;}
@@ -256,6 +256,21 @@ genTauPt=-999.0;
 genTauPhi=-999.0;
 TauResponse_nBins=4;
 
+  // Inroduce two histogram to understand the probability of a muon coming from tau.
+    int MaxMuPt=100*10;
+    int NMuPtBins=MaxMuPt/10;
+    TH1D * hW_mu = new TH1D("hW_mu","Pt of mu from W",NMuPtBins,0,MaxMuPt);
+    hW_mu->Sumw2();
+    TH1D * hTau_mu = new TH1D("hTau_mu","Pt of mu from Tau",NMuPtBins,0,MaxMuPt);
+    hTau_mu->Sumw2();
+
+  // Introduce two histograms to understand how often a gen tau does not match any jet
+    TH1D * GenTau_Jet_all  = new TH1D("GenTau_Jet_all","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    GenTau_Jet_all->Sumw2();
+    TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    GenTau_Jet_fail->Sumw2();
+
+
 //build a vector of histograms
 TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
 vec.push_back(weight_hist);
@@ -271,12 +286,6 @@ vec.push_back(RA2NJet_hist);
 TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
 RA2NBtag_hist.Sumw2();
 vec.push_back(RA2NBtag_hist);
-TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,20);
-NLostLep_hist.Sumw2();
-vec.push_back(NLostLep_hist);
-TH1D nGenTauHad_hist = TH1D("nGenTauHad","Number of Gen. Had. Tau",20,0,20);
-nGenTauHad_hist.Sumw2();
-vec.push_back(nGenTauHad_hist);
 
 Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
@@ -325,6 +334,8 @@ TH1D * genTauPtHist = new TH1D("genTauPtHist","genTauPt",10,0,250);
 TH1D * genHadTauPtHist = new TH1D("genHadTauPtHist","genHadTauPt",10,0,250);
 /////////////////////////////////////
 
+  // We would like also to have the pt distribution of the tau Jets
+  TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
 
 /////////////////////////////////////////////
 isData = false;
@@ -399,10 +410,9 @@ cout<<"\n\n"<<keyString.c_str()<<"_Entries : "<<template_Entries<<endl;
 
 if( keyStringT.Contains("Data") ) evtlistFile.open("evtlistData_aftAllCuts.txt");
 
-n_elec_mu_tot=0;
 n_2tau_had_tot=0;
 n_tau_had_tot=0;
-Nfailed=0;
+
 
 ////Loop over all events
 for(int ie=0; ie<template_Entries; ie++){
@@ -420,7 +430,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>10000)break;
+//if(ie>1000000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -489,16 +499,6 @@ printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), te
  * }
  * */
 
-///In this part we would like to identify lost leptons and hadronic taus. To do so we use the generator truth information. We first check how many leptons(e and mu) are in the event and compare with the isolated+reconstructed ones.
-n_elec_mu=0;
-for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
-int pdgId = template_genDecayPdgIdVec->at(iv);
-if( abs(pdgId) == 11 || abs(pdgId) == 13 ) n_elec_mu++;
-}
-n_elec_mu_tot+=n_elec_mu;
-/*if(ie < 100){
- * printf("event#: %d, #recElec: %d, #recMu: %d, #trueElecMu: %d \n", ie , template_nElectrons , template_nMuons , n_elec_mu);
- * }*/
 //
 n_tau_had=0;
 int tempN=0;///test99 
@@ -536,6 +536,69 @@ printf("\n Event: %d,  Warning! \n Warning! There  are more than one hadronic ta
 
 }
 
+  // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/ 
+  // comparing with /<<<< w--> mu >>>>/ 
+
+  // First we restrict ourselves to events with one muon and no electron
+  // just like the control sample in the data driven method.
+  // Introduce two histograms of Pt distributions. One to be filled in
+  // any case when one muon and no electron exist. The other, when muon 
+  // is coming from tau.
+  // At the end dividing the two histograms give the percentage as a function
+  // transverse momentum. 
+
+  int muN=0;
+  int eleN=0;
+  int muMomIndx=-99;
+  int wMomIndx=-99;
+  double muPt=-99;
+
+  //we want to consider events that pass the baseline cuts
+  if( HT>=500 && template_mht>=200 && cntNJetsPt30Eta24>=4 ){
+    // loop over all particles and count electrons and muons 
+    if(verbose!=0)printf("============================================================= \n ie: %d \n ",ie);
+    for(int i=0; i<(int)template_genDecayLVec->size(); i++){
+      int pdgId = template_genDecayPdgIdVec->at(i);
+      if(verbose!=0)printf("index: %d  pdgID: %d  MomIndex: %d \n ",template_genDecayIdxVec->at(i),pdgId,(int)template_genDecayMomIdxVec->at(i));  
+      if( abs(pdgId) ==11 )eleN++;
+      if( abs(pdgId) ==13 ){
+        muN++;
+        muMomIndx=template_genDecayMomIdxVec->at(i);
+        muPt=template_genDecayLVec->at(i).Pt();//it is ok since we are working with single muon events.
+      }
+    }
+    if(verbose!=0 && eleN==0 && muN==1)printf("#####################\nNo elec and 1 muon event \n ie: %d \n ",ie);
+
+    // If no elec and 1 muon
+    // Fill the hW_mu anyways.
+    // See what is the parent of the mu. if tau fill the tau hist. 
+    // If w, see where w is coming from, if tau again, fill the tau hist.
+    if( eleN==0 && muN==1 )hW_mu->Fill(muPt);
+
+    bool isTau_mu=false;
+    for(int i=0; i<(int)template_genDecayLVec->size(); i++){
+      if(eleN!=0 || muN!=1)break;
+      int Index = template_genDecayIdxVec->at(i);     
+      if(Index == muMomIndx){
+        if(verbose!=0)printf("muMomPdg: %d muMonIndx: %d \n ",(int) template_genDecayPdgIdVec->at(i),muMomIndx);     
+        if( abs((int) template_genDecayPdgIdVec->at(i)) == 15 )isTau_mu=true;
+        else if( abs((int) template_genDecayPdgIdVec->at(i)) == 24){
+          wMomIndx=template_genDecayMomIdxVec->at(i);
+          for(int j=0; j<(int)template_genDecayLVec->size(); j++){
+            if( (int)template_genDecayIdxVec->at(j) == wMomIndx ){
+              if( abs((int) template_genDecayPdgIdVec->at(j)) == 15 )isTau_mu=true;
+            }
+          }
+        }
+        else{printf("Parent of mu nither W nor tau. \n "); throw("Parent of mu nither W nor tau. \n ");}  
+      }
+    }
+    
+    if( eleN==0 && muN==1 && isTau_mu==true )hTau_mu->Fill(muPt);  
+
+  }
+/////////////
+
 //printf("W_emuVec size: %d W_tau_emuVec size: %d W_tau_prongsVec size: %d  \n ",W_emuVec->size(),W_tau_emuVec->size(),W_tau_prongsVec->size());
 
 //we are interested in hadronically decaying taus only
@@ -555,11 +618,18 @@ const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at lo
 
 //if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,vec_Jet_30_24_Lvec,deltaRMax) ) continue;//this also determines tauJetIdx
 
-//cout << "Matched: " << findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax,verbose) << endl;
+  // Lets write all the gen tau events regardless of if they match a jet or not.
+    //we want to consider events that pass the baseline cuts
+      if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && cntNJetsPt30Eta24>2 )GenTau_Jet_all->Fill(genTauPt);
 
+//cout << "Matched: " << findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax,verbose) << endl;
 if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,deltaRMax,verbose) ){
-if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 )Nfailed+=1; 
-continue;}//this also determines tauJetIdx
+
+  // Now we fill this histogram only if the gen tau does not match any jet.
+  if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && cntNJetsPt30Eta24>2 )GenTau_Jet_fail->Fill(genTauPt); 
+
+  continue;
+}//this also determines tauJetIdx
 
 if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
 if(tauJetIdx!=-1){
@@ -573,7 +643,7 @@ nbtag=0;
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
 double pt=template_oriJetsVec->at(i).Pt();
 double eta=template_oriJetsVec->at(i).Eta();
-if(template_recoJetsBtagCSVS->at(i) > 0.814 /*0.679*/ && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
+if(template_recoJetsBtagCSVS->at(i) > cutCSVS && pt > 30 && fabs(eta)<2.4 )nbtag+=1;
 }//end of the loop
 nLeptons= (int)(template_nElectrons+template_nMuons);
 
@@ -645,6 +715,18 @@ if( jetIdx == tauJetIdx ) continue;
 if(  vec_Jet_30_24_Lvec[jetIdx].Pt() > 30. && std::abs(vec_Jet_30_24_Lvec[jetIdx].Eta()) < 2.4 ) selNJet++;
 } // End of loop over reco jets
 
+
+  // Fill tauJet Pt histogram
+  for(int jetIdx = 0; jetIdx < (int) template_oriJetsVec->size(); ++jetIdx) { // Loop over reco jets
+  // Select tau jet
+    if( jetIdx == tauJetIdx ) {
+      // Fill the tauJetPtHist
+      tauJetPtHist->Fill( template_oriJetsVec->at(jetIdx).Pt() );// this is tauJetPt that later is defined. 
+      break; // End the jet loop once the tau jet has been found
+    }
+  } // End of loop over reco jets
+
+
 // Select only events with at least 2 HT jets
 if( selNJet < 2 ) continue;
 
@@ -669,7 +751,6 @@ break; // End the jet loop once the tau jet has been found
 
 }////end of loop over all events
 
-printf(" \n \n We have failed %d times to match a jet with the hadronic GenTau. Number of successful attemts is the number of entries in the nocut histogram. \n \n",Nfailed);
 
 if(verbose!=0){
 printf(" \n # of times tau hadronic were in the event: %d \n ",n_tau_had_tot);
@@ -707,6 +788,30 @@ cdtoitt->cd();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  // Calculate the probability of muon coming from Tau
+  TH1D * hProb_Tau_mu = static_cast<TH1D*>(hTau_mu->Clone("hProb_Tau_mu"));   
+  hProb_Tau_mu->Divide(hTau_mu,hW_mu,1,1,"B");
+  // Write the histograms
+  sprintf(tempname,"Probability_Tau_mu_%s_%s.root",sampleKeyString.c_str(),inputnumber.c_str());
+  TFile fTau_mu(tempname,"RECREATE");
+  hProb_Tau_mu->Write();
+  hTau_mu->Write();
+  hW_mu->Write();
+  fTau_mu.Close();
+
+
+  // Calculate how often a gen tau does not match a jet (in a hadronic tau event)
+  TH1D * FailRate_GenTau_jet = static_cast<TH1D*>(GenTau_Jet_fail->Clone("FailRate_GenTau_jet"));
+  FailRate_GenTau_jet->Divide(GenTau_Jet_fail,GenTau_Jet_all,1,1,"B");
+  // Write the histograms
+  sprintf(tempname,"FailRate_GenTau_jet_%s_%s.root",sampleKeyString.c_str(),inputnumber.c_str());
+  TFile fgentTau_jet(tempname,"RECREATE");
+  FailRate_GenTau_jet->Write();
+  GenTau_Jet_fail->Write();
+  GenTau_Jet_all->Write();
+  fgentTau_jet.Close();
+
+
 
 ///calculate the probability with which tau decays hadronically as function of pt
 genHadTauPtHist->Divide(genTauPtHist);
@@ -720,7 +825,8 @@ hTauResp.at(i)->Scale(1./hTauResp.at(i)->Integral("width"));
 }
 
 // --- Save the Histograms to File -----------------------------------
-TFile outFile("HadTau_TauResponseTemplates.root","RECREATE");
+sprintf(tempname,"HadTau_TauResponseTemplates_%s_%s.root",sampleKeyString.c_str(),inputnumber.c_str());
+TFile outFile(tempname,"RECREATE");
 TCanvas *c1 = new TCanvas("c1","TauResponseTemplates",10,10,700,900);
 for(unsigned int i = 0; i < hTauResp.size(); ++i) {
 hTauResp.at(i)->Write();
@@ -730,6 +836,11 @@ hTauResp.at(i)->SetLineColor(i);
 //c1->Print("HadTau_TauResponseTemplates.pdf");
 genHadTauPtHist->Write();
 genHadTauPtHist->Draw();
+
+tauJetPtHist->Write();
+
+
+
 }//end of class constructor templatePlotsFunc
 };//end of class templatePlotsFunc
 

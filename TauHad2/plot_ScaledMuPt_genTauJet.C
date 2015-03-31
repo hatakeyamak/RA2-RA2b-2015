@@ -47,27 +47,6 @@ using namespace std;
     catLeg1->SetTextFont(42);
 
 
-    const int TauResponse_nBins=4;
-
-    TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
-
-    // Tau Jet Pt
-
-    sprintf(tempname,"tauJetPtHist");
-    TH1D * tauJetPtHist = (TH1D*) resp_file->Get( tempname )->Clone();
-    tauJetPtHist->GetXaxis()->SetTitle("P_{T}");
-    tauJetPtHist->GetYaxis()->SetTitleOffset(1.5);
-    tauJetPtHist->GetYaxis()->SetTitle("Events");
-    tauJetPtHist->SetTitleOffset(1.5);
-    tauJetPtHist->SetTitle("#tau vs. scaled #mu");
-    tauJetPtHist->Draw("hist");
-    sprintf(tempname,"#tau Jet");
-    catLeg1->AddEntry(tauJetPtHist,tempname,"l");
-
-
-
-    //................//
-
 
     // Scaled Mu Pt
     
@@ -76,11 +55,39 @@ using namespace std;
     sprintf(tempname,"EventsWith_1RecoMuon_0RecoElectron/nocut/simTauJetPt_nocut_EventsWith_1RecoMuon_0RecoElectron");
     TH1D * simTauJetPtHist = (TH1D*) MuPt_file->Get( tempname )->Clone();   
     simTauJetPtHist->SetLineColor(2);
+    simTauJetPtHist->GetXaxis()->SetTitle("P_{T}");
+    simTauJetPtHist->GetYaxis()->SetTitleOffset(1.5);
+    simTauJetPtHist->GetYaxis()->SetTitle("Events");
+    simTauJetPtHist->SetTitleOffset(1.5);
+    simTauJetPtHist->SetTitle("#tau vs. scaled #mu");
     simTauJetPtHist->Draw("same hist");
     sprintf(tempname,"Sim #tau Jet");
     catLeg1->AddEntry(simTauJetPtHist,tempname,"l");
 
 
-    catLeg1->Draw(); 
+    //................//
+
+
+    // Tau Jet Pt
+
+    TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
+    sprintf(tempname,"tauJetPtHist");
+    TH1D * tauJetPtHist = (TH1D*) resp_file->Get( tempname )->Clone();
+    tauJetPtHist->GetXaxis()->SetTitle("P_{T}");
+    tauJetPtHist->GetYaxis()->SetTitleOffset(1.5);
+    tauJetPtHist->GetYaxis()->SetTitle("Events");
+    tauJetPtHist->SetTitleOffset(1.5);
+    tauJetPtHist->SetTitle("#tau vs. scaled #mu");
+    tauJetPtHist->Draw("same hist");
+    sprintf(tempname,"#tau Jet");
+    catLeg1->AddEntry(tauJetPtHist,tempname,"l");
+
+
+
+
+
+    catLeg1->Draw();
+    
+    c1->Print("simTauJet_vs_TauJet.pdf"); 
 
   }

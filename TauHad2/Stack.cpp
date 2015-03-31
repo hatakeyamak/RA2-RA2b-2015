@@ -61,14 +61,17 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   const int wjnHT = (int) WJ_xs_vec.size();   // Total number of HT bin samples
 
   for(int i=1; i<=wjnHT ; i++){
-    if(i==1)sprintf(tempname,"../TauHad/GenInfo_HadTauEstimation_WJ_HT-100to200_.root");
-    else if(i==2)sprintf(tempname,"../TauHad/GenInfo_HadTauEstimation_WJ_HT-200to400_.root");
-    else if(i==3)sprintf(tempname,"../TauHad/GenInfo_HadTauEstimation_WJ_HT-400to600_.root");
-    else if(i==4)sprintf(tempname,"../TauHad/GenInfo_HadTauEstimation_WJ_HT-600toInf_.root");
+    if(i==1)sprintf(tempname,"../Results/results_WJ_HT-100to200_.root");
+    else if(i==2)sprintf(tempname,"../Results/results_WJ_HT-200to400_.root");
+    else if(i==3)sprintf(tempname,"../Results/results_WJ_HT-400to600_.root");
+    else if(i==4)sprintf(tempname,"../Results/results_WJ_HT-600toInf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"EventsWith_0RecoMuon_0RecoElectron_1tauJet/nocut/MHT_nocut_EventsWith_0RecoMuon_0RecoElectron_1tauJet");
+    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
     tempvalue = (luminosity*WJ_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+
+printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJ_xs_vec[i-1]);
+
     WJ_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "WJ normalization scale factor determination done \n " << std::endl;
@@ -161,11 +164,14 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   const int ttbarnHT = (int) TTbar_xs_vec.size();   // Total number of HT bin samples
 
   for(int i=1; i<=ttbarnHT ; i++){
-    if(i==1)sprintf(tempname,"../TauHad/GenInfo_HadTauEstimation_TTbar_.root");
+    if(i==1)sprintf(tempname,"../Results/results_TTbar_.root");
     else{cout << " Error!! There are only 1 TTbaret ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"EventsWith_0RecoMuon_0RecoElectron_1tauJet/nocut/MHT_nocut_EventsWith_0RecoMuon_0RecoElectron_1tauJet");
+    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+
+printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
+
     TTbar_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "TTbar normalization scale factor determination done \n " << std::endl;
