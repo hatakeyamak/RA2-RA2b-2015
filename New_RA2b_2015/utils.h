@@ -1,3 +1,4 @@
+#include "TH1.h"
 #include "TVector2.h"
 #include <cstdio>
 #include <iostream>
@@ -30,5 +31,7 @@ public:
     int TauResponse_nBins_();
 
     unsigned int TauResponse_ptBin(double pt);
+
+    double getRandom(double muPt_,vector<TH1*> vec_resp);
 };
 

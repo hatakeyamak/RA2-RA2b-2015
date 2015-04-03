@@ -139,7 +139,15 @@ int main(int argc, char *argv[]){
     // Print out some information
     if(verbose!=0){
       printf(" ########################### \n event #: %d \n",eventN);
-      printf("ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),evt->nIso(),evt->nLeptons());
+      printf(" ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),evt->nIso(),evt->nLeptons());
+      printf(" @@@@\n Jets section: \n Njets: %d \n ", evt->nJets());
+      for(int i=0;i<evt->JetsPtVec_().size();i++){
+        printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+      }
+      printf(" @@@@\n Muons section: \n Nmuons: %d \n ", evt->MuPtVec_().size());
+      for(int i=0;i<evt->MuPtVec_().size();i++){
+        printf("Muon#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->MuPtVec_()[i],evt->MuEtaVec_()[i],evt->MuPhiVec_()[i]);
+      }
     }
 
     // Total weight
@@ -175,7 +183,7 @@ int main(int argc, char *argv[]){
     }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
 
-
+    eventN++;
   } // End of loop over events
 
 

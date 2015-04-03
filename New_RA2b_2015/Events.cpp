@@ -17,6 +17,7 @@
      Weight=1;
      HT=0.0;
      MHT=0.0;
+     MHTPhi=0.0; 
      DeltaPhi1=-99.;
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
@@ -38,6 +39,21 @@
      JetsPtVec=new vector<double>();
      JetsEtaVec=new vector<double>();
      JetsPhiVec=new vector<double>();
+     MuonsPtVec=new vector<double>();
+     MuonsEtaVec=new vector<double>();
+     MuonsPhiVec=new vector<double>();
+     ElectronsPtVec=new vector<double>();
+     ElectronsEtaVec=new vector<double>();
+     ElectronsPhiVec=new vector<double>();
+
+     selectedIDIsoMuonsPtVec=new vector<double>();
+     selectedIDIsoMuonsEtaVec=new vector<double>();
+     selectedIDIsoMuonsPhiVec=new vector<double>();
+
+     selectedIDIsoElectronsPtVec=new vector<double>();
+     selectedIDIsoElectronsEtaVec=new vector<double>();
+     selectedIDIsoElectronsPhiVec=new vector<double>();
+
 
      testVec=new vector<double>();
 
@@ -56,6 +72,7 @@
      fChain->SetBranchAddress("Weight", &Weight);
      fChain->SetBranchAddress("HT", &HT);
      fChain->SetBranchAddress("MHT", &MHT);
+     fChain->SetBranchAddress("MHTPhi", &MHTPhi); 
      fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1);
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
@@ -76,6 +93,18 @@
    fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
    fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
    fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
+   fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
+   fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
+   fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
+   fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
+   fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
+   fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
+   fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
+   fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec);
+   fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec);
+   fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
+   fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
+   fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
@@ -122,6 +151,7 @@ fChain->SetBranchAddress("testVec", &testVec);
   // HT and MHT
   double Events::ht() const { return HT; }
   double Events::mht() const { return MHT; }
+  double Events::mhtphi() const { return MHTPhi; }
 
   // Number of HT jets
   int Events::nJets() const { return NJets; }
@@ -157,6 +187,15 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
    vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}
    vector<double>  Events::JetsPhiVec_() const { return *JetsPhiVec ;}
+  
+   vector<double>  Events::MuPtVec_() const{ return  *selectedIDIsoMuonsPtVec;}
+   vector<double>  Events::MuEtaVec_() const{ return *selectedIDIsoMuonsEtaVec;}
+   vector<double>  Events::MuPhiVec_() const{ return *selectedIDIsoMuonsPhiVec;}
+
+   vector<double>  Events::ElecPtVec_() const{ return *selectedIDIsoElectronsPtVec;}
+   vector<double>  Events::ElecEtaVec_() const{ return *selectedIDIsoElectronsEtaVec;}
+   vector<double>  Events::ElecPhiVec_() const{return *selectedIDIsoElectronsPhiVec;}
+
 
    vector<int>     Events::GenMuFromTauVec_() const {
      vector<int> tempVec;

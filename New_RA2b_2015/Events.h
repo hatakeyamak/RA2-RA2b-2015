@@ -38,6 +38,7 @@ using namespace std;
    Float_t         Weight;
    Float_t         HT;
    Float_t         MHT;
+   Float_t         MHTPhi; 
    Float_t         DeltaPhi1;
    Float_t         DeltaPhi2;
    Float_t         DeltaPhi3;
@@ -66,6 +67,23 @@ using namespace std;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
 
+   vector<double>  *MuonsPtVec;
+   vector<double>  *MuonsEtaVec;
+   vector<double>  *MuonsPhiVec;
+
+   vector<double>  *ElectronsPtVec;
+   vector<double>  *ElectronsEtaVec;
+   vector<double>  *ElectronsPhiVec;
+
+   vector<double>  *selectedIDIsoMuonsPtVec;
+   vector<double>  *selectedIDIsoMuonsEtaVec;
+   vector<double>  *selectedIDIsoMuonsPhiVec;
+
+   vector<double>  *selectedIDIsoElectronsPtVec;
+   vector<double>  *selectedIDIsoElectronsEtaVec;
+   vector<double>  *selectedIDIsoElectronsPhiVec;
+
+
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
@@ -84,6 +102,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double weight() const ;
   double ht() const ;
   double mht() const ;
+  double mhtphi() const ;
   double deltaPhi1() const ;
   double deltaPhi2() const ;
   double deltaPhi3() const ;
@@ -105,6 +124,15 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
+
+   vector<double>  MuPtVec_() const;
+   vector<double>  MuEtaVec_() const;
+   vector<double>  MuPhiVec_() const;
+
+   vector<double>  ElecPtVec_() const;
+   vector<double>  ElecEtaVec_() const;
+   vector<double>  ElecPhiVec_() const;
+
 
    vector<int>     GenMuFromTauVec_() const;   
    vector<int>     GenElecFromTauVec_() const;   

@@ -72,3 +72,7 @@ using namespace std;
       return bin;
     }
 
+    double Utils::getRandom(double muPt_,vector<TH1*> vec_resp){
+      int bin = TauResponse_ptBin(muPt_);
+      return vec_resp[bin]->GetRandom();
+    }
