@@ -68,6 +68,21 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
 
+    // Inroduce two histogram to understand the probability of a muon coming from tau.
+    int MaxMuPt=100*10;
+    int NMuPtBins=MaxMuPt/10;
+    TH1D * hW_mu = new TH1D("hW_mu","Pt of mu from W",NMuPtBins,0,MaxMuPt);
+    hW_mu->Sumw2();
+    TH1D * hTau_mu = new TH1D("hTau_mu","Pt of mu from Tau",NMuPtBins,0,MaxMuPt);
+    hTau_mu->Sumw2();
+
+    // Introduce two histograms to understand how often a gen tau does not match any jet
+    TH1D * GenTau_Jet_all = new TH1D("GenTau_Jet_all","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    GenTau_Jet_all->Sumw2();
+    TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    GenTau_Jet_fail->Sumw2();
+
+
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
     vec.push_back(weight_hist);
@@ -143,9 +158,49 @@ using namespace std;
     }
 
     // Loop over the events (tree entries)
-    int Nfailed=0;
     int eventN=0;
     while( evt->loadNext() ){
+
+
+
+      // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
+      // comparing with /<<<< w--> mu >>>>/
+      // First we restrict ourselves to events with one muon and no electron
+      // just like the control sample in the data driven method.
+      // Introduce two histograms of Pt distributions. One to be filled in
+      // any case when one muon and no electron exist. The other, when muon
+      // is coming from tau.
+      // At the end dividing the two histograms give the percentage as a function
+      // transverse momentum.
+      int muN=evt->GenMuPtVec_().size();
+      int eleN=evt->GenElecPtVec_().size();
+      double muPt=-99;
+
+      //we want to consider events that pass the baseline cuts
+      if( evt->ht() >=500 && evt->mht() >=200 && evt->nJets() >=4 ){
+
+        if(verbose!=0)printf("============================================================= \n eventN: %d \n ",eventN);
+        if(verbose!=0 && eleN==0 && muN==1)printf("#####################\nNo elec and 1 muon event \n eventN: %d \n ",eventN);
+        if(muN==1)muPt=evt->GenMuPtVec_().at(0);
+    
+        // If no elec and 1 muon
+        // Fill the hW_mu anyways.
+        // See what is the parent of the mu. if tau fill the tau hist.
+        // If w, see where w is coming from, if tau again, fill the tau hist.
+        if( eleN==0 && muN==1 )hW_mu->Fill(muPt);
+
+        bool isTau_mu=false;
+
+        if(muN==1){ 
+          if(evt->GenMuFromTauVec_()[0]==1)isTau_mu=true;
+        }
+        
+        if( eleN==0 && muN==1 && isTau_mu==true )hTau_mu->Fill(muPt);
+        
+      } // end of baseline cuts
+
+
+
 
       // We are interested in hadronically decaying taus only
       bool hadTau=false; 
@@ -172,8 +227,13 @@ using namespace std;
       int tauJetIdx = -1;
       const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
 
+
+      // Lets write all the gen tau events regardless of if they match a jet or not.
+      //we want to consider events that pass the baseline cuts
+      if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
+
       if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
-        if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 )Nfailed+=1;
+        if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt);
         continue;
       } // this also determines tauJetIdx
 
@@ -254,7 +314,7 @@ using namespace std;
 
 
     //open a file to write the histograms
-    sprintf(tempname,"TauHad/results_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
@@ -284,6 +344,30 @@ using namespace std;
         }
       }
     }
+
+    // Calculate the probability of muon coming from Tau
+    TH1D * hProb_Tau_mu = static_cast<TH1D*>(hTau_mu->Clone("hProb_Tau_mu"));
+    hProb_Tau_mu->Divide(hTau_mu,hW_mu,1,1,"B");
+    // Write the histograms
+    sprintf(tempname,"TauHad/Probability_Tau_mu_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile fTau_mu(tempname,"RECREATE");
+    hProb_Tau_mu->Write();
+    hTau_mu->Write();
+    hW_mu->Write();
+    fTau_mu.Close();
+
+
+    // Calculate how often a gen tau does not match a jet (in a hadronic tau event)
+    TH1D * FailRate_GenTau_jet = static_cast<TH1D*>(GenTau_Jet_fail->Clone("FailRate_GenTau_jet"));
+    FailRate_GenTau_jet->Divide(GenTau_Jet_fail,GenTau_Jet_all,1,1,"B");
+    // Write the histograms
+    sprintf(tempname,"TauHad/FailRate_GenTau_jet_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile fgentTau_jet(tempname,"RECREATE");
+    FailRate_GenTau_jet->Write();
+    GenTau_Jet_fail->Write();
+    GenTau_Jet_all->Write();
+    fgentTau_jet.Close();
+
 
     ///calculate the probability with which tau decays hadronically as function of pt
     genHadTauPtHist->Divide(genTauPtHist);

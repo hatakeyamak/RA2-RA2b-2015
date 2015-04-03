@@ -118,6 +118,11 @@ double puWeight, totWeight, delphi12, HT;
 int cntCSVS, cntNJetsPt30, cntNJetsPt30Eta24, cntNJetsPt50Eta24, cntNJetsPt70Eta24, cntgenTop, cntleptons;
 TLorentzVector metLVec;
 vector<double> dPhiVec;
+vector<TLorentzVector> *muonsLVec;
+TLorentzVector tempLvec;
+vector<TLorentzVector> vec_recoMuonLvec;
+vector<double>  *muonsMtw;
+vector<double>  *muonsRelIso;
 
 
 //define different cuts here
@@ -574,6 +579,7 @@ keyString = sampleKeyString;
 TString keyStringT(keyString);
 //KH---begins - prepares a few vectors
 template_loose_isoTrksLVec = new vector<TLorentzVector>();
+muonsLVec  = new vector<TLorentzVector>();
 loose_isoTrks_iso = new vector<double>();
 loose_isoTrks_mtw = new vector<double>();
 //KH---ends
@@ -584,6 +590,9 @@ vector<string> *template_genDecayStrVec =0, *template_smsModelFileNameStrVec =0,
 template_genJetsLVec_myak5GenJetsNoNu =0; template_genJetsLVec_myak5GenJetsNoNuNoStopDecays =0; template_genJetsLVec_myak5GenJetsNoNuOnlyStopDecays =0;
 template_AUX = ttree_;
 template_AUX->SetBranchStatus("*", 0);
+muonsMtw = 0;
+muonsRelIso = 0;
+
 
 ///the variables
 
@@ -601,7 +610,7 @@ template_AUX->SetBranchStatus("jetsLVec", 1); template_AUX->SetBranchAddress("je
 template_AUX->SetBranchStatus("recoJetsBtag_0", 1); template_AUX->SetBranchAddress("recoJetsBtag_0", &template_recoJetsBtagCSVS);
 template_AUX->SetBranchStatus("evtWeight", 1); template_AUX->SetBranchAddress("evtWeight", &template_evtWeight);
 template_AUX->SetBranchStatus("met", 1); template_AUX->SetBranchAddress("met", &template_met);
-template_AUX->SetBranchStatus("nIsoTrks_CUT",1); template_AUX->SetBranchAddress("nIsoTrks_CUT", &template_nIsoTrks_CUT);
+template_AUX->SetBranchStatus("nIsoTrks_CUT",1); template_AUX->SetBranchAddress("nIsoTrks_CUT", &template_nIsoTrks_CUT); 
 template_AUX->SetBranchStatus("metphi", 1); template_AUX->SetBranchAddress("metphi", &template_metphi);
 template_AUX->SetBranchStatus("mhtphi", 1); template_AUX->SetBranchAddress("mhtphi", &template_mhtphi);
 template_AUX->SetBranchStatus("nMuons_CUT", 1); template_AUX->SetBranchAddress("nMuons_CUT", &template_nMuons);
@@ -618,6 +627,9 @@ template_AUX->SetBranchStatus("loose_isoTrks_iso","1");template_AUX->SetBranchAd
 template_AUX->SetBranchStatus("loose_isoTrks_mtw", "1");template_AUX->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw);
 template_AUX->SetBranchStatus("loose_nIsoTrks", "1");template_AUX->SetBranchAddress("loose_nIsoTrks", &loose_nIsoTrks);
 
+template_AUX->SetBranchStatus("muonsLVec","1");template_AUX->SetBranchAddress("muonsLVec", &muonsLVec);
+template_AUX->SetBranchStatus("muonsMtw","1");template_AUX->SetBranchAddress("muonsMtw", &muonsMtw);
+template_AUX->SetBranchStatus("muonsRelIso","1");template_AUX->SetBranchAddress("muonsRelIso", &muonsRelIso);
 
 //template_AUX->SetBranchStatus("nIsoTrks_CUT", "1");template_AUX->SetBranchAddress("nIsoTrks_CUT", &nIsoTrks_CUT);
 //template_AUX->SetBranchStatus("trksForIsoVeto_charge","1");template_AUX->SetBranchAddress("trksForIsoVeto_charge", &trksForIsoVeto_charge);
@@ -660,7 +672,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-if(ie>50000)break;
+if(ie>9999)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -694,7 +706,7 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 if( abs(pdgId) == 6 ) cntgenTop ++;
 if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ) cntleptons++;
 }
-if( verbose >=1 ){
+if( verbose >=2 ){
 std::cout<<"\nie : "<<ie<<std::endl;
 std::cout<<"genDecayStr : "<<template_genDecayStrVec->front().c_str()<<std::endl;
 printf("((pdgId,index/MomIndex):(E/Pt)) \n");
@@ -703,6 +715,9 @@ int pdgId = template_genDecayPdgIdVec->at(iv);
 printf("((%d,%d/%d):(%6.2f/%6.2f)) ", pdgId, template_genDecayIdxVec->at(iv), template_genDecayMomIdxVec->at(iv), template_genDecayLVec->at(iv).E(), template_genDecayLVec->at(iv).Pt());
 }
 }
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////
 ////Isolated track section
@@ -739,7 +754,6 @@ n_tau_had++;
 }
 }
 n_tau_had_tot+=n_tau_had;
-
 nbtag=0;
 //Number of B-jets
 for(int i=0; i<template_recoJetsBtagCSVS->size();i++){
@@ -770,6 +784,40 @@ double mt_w = loose_isoTrks_mtw->at(i);//This is transverse mass of track and mi
 if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 }
 //cout << "nIso: " << nIsoTrk_ << endl;
+
+
+    vec_recoMuonLvec.clear();
+    for(int i=0; i< muonsLVec->size(); i++){
+      double pt=muonsLVec->at(i).Pt();
+      double eta=muonsLVec->at(i).Eta();
+      double phi=muonsLVec->at(i).Phi();
+      double e=muonsLVec->at(i).E();
+      double relIso=muonsRelIso->at(i);
+      double mu_mt_w =muonsMtw->at(i);
+      if(pt>10. && fabs(eta)< 2.4 && relIso < 0.2 /* && mu_mt_w < 100. */ ){
+        tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
+        vec_recoMuonLvec.push_back(tempLvec);
+      }
+    }
+
+
+
+    // Print out some information
+    if(verbose!=0){
+      printf(" ########################### \n event #: %d \n",ie);
+      printf(" ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",HT,template_mht,cntNJetsPt30Eta24,nbtag,nIsoTrk_,(template_nElectrons+template_nMuons));
+      printf(" @@@@\n Jets section: \n Njets: %d \n ", cntNJetsPt30Eta24);
+      for(int i=0;i<(int)template_oriJetsVec->size();i++){
+        if(template_oriJetsVec->at(i).Pt() > 30. && fabs(template_oriJetsVec->at(i).Eta())<2.4){
+          printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi());
+        }
+      }
+      printf(" @@@@\n Muons section: \n Nmuons: %d \n ",(int)template_nMuons);
+      cout << " size of the muon vector: " << (int)vec_recoMuonLvec.size() << endl;
+      for(int i=0;i<(int)vec_recoMuonLvec.size();i++){
+        printf("Muon#: %d pt: %g eta: %g phi: %g \n ",i+1,vec_recoMuonLvec.at(i).Pt(),vec_recoMuonLvec.at(i).Eta(),vec_recoMuonLvec.at(i).Phi());
+      }
+    }
 
 
 //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -871,7 +919,7 @@ vector<string> filesVec;
 ///read the file names from the .txt files and load them to a vector.
 ifstream fin(InRootList.c_str());while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
 cout<< "\nProcessing " << subSampleKey << " ... " << endl;
-TChain *sample_AUX = new TChain("stopTreeMaker/AUX");
+TChain *sample_AUX = new TChain("stopTreeMaker/AUX");  // Ahamd3
 for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
 
 templatePlotsFunc(sample_AUX, subSampleKey,atoi(verbosity.c_str()),OutDir,inputNum);
