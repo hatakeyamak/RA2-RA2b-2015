@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Tue Mar 31 09:51:27 2015 by ROOT version 5.34/25
+// Wed Apr  8 10:27:13 2015 by ROOT version 5.34/25
 // from TTree PreSelection/PreSelection
-// found on file: /home/borzou/MiniAOD/CMSSW_7_2_3_patch1/src/AllHadronicSUSY/TreeMaker/test/ReducedSelection.root
+// found on file: /data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150407_223647/0000/ReducedSelection_2.root
 //////////////////////////////////////////////////////////
 
 #ifndef branches_h
@@ -34,6 +34,7 @@ public :
    Int_t           BTags;
    Float_t         Weight;
    Float_t         HT;
+   Float_t         MHTPhi;
    Float_t         MHT;
    Float_t         DeltaPhi1;
    Float_t         DeltaPhi2;
@@ -55,10 +56,10 @@ public :
    vector<double>  *ProbeIsoMuonEtaVec;
    vector<double>  *ProbeIsoMuonPhiVec;
    UShort_t        ProbeIsoMuonNum;
-   Float_t         ProbeIsoMuonE[1];   //[ProbeIsoMuonNum]
-   Float_t         ProbeIsoMuonTLorentzVector[1];   //[ProbeIsoMuonNum]
-   Float_t         ProbeIsoMuon_InvariantMass[1];   //[ProbeIsoMuonNum]
-   Int_t           ProbeIsoMuon_PassingOrFail[1];   //[ProbeIsoMuonNum]
+   Float_t         ProbeIsoMuonE[4];   //[ProbeIsoMuonNum]
+   Float_t         ProbeIsoMuonTLorentzVector[4];   //[ProbeIsoMuonNum]
+   Float_t         ProbeIsoMuon_InvariantMass[4];   //[ProbeIsoMuonNum]
+   Int_t           ProbeIsoMuon_PassingOrFail[4];   //[ProbeIsoMuonNum]
    vector<double>  *TagIDMuonPtVec;
    vector<double>  *TagIDMuonEtaVec;
    vector<double>  *TagIDMuonPhiVec;
@@ -69,10 +70,10 @@ public :
    vector<double>  *ProbeIDMuonEtaVec;
    vector<double>  *ProbeIDMuonPhiVec;
    UShort_t        ProbeIDMuonNum;
-   Float_t         ProbeIDMuonE[3];   //[ProbeIDMuonNum]
-   Float_t         ProbeIDMuonTLorentzVector[3];   //[ProbeIDMuonNum]
-   Float_t         ProbeIDMuon_InvariantMass_1[3];   //[ProbeIDMuonNum]
-   Int_t           ProbeIDMuon_PassingOrFail_1[3];   //[ProbeIDMuonNum]
+   Float_t         ProbeIDMuonE[15];   //[ProbeIDMuonNum]
+   Float_t         ProbeIDMuonTLorentzVector[15];   //[ProbeIDMuonNum]
+   Float_t         ProbeIDMuon_InvariantMass_1[15];   //[ProbeIDMuonNum]
+   Int_t           ProbeIDMuon_PassingOrFail_1[15];   //[ProbeIDMuonNum]
    vector<double>  *TagIsoElectronPtVec;
    vector<double>  *TagIsoElectronEtaVec;
    vector<double>  *TagIsoElectronPhiVec;
@@ -83,10 +84,10 @@ public :
    vector<double>  *ProbeIsoElectronEtaVec;
    vector<double>  *ProbeIsoElectronPhiVec;
    UShort_t        ProbeIsoElectronNum;
-   Float_t         ProbeIsoElectronE[1];   //[ProbeIsoElectronNum]
-   Float_t         ProbeIsoElectronTLorentzVector[1];   //[ProbeIsoElectronNum]
-   Float_t         ProbeIsoElectron_InvariantMass_2[1];   //[ProbeIsoElectronNum]
-   Int_t           ProbeIsoElectron_PassingOrFail_2[1];   //[ProbeIsoElectronNum]
+   Float_t         ProbeIsoElectronE[3];   //[ProbeIsoElectronNum]
+   Float_t         ProbeIsoElectronTLorentzVector[3];   //[ProbeIsoElectronNum]
+   Float_t         ProbeIsoElectron_InvariantMass_2[3];   //[ProbeIsoElectronNum]
+   Int_t           ProbeIsoElectron_PassingOrFail_2[3];   //[ProbeIsoElectronNum]
    vector<double>  *TagIDElectronPtVec;
    vector<double>  *TagIDElectronEtaVec;
    vector<double>  *TagIDElectronPhiVec;
@@ -97,144 +98,151 @@ public :
    vector<double>  *ProbeIDElectronEtaVec;
    vector<double>  *ProbeIDElectronPhiVec;
    UShort_t        ProbeIDElectronNum;
-   Float_t         ProbeIDElectronE[2];   //[ProbeIDElectronNum]
-   Float_t         ProbeIDElectronTLorentzVector[2];   //[ProbeIDElectronNum]
-   Float_t         ProbeIDElectron_InvariantMass_3[2];   //[ProbeIDElectronNum]
-   Int_t           ProbeIDElectron_PassingOrFail_3[2];   //[ProbeIDElectronNum]
+   Float_t         ProbeIDElectronE[7];   //[ProbeIDElectronNum]
+   Float_t         ProbeIDElectronTLorentzVector[7];   //[ProbeIDElectronNum]
+   Float_t         ProbeIDElectron_InvariantMass_3[7];   //[ProbeIDElectronNum]
+   Int_t           ProbeIDElectron_PassingOrFail_3[7];   //[ProbeIDElectronNum]
    vector<double>  *JetsPtVec;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
    UShort_t        JetsNum;
-   Float_t         JetsE[8];   //[JetsNum]
-   Float_t         JetsTLorentzVector[8];   //[JetsNum]
-   Float_t         Jets_bDiscriminator[8];   //[JetsNum]
-   Float_t         Jets_chargedEmEnergyFraction[8];   //[JetsNum]
-   Float_t         Jets_chargedHadronEnergyFraction[8];   //[JetsNum]
-   Int_t           Jets_chargedHadronMultiplicity[8];   //[JetsNum]
-   Int_t           Jets_electronMultiplicity[8];   //[JetsNum]
-   Float_t         Jets_jetArea[8];   //[JetsNum]
-   Float_t         Jets_muonEnergyFraction[8];   //[JetsNum]
-   Int_t           Jets_muonMultiplicity[8];   //[JetsNum]
-   Float_t         Jets_neutralEmEnergyFraction[8];   //[JetsNum]
-   Int_t           Jets_neutralHadronMultiplicity[8];   //[JetsNum]
-   Float_t         Jets_photonEnergyFraction[8];   //[JetsNum]
-   Int_t           Jets_photonMultiplicity[8];   //[JetsNum]
+   Float_t         JetsE[19];   //[JetsNum]
+   Float_t         JetsTLorentzVector[19];   //[JetsNum]
+   Float_t         Jets_bDiscriminator[19];   //[JetsNum]
+   Float_t         Jets_chargedEmEnergyFraction[19];   //[JetsNum]
+   Float_t         Jets_chargedHadronEnergyFraction[19];   //[JetsNum]
+   Int_t           Jets_chargedHadronMultiplicity[19];   //[JetsNum]
+   Int_t           Jets_electronMultiplicity[19];   //[JetsNum]
+   Float_t         Jets_jetArea[19];   //[JetsNum]
+   Float_t         Jets_muonEnergyFraction[19];   //[JetsNum]
+   Int_t           Jets_muonMultiplicity[19];   //[JetsNum]
+   Float_t         Jets_neutralEmEnergyFraction[19];   //[JetsNum]
+   Int_t           Jets_neutralHadronMultiplicity[19];   //[JetsNum]
+   Float_t         Jets_photonEnergyFraction[19];   //[JetsNum]
+   Int_t           Jets_photonMultiplicity[19];   //[JetsNum]
    vector<double>  *SelectedPFCandidatesPtVec;
    vector<double>  *SelectedPFCandidatesEtaVec;
    vector<double>  *SelectedPFCandidatesPhiVec;
    UShort_t        SelectedPFCandidatesNum;
-   Float_t         SelectedPFCandidatesE[81];   //[SelectedPFCandidatesNum]
-   Float_t         SelectedPFCandidatesTLorentzVector[81];   //[SelectedPFCandidatesNum]
-   Int_t           SelectedPFCandidates_Charge[81];   //[SelectedPFCandidatesNum]
-   Int_t           SelectedPFCandidates_Typ[81];   //[SelectedPFCandidatesNum]
+   Float_t         SelectedPFCandidatesE[209];   //[SelectedPFCandidatesNum]
+   Float_t         SelectedPFCandidatesTLorentzVector[209];   //[SelectedPFCandidatesNum]
+   Int_t           SelectedPFCandidates_Charge[209];   //[SelectedPFCandidatesNum]
+   Int_t           SelectedPFCandidates_Typ[209];   //[SelectedPFCandidatesNum]
    vector<double>  *MuonsPtVec;
    vector<double>  *MuonsEtaVec;
    vector<double>  *MuonsPhiVec;
    UShort_t        MuonsNum;
-   Float_t         MuonsE[1];   //[MuonsNum]
-   Float_t         MuonsTLorentzVector[1];   //[MuonsNum]
+   Float_t         MuonsE[4];   //[MuonsNum]
+   Float_t         MuonsTLorentzVector[4];   //[MuonsNum]
    vector<double>  *ElectronsPtVec;
    vector<double>  *ElectronsEtaVec;
    vector<double>  *ElectronsPhiVec;
    UShort_t        ElectronsNum;
-   Float_t         ElectronsE[2];   //[ElectronsNum]
-   Float_t         ElectronsTLorentzVector[2];   //[ElectronsNum]
+   Float_t         ElectronsE[4];   //[ElectronsNum]
+   Float_t         ElectronsTLorentzVector[4];   //[ElectronsNum]
    vector<double>  *IsolatedTracksPtVec;
    vector<double>  *IsolatedTracksEtaVec;
    vector<double>  *IsolatedTracksPhiVec;
    UShort_t        IsolatedTracksNum;
-   Float_t         IsolatedTracksE[3];   //[IsolatedTracksNum]
-   Float_t         IsolatedTracksTLorentzVector[3];   //[IsolatedTracksNum]
+   Float_t         IsolatedTracksE[5];   //[IsolatedTracksNum]
+   Float_t         IsolatedTracksTLorentzVector[5];   //[IsolatedTracksNum]
    vector<double>  *selectedIDIsoMuonsPtVec;
    vector<double>  *selectedIDIsoMuonsEtaVec;
    vector<double>  *selectedIDIsoMuonsPhiVec;
    UShort_t        selectedIDIsoMuonsNum;
-   Float_t         selectedIDIsoMuonsE[1];   //[selectedIDIsoMuonsNum]
-   Float_t         selectedIDIsoMuonsTLorentzVector[1];   //[selectedIDIsoMuonsNum]
+   Float_t         selectedIDIsoMuonsE[4];   //[selectedIDIsoMuonsNum]
+   Float_t         selectedIDIsoMuonsTLorentzVector[4];   //[selectedIDIsoMuonsNum]
    vector<double>  *selectedIDMuonsPtVec;
    vector<double>  *selectedIDMuonsEtaVec;
    vector<double>  *selectedIDMuonsPhiVec;
    UShort_t        selectedIDMuonsNum;
-   Float_t         selectedIDMuonsE[1];   //[selectedIDMuonsNum]
-   Float_t         selectedIDMuonsTLorentzVector[1];   //[selectedIDMuonsNum]
+   Float_t         selectedIDMuonsE[7];   //[selectedIDMuonsNum]
+   Float_t         selectedIDMuonsTLorentzVector[7];   //[selectedIDMuonsNum]
    vector<double>  *selectedIDIsoElectronsPtVec;
    vector<double>  *selectedIDIsoElectronsEtaVec;
    vector<double>  *selectedIDIsoElectronsPhiVec;
    UShort_t        selectedIDIsoElectronsNum;
-   Float_t         selectedIDIsoElectronsE[2];   //[selectedIDIsoElectronsNum]
-   Float_t         selectedIDIsoElectronsTLorentzVector[2];   //[selectedIDIsoElectronsNum]
+   Float_t         selectedIDIsoElectronsE[4];   //[selectedIDIsoElectronsNum]
+   Float_t         selectedIDIsoElectronsTLorentzVector[4];   //[selectedIDIsoElectronsNum]
    vector<double>  *selectedIDElectronsPtVec;
    vector<double>  *selectedIDElectronsEtaVec;
    vector<double>  *selectedIDElectronsPhiVec;
    UShort_t        selectedIDElectronsNum;
-   Float_t         selectedIDElectronsE[2];   //[selectedIDElectronsNum]
-   Float_t         selectedIDElectronsTLorentzVector[2];   //[selectedIDElectronsNum]
+   Float_t         selectedIDElectronsE[5];   //[selectedIDElectronsNum]
+   Float_t         selectedIDElectronsTLorentzVector[5];   //[selectedIDElectronsNum]
    vector<double>  *SelectedPFCandidates_1PtVec;
    vector<double>  *SelectedPFCandidates_1EtaVec;
    vector<double>  *SelectedPFCandidates_1PhiVec;
    UShort_t        SelectedPFCandidates_1Num;
-   Float_t         SelectedPFCandidates_1E[81];   //[SelectedPFCandidates_1Num]
-   Float_t         SelectedPFCandidates_1TLorentzVector[81];   //[SelectedPFCandidates_1Num]
-   Int_t           SelectedPFCandidates_1_Charge_1[81];   //[SelectedPFCandidates_1Num]
-   Int_t           SelectedPFCandidates_1_Typ_1[81];   //[SelectedPFCandidates_1Num]
+   Float_t         SelectedPFCandidates_1E[209];   //[SelectedPFCandidates_1Num]
+   Float_t         SelectedPFCandidates_1TLorentzVector[209];   //[SelectedPFCandidates_1Num]
+   Int_t           SelectedPFCandidates_1_Charge_1[209];   //[SelectedPFCandidates_1Num]
+   Int_t           SelectedPFCandidates_1_Typ_1[209];   //[SelectedPFCandidates_1Num]
    vector<double>  *GenBosonPtVec;
    vector<double>  *GenBosonEtaVec;
    vector<double>  *GenBosonPhiVec;
    UShort_t        GenBosonNum;
-   Float_t         GenBosonE[2];   //[GenBosonNum]
-   Float_t         GenBosonTLorentzVector[2];   //[GenBosonNum]
-   Int_t           GenBoson_GenBosonPDGId[2];   //[GenBosonNum]
+   Float_t         GenBosonE[4];   //[GenBosonNum]
+   Float_t         GenBosonTLorentzVector[4];   //[GenBosonNum]
+   Int_t           GenBoson_GenBosonPDGId[4];   //[GenBosonNum]
    vector<double>  *GenMuPtVec;
    vector<double>  *GenMuEtaVec;
    vector<double>  *GenMuPhiVec;
    UShort_t        GenMuNum;
-   Float_t         GenMuE[1];   //[GenMuNum]
-   Float_t         GenMuTLorentzVector[1];   //[GenMuNum]
-   Int_t           GenMu_GenMuFromTau[1];   //[GenMuNum]
+   Float_t         GenMuE[4];   //[GenMuNum]
+   Float_t         GenMuTLorentzVector[4];   //[GenMuNum]
+   Int_t           GenMu_GenMuFromTau[4];   //[GenMuNum]
    vector<double>  *GenElecPtVec;
    vector<double>  *GenElecEtaVec;
    vector<double>  *GenElecPhiVec;
    UShort_t        GenElecNum;
-   Float_t         GenElecE[2];   //[GenElecNum]
-   Float_t         GenElecTLorentzVector[2];   //[GenElecNum]
-   Int_t           GenElec_GenElecFromTau[2];   //[GenElecNum]
+   Float_t         GenElecE[4];   //[GenElecNum]
+   Float_t         GenElecTLorentzVector[4];   //[GenElecNum]
+   Int_t           GenElec_GenElecFromTau[4];   //[GenElecNum]
    vector<double>  *GenTauPtVec;
    vector<double>  *GenTauEtaVec;
    vector<double>  *GenTauPhiVec;
    UShort_t        GenTauNum;
-   Float_t         GenTauE[1];   //[GenTauNum]
-   Float_t         GenTauTLorentzVector[1];   //[GenTauNum]
-   Int_t           GenTau_GenTauHad[1];   //[GenTauNum]
+   Float_t         GenTauE[4];   //[GenTauNum]
+   Float_t         GenTauTLorentzVector[4];   //[GenTauNum]
+   Int_t           GenTau_GenTauHad[4];   //[GenTauNum]
    vector<double>  *selectedIDIsoMuonsNoMiniIsoPtVec;
    vector<double>  *selectedIDIsoMuonsNoMiniIsoEtaVec;
    vector<double>  *selectedIDIsoMuonsNoMiniIsoPhiVec;
    UShort_t        selectedIDIsoMuonsNoMiniIsoNum;
-   Float_t         selectedIDIsoMuonsNoMiniIsoE[1];   //[selectedIDIsoMuonsNoMiniIsoNum]
-   Float_t         selectedIDIsoMuonsNoMiniIsoTLorentzVector[1];   //[selectedIDIsoMuonsNoMiniIsoNum]
+   Float_t         selectedIDIsoMuonsNoMiniIsoE[4];   //[selectedIDIsoMuonsNoMiniIsoNum]
+   Float_t         selectedIDIsoMuonsNoMiniIsoTLorentzVector[4];   //[selectedIDIsoMuonsNoMiniIsoNum]
    vector<double>  *selectedIDIsoElectronsNoMiniIsoPtVec;
    vector<double>  *selectedIDIsoElectronsNoMiniIsoEtaVec;
    vector<double>  *selectedIDIsoElectronsNoMiniIsoPhiVec;
    UShort_t        selectedIDIsoElectronsNoMiniIsoNum;
-   Float_t         selectedIDIsoElectronsNoMiniIsoE[1];   //[selectedIDIsoElectronsNoMiniIsoNum]
-   Float_t         selectedIDIsoElectronsNoMiniIsoTLorentzVector[1];   //[selectedIDIsoElectronsNoMiniIsoNum]
+   Float_t         selectedIDIsoElectronsNoMiniIsoE[4];   //[selectedIDIsoElectronsNoMiniIsoNum]
+   Float_t         selectedIDIsoElectronsNoMiniIsoTLorentzVector[4];   //[selectedIDIsoElectronsNoMiniIsoNum]
    vector<double>  *Jets_1PtVec;
    vector<double>  *Jets_1EtaVec;
    vector<double>  *Jets_1PhiVec;
    UShort_t        Jets_1Num;
-   Float_t         Jets_1E[8];   //[Jets_1Num]
-   Float_t         Jets_1TLorentzVector[8];   //[Jets_1Num]
-   Float_t         Jets_1_bDiscriminator_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_chargedEmEnergyFraction_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_chargedHadronEnergyFraction_1[8];   //[Jets_1Num]
-   Int_t           Jets_1_chargedHadronMultiplicity_1[8];   //[Jets_1Num]
-   Int_t           Jets_1_electronMultiplicity_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_jetArea_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_muonEnergyFraction_1[8];   //[Jets_1Num]
-   Int_t           Jets_1_muonMultiplicity_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_neutralEmEnergyFraction_1[8];   //[Jets_1Num]
-   Int_t           Jets_1_neutralHadronMultiplicity_1[8];   //[Jets_1Num]
-   Float_t         Jets_1_photonEnergyFraction_1[8];   //[Jets_1Num]
-   Int_t           Jets_1_photonMultiplicity_1[8];   //[Jets_1Num]
+   Float_t         Jets_1E[19];   //[Jets_1Num]
+   Float_t         Jets_1TLorentzVector[19];   //[Jets_1Num]
+   Float_t         Jets_1_bDiscriminator_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_chargedEmEnergyFraction_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_chargedHadronEnergyFraction_1[19];   //[Jets_1Num]
+   Int_t           Jets_1_chargedHadronMultiplicity_1[19];   //[Jets_1Num]
+   Int_t           Jets_1_electronMultiplicity_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_jetArea_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_muonEnergyFraction_1[19];   //[Jets_1Num]
+   Int_t           Jets_1_muonMultiplicity_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_neutralEmEnergyFraction_1[19];   //[Jets_1Num]
+   Int_t           Jets_1_neutralHadronMultiplicity_1[19];   //[Jets_1Num]
+   Float_t         Jets_1_photonEnergyFraction_1[19];   //[Jets_1Num]
+   Int_t           Jets_1_photonMultiplicity_1[19];   //[Jets_1Num]
+   vector<double>  *slimJetPtVec;
+   vector<double>  *slimJetEtaVec;
+   vector<double>  *slimJetPhiVec;
+   UShort_t        slimJetNum;
+   Float_t         slimJetE[35];   //[slimJetNum]
+   Float_t         slimJetTLorentzVector[35];   //[slimJetNum]
+   Int_t           slimJet_slimJetID[35];   //[slimJetNum]
 
    // List of branches
    TBranch        *b_RunNum;   //!
@@ -248,6 +256,7 @@ public :
    TBranch        *b_BTags;   //!
    TBranch        *b_Weight;   //!
    TBranch        *b_HT;   //!
+   TBranch        *b_MHTPhi;   //!
    TBranch        *b_MHT;   //!
    TBranch        *b_DeltaPhi1;   //!
    TBranch        *b_DeltaPhi2;   //!
@@ -449,6 +458,13 @@ public :
    TBranch        *b_Jets_1_neutralHadronMultiplicity_1;   //!
    TBranch        *b_Jets_1_photonEnergyFraction_1;   //!
    TBranch        *b_Jets_1_photonMultiplicity_1;   //!
+   TBranch        *b_slimJetPtVec;   //!
+   TBranch        *b_slimJetEtaVec;   //!
+   TBranch        *b_slimJetPhiVec;   //!
+   TBranch        *b_slimJetNum;   //!
+   TBranch        *b_slimJetE;   //!
+   TBranch        *b_slimJetTLorentzVector;   //!
+   TBranch        *b_slimJet_slimJetID;   //!
 
    branches(TTree *tree=0);
    virtual ~branches();
@@ -469,11 +485,11 @@ branches::branches(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/home/borzou/MiniAOD/CMSSW_7_2_3_patch1/src/AllHadronicSUSY/TreeMaker/test/ReducedSelection.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150407_223647/0000/ReducedSelection_2.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/home/borzou/MiniAOD/CMSSW_7_2_3_patch1/src/AllHadronicSUSY/TreeMaker/test/ReducedSelection.root");
+         f = new TFile("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150407_223647/0000/ReducedSelection_2.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("/home/borzou/MiniAOD/CMSSW_7_2_3_patch1/src/AllHadronicSUSY/TreeMaker/test/ReducedSelection.root:/TreeMaker2");
+      TDirectory * dir = (TDirectory*)f->Get("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150407_223647/0000/ReducedSelection_2.root:/TreeMaker2");
       dir->GetObject("PreSelection",tree);
 
    }
@@ -592,6 +608,9 @@ void branches::Init(TTree *tree)
    Jets_1PtVec = 0;
    Jets_1EtaVec = 0;
    Jets_1PhiVec = 0;
+   slimJetPtVec = 0;
+   slimJetEtaVec = 0;
+   slimJetPhiVec = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -609,6 +628,7 @@ void branches::Init(TTree *tree)
    fChain->SetBranchAddress("BTags", &BTags, &b_BTags);
    fChain->SetBranchAddress("Weight", &Weight, &b_Weight);
    fChain->SetBranchAddress("HT", &HT, &b_HT);
+   fChain->SetBranchAddress("MHTPhi", &MHTPhi, &b_MHTPhi);
    fChain->SetBranchAddress("MHT", &MHT, &b_MHT);
    fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1, &b_DeltaPhi1);
    fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2, &b_DeltaPhi2);
@@ -624,16 +644,16 @@ void branches::Init(TTree *tree)
    fChain->SetBranchAddress("TagIsoMuonEtaVec", &TagIsoMuonEtaVec, &b_TagIsoMuonEtaVec);
    fChain->SetBranchAddress("TagIsoMuonPhiVec", &TagIsoMuonPhiVec, &b_TagIsoMuonPhiVec);
    fChain->SetBranchAddress("TagIsoMuonNum", &TagIsoMuonNum, &b_TagIsoMuonNum);
-   fChain->SetBranchAddress("TagIsoMuonE", &TagIsoMuonE, &b_TagIsoMuonE);
-   fChain->SetBranchAddress("TagIsoMuonTLorentzVector", &TagIsoMuonTLorentzVector, &b_TagIsoMuonTLorentzVector);
+   fChain->SetBranchAddress("TagIsoMuonE", TagIsoMuonE, &b_TagIsoMuonE);
+   fChain->SetBranchAddress("TagIsoMuonTLorentzVector", TagIsoMuonTLorentzVector, &b_TagIsoMuonTLorentzVector);
    fChain->SetBranchAddress("ProbeIsoMuonPtVec", &ProbeIsoMuonPtVec, &b_ProbeIsoMuonPtVec);
    fChain->SetBranchAddress("ProbeIsoMuonEtaVec", &ProbeIsoMuonEtaVec, &b_ProbeIsoMuonEtaVec);
    fChain->SetBranchAddress("ProbeIsoMuonPhiVec", &ProbeIsoMuonPhiVec, &b_ProbeIsoMuonPhiVec);
    fChain->SetBranchAddress("ProbeIsoMuonNum", &ProbeIsoMuonNum, &b_ProbeIsoMuonNum);
-   fChain->SetBranchAddress("ProbeIsoMuonE", &ProbeIsoMuonE, &b_ProbeIsoMuonE);
-   fChain->SetBranchAddress("ProbeIsoMuonTLorentzVector", &ProbeIsoMuonTLorentzVector, &b_ProbeIsoMuonTLorentzVector);
-   fChain->SetBranchAddress("ProbeIsoMuon_InvariantMass", &ProbeIsoMuon_InvariantMass, &b_ProbeIsoMuon_InvariantMass);
-   fChain->SetBranchAddress("ProbeIsoMuon_PassingOrFail", &ProbeIsoMuon_PassingOrFail, &b_ProbeIsoMuon_PassingOrFail);
+   fChain->SetBranchAddress("ProbeIsoMuonE", ProbeIsoMuonE, &b_ProbeIsoMuonE);
+   fChain->SetBranchAddress("ProbeIsoMuonTLorentzVector", ProbeIsoMuonTLorentzVector, &b_ProbeIsoMuonTLorentzVector);
+   fChain->SetBranchAddress("ProbeIsoMuon_InvariantMass", ProbeIsoMuon_InvariantMass, &b_ProbeIsoMuon_InvariantMass);
+   fChain->SetBranchAddress("ProbeIsoMuon_PassingOrFail", ProbeIsoMuon_PassingOrFail, &b_ProbeIsoMuon_PassingOrFail);
    fChain->SetBranchAddress("TagIDMuonPtVec", &TagIDMuonPtVec, &b_TagIDMuonPtVec);
    fChain->SetBranchAddress("TagIDMuonEtaVec", &TagIDMuonEtaVec, &b_TagIDMuonEtaVec);
    fChain->SetBranchAddress("TagIDMuonPhiVec", &TagIDMuonPhiVec, &b_TagIDMuonPhiVec);
@@ -810,6 +830,13 @@ void branches::Init(TTree *tree)
    fChain->SetBranchAddress("Jets_1_neutralHadronMultiplicity_1", Jets_1_neutralHadronMultiplicity_1, &b_Jets_1_neutralHadronMultiplicity_1);
    fChain->SetBranchAddress("Jets_1_photonEnergyFraction_1", Jets_1_photonEnergyFraction_1, &b_Jets_1_photonEnergyFraction_1);
    fChain->SetBranchAddress("Jets_1_photonMultiplicity_1", Jets_1_photonMultiplicity_1, &b_Jets_1_photonMultiplicity_1);
+   fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec, &b_slimJetPtVec);
+   fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec, &b_slimJetEtaVec);
+   fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec, &b_slimJetPhiVec);
+   fChain->SetBranchAddress("slimJetNum", &slimJetNum, &b_slimJetNum);
+   fChain->SetBranchAddress("slimJetE", slimJetE, &b_slimJetE);
+   fChain->SetBranchAddress("slimJetTLorentzVector", slimJetTLorentzVector, &b_slimJetTLorentzVector);
+   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID, &b_slimJet_slimJetID);
    Notify();
 }
 

@@ -42,7 +42,7 @@ using namespace std;
    Float_t         DeltaPhi1;
    Float_t         DeltaPhi2;
    Float_t         DeltaPhi3;
-   Float_t         minDeltaPhiN;
+   Float_t         minDeltaPhiN_;
    TTree *         fChain;
    int             currentEntry_;
    int             template_Entries; 
@@ -67,6 +67,10 @@ using namespace std;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
 
+   vector<double>  *slimJetPtVec;
+   vector<double>  *slimJetEtaVec;
+   vector<double>  *slimJetPhiVec;
+
    vector<double>  *MuonsPtVec;
    vector<double>  *MuonsEtaVec;
    vector<double>  *MuonsPhiVec;
@@ -87,7 +91,8 @@ using namespace std;
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
-
+//   Int_t    *      slimJet_slimJetID; 
+   Int_t           slimJet_slimJetID[35];
 
 public:
 //constructor
@@ -106,6 +111,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double deltaPhi1() const ;
   double deltaPhi2() const ;
   double deltaPhi3() const ;
+  double minDeltaPhiN() const ;
   int nGenMu() const ;
 
    vector<double>  GenMuPtVec_() const;
@@ -124,6 +130,12 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
+
+   vector<double>  slimJetPtVec_() const;
+   vector<double>  slimJetEtaVec_() const;
+   vector<double>  slimJetPhiVec_() const;
+
+   vector<int>     slimJetID_() const;
 
    vector<double>  MuPtVec_() const;
    vector<double>  MuEtaVec_() const;

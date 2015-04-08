@@ -21,7 +21,7 @@
      DeltaPhi1=-99.;
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
-     minDeltaPhiN=-99.;
+     minDeltaPhiN_=-99.;
 
      GenMu_GenMuFromTau=new int();
      GenTau_GenTauHad=new int();
@@ -54,6 +54,9 @@
      selectedIDIsoElectronsEtaVec=new vector<double>();
      selectedIDIsoElectronsPhiVec=new vector<double>();
 
+     slimJetPtVec=new vector<double>();
+     slimJetEtaVec=new vector<double>();
+     slimJetPhiVec=new vector<double>();
 
      testVec=new vector<double>();
 
@@ -76,7 +79,7 @@
      fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1);
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
-     fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN);
+     fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      
    fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
    fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
@@ -105,6 +108,12 @@
    fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
+
+   fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
+   fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
+   fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
+   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
+
 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
@@ -135,7 +144,6 @@ fChain->SetBranchAddress("testVec", &testVec);
       }
 
       fChain->GetEntry(currentEntry_);
-
       return true;
 
     }
@@ -160,7 +168,12 @@ fChain->SetBranchAddress("testVec", &testVec);
   int Events::nBtags() const { return BTags; }
 
   // Number of Leptons
-  int Events::nLeptons() const { return Leptons; }
+  int Events::nLeptons() const {
+    int tempN;
+    tempN= ( (int)selectedIDIsoMuonsPtVec->size() + (int)selectedIDIsoElectronsPtVec->size() );
+    return tempN; 
+//    return Leptons;
+  }
 
   // Number of IsoTrk 
   int Events::nIso() const { return isoTracks; }
@@ -169,6 +182,7 @@ fChain->SetBranchAddress("testVec", &testVec);
   double Events::deltaPhi1() const { return DeltaPhi1; }
   double Events::deltaPhi2() const { return DeltaPhi2; }
   double Events::deltaPhi3() const { return DeltaPhi3; }
+  double Events::minDeltaPhiN() const { return minDeltaPhiN_; }
 
   // Gen Muon 
    vector<double>  Events::GenMuPtVec_() const { return *GenMuPtVec ;}
@@ -187,7 +201,19 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
    vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}
    vector<double>  Events::JetsPhiVec_() const { return *JetsPhiVec ;}
-  
+
+   vector<double>  Events::slimJetPtVec_() const { return *slimJetPtVec ;}
+   vector<double>  Events::slimJetEtaVec_() const { return *slimJetEtaVec ;}
+   vector<double>  Events::slimJetPhiVec_() const { return *slimJetPhiVec ;}
+
+   vector<int>     Events::slimJetID_() const { 
+     vector<int> tempVec;
+     for(int i=0; i< slimJetPtVec->size(); i++){
+        tempVec.push_back((int)*(slimJet_slimJetID+i));
+     }
+     return tempVec;
+   }  
+
    vector<double>  Events::MuPtVec_() const{ return  *selectedIDIsoMuonsPtVec;}
    vector<double>  Events::MuEtaVec_() const{ return *selectedIDIsoMuonsEtaVec;}
    vector<double>  Events::MuPhiVec_() const{ return *selectedIDIsoMuonsPhiVec;}

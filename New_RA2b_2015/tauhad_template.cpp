@@ -124,6 +124,10 @@ using namespace std;
 
     TH1D * genTauPtHist = new TH1D("genTauPtHist","genTauPt",10,0,250);
     TH1D * genHadTauPtHist = new TH1D("genHadTauPtHist","genHadTauPt",10,0,250);
+      
+    // We would like also to have the pt distribution of the tau Jets
+    TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
+    
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -160,8 +164,8 @@ using namespace std;
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
-
-
+      eventN++;
+    //  if(eventN>100)break;
 
       // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
       // comparing with /<<<< w--> mu >>>>/
@@ -205,22 +209,43 @@ using namespace std;
       // We are interested in hadronically decaying taus only
       bool hadTau=false; 
       double genTauPt=-1;
+      double genTauPt0=-1;
       double genTauEta=-99;
       double genTauPhi=-99;
       for(int i=0; i<evt->GenTauHadVec_().size();i++){
+        genTauPt0=evt->GenTauPtVec_()[0];
         if(evt->GenTauHadVec_()[i]==1){
+          genTauPt0=evt->GenTauPtVec_()[i];
           hadTau=true;
           genTauPt = evt->GenTauPtVec_()[i];
           genTauEta = evt->GenTauEtaVec_()[i];
           genTauPhi = evt->GenTauPhiVec_()[i];
           break; // This is to pick the more energetic tau in the event if there are more than one. 
         }
-
       }      
+      
+      genTauPtHist->Fill(genTauPt0);
+
       if(hadTau==false)continue;
 
+      genHadTauPtHist->Fill(genTauPt);   
+ 
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || evt->GenElecPtVec_().size()!=0)continue;
+
+printf(" ####################### \n event#: %d \n ",eventN-1); // Ahmad3
+// Ahmad3 <<< 
+      printf(" @@@@\n Jets section: \n ");
+      for(int i=0;i<evt->slimJetPtVec_().size();i++){
+        printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+      }
+      printf(" @@@@\n Tau section: \n ");
+      for(int i=0;i<evt->GenTauPtVec_().size();i++){
+        printf("GenTau#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauPtVec_()[i],evt->GenTauEtaVec_()[i],evt->GenTauPhiVec_()[i]);
+      }
+
+
+// Ahmad3 >>>
 
 
       // Do the matching
@@ -232,10 +257,11 @@ using namespace std;
       //we want to consider events that pass the baseline cuts
       if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
 
-      if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+      if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
         if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt);
         continue;
       } // this also determines tauJetIdx
+
 
       if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",eventN,tauJetIdx);
         if(tauJetIdx!=-1){
@@ -262,7 +288,7 @@ using namespace std;
           //////loop over cut names and fill the histograms
           for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-            if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+            if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
               histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
             }
           }//end of loop over cut names
@@ -278,8 +304,13 @@ using namespace std;
 
       // Use only events where the tau is inside the muon acceptance
       // because lateron we will apply the response to muon+jet events
+
+printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); // Ahmad3
+
       if( genTauPt < 20. ) continue;
       if( std::abs(genTauEta) > 2.1 ) continue;
+
+printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3 
 
       // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
       int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
@@ -290,19 +321,34 @@ using namespace std;
         if( evt->JetsPtVec_()[jetIdx] > 30. && std::abs(evt->JetsEtaVec_()[jetIdx]) < 2.4 ) selNJet++;
       } // End of loop over reco jets
 
+      // Fill tauJet Pt histogram
+      for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
+      // Select tau jet
+      if( jetIdx == tauJetIdx ) {
+      // Fill the tauJetPtHist
+      tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx) );// this is tauJetPt that later is defined.
+      break; // End the jet loop once the tau jet has been found
+      }
+      } // End of loop over reco jets
+
       // Select only events with at least 2 HT jets
       if( selNJet < 2 ) continue;
 
+printf("selNJet > 2 passed \n " ); // Ahmad3
+
       // Fill histogram with relative visible energy of the tau
       // ("tau response template") for hadronically decaying taus
-      for(int jetIdx = 0; jetIdx < (int) evt->JetsPtVec_().size(); ++jetIdx) { // Loop over reco jets
+      for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
         // Select tau jet
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
-          const double tauJetPt = evt->JetsPtVec_().at(jetIdx);
+          const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
+
+printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ahmad3
+
           break; // End the jet loop once the tau jet has been found
         }
       } // End of loop over reco jets
@@ -370,7 +416,8 @@ using namespace std;
 
 
     ///calculate the probability with which tau decays hadronically as function of pt
-    genHadTauPtHist->Divide(genTauPtHist);
+    TH1D * genHadTauPtHist2 = static_cast<TH1D*>(genHadTauPtHist->Clone("genHadTauPtHist2"));
+    genHadTauPtHist2->Divide(genHadTauPtHist,genTauPtHist,1,1,"");
 
     // Normalize the response distributions to get the probability density
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
@@ -386,11 +433,10 @@ using namespace std;
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
       hTauResp.at(i)->Write();
       hTauResp.at(i)->SetLineColor(i);
-      //hTauResp.at(i)->Draw("same");
     }
     //c1->Print("HadTau_TauResponseTemplates.pdf");
-    genHadTauPtHist->Write();
-    genHadTauPtHist->Draw();
+    genHadTauPtHist2->Write();
 
+    tauJetPtHist->Write();
 
   }// end of main

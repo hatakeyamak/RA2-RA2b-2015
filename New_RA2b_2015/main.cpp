@@ -132,6 +132,9 @@ int main(int argc, char *argv[]){
     histobjmap[it->first]=histObj;
   }
 
+  // To calculate JetId efficiency
+  int nTotEvent=0 , nFailJetIdEvent=0;
+
   // Loop over the events (tree entries)
   int eventN=0;
   while( evt->loadNext() ){
@@ -150,11 +153,31 @@ int main(int argc, char *argv[]){
       }
     }
 
+    // JetId efficiency 
+    // We want this after the baseline cuts
+    if(evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 && evt->minDeltaPhiN() > 4.){
+      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
+        if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<2.4 && evt->slimJetID_().at(i)==0){
+          nFailJetIdEvent++;
+          break;
+        }
+      }
+      nTotEvent++;
+    }
+    // Print out some information about slimJets
+    if(verbose > 1){
+      printf(" @@@@\n slimJets section: \n NSlimJets: %d \n ", evt->slimJetPtVec_().size());
+      for(int i=0;i<evt->slimJetPtVec_().size();i++){
+        printf("jet#: %d pt: %g eta: %g phi: %g jetId: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+      }
+
+    }
+
     // Total weight
     double totWeight = evt->weight()*1.;
 
-//printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
-//printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
+    //printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
+    //printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec
@@ -172,7 +195,7 @@ int main(int argc, char *argv[]){
         //////loop over cut names and fill the histograms
         for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
             histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
           } 
         }//end of loop over cut names
@@ -186,6 +209,9 @@ int main(int argc, char *argv[]){
     eventN++;
   } // End of loop over events
 
+  // Calculate JetId efficiency
+  double JetIdEff = ((double)nFailJetIdEvent/nTotEvent)*100 ;
+  printf(" # totalEvents: %d # events that fail JetId: %d  Percent of failed JetId: %g \n ",nTotEvent,nFailJetIdEvent,JetIdEff);
 
   //open a file to write the histograms
   sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
