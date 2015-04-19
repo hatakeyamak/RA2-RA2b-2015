@@ -157,7 +157,8 @@ int main(int argc, char *argv[]){
     // We want this after the baseline cuts
     if(evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 && evt->minDeltaPhiN() > 4.){
       for(int i=0; i< evt->slimJetPtVec_().size(); i++){
-        if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<2.4 && evt->slimJetID_().at(i)==0){
+        if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5. && evt->slimJetID_().at(i)==0){
+          printf("event#: %d pt: %g eta: %g phi: %g jetId: %d \n ",eventN,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
           nFailJetIdEvent++;
           break;
         }

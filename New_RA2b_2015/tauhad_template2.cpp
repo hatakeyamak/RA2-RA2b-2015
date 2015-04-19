@@ -43,6 +43,9 @@ using namespace std;
     }
   };
 
+  // Prototype a function // See AN-15-003 for more info.
+  double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec );
+
 
   int main(int argc, char *argv[]){
     /////////////////////////////////////
@@ -154,12 +157,12 @@ using namespace std;
     // Open some files and get the histograms ........................................//
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("../TauHad/Probability_Tau_mu_stacked.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-    TFile * MuEffAcc_file = new TFile("../LostLep/LostLepton2_MuonEfficiencies_stacked.root","R");
+    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
@@ -167,15 +170,15 @@ using namespace std;
     // map<string,int> binMap = utils2::BinMap();
     map<string,int> binMap = utils2::BinMap_NoB();
 
-    TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
 
-
     int eventN=0;
     while( evt->loadNext() ){
+      eventN++;
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -186,7 +189,10 @@ using namespace std;
       // tau-reponse template to simulate the tau measurement
       // - use the simulated tau-pt to predict HT, MHT, and N(jets)
 
-      ///select muons with pt>20. eta<2.1 relIso<.2
+      if(verbose!=0)printf("@@@@@@@@@@@@@@@@@@@@@@@@ \n eventN: %d \n ",eventN);
+
+
+      // select muons with pt>20. eta<2.1 relIso<.2
       // vec_recoMuMTW.clear(); ????????????
       vec_recoMuon3vec.clear();
       for(int i=0; i< evt->MuPtVec_().size(); i++){
@@ -194,7 +200,7 @@ using namespace std;
         double eta=evt->MuEtaVec_().at(i);
         double phi=evt->MuPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
-        if( pt>20. && fabs(eta)< 2.1 /*&& relIso < 0.2 && mu_mt_w < 100. */ ){
+        if( pt>20. && fabs(eta)< 2.1  ){
           if(verbose!=0)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoMuon3vec.push_back(temp3vec);
@@ -209,7 +215,7 @@ using namespace std;
         double eta=evt->ElecEtaVec_().at(i);
         double phi=evt->ElecPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
-        if( pt>10. && fabs(eta)< 2.5 /*&& relIso < 0.2 && mu_mt_w < 100. */ ){
+        if( pt>10. && fabs(eta)< 2.5 ){
           if(verbose!=0)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoElec3vec.push_back(temp3vec);
@@ -217,13 +223,13 @@ using namespace std;
       }
 
       if(verbose!=0)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
+
       //if( template_nMuons == 1 && template_nElectrons == 0 ) {
       if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 ){
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
         // muMtW = vec_recoMuMTW[0]; ???????
-
 
         // Get random number from tau-response template
         // The template is chosen according to the muon pt
@@ -253,6 +259,8 @@ using namespace std;
         if(verbose!=0)printf("############ \n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
         if(verbose!=0)printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
 
+printf("simTauJetPt: %g simTauJetEta: %g simTauJetPhi: %g \n",simTauJetPt,simTauJetEta,simTauJetPhi);
+
         double template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
         double template_mhtphi=-99.;
         if(mhtX>0)template_mhtphi = atan(mhtY/mhtX);
@@ -261,11 +269,59 @@ using namespace std;
           else template_mhtphi = -3.14+atan(mhtY/mhtX);
         }
 
+        //New MET
+        double metX = evt->met()*cos(evt->metphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
+        double metY = evt->met()*sin(evt->metphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
+
+        if(verbose!=0)printf("############ \n metX: %g, metY: %g \n",metX,metY);
+        if(verbose!=0)printf("evt->met: %g, evt->metphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),simTauJetPt,simTauJetPhi);
+
+        double template_met = sqrt(pow(metX,2)+pow(metY,2));
+        double template_metphi=-99.;
+        if(metX>0)template_metphi = atan(metY/metX);
+        else{
+          if(metY>0) template_metphi = 3.14+atan(metY/metX);
+          else template_metphi = -3.14+atan(metY/metX);
+        }
+
         if(verbose!=0)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
+        if(verbose!=0)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
+        
+        // New Jet(Pt/Eta/Phi)Vec
+        vector<double> NewJetPtVec = evt->JetsPtVec_();
+        vector<double> NewJetEtaVec = evt->JetsEtaVec_();
+        vector<double> NewJetPhiVec = evt->JetsPhiVec_();
+        if(fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.){
+          NewJetPtVec.push_back(simTauJetPt-muPt);
+          NewJetEtaVec.push_back(simTauJetEta);
+          NewJetPhiVec.push_back(simTauJetPhi);
+        }
+
+        // New minDelPhi_N
+        double dpnhat[3]; 
+        unsigned int goodcount=0;
+        for(unsigned int i=0; i< NewJetPtVec.size();i++){
+          if(goodcount<3 && NewJetPtVec[i] > 30. && fabs( NewJetEtaVec[i] ) < 5. ){ 
+            float dphi=std::abs(TVector2::Phi_mpi_pi(NewJetPhiVec[i] - evt->metphi()));
+            float dT=DeltaT(i, NewJetPtVec,NewJetPhiVec);
+            if(dT/evt->met()>=1.0)dpnhat[goodcount]=dphi/(TMath::Pi()/2.0);
+            else dpnhat[goodcount]=dphi/asin(dT/evt->met());
+            ++goodcount;
+          }
+        }// end loop over jets
+        float mindpn=9999;
+        for(int i=0; i<3; ++i){
+          if(mindpn>fabs(dpnhat[i]))mindpn=fabs(dpnhat[i]);
+        } 
+
+        if(verbose!=0) cout << "\n evt->minDeltaPhiN(): " << evt->minDeltaPhiN() << " mindpn: " << mindpn << endl;
 
         //add the simTau Jet to the list if it satisfy the conditions
-        double cntNJetsPt30Eta24;
-        if(fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.)cntNJetsPt30Eta24=evt->nJets()+1;
+        double cntNJetsPt30Eta24=(double) NewJetPhiVec.size();
+        if(verbose!=0){
+          cout << " NewJetPhiVec.size(): " <<(int) NewJetPhiVec.size() << endl;
+          cout << " cntNJetsPt30Eta24: " << (int)cntNJetsPt30Eta24 << endl;
+        }
 
         // get the effieciencies and acceptance
         // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
@@ -300,6 +356,7 @@ using namespace std;
 
         double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)evt->nBtags() ,(double) muPt, simTauJetPt};
 
+
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
@@ -311,11 +368,14 @@ using namespace std;
             //////loop over cut names and fill the histograms
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-              if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+
+              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-              }
+
             }//end of loop over cut names
 
+              }
             ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
             
           }//end of bg_type determination
@@ -362,3 +422,25 @@ using namespace std;
 
 
   } // end of main
+
+
+  double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec ){
+
+      double deltaT=0;
+      float jres=0.1;
+      double sum=0;
+      double Jpx_i= JetPtvec[i]*cos(JetPhivec[i]);
+      double Jpy_i= JetPtvec[i]*sin(JetPhivec[i]);
+
+      for(unsigned int j=0; j< JetPtvec.size(); ++j){
+          if(j==i)continue;
+          double Jpx_j= JetPtvec[j]*cos(JetPhivec[j]);
+          double Jpy_j= JetPtvec[j]*sin(JetPhivec[j]);
+
+          sum=sum+(Jpx_i*Jpy_j-Jpx_j*Jpy_i) * (Jpx_i*Jpy_j-Jpx_j*Jpy_i);
+      }
+      deltaT=jres*sqrt(sum)/JetPtvec[i];
+
+      return deltaT;
+  }
+

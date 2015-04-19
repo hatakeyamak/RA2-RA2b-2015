@@ -39,6 +39,8 @@ using namespace std;
    Float_t         HT;
    Float_t         MHT;
    Float_t         MHTPhi; 
+   Float_t         METPt;
+   Float_t         METPhi;
    Float_t         DeltaPhi1;
    Float_t         DeltaPhi2;
    Float_t         DeltaPhi3;
@@ -108,6 +110,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double ht() const ;
   double mht() const ;
   double mhtphi() const ;
+  double met() const ;
+  double metphi() const ;
   double deltaPhi1() const ;
   double deltaPhi2() const ;
   double deltaPhi3() const ;

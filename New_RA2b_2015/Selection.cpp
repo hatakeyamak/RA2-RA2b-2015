@@ -28,6 +28,24 @@
   return false;
   }
 
+  bool Selection::checkcut_HadTau(string ss, double ht_, double mht_, double minDeltaPhiN_ , int nJets_, int nBtags_, int nLeptons_, int nIso_){
+
+    if(ss == cutname[0])return true;
+    if(ss== cutname[1]){if(Njet_4(nJets_))return true;}
+    if(ss== cutname[2]){if(Njet_4(nJets_) && ht_500(ht_))return true;}
+    if(ss== cutname[3]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_))return true;}
+    if(ss== cutname[4]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_))return true;}
+    if(ss== cutname[5]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_))return true;}
+    if(ss== cutname[6]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_)&&isoTrk( nIso_))return true;}
+    if(ss== cutname[7]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_)&&isoTrk( nIso_)&&btag_0( nBtags_))return true;}
+    if(ss== cutname[8]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_)&&isoTrk( nIso_)&&btag_1( nBtags_))return true;}
+    if(ss== cutname[9]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_)&&isoTrk( nIso_)&&btag_2( nBtags_))return true;}
+    if(ss== cutname[10]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( minDeltaPhiN_)&&isoTrk( nIso_)&&btag_3( nBtags_))return true;}
+
+  return false;
+  }
+
+
   map<int, string> Selection::cutName() const {return cutname;}
  
 

@@ -232,21 +232,21 @@ using namespace std;
  
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || evt->GenElecPtVec_().size()!=0)continue;
+      if(verbose!=0){
+      printf(" ####################### \n event#: %d \n ",eventN-1); // Ahmad3
+      // Ahmad3 <<< 
+            printf(" @@@@\n Jets section: \n ");
+            for(int i=0;i<evt->slimJetPtVec_().size();i++){
+              printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+            }
+            printf(" @@@@\n Tau section: \n ");
+            for(int i=0;i<evt->GenTauPtVec_().size();i++){
+              printf("GenTau#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauPtVec_()[i],evt->GenTauEtaVec_()[i],evt->GenTauPhiVec_()[i]);
+            }
 
-printf(" ####################### \n event#: %d \n ",eventN-1); // Ahmad3
-// Ahmad3 <<< 
-      printf(" @@@@\n Jets section: \n ");
-      for(int i=0;i<evt->slimJetPtVec_().size();i++){
-        printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+
+      // Ahmad3 >>>
       }
-      printf(" @@@@\n Tau section: \n ");
-      for(int i=0;i<evt->GenTauPtVec_().size();i++){
-        printf("GenTau#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauPtVec_()[i],evt->GenTauEtaVec_()[i],evt->GenTauPhiVec_()[i]);
-      }
-
-
-// Ahmad3 >>>
-
 
       // Do the matching
       int tauJetIdx = -1;
@@ -305,12 +305,12 @@ printf(" ####################### \n event#: %d \n ",eventN-1); // Ahmad3
       // Use only events where the tau is inside the muon acceptance
       // because lateron we will apply the response to muon+jet events
 
-printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); // Ahmad3
+      if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); // Ahmad3
 
       if( genTauPt < 20. ) continue;
       if( std::abs(genTauEta) > 2.1 ) continue;
 
-printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3 
+      if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3 
 
       // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
       int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
@@ -326,7 +326,8 @@ printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3
       // Select tau jet
       if( jetIdx == tauJetIdx ) {
       // Fill the tauJetPtHist
-      tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx) );// this is tauJetPt that later is defined.
+      tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), totWeight);// this is tauJetPt that later is defined.
+
       break; // End the jet loop once the tau jet has been found
       }
       } // End of loop over reco jets
@@ -334,7 +335,7 @@ printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3
       // Select only events with at least 2 HT jets
       if( selNJet < 2 ) continue;
 
-printf("selNJet > 2 passed \n " ); // Ahmad3
+      if(verbose!=0)printf("selNJet > 2 passed \n " ); // Ahmad3
 
       // Fill histogram with relative visible energy of the tau
       // ("tau response template") for hadronically decaying taus
@@ -347,7 +348,7 @@ printf("selNJet > 2 passed \n " ); // Ahmad3
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
 
-printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ahmad3
+          if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ahmad3
 
           break; // End the jet loop once the tau jet has been found
         }
@@ -428,7 +429,8 @@ printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ah
     }
 
     // --- Save the Histograms to File -----------------------------------
-    TFile outFile("TauHad/HadTau_TauResponseTemplates.root","RECREATE");
+    sprintf(tempname,"TauHad/HadTau_TauResponseTemplates_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile outFile(tempname,"RECREATE");
     TCanvas *c1 = new TCanvas("c1","TauResponseTemplates",10,10,700,900);
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
       hTauResp.at(i)->Write();

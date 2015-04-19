@@ -31,7 +31,8 @@ using namespace std;
     }
 
     bool Utils::findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi, vector<double> PtVec,vector<double> EtaVec, vector<double> PhiVec,double deltaRMax, int ver){
-
+      if(PtVec.size() ==0 ) return false;
+      
       matchedObjIdx = -1;
       double deltaRMin = 100000.;
       for(int objIdx = 0; objIdx < (int) EtaVec.size(); ++objIdx){

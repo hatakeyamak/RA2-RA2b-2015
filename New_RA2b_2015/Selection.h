@@ -43,7 +43,7 @@ public:
   bool isoTrk(int nIso_){if(nIso_ ==0)return true; return false;}
 
   bool checkcut(string ss, double ht_, double mht_, double minDeltaPhiN_ , int nJets_, int nBtags_, int nLeptons_, int nIso_);
-
+  bool checkcut_HadTau(string ss, double ht_, double mht_, double minDeltaPhiN_ , int nJets_, int nBtags_, int nLeptons_, int nIso_);
 
 };
 

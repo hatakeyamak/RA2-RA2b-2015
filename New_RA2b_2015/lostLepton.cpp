@@ -78,7 +78,10 @@ using namespace std;
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
+//      if(eventN>10000)break;
       eventN++;
+
+//printf("\n@@@@@@@@@@@@@@@@@@@@@@@@@@  \n event: %d \n Njet: %d HT: %g MHT: %g dphi1: %g dphi2: %g dphi3: %g  \n ",eventN-1,evt->nJets(),evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()); //Ahmad3
 
       // Apply the NJets baseline-cut
       if( !Lepton_Selection::nJets(evt->nJets()) ) continue;
@@ -88,7 +91,7 @@ using namespace std;
       // Apply the delta-phi cuts
       if( !Lepton_Selection::deltaPhi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) ) continue;
 
-      if(verbose!=0)printf("\n############ \n event: %d \n ",eventN);
+      if(verbose!=0)printf("\n############ \n event: %d \n ",eventN-1);
 
       double genMuPt=0.;
       double genMuEta=-99.;
@@ -144,9 +147,11 @@ using namespace std;
         // the acceptance, regardless of whether the reconstructed muon is also
         // isolated or not.
 
+//if( evt->MuPtVec_().size()>0 )printf(" RecoMu--> Pt: %g eta: %g phi: %g deltaRMax: %g ",evt->MuPtVec_()[0],evt->MuEtaVec_()[0],evt->MuPhiVec_()[0],deltaRMax); // Ahmad3
+//else cout << " Muon size is 0 \n " ;
         // in R and in pt
         int matchedMuonIdx = -1;
-        if( utils->findMatchedObject(matchedMuonIdx,genMuEta,genMuPhi,evt->MuPtVec_(),evt->MuEtaVec_(),evt->MuPhiVec_(),deltaRMax,verbose) ) {
+        if(evt->MuPtVec_().size()>0 && utils->findMatchedObject(matchedMuonIdx,genMuEta,genMuPhi,evt->MuPtVec_(),evt->MuEtaVec_(),evt->MuPhiVec_(),deltaRMax,verbose) ) {
           // Muon is reconstructed
           const double relDeltaPtMu = std::abs(genMuPt - evt->MuPtVec_().at(matchedMuonIdx) ) / evt->MuPtVec_().at(matchedMuonIdx) ;
           if(verbose!=0)printf(" relDeltaPtMu: %g \n ",relDeltaPtMu);

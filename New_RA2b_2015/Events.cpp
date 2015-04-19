@@ -18,6 +18,8 @@
      HT=0.0;
      MHT=0.0;
      MHTPhi=0.0; 
+     METPt=0.0;
+     METPhi=0.0;
      DeltaPhi1=-99.;
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
@@ -75,7 +77,9 @@
      fChain->SetBranchAddress("Weight", &Weight);
      fChain->SetBranchAddress("HT", &HT);
      fChain->SetBranchAddress("MHT", &MHT);
-     fChain->SetBranchAddress("MHTPhi", &MHTPhi); 
+     fChain->SetBranchAddress("MHTPhi", &MHTPhi);
+     fChain->SetBranchAddress("METPt", &METPt);
+     fChain->SetBranchAddress("METPhi", &METPhi); 
      fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1);
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
@@ -112,8 +116,8 @@
    fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
    fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
    fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
-   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-
+/*   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
+*/
 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
@@ -160,6 +164,11 @@ fChain->SetBranchAddress("testVec", &testVec);
   double Events::ht() const { return HT; }
   double Events::mht() const { return MHT; }
   double Events::mhtphi() const { return MHTPhi; }
+
+  // MET 
+  double Events::met() const { return METPt; }
+  double Events::metphi() const { return METPhi; }
+
 
   // Number of HT jets
   int Events::nJets() const { return NJets; }
