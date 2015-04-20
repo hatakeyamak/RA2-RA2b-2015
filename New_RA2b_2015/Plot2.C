@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_"){
+Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int choice=0){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -219,78 +219,151 @@ else{
   // Bottom ratio plot
   //
   // ----------
-/*  for(int j=0; j<=10; j++){
-  printf("j: %d EstHist: %g GenHist: %g \n ",j,EstHist->GetBinContent(j),GenHist->GetBinContent(j) );
-  }*/
-  //KH -- flip the numerator and denominator
-  EstHist->Divide(GenHist);
-  //GenHist->Divide(EstHist);
 
-/*  for(int j=0; j<=10; j++){
-  printf("j: %d Divide: %g \n ",j,EstHist->GetBinContent(j) );
+  if(choice==0){
+    /*  for(int j=0; j<=10; j++){
+      printf("j: %d EstHist: %g GenHist: %g \n ",j,EstHist->GetBinContent(j),GenHist->GetBinContent(j) );
+      }*/
+      //KH -- flip the numerator and denominator
+      EstHist->Divide(GenHist);
+      //GenHist->Divide(EstHist);
+
+    /*  for(int j=0; j<=10; j++){
+      printf("j: %d Divide: %g \n ",j,EstHist->GetBinContent(j) );
+      }
+    */
+
+      // draw bottom figure
+      canvas_dw->cd();
+      // font size
+      EstHist->GetXaxis()->SetLabelSize(font_size_dw);
+      EstHist->GetXaxis()->SetTitleSize(font_size_dw);
+      EstHist->GetYaxis()->SetLabelSize(font_size_dw);
+      EstHist->GetYaxis()->SetTitleSize(font_size_dw);
+      
+      //
+      // Common to all bottom plots
+      //
+      sprintf(ytitlename,"Estimate / #tau_{had} BG");
+      EstHist->SetMaximum(2.65);
+      EstHist->SetMinimum(0.0);
+
+      //
+      // Specific to each bottom plot
+      //
+      if(histname=="HT"){
+        sprintf(xtitlename,"H_{T} (GeV)");
+        EstHist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
+        TLine *tline = new TLine(HT_x_min,1.,HT_x_max,1.);
+      }
+      if(histname=="MHT"){
+        sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+        EstHist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+        TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
+      }   
+      if(histname=="NBtag"){
+        sprintf(xtitlename,"Number of b-tags");
+        EstHist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
+        TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
+      }    
+      if(histname=="NJet"){
+        sprintf(xtitlename,"Number of jets");
+        EstHist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
+        TLine *tline = new TLine(0.,1.,NJet_x_max,1.);
+      }
+
+      // Setting style
+      //EstHist->SetMaximum(1.4);
+      //EstHist->GetXaxis()->SetLabelFont(42);
+      //EstHist->GetXaxis()->SetLabelOffset(0.007);
+      //EstHist->GetXaxis()->SetLabelSize(0.04);
+      EstHist->GetXaxis()->SetTitleSize(0.12);
+      EstHist->GetXaxis()->SetTitleOffset(0.9);
+      EstHist->GetXaxis()->SetTitleFont(42);
+      //EstHist->GetYaxis()->SetLabelFont(42);
+      //EstHist->GetYaxis()->SetLabelOffset(0.007);
+      //EstHist->GetYaxis()->SetLabelSize(0.04);
+      EstHist->GetYaxis()->SetTitleSize(0.13);
+      EstHist->GetYaxis()->SetTitleOffset(0.5);
+      EstHist->GetYaxis()->SetTitleFont(42);
+
+      EstHist->GetXaxis()->SetTitle(xtitlename);
+      EstHist->GetYaxis()->SetTitle(ytitlename);
+
+      EstHist->Draw();
+      tline->SetLineStyle(2);
+      tline->Draw();
   }
-*/
 
-  // draw bottom figure
-  canvas_dw->cd();
-  // font size
-  EstHist->GetXaxis()->SetLabelSize(font_size_dw);
-  EstHist->GetXaxis()->SetTitleSize(font_size_dw);
-  EstHist->GetYaxis()->SetLabelSize(font_size_dw);
-  EstHist->GetYaxis()->SetTitleSize(font_size_dw);
-  
-  //
-  // Common to all bottom plots
-  //
-  sprintf(ytitlename,"Estimate / #tau_{had} BG");
-  EstHist->SetMaximum(2.65);
-  EstHist->SetMinimum(0.0);
+  if(choice==1){
 
-  //
-  // Specific to each bottom plot
-  //
-  if(histname=="HT"){
-    sprintf(xtitlename,"H_{T} (GeV)");
-    EstHist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
-    TLine *tline = new TLine(HT_x_min,1.,HT_x_max,1.);
+      TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
+      EstHist->Add(GenHist,-1);
+      denominator->Divide(EstHist,GenHist,1,1,"");
+    
+      // draw bottom figure
+      canvas_dw->cd();
+      // font size
+      denominator->GetXaxis()->SetLabelSize(font_size_dw);
+      denominator->GetXaxis()->SetTitleSize(font_size_dw);
+      denominator->GetYaxis()->SetLabelSize(font_size_dw);
+      denominator->GetYaxis()->SetTitleSize(font_size_dw);
+      
+      //
+      // Common to all bottom plots
+      //
+//      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
+      sprintf(ytitlename,"#frac{Sim. - Pred.}{Pred.} ");
+      denominator->SetMaximum(5);
+      denominator->SetMinimum(-5);
+
+      //
+      // Specific to each bottom plot
+      //
+      if(histname=="HT"){
+        sprintf(xtitlename,"H_{T} (GeV)");
+        denominator->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
+        TLine *tline = new TLine(HT_x_min,-.1,HT_x_max,.1);
+      }
+      if(histname=="MHT"){
+        sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+        denominator->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+        TLine *tline = new TLine(0.,-.1,MHT_x_max,.1);
+      }   
+      if(histname=="NBtag"){
+        sprintf(xtitlename,"Number of b-tags");
+        denominator->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
+        TLine *tline = new TLine(0.,-.1,NBtag_x_max,.1);
+      }    
+      if(histname=="NJet"){
+        sprintf(xtitlename,"Number of jets");
+        denominator->GetXaxis()->SetRangeUser(0.,NJet_x_max);
+        TLine *tline = new TLine(0.,-.1,NJet_x_max,.1);
+      }
+
+      // Setting style
+      //denominator->SetMaximum(1.4);
+      //denominator->GetXaxis()->SetLabelFont(42);
+      //denominator->GetXaxis()->SetLabelOffset(0.007);
+      //denominator->GetXaxis()->SetLabelSize(0.04);
+      denominator->GetXaxis()->SetTitleSize(0.12);
+      denominator->GetXaxis()->SetTitleOffset(0.9);
+      denominator->GetXaxis()->SetTitleFont(42);
+      //denominator->GetYaxis()->SetLabelFont(42);
+      //denominator->GetYaxis()->SetLabelOffset(0.007);
+      //denominator->GetYaxis()->SetLabelSize(0.04);
+      denominator->GetYaxis()->SetTitleSize(0.13);
+      denominator->GetYaxis()->SetTitleOffset(0.5);
+      denominator->GetYaxis()->SetTitleFont(42);
+
+      denominator->GetXaxis()->SetTitle(xtitlename);
+      denominator->GetYaxis()->SetTitle(ytitlename);
+
+      denominator->Draw();
+      tline->SetLineStyle(2);
+      tline->Draw();
   }
-  if(histname=="MHT"){
-    sprintf(xtitlename,"#slash{H}_{T} (GeV)");
-    EstHist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
-    TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
-  }   
-  if(histname=="NBtag"){
-    sprintf(xtitlename,"Number of b-tags");
-    EstHist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
-    TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
-  }    
-  if(histname=="NJet"){
-    sprintf(xtitlename,"Number of jets");
-    EstHist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
-    TLine *tline = new TLine(0.,1.,NJet_x_max,1.);
-  }
 
-  // Setting style
-  //EstHist->SetMaximum(1.4);
-  //EstHist->GetXaxis()->SetLabelFont(42);
-  //EstHist->GetXaxis()->SetLabelOffset(0.007);
-  //EstHist->GetXaxis()->SetLabelSize(0.04);
-  EstHist->GetXaxis()->SetTitleSize(0.12);
-  EstHist->GetXaxis()->SetTitleOffset(0.9);
-  EstHist->GetXaxis()->SetTitleFont(42);
-  //EstHist->GetYaxis()->SetLabelFont(42);
-  //EstHist->GetYaxis()->SetLabelOffset(0.007);
-  //EstHist->GetYaxis()->SetLabelSize(0.04);
-  EstHist->GetYaxis()->SetTitleSize(0.13);
-  EstHist->GetYaxis()->SetTitleOffset(0.5);
-  EstHist->GetYaxis()->SetTitleFont(42);
-
-  EstHist->GetXaxis()->SetTitle(xtitlename);
-  EstHist->GetYaxis()->SetTitle(ytitlename);
-
-  EstHist->Draw();
-  tline->SetLineStyle(2);
-  tline->Draw();
 
   sprintf(tempname,"%s_%s_%s_Plot.png",sample.c_str(),cutname.c_str(),histname.c_str());
   canvas->Print(tempname);

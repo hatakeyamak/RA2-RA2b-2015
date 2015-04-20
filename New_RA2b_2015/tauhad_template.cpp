@@ -68,6 +68,8 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
 
+    double w_mu=0, w_tau=0; //Ahmad3
+    
     // Inroduce two histogram to understand the probability of a muon coming from tau.
     int MaxMuPt=100*10;
     int NMuPtBins=MaxMuPt/10;
@@ -233,8 +235,8 @@ using namespace std;
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || evt->GenElecPtVec_().size()!=0)continue;
       if(verbose!=0){
-      printf(" ####################### \n event#: %d \n ",eventN-1); // Ahmad3
-      // Ahmad3 <<< 
+      printf(" ####################### \n event#: %d \n ",eventN-1); 
+      
             printf(" @@@@\n Jets section: \n ");
             for(int i=0;i<evt->slimJetPtVec_().size();i++){
               printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
@@ -245,30 +247,10 @@ using namespace std;
             }
 
 
-      // Ahmad3 >>>
+       
       }
 
-      // Do the matching
-      int tauJetIdx = -1;
-      const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
-
-
-      // Lets write all the gen tau events regardless of if they match a jet or not.
-      //we want to consider events that pass the baseline cuts
-      if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
-
-      if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
-        if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt);
-        continue;
-      } // this also determines tauJetIdx
-
-
-      if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",eventN,tauJetIdx);
-        if(tauJetIdx!=-1){
-          printf("JetEta: %g ,JetPhi(): %g ,JetPt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",evt->JetsEtaVec_()[tauJetIdx],evt->JetsPhiVec_()[tauJetIdx],evt->JetsPtVec_()[tauJetIdx],genTauEta,genTauPhi,genTauPt);
-        }
-      }
-
+      
 
       // Total weight
       double totWeight = evt->weight()*1.;
@@ -305,12 +287,35 @@ using namespace std;
       // Use only events where the tau is inside the muon acceptance
       // because lateron we will apply the response to muon+jet events
 
-      if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); // Ahmad3
+      if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); 
 
-      if( genTauPt < 20. ) continue;
-      if( std::abs(genTauEta) > 2.1 ) continue;
+      if( genTauPt < 20. ) continue; // 10.
+      if( std::abs(genTauEta) > 2.1 ) continue; // 2.4
 
-      if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n "); // Ahmad3 
+      if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n ");  
+
+      // Do the matching
+      int tauJetIdx = -1;
+      const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+
+
+      // Lets write all the gen tau events regardless of if they match a jet or not.
+      //we want to consider events that pass the baseline cuts
+      if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
+
+      if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
+        if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt);
+        continue;
+      } // this also determines tauJetIdx
+
+
+      if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",eventN,tauJetIdx);
+        if(tauJetIdx!=-1){
+          printf("JetEta: %g ,JetPhi(): %g ,JetPt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",evt->JetsEtaVec_()[tauJetIdx],evt->JetsPhiVec_()[tauJetIdx],evt->JetsPtVec_()[tauJetIdx],genTauEta,genTauPhi,genTauPt);
+        }
+      }
+
+
 
       // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
       int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
@@ -325,8 +330,8 @@ using namespace std;
       for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
       // Select tau jet
       if( jetIdx == tauJetIdx ) {
-      // Fill the tauJetPtHist
-      tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), totWeight);// this is tauJetPt that later is defined.
+      // Fill the tauJetPtHist after the cut "delphi" 
+      if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), totWeight);// this is tauJetPt that later is defined.
 
       break; // End the jet loop once the tau jet has been found
       }
@@ -335,7 +340,7 @@ using namespace std;
       // Select only events with at least 2 HT jets
       if( selNJet < 2 ) continue;
 
-      if(verbose!=0)printf("selNJet > 2 passed \n " ); // Ahmad3
+      if(verbose!=0)printf("selNJet > 2 passed \n " );  
 
       // Fill histogram with relative visible energy of the tau
       // ("tau response template") for hadronically decaying taus
@@ -348,7 +353,7 @@ using namespace std;
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
 
-          if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ahmad3
+          if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
 
           break; // End the jet loop once the tau jet has been found
         }

@@ -245,8 +245,19 @@ using namespace std;
         //Identify the jet containing the muon
         const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
         int JetIdx=-99;
-        utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);
-        if(verbose!=0){printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
+        if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+          printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
+        }
+
+        // If muon does not match a GenMuon, drop the event. 
+        int GenMuIdx=-99;
+        if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
+          printf(" Warning! There is no Gen Muon \n ");
+          printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
+          for(int i=0; i<evt->GenMuPtVec_().size(); i++){
+          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
+          }
+          continue;
         }
 
         //New HT:
@@ -258,8 +269,6 @@ using namespace std;
 
         if(verbose!=0)printf("############ \n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
         if(verbose!=0)printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
-
-printf("simTauJetPt: %g simTauJetEta: %g simTauJetPhi: %g \n",simTauJetPt,simTauJetEta,simTauJetPhi);
 
         double template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
         double template_mhtphi=-99.;
