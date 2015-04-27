@@ -38,20 +38,21 @@ using namespace std;
 
 
 
-    Float_t legendX1 = .60;
+    Float_t legendX1 = .40;
     Float_t legendX2 = .80;
     Float_t legendY1 = .70; //.65;
     Float_t legendY2 = .85;
     TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
     catLeg1->SetTextSize(0.032);
     catLeg1->SetTextFont(42);
+    catLeg1->SetBorderSize(0);
 
 
 
     // Scaled Mu Pt
     
     
-    TFile * MuPt_file = new TFile("HadTauEstimation_TTbar_.root","R");        
+    TFile * MuPt_file = new TFile("HadTauEstimation_TTbar_LargerDelR.root","R");        
     sprintf(tempname,"allEvents/delphi/simTauJetPt_delphi_allEvents");
     TH1D * simTauJetPtHist = (TH1D*) MuPt_file->Get( tempname )->Clone();   
     simTauJetPtHist->SetLineColor(4);
@@ -62,7 +63,7 @@ using namespace std;
     simTauJetPtHist->SetTitle("#tau vs. scaled #mu");
 //    simTauJetPtHist->SetMaximum(5000);
     simTauJetPtHist->Draw("same hist");
-    sprintf(tempname,"Sim #tau Jet");
+    sprintf(tempname,"Predicted #tau Jet(using template)");
     catLeg1->AddEntry(simTauJetPtHist,tempname,"l");
 
 
@@ -71,7 +72,7 @@ using namespace std;
 
     // Tau Jet Pt
 
-    TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
+    TFile * resp_file = new TFile("../TauHad/HadTau_TauResponseTemplates_TTbar_LargerDelR.root","R");
     sprintf(tempname,"tauJetPtHist");
     TH1D * tauJetPtHist = (TH1D*) resp_file->Get( tempname )->Clone();
     tauJetPtHist->SetLineColor(2);

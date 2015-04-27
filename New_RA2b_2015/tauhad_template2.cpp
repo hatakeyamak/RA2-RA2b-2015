@@ -103,6 +103,12 @@ using namespace std;
     TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
     RA2NBtag_hist.Sumw2();
     vec.push_back(RA2NBtag_hist);
+    TH1D nB_hist = TH1D("nB","Number of B Distribution",20,0,20);
+    nB_hist.Sumw2();
+    vec.push_back(nB_hist);
+    TH1D nB_new_hist = TH1D("nB_new","Number of recalculated B",20,0,20);
+    nB_new_hist.Sumw2();
+    vec.push_back(nB_new_hist);
     TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
     RA2MuonPt_hist.Sumw2();
     vec.push_back(RA2MuonPt_hist);
@@ -170,11 +176,18 @@ using namespace std;
     // map<string,int> binMap = utils2::BinMap();
     map<string,int> binMap = utils2::BinMap_NoB();
 
-    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
+    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_LargerDelR.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
+
+
+    // Some variable for nBtag recalculation
+    int c1=0,c2=0,c3=0;
+    int nB_new;
+
+
 
     int eventN=0;
     while( evt->loadNext() ){
@@ -249,6 +262,7 @@ using namespace std;
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
         }
 
+       
         // If muon does not match a GenMuon, drop the event. 
         int GenMuIdx=-99;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
@@ -260,15 +274,67 @@ using namespace std;
           continue;
         }
 
-        //New HT:
+       
+        // New Jet(Pt/Eta/Phi)Vec
+        vector<double> NewJetPtVec = evt->JetsPtVec_();
+        vector<double> NewJetEtaVec = evt->JetsEtaVec_();
+        vector<double> NewJetPhiVec = evt->JetsPhiVec_();
+
+        // If no jet matches the muon, the simulated tau jet will be added to the HTJet collection.
+        JetIdx=-99; 
+        if(!utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) && fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.){
+          NewJetPtVec.push_back(simTauJetPt-muPt);
+          NewJetEtaVec.push_back(simTauJetEta);
+          NewJetPhiVec.push_back(simTauJetPhi);
+          if(verbose!=0)printf("No jet matched the muon. Adding a new jet.");
+        }
+
+        // Do not write number of B if the muon jet is btagged. 
+        int nB=evt->nBtags();
+        if(JetIdx!=-99 && evt->csvVec()[JetIdx]> 0.814)nB=-99; 
+        // Recalculate nBtag
+        // From tauhad_template.cpp we know that in 0% of 0B events
+        // 2.7% of 1B events, 7.6% of 2B events and 23% of 3+B
+        // events, tau jet is btagged(mistagging). On the other hand
+        // from nB and evt->nBtags() we know almost none of muon jets
+        // are bTagged.
+        // This means we should recalculate #Btags. 
+        if(evt->nBtags()==0){
+          nB_new=evt->nBtags();
+        }else if(evt->nBtags()==1){
+          nB_new=evt->nBtags();
+          c1++;
+          if(c1<=3)nB_new++;
+          if(c1==100)c1=0;
+        }else if(evt->nBtags()==2){
+          nB_new=evt->nBtags();
+          c2++;
+          if(c2<=8)nB_new++;
+          if(c2==100)c2=0;
+        }else if(evt->nBtags()>=3){
+          nB_new=evt->nBtags();
+          c3++;
+          if(c3<=23)nB_new++;
+          if(c3==100)c3=0;
+        }         
+
+
+
+        // If no jet matches the muon or the matched one meets the HTJet conditions after the modification, 
+        // HT and MHT will be calculated this way. 
+
+        // New HT:
         double HT = evt->ht() + simTauJetPt-muPt;
 
         //New MHT
         double mhtX = evt->mht()*cos(evt->mhtphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
         double mhtY = evt->mht()*sin(evt->mhtphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
-        if(verbose!=0)printf("############ \n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
-        if(verbose!=0)printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
+        if(verbose!=0){
+          printf("\n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
+          printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
+          printf("evt->ht: %g HT: %g \n ",evt->ht(),HT);
+        }
 
         double template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
         double template_mhtphi=-99.;
@@ -276,6 +342,41 @@ using namespace std;
         else{
           if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
           else template_mhtphi = -3.14+atan(mhtY/mhtX);
+        }
+        if(verbose!=0)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);      
+  
+        // What we did for new HT, MHT and NJets was ok if the new jet is already an HTJet.
+        // Otherwise we drop the jet and recalculate
+        JetIdx=-99;
+        if( utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+
+          // if the new jet is not an HT jet just drop it from the collection
+          if(verbose!=0)printf(" NewJetPt: %g \n ",evt->JetsPtVec_()[JetIdx]+ simTauJetPt-muPt);
+          if(evt->JetsPtVec_()[JetIdx]+ simTauJetPt-muPt < 30.){// the eta requirement is already satisfied. 
+           
+            NewJetPtVec.erase(NewJetPtVec.begin()+JetIdx);
+            NewJetEtaVec.erase(NewJetEtaVec.begin()+JetIdx);
+            NewJetPhiVec.erase(NewJetPhiVec.begin()+JetIdx);
+
+            // Recalculate HT and MHT 
+            mhtX=0;
+            mhtY=0;
+            HT=0;
+            for(int i=0; i< NewJetPtVec.size(); i++){
+              HT+=NewJetPtVec[i];
+              mhtX=mhtX-NewJetPtVec[i]*cos(NewJetPhiVec[i]);
+              mhtY=mhtY-NewJetPtVec[i]*sin(NewJetPhiVec[i]);
+            }
+            template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
+            if(mhtX>0)template_mhtphi = atan(mhtY/mhtX);
+            else{
+              if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
+              else template_mhtphi = -3.14+atan(mhtY/mhtX);
+            }
+
+            if(verbose!=0)printf(" Jet dropped. \n ");
+          }
+
         }
 
         //New MET
@@ -296,15 +397,6 @@ using namespace std;
         if(verbose!=0)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
         if(verbose!=0)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
         
-        // New Jet(Pt/Eta/Phi)Vec
-        vector<double> NewJetPtVec = evt->JetsPtVec_();
-        vector<double> NewJetEtaVec = evt->JetsEtaVec_();
-        vector<double> NewJetPhiVec = evt->JetsPhiVec_();
-        if(fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.){
-          NewJetPtVec.push_back(simTauJetPt-muPt);
-          NewJetEtaVec.push_back(simTauJetEta);
-          NewJetPhiVec.push_back(simTauJetPhi);
-        }
 
         // New minDelPhi_N
         double dpnhat[3]; 
@@ -363,7 +455,7 @@ using namespace std;
         double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-        double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)evt->nBtags() ,(double) muPt, simTauJetPt};
+        double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)evt->nBtags(),(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
 
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"

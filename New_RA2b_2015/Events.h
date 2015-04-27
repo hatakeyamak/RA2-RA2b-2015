@@ -68,6 +68,7 @@ using namespace std;
    vector<double>  *JetsPtVec;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
+   Float_t        Jets_bDiscriminator[50];  
 
    vector<double>  *slimJetPtVec;
    vector<double>  *slimJetEtaVec;
@@ -134,6 +135,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
+   vector<double>  csvVec() const;
 
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;

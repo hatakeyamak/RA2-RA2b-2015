@@ -61,6 +61,7 @@ using namespace std;
     ifstream fin(InRootList.c_str());
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
     char tempname[200];
+    char histname[200];
     vector<TH1D > vec;
     map<int, string> eventType;
     map<string , vector<TH1D> > cut_histvec_map;
@@ -100,6 +101,9 @@ using namespace std;
     TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
     RA2NBtag_hist.Sumw2();
     vec.push_back(RA2NBtag_hist);
+    TH1D NB_hist = TH1D("nB","Number of B Distribution",20,0,20);
+    NB_hist.Sumw2();
+    vec.push_back(NB_hist);
     TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,20);
     NLostLep_hist.Sumw2();
     vec.push_back(NLostLep_hist);
@@ -129,7 +133,15 @@ using namespace std;
       
     // We would like also to have the pt distribution of the tau Jets
     TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
-    
+
+
+    // Because of bad reconstruction or so, sometimes no jet matches a Gen. hadronic tau. 
+    // So we need to add into account the fail rate here. 
+    // First open the fail rate histogram
+    TFile * FailRateGenTau_Jet_file = new TFile("TauHad/FailRate_GenTau_jet.root","R");
+    sprintf(histname,"FailRate_GenTau_jet");
+    TH1D * hFailRate_GenTau_Jet =(TH1D *) FailRateGenTau_Jet_file->Get(histname)->Clone();
+ 
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -250,6 +262,13 @@ using namespace std;
        
       }
 
+      int jet_index=-99;
+      int nB = evt->nBtags();
+      double deltaR = genTauPt < 50. ? 0.2 : 0.1;
+      // We don't write the event if the matched tau jet is btaged. 
+      if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
+        if(evt->csvVec()[jet_index]>0.814)nB=-1;
+      }
       
 
       // Total weight
@@ -257,7 +276,8 @@ using namespace std;
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
-      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags()}; //the last one gives the RA2 defined number of jets.
+      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
+
 
       //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
       for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -284,20 +304,11 @@ using namespace std;
       ////End of Closure Test Section
       ///////////////////////////////
 
-      // Use only events where the tau is inside the muon acceptance
-      // because lateron we will apply the response to muon+jet events
-
-      if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); 
-
-      if( genTauPt < 20. ) continue; // 10.
-      if( std::abs(genTauEta) > 2.1 ) continue; // 2.4
-
-      if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n ");  
 
       // Do the matching
       int tauJetIdx = -1;
-      const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
-
+      double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+      if(inputnumber=="LargerDelR")deltaRMax = genTauPt < 50. ? 0.4 : 0.2; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
 
       // Lets write all the gen tau events regardless of if they match a jet or not.
       //we want to consider events that pass the baseline cuts
@@ -315,6 +326,30 @@ using namespace std;
         }
       }
 
+      // Fill tauJet Pt histogram
+      double failRate = hFailRate_GenTau_Jet->GetBinContent(hFailRate_GenTau_Jet->GetXaxis()->FindBin(genTauPt));
+      // We know N_tot = N_pass + N_fail. And, failRate=N_fial/N_tot ==> N_tot = 1/(1-failRate) N_pass
+      double tauJetWeight = totWeight;// * 1/(1-failRate);
+      for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx){ // Loop over reco jets
+        // Select tau jet
+        if( jetIdx == tauJetIdx ) {
+          // Fill the tauJetPtHist after the cut "delphi" 
+          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
+
+          break; // End the jet loop once the tau jet has been found
+        }
+      } // End of loop over reco jets
+
+
+      // Use only events where the tau is inside the muon acceptance
+      // because lateron we will apply the response to muon+jet events
+      if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); 
+
+      if( genTauPt < 20. ) continue; // 10.
+      if( std::abs(genTauEta) > 2.1 ) continue; // 2.4
+
+      if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n ");  
+
 
 
       // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
@@ -326,16 +361,6 @@ using namespace std;
         if( evt->JetsPtVec_()[jetIdx] > 30. && std::abs(evt->JetsEtaVec_()[jetIdx]) < 2.4 ) selNJet++;
       } // End of loop over reco jets
 
-      // Fill tauJet Pt histogram
-      for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
-      // Select tau jet
-      if( jetIdx == tauJetIdx ) {
-      // Fill the tauJetPtHist after the cut "delphi" 
-      if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), totWeight);// this is tauJetPt that later is defined.
-
-      break; // End the jet loop once the tau jet has been found
-      }
-      } // End of loop over reco jets
 
       // Select only events with at least 2 HT jets
       if( selNJet < 2 ) continue;

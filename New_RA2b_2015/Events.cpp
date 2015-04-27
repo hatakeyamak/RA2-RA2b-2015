@@ -41,6 +41,7 @@
      JetsPtVec=new vector<double>();
      JetsEtaVec=new vector<double>();
      JetsPhiVec=new vector<double>();
+//     Jets_bDiscriminator=new Float_t();
      MuonsPtVec=new vector<double>();
      MuonsEtaVec=new vector<double>();
      MuonsPhiVec=new vector<double>();
@@ -100,6 +101,7 @@
    fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
    fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
    fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
+   fChain->SetBranchAddress("Jets_bDiscriminator", Jets_bDiscriminator);
    fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
    fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
    fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
@@ -210,6 +212,14 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
    vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}
    vector<double>  Events::JetsPhiVec_() const { return *JetsPhiVec ;}
+   vector<double>  Events::csvVec() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_bDiscriminator+i));
+    }
+    return tempvec;
+   }
 
    vector<double>  Events::slimJetPtVec_() const { return *slimJetPtVec ;}
    vector<double>  Events::slimJetEtaVec_() const { return *slimJetEtaVec ;}
@@ -246,7 +256,7 @@ fChain->SetBranchAddress("testVec", &testVec);
         tempVec.push_back((int)*(GenElec_GenElecFromTau+i)==1);
      }
      return tempVec;
-  }
+   }
 
 
   vector<int>     Events::GenTauHadVec_() const { 

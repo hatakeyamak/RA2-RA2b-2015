@@ -1,5 +1,5 @@
 
-void plot_TauTemplate(int icomp=0){
+void plot_TauTemplate(int icomp=0, string input=""){
 
   //
   // icomp=0: only show own results
@@ -51,9 +51,10 @@ void plot_TauTemplate(int icomp=0){
   
 //  TFile *file_08TeV         = new TFile("tauTemplatesRes_8TeV.root","R"); 
 //  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates_stacked.root","R"); 
-  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates_TTbar_.root","R");
+  sprintf(tempname,"HadTau_TauResponseTemplates_TTbar_%s.root",input.c_str());
+  TFile *file_13TeV         = new TFile(tempname,"R");
   TFile *file_13TeV_NoLowPtJet = new TFile("../../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R"); 
-  TFile *file_13TeV_TTbar   = new TFile("HadTau_TauResponseTemplates_TTbar_.root","R");
+  TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
 
   TH1D * thist;
   catLeg1->SetHeader("p_{T}(#tau^{had}) [GeV]");
@@ -136,6 +137,7 @@ void plot_TauTemplate(int icomp=0){
 
   catLeg1->Draw();  
 
-  c1->Print("Plot.png");
+  sprintf(tempname,"TauResponseTemplates_TTbar_%s.png",input.c_str());
+  c1->Print(tempname);
 
 }
