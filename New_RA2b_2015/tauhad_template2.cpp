@@ -193,6 +193,9 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
+      // Through out an event that contains HTjets with bad id
+      if(evt->JetId()==0)continue;
+
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
       // - select events with exactly one well-reconstructed, isolated muon

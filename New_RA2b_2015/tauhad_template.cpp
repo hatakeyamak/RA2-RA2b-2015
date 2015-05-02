@@ -138,7 +138,8 @@ using namespace std;
     // Because of bad reconstruction or so, sometimes no jet matches a Gen. hadronic tau. 
     // So we need to add into account the fail rate here. 
     // First open the fail rate histogram
-    TFile * FailRateGenTau_Jet_file = new TFile("TauHad/FailRate_GenTau_jet.root","R");
+    sprintf(tempname,"TauHad/FailRate_GenTau_jet_TTbar_%s.root",inputnumber.c_str());
+    TFile * FailRateGenTau_Jet_file = new TFile(tempname,"R");
     sprintf(histname,"FailRate_GenTau_jet");
     TH1D * hFailRate_GenTau_Jet =(TH1D *) FailRateGenTau_Jet_file->Get(histname)->Clone();
  
@@ -180,6 +181,9 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
     //  if(eventN>100)break;
+
+      // Through out an event that contains HTjets with bad id
+      if(evt->JetId()==0)continue;
 
       // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
       // comparing with /<<<< w--> mu >>>>/
@@ -257,6 +261,15 @@ using namespace std;
             for(int i=0;i<evt->GenTauPtVec_().size();i++){
               printf("GenTau#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauPtVec_()[i],evt->GenTauEtaVec_()[i],evt->GenTauPhiVec_()[i]);
             }
+            printf(" @@@@\n TauNu section: \n ");
+            for(int i=0;i<evt->GenTauNuPtVec_().size();i++){
+              printf("GenTauNu # : %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauNuPtVec_()[i],evt->GenTauNuEtaVec_()[i],evt->GenTauNuPhiVec_()[i]);
+            }
+            printf(" @@@@\n Mom of TauNu section: \n ");
+            for(int i=0;i<evt->TauNuMomPt().size();i++){
+              printf("MomofTauNu # : %d pt: %g \n ",i+1,evt->TauNuMomPt()[i]);
+            }
+
 
 
        
@@ -265,7 +278,7 @@ using namespace std;
       int jet_index=-99;
       int nB = evt->nBtags();
       double deltaR = genTauPt < 50. ? 0.2 : 0.1;
-      // We don't write the event if the matched tau jet is btaged. 
+      // We don't write the event for nB if the matched tau jet is btaged. 
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
         if(evt->csvVec()[jet_index]>0.814)nB=-1;
       }
@@ -314,7 +327,22 @@ using namespace std;
       //we want to consider events that pass the baseline cuts
       if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
 
-      if( !utils->findMatchedObject(tauJetIdx,genTauEta,genTauPhi, evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
+      // 
+      TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
+      for(int i=0; i < evt->GenTauNuPtVec_().size(); i++){
+        if(evt->TauNuMomPt()[i]==genTauPt){
+          TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[i],evt->GenTauNuEtaVec_()[i],evt->GenTauNuPhiVec_()[i]);
+        }
+      }
+      Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
+      Visible3Vec=Tau3Vec-TauNu3Vec;
+
+      if(verbose!=0){      
+        printf("TauNu3Vec: pt: %g eta: %g phi: %g \n Tau3Vec: pt: %g eta: %g phi: %g \n",TauNu3Vec.Pt(),TauNu3Vec.Eta(),TauNu3Vec.Phi(),Tau3Vec.Pt(),Tau3Vec.Eta(),Tau3Vec.Phi());
+        printf("Visible3Vec: pt: %g eta: %g phi: %g \n ",Visible3Vec.Pt(),Visible3Vec.Eta(),Visible3Vec.Phi());
+      }
+
+      if( !utils->findMatchedObject(tauJetIdx,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
         if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt);
         continue;
       } // this also determines tauJetIdx
@@ -329,7 +357,7 @@ using namespace std;
       // Fill tauJet Pt histogram
       double failRate = hFailRate_GenTau_Jet->GetBinContent(hFailRate_GenTau_Jet->GetXaxis()->FindBin(genTauPt));
       // We know N_tot = N_pass + N_fail. And, failRate=N_fial/N_tot ==> N_tot = 1/(1-failRate) N_pass
-      double tauJetWeight = totWeight;// * 1/(1-failRate);
+      double tauJetWeight = totWeight * 1/(1-failRate);
       for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx){ // Loop over reco jets
         // Select tau jet
         if( jetIdx == tauJetIdx ) {

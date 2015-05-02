@@ -38,6 +38,9 @@
      GenTauPtVec=new vector<double>();
      GenTauEtaVec=new vector<double>();
      GenTauPhiVec=new vector<double>();
+     GenTauNuPtVec=new vector<double>();
+     GenTauNuEtaVec=new vector<double>();
+     GenTauNuPhiVec=new vector<double>();
      JetsPtVec=new vector<double>();
      JetsEtaVec=new vector<double>();
      JetsPhiVec=new vector<double>();
@@ -98,6 +101,10 @@
    fChain->SetBranchAddress("GenTauEtaVec", &GenTauEtaVec);
    fChain->SetBranchAddress("GenTauPhiVec", &GenTauPhiVec);
    fChain->SetBranchAddress("GenTau_GenTauHad", GenTau_GenTauHad);
+   fChain->SetBranchAddress("GenTauNuPtVec", &GenTauNuPtVec);
+   fChain->SetBranchAddress("GenTauNuEtaVec", &GenTauNuEtaVec);
+   fChain->SetBranchAddress("GenTauNuPhiVec", &GenTauNuPhiVec);
+
    fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
    fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
    fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
@@ -118,8 +125,8 @@
    fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
    fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
    fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
-/*   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-*/
+   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
+   fChain->SetBranchAddress("GenTauNu_TauNuMomPt", GenTauNu_TauNuMomPt);
 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
@@ -195,6 +202,18 @@ fChain->SetBranchAddress("testVec", &testVec);
   double Events::deltaPhi3() const { return DeltaPhi3; }
   double Events::minDeltaPhiN() const { return minDeltaPhiN_; }
 
+  // To see if an event passes the jetId requirement or not.  
+  int Events::JetId() const {
+    int jetid=1;
+    // We only consider HTJets 
+    for(int i=0; i< slimJetPtVec->size(); i++){
+      if(slimJetPtVec->at(i) > 30. && fabs(slimJetEtaVec->at(i)) < 2.4 ){
+        if( (int)*(slimJet_slimJetID+i) == 0 )jetid=0;
+      }
+    }
+    return jetid;
+  }
+
   // Gen Muon 
    vector<double>  Events::GenMuPtVec_() const { return *GenMuPtVec ;}
    vector<double>  Events::GenMuEtaVec_() const { return *GenMuEtaVec ;}
@@ -208,6 +227,18 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::GenTauPtVec_() const { return *GenTauPtVec ;}
    vector<double>  Events::GenTauEtaVec_() const { return *GenTauEtaVec ;}
    vector<double>  Events::GenTauPhiVec_() const { return *GenTauPhiVec ;}
+
+   vector<double>  Events::GenTauNuPtVec_() const { return *GenTauNuPtVec ;}
+   vector<double>  Events::GenTauNuEtaVec_() const { return *GenTauNuEtaVec ;}
+   vector<double>  Events::GenTauNuPhiVec_() const { return *GenTauNuPhiVec ;}
+
+   vector<double>  Events::TauNuMomPt() const {
+    vector<double> tempVec;
+    for( int i=0; i < GenTauNuPtVec->size(); i++ ){
+      tempVec.push_back((double)*(GenTauNu_TauNuMomPt+i));
+    } 
+    return tempVec;
+   }
 
    vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
    vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}

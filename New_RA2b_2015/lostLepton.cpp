@@ -81,6 +81,9 @@ using namespace std;
 //      if(eventN>10000)break;
       eventN++;
 
+      // Through out an event that contains HTjets with bad id
+      if(evt->JetId()==0)continue;
+
 //printf("\n@@@@@@@@@@@@@@@@@@@@@@@@@@  \n event: %d \n Njet: %d HT: %g MHT: %g dphi1: %g dphi2: %g dphi3: %g  \n ",eventN-1,evt->nJets(),evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()); //Ahmad3
 
       // Apply the NJets baseline-cut

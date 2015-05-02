@@ -65,6 +65,10 @@ using namespace std;
    vector<double>  *GenTauEtaVec;
    vector<double>  *GenTauPhiVec;
 
+   vector<double>  *GenTauNuPtVec;
+   vector<double>  *GenTauNuEtaVec;
+   vector<double>  *GenTauNuPhiVec;
+
    vector<double>  *JetsPtVec;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
@@ -94,8 +98,8 @@ using namespace std;
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
-//   Int_t    *      slimJet_slimJetID; 
-   Int_t           slimJet_slimJetID[35];
+   Int_t           slimJet_slimJetID[100];
+   Float_t         GenTauNu_TauNuMomPt[10]; 
 
 public:
 //constructor
@@ -118,6 +122,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double deltaPhi3() const ;
   double minDeltaPhiN() const ;
   int nGenMu() const ;
+  int JetId() const ; 
 
    vector<double>  GenMuPtVec_() const;
    vector<double>  GenMuEtaVec_() const;
@@ -131,6 +136,12 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenTauPtVec_() const;
    vector<double>  GenTauEtaVec_() const;
    vector<double>  GenTauPhiVec_() const;
+
+   vector<double>  GenTauNuPtVec_() const;
+   vector<double>  GenTauNuEtaVec_() const;
+   vector<double>  GenTauNuPhiVec_() const;
+
+   vector<double>  TauNuMomPt() const;
 
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;

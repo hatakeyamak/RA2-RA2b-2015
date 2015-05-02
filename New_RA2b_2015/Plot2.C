@@ -150,8 +150,9 @@ else{
       GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
     }
     if(i==1){
-      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
-      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+//      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
+//      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+      sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
       EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
     }
     thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();

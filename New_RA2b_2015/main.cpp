@@ -174,6 +174,9 @@ int main(int argc, char *argv[]){
 
     }
 
+    // Through out an event that contains HTjets with bad id
+    if(evt->JetId()==0)continue;
+
     // Total weight
     double totWeight = evt->weight()*1.;
 
