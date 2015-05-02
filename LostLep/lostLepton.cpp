@@ -483,7 +483,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>1000000)break;
+if(ie>100000)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){

@@ -515,6 +515,7 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 
 ///////////////////////////////////////////
 /// Lost Lepton Section
+//printf("\n@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event: %d \n Njet: %d HT: %g MHT: %g dphi1: %g dphi2: %g dphi3: %g  \n ",ie,cntNJetsPt30Eta24,HT,template_mht,dPhi0,dPhi1,dPhi2); //Ahmad3
 
     // Apply the NJets baseline-cut
     if( !Selection::nJets(cntNJetsPt30Eta24) ) continue;
@@ -540,10 +541,10 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
     TVector3 temp3vec;
     genMuonVec.clear(); 
     bool isMuon = false;
-    if(verbose!=0)printf(" List of particles: \n");
+//    if(verbose!=0)printf(" List of particles: \n");
     for(int i=0; i < (int) template_genDecayPdgIdVec->size();i++){///loop over all particles
       int pdgId = template_genDecayPdgIdVec->at(i);
-      if(verbose!=0)printf(" pdg: %d \n",pdgId);
+//      if(verbose!=0)printf(" pdg: %d \n",pdgId);
       if(std::abs(pdgId)==13){//see if it is muon
         genMuPt = template_genDecayLVec->at(i).Pt();
         genMuEta = template_genDecayLVec->at(i).Eta();
@@ -569,7 +570,7 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
       }
     }
     if(verbose!=0){
-      printf("isMuon: %d \n " ,isMuon);
+//      printf("isMuon: %d \n " ,isMuon);
       for(int j=0; j < genMuonVec.size(); j++){
       printf("Muon # %d, pt: %g, eta: %g, phi: %g \n ",j,genMuonVec[j].Pt(),genMuonVec[j].Eta(),genMuonVec[j].Phi());
       }
@@ -608,6 +609,8 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
           // the acceptance, regardless of whether the reconstructed muon is also
           // isolated or not.
 
+//if(muonsLVec->size() > 0)printf(" RecoMu--> Pt: %g eta: %g phi: %g deltaRMax: %g ",muonsLVec->at(0).Pt(),muonsLVec->at(0).Eta(),muonsLVec->at(0).Phi(),deltaRMax); // Ahmad3
+
       // in R and in pt
       int matchedMuonIdx = -1;
       if( findMatchedObject(matchedMuonIdx,genMuonVec[0].Eta(),genMuonVec[0].Phi(),* muonsLVec,deltaRMax,verbose) ) {
@@ -619,15 +622,15 @@ if(verbose!=0)printf("\n############ \n event: %d \n ",ie);
 
         if( relDeltaPtMu < deltaPtMax ) {
           // and matches generated pt
-      if(verbose!=0)printf("Muon is reconstructed \n ");
+      if(verbose!=0)printf(" Muon is reconstructed \n ");
 
 
           // Check if the muon is also isolated: check if an isolated muon is present
           // in the event that matches the reconstructed muon in R
-          if(verbose!=0)printf("muonsRelIso->at(matchedMuonIdx): %g Selection::muIso(): %g \n ",muonsRelIso->at(matchedMuonIdx), Selection::muIso() );
+          if(verbose!=0)printf(" muonsRelIso->at(matchedMuonIdx): %g Selection::muIso(): %g \n ",muonsRelIso->at(matchedMuonIdx), Selection::muIso() );
           if( muonsRelIso->at(matchedMuonIdx) <=  Selection::muIso() ){
             // Muon is isolated
-          if(verbose!=0)printf("Muon is isolated \n ");
+          if(verbose!=0)printf(" Muon is isolated \n ");
 
           // Reconstruction-efficiency determination 2: Counter for those events
           // with generator-level muons inside acceptance where the muon has also

@@ -1,0 +1,1 @@
+/data3/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_T1tttt_mGl-1500_mLSP-100-madgraph-tauola/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141225_024211/0000/stopFlatNtuples_1.root

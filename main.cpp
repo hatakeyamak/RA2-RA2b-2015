@@ -785,7 +785,7 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
 }
 //cout << "nIso: " << nIsoTrk_ << endl;
 
-
+//printf("@@@@@@@@@@@@@@@@@@@@@ \n ");
     vec_recoMuonLvec.clear();
     for(int i=0; i< muonsLVec->size(); i++){
       double pt=muonsLVec->at(i).Pt();
@@ -794,6 +794,7 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
       double e=muonsLVec->at(i).E();
       double relIso=muonsRelIso->at(i);
       double mu_mt_w =muonsMtw->at(i);
+//printf(" pt: %g eta: %g phi: %g relIso: %g \n ",pt,eta,phi,relIso);
       if(pt>10. && fabs(eta)< 2.4 && relIso < 0.2 /* && mu_mt_w < 100. */ ){
         tempLvec.SetPtEtaPhiE(pt,eta,phi,e);
         vec_recoMuonLvec.push_back(tempLvec);
@@ -808,9 +809,9 @@ if(pt > 15 && eta < 2.4 && reliso < 0.1 && mt_w < 100)nIsoTrk_++;
       printf(" ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",HT,template_mht,cntNJetsPt30Eta24,nbtag,nIsoTrk_,(template_nElectrons+template_nMuons));
       printf(" @@@@\n Jets section: \n Njets: %d \n ", cntNJetsPt30Eta24);
       for(int i=0;i<(int)template_oriJetsVec->size();i++){
-        if(template_oriJetsVec->at(i).Pt() > 30. && fabs(template_oriJetsVec->at(i).Eta())<2.4){
+//        if(template_oriJetsVec->at(i).Pt() > 30. && fabs(template_oriJetsVec->at(i).Eta())<2.4){
           printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi());
-        }
+//        }
       }
       printf(" @@@@\n Muons section: \n Nmuons: %d \n ",(int)template_nMuons);
       cout << " size of the muon vector: " << (int)vec_recoMuonLvec.size() << endl;

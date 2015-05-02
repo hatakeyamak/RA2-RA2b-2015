@@ -1,0 +1,1 @@
+/home/borzou/MiniAOD/CMSSW_7_2_0_Stop/src/SusyAnaTools/SkimsAUX/workdir/prod/stopFlatNtuples.root

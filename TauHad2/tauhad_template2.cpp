@@ -624,12 +624,19 @@ vec_recoElecLvec.push_back(tempLvec);
 }
 
 if(verbose!=0)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n  ****************************** \n ",vec_recoMuonLvec.size(),vec_recoElecLvec.size());
+
+//printf("@@@@@@@@@@@@@@@@@@@@@@@@ \n eventN: %d \n ",ie);
+
+//printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n  ****************************** \n ",vec_recoMuonLvec.size(),vec_recoElecLvec.size());
+
 //if( template_nMuons == 1 && template_nElectrons == 0 ) {
 if( vec_recoMuonLvec.size() == 1 && vec_recoElecLvec.size() == 0 ){
 muPt =  vec_recoMuonLvec[0].Pt();
 muEta = vec_recoMuonLvec[0].Eta();
 muPhi = vec_recoMuonLvec[0].Phi();
 muMtW = vec_recoMuMTW[0];
+
+//printf("muPt: %g muEta: %g muPhi: %g \n ",muPt,muEta,muPhi);
 
 // Get random number from tau-response template
 // The template is chosen according to the muon pt
@@ -638,6 +645,9 @@ const double scale = getRandom(muPt);
 simTauJetPt = scale * muPt;
 simTauJetEta = muEta;
 simTauJetPhi = muPhi;
+
+printf("simTauJetPt: %g simTauJetEta: %g simTauJetPhi: %g \n ",simTauJetPt,simTauJetEta,simTauJetPhi);
+
 
 ///The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And, its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet. 
 
@@ -671,7 +681,7 @@ if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
 else template_mhtphi = -3.14+atan(mhtY/mhtX);
 }
 
-//printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
+//printf("HT: %g template_mht: %g, template_mhtphi: %g \n ",HT,template_mht,template_mhtphi);
 
 //add the simTau Jet to the list if it satisfy the conditions
 if(fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.)cntNJetsPt30Eta24+=1;

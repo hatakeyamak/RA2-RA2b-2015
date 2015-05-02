@@ -430,7 +430,7 @@ template_AUX->GetEntry(ie);
 //A counter
 if(ie % 10000 ==0 )printf("-------------------- %d \n",ie);
 
-//if(ie>1000000)break;
+if(ie>10159)break;
 
 puWeight = 1.0;
 if( !keyStringT.Contains("Signal") && !keyStringT.Contains("Data") ){
@@ -612,6 +612,27 @@ if(W_emuVec->size()!=0 || W_tau_emuVec->size()!=0)continue;
 ////////////////////////////////////////////////////////////////////////////if( genTauPt < 20. ) continue;
 ////////////////////////////////////////////////////////////////////////////if( std::abs(genTauEta) > 2.1 ) continue;
 
+printf(" ####################### \n event#: %d \n ",ie); // Ahmad3
+// Ahmad3 <<< 
+
+      printf(" @@@@\n Jets section: \n Njets: %d \n ", cntNJetsPt30Eta24);
+      for(int i=0;i<(int)template_oriJetsVec->size();i++){
+          printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,template_oriJetsVec->at(i).Pt(),template_oriJetsVec->at(i).Eta(),template_oriJetsVec->at(i).Phi());
+      }
+      printf(" @@@@\n Tau section: \n ");
+      for(int iv=0; iv<(int)template_genDecayLVec->size(); iv++){
+        int pdgId = template_genDecayPdgIdVec->at(iv);
+        if( abs(pdgId) == 15 ){ 
+          printf("pt: %g eta: %g phi: %g \n ",template_genDecayLVec->at(iv).Pt(),template_genDecayLVec->at(iv).Eta(),template_genDecayLVec->at(iv).Phi());
+        }
+      }
+
+      
+// Ahmad3 >>>
+
+
+
+
 // Do the matching
 int tauJetIdx = -1;
 const double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
@@ -630,6 +651,7 @@ if( !findMatchedObject(tauJetIdx,genTauEta,genTauPhi,* template_oriJetsVec,delta
 
   continue;
 }//this also determines tauJetIdx
+
 
 if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",ie,tauJetIdx);
 if(tauJetIdx!=-1){
@@ -698,13 +720,14 @@ if(checkcut(ite->first)==true){histobjmap[ite->first].fill(Nhists,&eveinfvec[0] 
 ////End of Closure Test Section
 ///////////////////////////////
 
+printf("genTauPt: %g genTauEta: %g \n ",genTauPt,genTauEta);
 
 // Use only events where the tau is inside the muon acceptance
 // because lateron we will apply the response to muon+jet events
 if( genTauPt < 20. ) continue;
 if( std::abs(genTauEta) > 2.1 ) continue;
 
-
+printf("genTauPt>20 and eta< 2.1 passed \n "); //  Ahmad3 
 
 // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
 int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
@@ -730,7 +753,7 @@ if(  vec_Jet_30_24_Lvec[jetIdx].Pt() > 30. && std::abs(vec_Jet_30_24_Lvec[jetIdx
 // Select only events with at least 2 HT jets
 if( selNJet < 2 ) continue;
 
-
+printf("selNJet > 2 passed \n " ); // Ahmad3
 
 // Fill histogram with relative visible energy of the tau
 // ("tau response template") for hadronically decaying taus
@@ -742,6 +765,9 @@ const double tauJetPt = template_oriJetsVec->at(jetIdx).Pt();
 const unsigned int ptBin = TauResponse_ptBin(genTauPt);
 // Fill the corresponding response template
 hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
+
+printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); // Ahmad3
+
 break; // End the jet loop once the tau jet has been found
 }
 } // End of loop over reco jets
