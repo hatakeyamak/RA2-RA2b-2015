@@ -24,6 +24,7 @@
 #include "TH1.h"
 #include "TVector2.h"
 #include "TVector3.h"
+#include "TRandom3.h"
 
 using namespace std;
 
@@ -162,6 +163,11 @@ using namespace std;
 
     // Open some files and get the histograms ........................................//
 
+    // Rate of bTagged tau jet
+    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_.root","R");
+    sprintf(histname,"TauBtaggedRate");
+    TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
+
     // Probability of muon coming from Tau
     TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_.root","R");
     sprintf(histname,"hProb_Tau_mu");
@@ -260,14 +266,14 @@ using namespace std;
 
         //Identify the jet containing the muon
         const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
-        int JetIdx=-99;
+        int JetIdx=-1;
         if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
         }
 
        
         // If muon does not match a GenMuon, drop the event. 
-        int GenMuIdx=-99;
+        int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
           printf(" Warning! There is no Gen Muon \n ");
           printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
@@ -277,14 +283,13 @@ using namespace std;
           continue;
         }
 
-       
         // New Jet(Pt/Eta/Phi)Vec
         vector<double> NewJetPtVec = evt->JetsPtVec_();
         vector<double> NewJetEtaVec = evt->JetsEtaVec_();
         vector<double> NewJetPhiVec = evt->JetsPhiVec_();
 
         // If no jet matches the muon, the simulated tau jet will be added to the HTJet collection.
-        JetIdx=-99; 
+        JetIdx=-1; 
         if(!utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) && fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.){
           NewJetPtVec.push_back(simTauJetPt-muPt);
           NewJetEtaVec.push_back(simTauJetEta);
@@ -292,9 +297,19 @@ using namespace std;
           if(verbose!=0)printf("No jet matched the muon. Adding a new jet.");
         }
 
+        // Calculate the new Jet pT
+        // pT is vector quantity and should be calculated using vector algebra. 
+        TVector3 OrigTauJet3Vec,SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
+        if(JetIdx!=-1)OrigTauJet3Vec.SetPtEtaPhi(evt->JetsPtVec_()[JetIdx],evt->JetsEtaVec_()[JetIdx],evt->JetsPhiVec_()[JetIdx]);
+        else OrigTauJet3Vec.SetPtEtaPhi(0,0,0);
+        SimTauJet3Vec.SetPtEtaPhi(simTauJetPt,simTauJetEta,simTauJetPhi);
+        Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
+        NewTauJet3Vec=OrigTauJet3Vec-Muon3Vec+SimTauJet3Vec;
+        
+
         // Do not write number of B if the muon jet is btagged. 
         int nB=evt->nBtags();
-        if(JetIdx!=-99 && evt->csvVec()[JetIdx]> 0.814)nB=-99; 
+        if(JetIdx!=-1 && evt->csvVec()[JetIdx]> 0.814)nB=-1; 
         // Recalculate nBtag
         // From tauhad_template.cpp we know that in 0% of 0B events
         // 2.7% of 1B events, 7.6% of 2B events and 23% of 3+B
@@ -320,6 +335,17 @@ using namespace std;
           if(c3<=23)nB_new++;
           if(c3==100)c3=0;
         }         
+        
+        // New #b
+        double NewNB=evt->nBtags();
+        // get the rate of tau jet mistaggign as a function of pT.
+        double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+        // get a random number between 0 and 1
+        TRandom3 * ran = new TRandom3(0);
+        double rn = ran->Rndm();
+        // If statistics is high enough, in bRate*100 % of cases the random number is smaller than bRate. 
+        if(rn < bRate )NewNB++; 
+        delete ran;
 
 
 
@@ -350,12 +376,16 @@ using namespace std;
   
         // What we did for new HT, MHT and NJets was ok if the new jet is already an HTJet.
         // Otherwise we drop the jet and recalculate
-        JetIdx=-99;
+        JetIdx=-1;
         if( utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
 
           // if the new jet is not an HT jet just drop it from the collection
-          if(verbose!=0)printf(" NewJetPt: %g \n ",evt->JetsPtVec_()[JetIdx]+ simTauJetPt-muPt);
-          if(evt->JetsPtVec_()[JetIdx]+ simTauJetPt-muPt < 30.){// the eta requirement is already satisfied. 
+          if(verbose!=0)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
+
+          if(NewTauJet3Vec.Pt() < 30.){// the eta requirement is already satisfied. 
+
+            // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
+            NewNB=evt->nBtags(); 
            
             NewJetPtVec.erase(NewJetPtVec.begin()+JetIdx);
             NewJetEtaVec.erase(NewJetEtaVec.begin()+JetIdx);
@@ -458,7 +488,7 @@ using namespace std;
         double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-        double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)evt->nBtags(),(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
+        double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
 
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"

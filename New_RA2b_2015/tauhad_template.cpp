@@ -85,6 +85,12 @@ using namespace std;
     TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
     GenTau_Jet_fail->Sumw2();
 
+    // Two histograms to find rate of btagged(mistagged) tau jets as a function of pT. 
+    TH1D * B_rate_all = new TH1D("B_rate_all","Pt of all matched tau jets",NMuPtBins,0,MaxMuPt);
+    B_rate_all->Sumw2();
+    TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",NMuPtBins,0,MaxMuPt);
+    B_rate_tagged->Sumw2();
+
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -280,7 +286,11 @@ using namespace std;
       double deltaR = genTauPt < 50. ? 0.2 : 0.1;
       // We don't write the event for nB if the matched tau jet is btaged. 
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
-        if(evt->csvVec()[jet_index]>0.814)nB=-1;
+        B_rate_all->Fill(evt->JetsPtVec_()[jet_index]);
+        if(evt->csvVec()[jet_index]>0.814){
+          nB=-1;
+          B_rate_tagged->Fill(evt->JetsPtVec_()[jet_index]);
+        }
       }
       
 
@@ -449,6 +459,17 @@ using namespace std;
         }
       }
     }
+
+    // Calculate tau mistagged(btagged) rate
+    TH1D * TauBtaggedRate = static_cast<TH1D*>(B_rate_tagged->Clone("TauBtaggedRate"));
+    TauBtaggedRate->Divide(B_rate_tagged,B_rate_all,1,1,"B");
+    // Write the histogram 
+    sprintf(tempname,"TauHad/TauBtaggedRate_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile btagfile(tempname,"RECREATE");
+    TauBtaggedRate->Write();
+    B_rate_tagged->Write();
+    B_rate_all->Write();
+    btagfile.Close();
 
     // Calculate the probability of muon coming from Tau
     TH1D * hProb_Tau_mu = static_cast<TH1D*>(hTau_mu->Clone("hProb_Tau_mu"));
