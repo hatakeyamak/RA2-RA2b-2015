@@ -202,6 +202,43 @@ using namespace std;
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
 
+/*
+//Temporary
+          printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
+          int nHTJets=0;
+          for(int i=0;i<evt->slimJetPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
+              nHTJets++;
+            }
+
+          }
+          printf("========== \n");
+          for(int i=0;i<evt->JetsPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+            printf("Jets_chargedEmEnergyFraction_(): %g \n ",evt->Jets_chargedEmEnergyFraction_()[i]);
+            printf("Jets_chargedHadronEnergyFraction_(): %g \n ",evt->Jets_chargedHadronEnergyFraction_()[i]);
+            printf("Jets_chargedHadronMultiplicity_(): %d \n ",evt->Jets_chargedHadronMultiplicity_()[i]);
+            printf("Jets_electronMultiplicity_(): %d \n ",evt->Jets_electronMultiplicity_()[i]);
+            printf("Jets_jetArea_(): %g \n ",evt->Jets_jetArea_()[i]);
+            printf("Jets_muonEnergyFraction_(): %g \n ",evt->Jets_muonEnergyFraction_()[i]);
+            printf("Jets_muonMultiplicity_(): %d \n ",evt->Jets_muonMultiplicity_()[i]);
+            printf("Jets_neutralEmEnergyFraction_(): %g \n ",evt->Jets_neutralEmEnergyFraction_()[i]);
+            printf("Jets_neutralHadronMultiplicity_(): %d \n ",evt->Jets_neutralHadronMultiplicity_()[i]);
+            printf("Jets_photonEnergyFraction_(): %g \n ",evt->Jets_photonEnergyFraction_()[i]);
+            printf("Jets_photonMultiplicity_(): %d \n ",evt->Jets_photonMultiplicity_()[i]);
+          }
+          printf("========== \n nHTJets: %d \n evt->JetsPtVec_().size(): %d \n ",nHTJets,evt->JetsPtVec_().size());
+          printf("JetId: %d \n " ,evt->JetId());
+
+          if(nHTJets != evt->JetsPtVec_().size()){
+            printf("failed \n " );
+            continue;
+          }
+printf("flag!\n");
+*/
+
+
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
       // - select events with exactly one well-reconstructed, isolated muon
@@ -223,7 +260,7 @@ using namespace std;
         double phi=evt->MuPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
         if( pt>20. && fabs(eta)< 2.1  ){
-          if(verbose!=0)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+          if(verbose==1)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoMuon3vec.push_back(temp3vec);
           // vec_recoMuMTW.push_back(mu_mt_w); ???????
@@ -238,13 +275,13 @@ using namespace std;
         double phi=evt->ElecPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
         if( pt>10. && fabs(eta)< 2.5 ){
-          if(verbose!=0)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+          if(verbose==1)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoElec3vec.push_back(temp3vec);
         }
       }
 
-      if(verbose!=0)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
+      if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
 
       //if( template_nMuons == 1 && template_nElectrons == 0 ) {
       if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 ){
@@ -267,7 +304,7 @@ using namespace std;
         //Identify the jet containing the muon
         const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
         int JetIdx=-1;
-        if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+        if(verbose==1 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
         }
 
@@ -275,10 +312,10 @@ using namespace std;
         // If muon does not match a GenMuon, drop the event. 
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
-          printf(" Warning! There is no Gen Muon \n ");
-          printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
+//          printf(" Warning! There is no Gen Muon \n ");
+//          printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
           for(int i=0; i<evt->GenMuPtVec_().size(); i++){
-          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
+//          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
           }
           continue;
         }
@@ -360,9 +397,31 @@ using namespace std;
         double mhtY = evt->mht()*sin(evt->mhtphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
         if(verbose!=0){
+          double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
           printf("\n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
           printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
           printf("evt->ht: %g HT: %g \n ",evt->ht(),HT);
+          printf(" ========\n Jets section: \n ");
+          for(int i=0;i<evt->slimJetPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 5.){
+              directMHTX-=evt->slimJetPtVec_()[i]*cos(evt->slimJetPhiVec_()[i]);
+              directMHTY-=evt->slimJetPtVec_()[i]*sin(evt->slimJetPhiVec_()[i]);
+            }
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
+              directHT+=evt->slimJetPtVec_()[i];
+            }
+
+          }
+          printf("========== \n");
+          for(int i=0;i<evt->JetsPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+          }
+          printf("========== \n");
+          directMHT = pow( (directMHTX*directMHTX+directMHTY*directMHTY) ,.5);
+          printf("directHT: %g directMHT: %g \n",directHT,directMHT);
+          if((int) directHT != (int) evt->ht() )cout << " Warning in HT calc. \n " ;
+          if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;
         }
 
         double template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
@@ -372,7 +431,7 @@ using namespace std;
           if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
           else template_mhtphi = -3.14+atan(mhtY/mhtX);
         }
-        if(verbose!=0)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);      
+        if(verbose==1)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);      
   
         // What we did for new HT, MHT and NJets was ok if the new jet is already an HTJet.
         // Otherwise we drop the jet and recalculate
@@ -380,7 +439,7 @@ using namespace std;
         if( utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
 
           // if the new jet is not an HT jet just drop it from the collection
-          if(verbose!=0)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
+          if(verbose==1)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
 
           if(NewTauJet3Vec.Pt() < 30.){// the eta requirement is already satisfied. 
 
@@ -407,7 +466,7 @@ using namespace std;
               else template_mhtphi = -3.14+atan(mhtY/mhtX);
             }
 
-            if(verbose!=0)printf(" Jet dropped. \n ");
+            if(verbose==1)printf(" Jet dropped. \n ");
           }
 
         }
@@ -416,8 +475,8 @@ using namespace std;
         double metX = evt->met()*cos(evt->metphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
         double metY = evt->met()*sin(evt->metphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
-        if(verbose!=0)printf("############ \n metX: %g, metY: %g \n",metX,metY);
-        if(verbose!=0)printf("evt->met: %g, evt->metphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),simTauJetPt,simTauJetPhi);
+        if(verbose==1)printf("############ \n metX: %g, metY: %g \n",metX,metY);
+        if(verbose==1)printf("evt->met: %g, evt->metphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),simTauJetPt,simTauJetPhi);
 
         double template_met = sqrt(pow(metX,2)+pow(metY,2));
         double template_metphi=-99.;
@@ -427,8 +486,8 @@ using namespace std;
           else template_metphi = -3.14+atan(metY/metX);
         }
 
-        if(verbose!=0)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
-        if(verbose!=0)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
+        if(verbose==1)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
+        if(verbose==1)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
         
 
         // New minDelPhi_N
@@ -448,11 +507,11 @@ using namespace std;
           if(mindpn>fabs(dpnhat[i]))mindpn=fabs(dpnhat[i]);
         } 
 
-        if(verbose!=0) cout << "\n evt->minDeltaPhiN(): " << evt->minDeltaPhiN() << " mindpn: " << mindpn << endl;
+        if(verbose==1) cout << "\n evt->minDeltaPhiN(): " << evt->minDeltaPhiN() << " mindpn: " << mindpn << endl;
 
         //add the simTau Jet to the list if it satisfy the conditions
         double cntNJetsPt30Eta24=(double) NewJetPhiVec.size();
-        if(verbose!=0){
+        if(verbose==1){
           cout << " NewJetPhiVec.size(): " <<(int) NewJetPhiVec.size() << endl;
           cout << " cntNJetsPt30Eta24: " << (int)cntNJetsPt30Eta24 << endl;
         }
@@ -476,7 +535,7 @@ using namespace std;
           Acc=0.9;
         }
 
-        if(verbose!=0)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(verbose==1)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
 
         if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht);}
         if(Acc==0)Acc=0.9;
@@ -486,6 +545,45 @@ using namespace std;
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
 
         double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+
+
+
+
+//Temporary
+if(HT>=500. && template_mht > 700. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
+
+          double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
+          printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
+          for(int i=0;i<evt->slimJetPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 5.){
+              directMHTX-=evt->slimJetPtVec_()[i]*cos(evt->slimJetPhiVec_()[i]);
+              directMHTY-=evt->slimJetPtVec_()[i]*sin(evt->slimJetPhiVec_()[i]);
+            }
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
+              directHT+=evt->slimJetPtVec_()[i];
+            }
+
+          }
+          printf("========== \n");
+          for(int i=0;i<evt->JetsPtVec_().size();i++){
+            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+          }
+          printf("========== \n");
+          directMHT = pow( (directMHTX*directMHTX+directMHTY*directMHTY) ,.5);
+          printf("directHT: %g directMHT: %g \n",directHT,directMHT);
+          if((int) directHT != (int) evt->ht() )cout << " Warning in HT calc. \n " ;
+          if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;printf("OldHT: %g HT: %g \n OldMHT: %g MHT: %g \n ",evt->ht(),HT,evt->mht(),template_mht);
+cout << " OldNJet: " << evt->nJets() << " NJet: " << cntNJetsPt30Eta24 << "\n OldNb: " << evt->nBtags() << " Nb: " << NewNB << " \n totWeight: " << totWeight << endl;
+printf("========== \n OrigTauJet3Vec.Pt(): %g OrigTauJet3Vec.Eta(): %g OrigTauJet3Vec.Phi(): %g \n ",OrigTauJet3Vec.Pt(),OrigTauJet3Vec.Eta(),OrigTauJet3Vec.Phi());
+printf("NewTauJet3Vec.Pt(): %g NewTauJet3Vec.Eta(): %g NewTauJet3Vec.Phi(): %g \n ",NewTauJet3Vec.Pt(),NewTauJet3Vec.Eta(),NewTauJet3Vec.Phi());
+printf("SimTauJet3Vec.Pt(): %g SimTauJet3Vec.Eta(): %g SimTauJet3Vec.Phi(): %g \n ",SimTauJet3Vec.Pt(),SimTauJet3Vec.Eta(),SimTauJet3Vec.Phi());
+printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt(),Muon3Vec.Eta(),Muon3Vec.Phi());
+}
+
+
+
+
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
         double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
@@ -503,7 +601,7 @@ using namespace std;
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
 
-              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,NewNB,evt->nLeptons(),evt->nIso())==true){
 
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
 

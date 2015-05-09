@@ -191,6 +191,31 @@ using namespace std;
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
 
+/*
+// Temporary
+//          printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
+          int nHTJets=0;
+          for(int i=0;i<evt->slimJetPtVec_().size();i++){
+//            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
+              nHTJets++;
+            }
+
+          }
+//          printf("========== \n");
+          for(int i=0;i<evt->JetsPtVec_().size();i++){
+//            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+          }
+//          printf("========== \n nHTJets: %d \n evt->JetsPtVec_().size(): %d \n ",nHTJets,evt->JetsPtVec_().size());
+
+          if(nHTJets != evt->JetsPtVec_().size()){
+//          printf("failed \n " );
+            continue;
+          }
+//printf("flag!\n");
+*/
+
+
       // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
       // comparing with /<<<< w--> mu >>>>/
       // First we restrict ourselves to events with one muon and no electron

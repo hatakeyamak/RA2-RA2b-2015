@@ -139,6 +139,9 @@ int main(int argc, char *argv[]){
   int eventN=0;
   while( evt->loadNext() ){
 
+    // Through out an event that contains HTjets with bad id
+    if(evt->JetId()==0)continue;
+
     // Print out some information
     if(verbose!=0){
       printf(" ########################### \n event #: %d \n",eventN);

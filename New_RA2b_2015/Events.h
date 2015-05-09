@@ -73,6 +73,17 @@ using namespace std;
    vector<double>  *JetsEtaVec;
    vector<double>  *JetsPhiVec;
    Float_t        Jets_bDiscriminator[50];  
+   Float_t         Jets_chargedEmEnergyFraction[50];   //[JetsNum]        
+   Float_t         Jets_chargedHadronEnergyFraction[50];   //[JetsNum]    
+   Int_t           Jets_chargedHadronMultiplicity[50];   //[JetsNum]      
+   Int_t           Jets_electronMultiplicity[50];   //[JetsNum]           
+   Float_t         Jets_jetArea[50];   //[JetsNum]                        
+   Float_t         Jets_muonEnergyFraction[50];   //[JetsNum]             
+   Int_t           Jets_muonMultiplicity[50];   //[JetsNum]               
+   Float_t         Jets_neutralEmEnergyFraction[50];   //[JetsNum]        
+   Int_t           Jets_neutralHadronMultiplicity[50];   //[JetsNum]      
+   Float_t         Jets_photonEnergyFraction[50];   //[JetsNum]          
+   Int_t           Jets_photonMultiplicity[50];   //[JetsNum]            
 
    vector<double>  *slimJetPtVec;
    vector<double>  *slimJetEtaVec;
@@ -100,6 +111,7 @@ using namespace std;
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
    Int_t           slimJet_slimJetID[100];
    Float_t         GenTauNu_TauNuMomPt[10]; 
+   UChar_t         JetID; 
 
 public:
 //constructor
@@ -147,6 +159,18 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
    vector<double>  csvVec() const;
+   vector<double>  Jets_chargedEmEnergyFraction_() const;
+   vector<double>  Jets_chargedHadronEnergyFraction_() const;
+   vector<int>     Jets_chargedHadronMultiplicity_() const;
+   vector<int>     Jets_electronMultiplicity_() const;
+   vector<double>  Jets_jetArea_() const;
+   vector<double>  Jets_muonEnergyFraction_() const;
+   vector<int>     Jets_muonMultiplicity_() const;
+   vector<double>  Jets_neutralEmEnergyFraction_() const;
+   vector<int>     Jets_neutralHadronMultiplicity_() const;
+   vector<double>  Jets_photonEnergyFraction_() const; 
+   vector<int>     Jets_photonMultiplicity_() const;
+
 
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;

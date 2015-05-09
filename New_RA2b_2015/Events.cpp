@@ -88,6 +88,7 @@
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
+     fChain->SetBranchAddress("JetID", &JetID);
      
    fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
    fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
@@ -109,6 +110,19 @@
    fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
    fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
    fChain->SetBranchAddress("Jets_bDiscriminator", Jets_bDiscriminator);
+   fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", Jets_chargedEmEnergyFraction);
+   fChain->SetBranchAddress("Jets_chargedHadronEnergyFraction", Jets_chargedHadronEnergyFraction);
+   fChain->SetBranchAddress("Jets_chargedHadronMultiplicity", Jets_chargedHadronMultiplicity);
+   fChain->SetBranchAddress("Jets_electronMultiplicity", Jets_electronMultiplicity);
+   fChain->SetBranchAddress("Jets_jetArea", Jets_jetArea);
+   fChain->SetBranchAddress("Jets_muonEnergyFraction", Jets_muonEnergyFraction);
+   fChain->SetBranchAddress("Jets_muonMultiplicity", Jets_muonMultiplicity);
+   fChain->SetBranchAddress("Jets_neutralEmEnergyFraction", Jets_neutralEmEnergyFraction);
+   fChain->SetBranchAddress("Jets_neutralHadronMultiplicity", Jets_neutralHadronMultiplicity);
+   fChain->SetBranchAddress("Jets_photonEnergyFraction", Jets_photonEnergyFraction);
+   fChain->SetBranchAddress("Jets_photonMultiplicity", Jets_photonMultiplicity);
+
+
    fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
    fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
    fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
@@ -204,6 +218,7 @@ fChain->SetBranchAddress("testVec", &testVec);
 
   // To see if an event passes the jetId requirement or not.  
   int Events::JetId() const {
+/*
     int jetid=1;
     // We only consider HTJets 
     for(int i=0; i< slimJetPtVec->size(); i++){
@@ -212,6 +227,8 @@ fChain->SetBranchAddress("testVec", &testVec);
       }
     }
     return jetid;
+*/
+    return JetID;
   }
 
   // Gen Muon 
@@ -251,6 +268,106 @@ fChain->SetBranchAddress("testVec", &testVec);
     }
     return tempvec;
    }
+
+   vector<double>  Events::Jets_chargedEmEnergyFraction_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_chargedEmEnergyFraction+i));
+    }
+    return tempvec;
+   }
+
+   vector<double>  Events::Jets_chargedHadronEnergyFraction_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_chargedHadronEnergyFraction+i));
+    }
+    return tempvec;
+   }
+
+   vector<int>  Events::Jets_chargedHadronMultiplicity_() const {
+    vector<int> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((int)*(Jets_chargedHadronMultiplicity+i));
+    }
+    return tempvec;
+   }
+
+   vector<int>  Events::Jets_electronMultiplicity_() const {
+    vector<int> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((int)*(Jets_electronMultiplicity+i));
+    }
+    return tempvec;
+   }
+
+   vector<double>  Events::Jets_jetArea_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_jetArea+i));
+    }
+    return tempvec;
+   }
+
+   vector<double>  Events::Jets_muonEnergyFraction_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_muonEnergyFraction+i));
+    }
+    return tempvec;
+   }
+
+   vector<int>  Events::Jets_muonMultiplicity_() const {
+    vector<int> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((int)*(Jets_muonMultiplicity+i));
+    }
+    return tempvec;
+   }
+
+   vector<double>  Events::Jets_neutralEmEnergyFraction_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_neutralEmEnergyFraction+i));
+    }
+    return tempvec;
+   }
+
+   vector<int>  Events::Jets_neutralHadronMultiplicity_() const {
+    vector<int> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((int)*(Jets_neutralHadronMultiplicity+i));
+    }
+    return tempvec;
+   }
+
+   vector<double>  Events::Jets_photonEnergyFraction_() const {
+    vector<double> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((double)*(Jets_photonEnergyFraction+i));
+    }
+    return tempvec;
+   }
+
+   vector<int>  Events::Jets_photonMultiplicity_() const {
+    vector<int> tempvec;
+    tempvec.clear();
+    for(int i=0; i< JetsPtVec->size();i++){
+      tempvec.push_back((int)*(Jets_photonMultiplicity+i));
+    }
+    return tempvec;
+   }
+
 
    vector<double>  Events::slimJetPtVec_() const { return *slimJetPtVec ;}
    vector<double>  Events::slimJetEtaVec_() const { return *slimJetEtaVec ;}
