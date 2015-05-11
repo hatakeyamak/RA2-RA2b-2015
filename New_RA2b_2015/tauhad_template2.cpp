@@ -126,6 +126,32 @@ using namespace std;
     int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
 
+    // Introduce search bin histogram
+    map<string,int> binMap = utils2::BinMap_NoB();
+    int totNbins=binMap.size();
+    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
+    searchH->Sumw2();
+
+    // Introduce search bin histogram with bTag bins
+    map<string,int> binMap_b = utils2::BinMap();
+    int totNbins_b=binMap_b.size();
+    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b);
+    searchH_b->Sumw2();   
+ 
+    // Determine correlation between original and recalculated variables
+    TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins,totNbins,1,totNbins);
+    TH2 * hCorHT = new TH2D("hCorHT","original vs. recalculated HT",50,0,5000,50,0,5000);
+    TH2 * hCorMHT = new TH2D("hCorMHT","original vs. recalculated MHT",100,0,5000,100,0,5000);
+    TH2 * hCorNJet = new TH2D("hCorNJet","original vs. recalculated NJet",20,0,20,20,0,20);
+    TH2 * hCorNBtag = new TH2D("hCorNBtag","original vs. recalculated NBtag",20,0,20,20,0,20);
+
+    // Determine correlation between original and recalculated variables + nB info
+    TH2 * hCorSearch_noW = new TH2D("hCorSearch_noW","original vs. recalculated SearchBin",totNbins,1,totNbins,totNbins,1,totNbins);
+    TH2 * hCorHT_noW = new TH2D("hCorHT_noW","original vs. recalculated HT",50,0,5000,50,0,5000);
+    TH2 * hCorMHT_noW = new TH2D("hCorMHT_noW","original vs. recalculated MHT",100,0,5000,100,0,5000);
+    TH2 * hCorNJet_noW = new TH2D("hCorNJet_noW","original vs. recalculated NJet",20,0,20,20,0,20);
+    TH2 * hCorNBtag_noW = new TH2D("hCorNBtag_noW","original vs. recalculated NBtag",20,0,20,20,0,20);
+
     // The tau response templates
     Utils * utils = new Utils();
 
@@ -178,9 +204,6 @@ using namespace std;
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
-    // get the map between the strings repressenting the bins and the bin numbers
-    // map<string,int> binMap = utils2::BinMap();
-    map<string,int> binMap = utils2::BinMap_NoB();
 
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_LargerDelR.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
@@ -546,41 +569,57 @@ printf("flag!\n");
 
         double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
+        // Apply baseline cuts
+        if(HT>500. && template_mht > 200. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
+
+          // Fill Search bin histogram 
+          searchH->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()],totWeight);
+
+          searchH_b->Fill( binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht).c_str()],totWeight);
+
+          hCorSearch->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()],totWeight);
+          hCorHT->Fill(evt->ht(),HT,totWeight);
+          hCorMHT->Fill(evt->mht(),template_mht,totWeight);
+          hCorNJet->Fill(evt->nJets(),cntNJetsPt30Eta24,totWeight);
+          hCorNBtag->Fill(evt->nBtags(),NewNB,totWeight);
+
+          hCorSearch_noW->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()]);
+          hCorHT_noW->Fill(evt->ht(),HT);
+          hCorMHT_noW->Fill(evt->mht(),template_mht);
+          hCorNJet_noW->Fill(evt->nJets(),cntNJetsPt30Eta24);
+          hCorNBtag_noW->Fill(evt->nBtags(),NewNB);
 
 
+        /*
+                  double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
+                  printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
+                  for(int i=0;i<evt->slimJetPtVec_().size();i++){
+                    printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
+                    if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 5.){
+                      directMHTX-=evt->slimJetPtVec_()[i]*cos(evt->slimJetPhiVec_()[i]);
+                      directMHTY-=evt->slimJetPtVec_()[i]*sin(evt->slimJetPhiVec_()[i]);
+                    }
+                    if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
+                      directHT+=evt->slimJetPtVec_()[i];
+                    }
 
-//Temporary
-if(HT>=500. && template_mht > 700. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
-
-          double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
-          printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
-          for(int i=0;i<evt->slimJetPtVec_().size();i++){
-            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
-            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 5.){
-              directMHTX-=evt->slimJetPtVec_()[i]*cos(evt->slimJetPhiVec_()[i]);
-              directMHTY-=evt->slimJetPtVec_()[i]*sin(evt->slimJetPhiVec_()[i]);
-            }
-            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
-              directHT+=evt->slimJetPtVec_()[i];
-            }
-
-          }
-          printf("========== \n");
-          for(int i=0;i<evt->JetsPtVec_().size();i++){
-            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
-          }
-          printf("========== \n");
-          directMHT = pow( (directMHTX*directMHTX+directMHTY*directMHTY) ,.5);
-          printf("directHT: %g directMHT: %g \n",directHT,directMHT);
-          if((int) directHT != (int) evt->ht() )cout << " Warning in HT calc. \n " ;
-          if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;printf("OldHT: %g HT: %g \n OldMHT: %g MHT: %g \n ",evt->ht(),HT,evt->mht(),template_mht);
-cout << " OldNJet: " << evt->nJets() << " NJet: " << cntNJetsPt30Eta24 << "\n OldNb: " << evt->nBtags() << " Nb: " << NewNB << " \n totWeight: " << totWeight << endl;
-printf("========== \n OrigTauJet3Vec.Pt(): %g OrigTauJet3Vec.Eta(): %g OrigTauJet3Vec.Phi(): %g \n ",OrigTauJet3Vec.Pt(),OrigTauJet3Vec.Eta(),OrigTauJet3Vec.Phi());
-printf("NewTauJet3Vec.Pt(): %g NewTauJet3Vec.Eta(): %g NewTauJet3Vec.Phi(): %g \n ",NewTauJet3Vec.Pt(),NewTauJet3Vec.Eta(),NewTauJet3Vec.Phi());
-printf("SimTauJet3Vec.Pt(): %g SimTauJet3Vec.Eta(): %g SimTauJet3Vec.Phi(): %g \n ",SimTauJet3Vec.Pt(),SimTauJet3Vec.Eta(),SimTauJet3Vec.Phi());
-printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt(),Muon3Vec.Eta(),Muon3Vec.Phi());
-}
-
+                  }
+                  printf("========== \n");
+                  for(int i=0;i<evt->JetsPtVec_().size();i++){
+                    printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
+                  }
+                  printf("========== \n");
+                  directMHT = pow( (directMHTX*directMHTX+directMHTY*directMHTY) ,.5);
+                  printf("directHT: %g directMHT: %g \n",directHT,directMHT);
+                  if((int) directHT != (int) evt->ht() )cout << " Warning in HT calc. \n " ;
+                  if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;printf("OldHT: %g HT: %g \n OldMHT: %g MHT: %g \n ",evt->ht(),HT,evt->mht(),template_mht);
+        cout << " OldNJet: " << evt->nJets() << " NJet: " << cntNJetsPt30Eta24 << "\n OldNb: " << evt->nBtags() << " Nb: " << NewNB << " \n totWeight: " << totWeight << endl;
+        printf("========== \n OrigTauJet3Vec.Pt(): %g OrigTauJet3Vec.Eta(): %g OrigTauJet3Vec.Phi(): %g \n ",OrigTauJet3Vec.Pt(),OrigTauJet3Vec.Eta(),OrigTauJet3Vec.Phi());
+        printf("NewTauJet3Vec.Pt(): %g NewTauJet3Vec.Eta(): %g NewTauJet3Vec.Phi(): %g \n ",NewTauJet3Vec.Pt(),NewTauJet3Vec.Eta(),NewTauJet3Vec.Phi());
+        printf("SimTauJet3Vec.Pt(): %g SimTauJet3Vec.Eta(): %g SimTauJet3Vec.Phi(): %g \n ",SimTauJet3Vec.Pt(),SimTauJet3Vec.Eta(),SimTauJet3Vec.Phi());
+        printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt(),Muon3Vec.Eta(),Muon3Vec.Phi());
+        */
+        }
 
 
 
@@ -621,6 +660,18 @@ printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt
     //open a file to write the histograms
     sprintf(tempname,"TauHad2/HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
+    searchH->Write();
+    searchH_b->Write();
+    hCorSearch->Write();
+    hCorHT->Write();
+    hCorMHT->Write();
+    hCorNJet->Write();
+    hCorNBtag->Write();
+    hCorSearch_noW->Write();
+    hCorHT_noW->Write();
+    hCorMHT_noW->Write();
+    hCorNJet_noW->Write();
+    hCorNBtag_noW->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")

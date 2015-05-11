@@ -123,6 +123,9 @@ Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int c
   double MHT_x_max=1000.;
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
+  double search_x_max=19.;
+  double search_x_min=0.;
+
   
   for(int i=0; i<filevec.size(); i++){
 
@@ -145,17 +148,31 @@ if(sample.find("stacked")!=string::npos){
 
 }
 else{
+
     if(i==0){
-      sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-      GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      if(histname=="search"){
+        sprintf(tempname,"searchH");
+        GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      }
+      else{
+        sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+        GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      }
     }
     if(i==1){
 //      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
 //      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-      sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-      EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      if(histname=="search"){
+        sprintf(tempname,"searchH");
+        EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      }
+      else{
+        sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+        EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+      }
     }
-    thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+//    thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+    thist=static_cast<TH1D*>(filevec.at(i)->Get(tempname)->Clone());
     thist->SetLineColor(2*i+2);
 
 }
@@ -175,7 +192,13 @@ else{
       thist->GetYaxis()->SetTitleOffset(1.25);
       thist->GetYaxis()->SetTitleFont(42);
     }
-
+    if(histname=="search"){
+      sprintf(xtitlename,"search bins");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(2000);
+      thist->SetMinimum(0.);
+      thist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
+    }
     if(histname=="HT"){
       sprintf(xtitlename,"H_{T} (GeV)");
       sprintf(ytitlename,"Events / 200 GeV");
@@ -253,6 +276,11 @@ else{
       //
       // Specific to each bottom plot
       //
+      if(histname=="search"){
+        sprintf(xtitlename,"search bin");
+        EstHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
+        TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
+      }
       if(histname=="HT"){
         sprintf(xtitlename,"H_{T} (GeV)");
         EstHist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);

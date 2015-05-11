@@ -135,12 +135,18 @@ int main(int argc, char *argv[]){
   // To calculate JetId efficiency
   int nTotEvent=0 , nFailJetIdEvent=0;
 
+  // Counter for muon
+  int totNMu=0;
+
   // Loop over the events (tree entries)
   int eventN=0;
   while( evt->loadNext() ){
 
     // Through out an event that contains HTjets with bad id
     if(evt->JetId()==0)continue;
+
+    // Muon count 
+//    for(int i=0; i<evt->)
 
     // Print out some information
     if(verbose!=0){

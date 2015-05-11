@@ -2,6 +2,7 @@
 #include "Events.h"
 #include "Selection.h"
 #include "utils.h"
+#include "utils2.h"
 
 #include "TTree.h"
 #include <cmath>
@@ -118,6 +119,13 @@ using namespace std;
     vec.push_back(nGenTauHad_hist);
 
     int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
+
+    // Introduce search bin histogram
+    map<string,int> binMap = utils2::BinMap_NoB();
+    int totNbins=binMap.size();
+    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
+    searchH->Sumw2();
+
 
     // The tau response templates
     Utils * utils = new Utils();
@@ -322,6 +330,14 @@ using namespace std;
       // Total weight
       double totWeight = evt->weight()*1.;
 
+        // Apply baseline cuts
+        if(evt->ht() >500. && evt->mht() > 200. && evt->minDeltaPhiN() > 4. && evt->nJets() >= 4   ){
+
+          // Fill Search bin histogram
+          searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
+
+        }
+
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
       double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
@@ -456,6 +472,7 @@ using namespace std;
     //open a file to write the histograms
     sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
+    searchH->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
 
