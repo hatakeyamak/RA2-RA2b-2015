@@ -136,7 +136,9 @@ int main(int argc, char *argv[]){
   int nTotEvent=0 , nFailJetIdEvent=0;
 
   // Counter for muon
-  int totNMu=0;
+  int NSlimMu=0,NSlimMuEta=0,NSlimMuPt=0,NMuID=0,NMuIDIso=0;
+  int MuEve_noCut=0,MuEve_Eta=0,MuEve_Pt=0,MuEve_ID=0,MuEve_IDIso=0;
+
 
   // Loop over the events (tree entries)
   int eventN=0;
@@ -145,8 +147,39 @@ int main(int argc, char *argv[]){
     // Through out an event that contains HTjets with bad id
     if(evt->JetId()==0)continue;
 
+
+
     // Muon count 
-//    for(int i=0; i<evt->)
+    NSlimMu+=evt->slimmedMuPtVec_().size(); 
+    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+      if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
+        NSlimMuEta++;
+        if(evt->slimmedMuPtVec_()[i]>10.){
+          NSlimMuPt++;
+        }
+      }
+    }
+    NMuID+=evt->MuNoIsoPtVec_().size();
+    NMuIDIso+=evt->MuPtVec_().size();
+    if(evt->slimmedMuPtVec_().size()>0)MuEve_noCut++;
+    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+      if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
+        MuEve_Eta++;
+        break;
+      }
+    }
+    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+      if(evt->slimmedMuPtVec_()[i]>10. && abs(evt->slimmedMuEtaVec_()[i])<2.4){
+        MuEve_Pt++;
+        break;
+      }
+    }
+    if(evt->MuNoIsoPtVec_().size()>0)MuEve_ID++;
+    if(evt->MuPtVec_().size()>0)MuEve_IDIso++;
+
+
+
+
 
     // Print out some information
     if(verbose!=0){
@@ -164,7 +197,7 @@ int main(int argc, char *argv[]){
 
     // JetId efficiency 
     // We want this after the baseline cuts
-    if(evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 && evt->minDeltaPhiN() > 4.){
+    if( verbose > 1 && evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 && evt->minDeltaPhiN() > 4.){
       for(int i=0; i< evt->slimJetPtVec_().size(); i++){
         if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5. && evt->slimJetID_().at(i)==0){
           printf("event#: %d pt: %g eta: %g phi: %g jetId: %d \n ",eventN,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
@@ -222,9 +255,14 @@ int main(int argc, char *argv[]){
     eventN++;
   } // End of loop over events
 
+
+  // Print out muon informations
+  printf("NSlimMu: %d NSlimMuEta: %d NSlimMuPt: %d NMuID: %d NMuIDIso: %d \n ",NSlimMu,NSlimMuEta,NSlimMuPt,NMuID,NMuIDIso);
+  printf("MuEve_noCut: %d MuEve_Eta: %d MuEve_Pt: %d MuEve_ID: %d MuEve_IDIso: %d \n ",MuEve_noCut,MuEve_Eta,MuEve_Pt,MuEve_ID,MuEve_IDIso);
+
   // Calculate JetId efficiency
-  double JetIdEff = ((double)nFailJetIdEvent/nTotEvent)*100 ;
-  printf(" # totalEvents: %d # events that fail JetId: %d  Percent of failed JetId: %g \n ",nTotEvent,nFailJetIdEvent,JetIdEff);
+//  double JetIdEff = ((double)nFailJetIdEvent/nTotEvent)*100 ;
+//  printf(" # totalEvents: %d # events that fail JetId: %d  Percent of failed JetId: %g \n ",nTotEvent,nFailJetIdEvent,JetIdEff);
 
   //open a file to write the histograms
   sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());

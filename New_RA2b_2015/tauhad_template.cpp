@@ -126,6 +126,12 @@ using namespace std;
     TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
     searchH->Sumw2();
 
+    // Introduce search bin histogram with bTag bins
+    map<string,int> binMap_b = utils2::BinMap();
+    int totNbins_b=binMap_b.size();
+    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b);
+    searchH_b->Sumw2();
+
 
     // The tau response templates
     Utils * utils = new Utils();
@@ -335,6 +341,7 @@ using namespace std;
 
           // Fill Search bin histogram
           searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
+          searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
 
         }
 
@@ -473,6 +480,7 @@ using namespace std;
     sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
+    searchH_b->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
 

@@ -89,21 +89,31 @@ using namespace std;
    vector<double>  *slimJetEtaVec;
    vector<double>  *slimJetPhiVec;
 
+   vector<double>  *slimmedMuonsPtVec;
+   vector<double>  *slimmedMuonsEtaVec;
+   vector<double>  *slimmedMuonsPhiVec;
    vector<double>  *MuonsPtVec;
    vector<double>  *MuonsEtaVec;
    vector<double>  *MuonsPhiVec;
-
-   vector<double>  *ElectronsPtVec;
-   vector<double>  *ElectronsEtaVec;
-   vector<double>  *ElectronsPhiVec;
-
+   vector<double>  *selectedIDMuonsPtVec;
+   vector<double>  *selectedIDMuonsEtaVec;
+   vector<double>  *selectedIDMuonsPhiVec;
    vector<double>  *selectedIDIsoMuonsPtVec;
    vector<double>  *selectedIDIsoMuonsEtaVec;
    vector<double>  *selectedIDIsoMuonsPhiVec;
 
+   vector<double>  *slimmedElectronsPtVec;
+   vector<double>  *slimmedElectronsEtaVec;
+   vector<double>  *slimmedElectronsPhiVec;
+   vector<double>  *ElectronsPtVec;
+   vector<double>  *ElectronsEtaVec;
+   vector<double>  *ElectronsPhiVec;
    vector<double>  *selectedIDIsoElectronsPtVec;
    vector<double>  *selectedIDIsoElectronsEtaVec;
    vector<double>  *selectedIDIsoElectronsPhiVec;
+   vector<double>  *selectedIDIsoElectronsNoMiniIsoPtVec;
+   vector<double>  *selectedIDIsoElectronsNoMiniIsoEtaVec;
+   vector<double>  *selectedIDIsoElectronsNoMiniIsoPhiVec;
 
 
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
@@ -178,6 +188,12 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
    vector<int>     slimJetID_() const;
 
+   vector<double>  slimmedMuPtVec_() const;
+   vector<double>  slimmedMuEtaVec_() const;
+   vector<double>  slimmedMuPhiVec_() const;
+   vector<double>  MuNoIsoPtVec_() const;
+   vector<double>  MuNoIsoEtaVec_() const;
+   vector<double>  MuNoIsoPhiVec_() const;
    vector<double>  MuPtVec_() const;
    vector<double>  MuEtaVec_() const;
    vector<double>  MuPhiVec_() const;

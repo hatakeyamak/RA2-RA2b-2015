@@ -45,16 +45,24 @@
      JetsEtaVec=new vector<double>();
      JetsPhiVec=new vector<double>();
 //     Jets_bDiscriminator=new Float_t();
+
+     slimmedMuonsPtVec=new vector<double>();
+     slimmedMuonsEtaVec=new vector<double>();
+     slimmedMuonsPhiVec=new vector<double>();
      MuonsPtVec=new vector<double>();
      MuonsEtaVec=new vector<double>();
      MuonsPhiVec=new vector<double>();
+     selectedIDIsoMuonsPtVec=new vector<double>();
+     selectedIDIsoMuonsEtaVec=new vector<double>();
+     selectedIDIsoMuonsPhiVec=new vector<double>();
+     selectedIDMuonsPtVec=new vector<double>();
+     selectedIDMuonsEtaVec=new vector<double>();
+     selectedIDMuonsPhiVec=new vector<double>();
+
      ElectronsPtVec=new vector<double>();
      ElectronsEtaVec=new vector<double>();
      ElectronsPhiVec=new vector<double>();
 
-     selectedIDIsoMuonsPtVec=new vector<double>();
-     selectedIDIsoMuonsEtaVec=new vector<double>();
-     selectedIDIsoMuonsPhiVec=new vector<double>();
 
      selectedIDIsoElectronsPtVec=new vector<double>();
      selectedIDIsoElectronsEtaVec=new vector<double>();
@@ -123,15 +131,22 @@
    fChain->SetBranchAddress("Jets_photonMultiplicity", Jets_photonMultiplicity);
 
 
+   fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
+   fChain->SetBranchAddress("slimmedMuonsEtaVec", &slimmedMuonsEtaVec);
+   fChain->SetBranchAddress("slimmedMuonsPhiVec", &slimmedMuonsPhiVec);
    fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
    fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
    fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
-   fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
-   fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
-   fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
    fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
    fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec);
    fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec);
+   fChain->SetBranchAddress("selectedIDMuonsPtVec", &selectedIDMuonsPtVec);
+   fChain->SetBranchAddress("selectedIDMuonsEtaVec", &selectedIDMuonsEtaVec);
+   fChain->SetBranchAddress("selectedIDMuonsPhiVec", &selectedIDMuonsPhiVec);
+
+   fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
+   fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
+   fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
@@ -381,6 +396,13 @@ fChain->SetBranchAddress("testVec", &testVec);
      return tempVec;
    }  
 
+
+   vector<double>  Events::slimmedMuPtVec_() const{ return  *slimmedMuonsPtVec;}
+   vector<double>  Events::slimmedMuEtaVec_() const{ return *slimmedMuonsEtaVec;}
+   vector<double>  Events::slimmedMuPhiVec_() const{ return *slimmedMuonsPhiVec;}
+   vector<double>  Events::MuNoIsoPtVec_() const{ return  *selectedIDMuonsPtVec;}
+   vector<double>  Events::MuNoIsoEtaVec_() const{ return *selectedIDMuonsEtaVec;}
+   vector<double>  Events::MuNoIsoPhiVec_() const{ return *selectedIDMuonsPhiVec;}
    vector<double>  Events::MuPtVec_() const{ return  *selectedIDIsoMuonsPtVec;}
    vector<double>  Events::MuEtaVec_() const{ return *selectedIDIsoMuonsEtaVec;}
    vector<double>  Events::MuPhiVec_() const{ return *selectedIDIsoMuonsPhiVec;}

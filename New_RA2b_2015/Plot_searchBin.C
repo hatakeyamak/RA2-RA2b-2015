@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Plot_searchBin(string sample="TTbar_",int choice=0){
+Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -113,11 +113,11 @@ Plot_searchBin(string sample="TTbar_",int choice=0){
   double search_x_max=19.;
   double search_x_min=0.;
 
-
-  EstHist=(TH1D*) EstFile->Get("searchH")->Clone();
-  GenHist=(TH1D*) GenFile->Get("searchH")->Clone();
-  EstHistD=(TH1D*) EstFile->Get("searchH")->Clone();
-  GenHistD=(TH1D*) GenFile->Get("searchH")->Clone();
+  sprintf(tempname,"%s",histname.c_str());
+  EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
+  GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
+  EstHistD=(TH1D*) EstFile->Get(tempname)->Clone();
+  GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
 
   GenHist->SetLineColor(2);
   EstHist->SetLineColor(4);

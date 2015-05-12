@@ -152,6 +152,10 @@ using namespace std;
     TH2 * hCorNJet_noW = new TH2D("hCorNJet_noW","original vs. recalculated NJet",20,0,20,20,0,20);
     TH2 * hCorNBtag_noW = new TH2D("hCorNBtag_noW","original vs. recalculated NBtag",20,0,20,20,0,20);
 
+    // Determine correlation between original and recalculated variables + nB info
+    TH2 * hCorSearch_noW_b = new TH2D("hCorSearch_noW_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b,totNbins_b,1,totNbins_b);
+
+
     // The tau response templates
     Utils * utils = new Utils();
 
@@ -589,6 +593,8 @@ printf("flag!\n");
           hCorNJet_noW->Fill(evt->nJets(),cntNJetsPt30Eta24);
           hCorNBtag_noW->Fill(evt->nBtags(),NewNB);
 
+          hCorSearch_noW_b->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht).c_str()]);
+
 
         /*
                   double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
@@ -668,6 +674,7 @@ printf("flag!\n");
     hCorNJet->Write();
     hCorNBtag->Write();
     hCorSearch_noW->Write();
+    hCorSearch_noW_b->Write();
     hCorHT_noW->Write();
     hCorMHT_noW->Write();
     hCorNJet_noW->Write();
