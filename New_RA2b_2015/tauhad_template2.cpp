@@ -646,7 +646,7 @@ printf("flag!\n");
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
 
-              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,NewNB,evt->nLeptons(),evt->nIso())==true){
+              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
 

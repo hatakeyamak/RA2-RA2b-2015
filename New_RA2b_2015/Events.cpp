@@ -10,7 +10,10 @@
      LumiBlockNum=-1;
      EvtNum=-1;
      NVtx=-1;
-     isoTracks=-1;
+//     isoTracks=-1;
+     isoElectronTracks=-1;
+     isoMuonTracks=-1;
+     isoPionTracks=-1;
      Leptons=-1;
      NJets=-1;
      BTags=-1;
@@ -59,9 +62,18 @@
      selectedIDMuonsEtaVec=new vector<double>();
      selectedIDMuonsPhiVec=new vector<double>();
 
+     slimmedElectronsPtVec=new vector<double>();
+     slimmedElectronsEtaVec=new vector<double>();
+     slimmedElectronsPhiVec=new vector<double>();
      ElectronsPtVec=new vector<double>();
      ElectronsEtaVec=new vector<double>();
      ElectronsPhiVec=new vector<double>();
+     selectedIDIsoElectronsPtVec=new vector<double>();
+     selectedIDIsoElectronsEtaVec=new vector<double>();
+     selectedIDIsoElectronsPhiVec=new vector<double>();
+     selectedIDElectronsPtVec=new vector<double>();
+     selectedIDElectronsEtaVec=new vector<double>();
+     selectedIDElectronsPhiVec=new vector<double>();
 
 
      selectedIDIsoElectronsPtVec=new vector<double>();
@@ -82,7 +94,10 @@
      fChain->SetBranchAddress("LumiBlockNum", &LumiBlockNum);
      fChain->SetBranchAddress("EvtNum", &EvtNum);
      fChain->SetBranchAddress("NVtx", &NVtx);
-     fChain->SetBranchAddress("isoTracks", &isoTracks);
+//     fChain->SetBranchAddress("isoTracks", &isoTracks);
+     fChain->SetBranchAddress("isoElectronTracks", &isoElectronTracks);
+     fChain->SetBranchAddress("isoMuonTracks", &isoMuonTracks);
+     fChain->SetBranchAddress("isoPionTracks", &isoPionTracks);
      fChain->SetBranchAddress("Leptons", &Leptons);
      fChain->SetBranchAddress("NJets", &NJets);
      fChain->SetBranchAddress("BTags", &BTags);
@@ -144,12 +159,18 @@
    fChain->SetBranchAddress("selectedIDMuonsEtaVec", &selectedIDMuonsEtaVec);
    fChain->SetBranchAddress("selectedIDMuonsPhiVec", &selectedIDMuonsPhiVec);
 
+   fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
+   fChain->SetBranchAddress("slimmedElectronsEtaVec", &slimmedElectronsEtaVec);
+   fChain->SetBranchAddress("slimmedElectronsPhiVec", &slimmedElectronsPhiVec);
    fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
    fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
    fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
    fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
+   fChain->SetBranchAddress("selectedIDElectronsPtVec", &selectedIDElectronsPtVec);
+   fChain->SetBranchAddress("selectedIDElectronsEtaVec", &selectedIDElectronsEtaVec);
+   fChain->SetBranchAddress("selectedIDElectronsPhiVec", &selectedIDElectronsPhiVec);
 
    fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
    fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
@@ -223,7 +244,10 @@ fChain->SetBranchAddress("testVec", &testVec);
   }
 
   // Number of IsoTrk 
-  int Events::nIso() const { return isoTracks; }
+//  int Events::nIso() const { return isoTracks; }
+  int Events::nIsoElec() const { return isoElectronTracks; }
+  int Events::nIsoMu() const { return isoMuonTracks; }
+  int Events::nIsoPion() const { return isoPionTracks; }
 
   // DeltaPhi between leading three MHT jets and MHT
   double Events::deltaPhi1() const { return DeltaPhi1; }
@@ -407,6 +431,12 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::MuEtaVec_() const{ return *selectedIDIsoMuonsEtaVec;}
    vector<double>  Events::MuPhiVec_() const{ return *selectedIDIsoMuonsPhiVec;}
 
+   vector<double>  Events::slimmedElecPtVec_() const{ return  *slimmedElectronsPtVec;}
+   vector<double>  Events::slimmedElecEtaVec_() const{ return *slimmedElectronsEtaVec;}
+   vector<double>  Events::slimmedElecPhiVec_() const{ return *slimmedElectronsPhiVec;}
+   vector<double>  Events::ElecNoIsoPtVec_() const{ return  *selectedIDElectronsPtVec;}
+   vector<double>  Events::ElecNoIsoEtaVec_() const{ return *selectedIDElectronsEtaVec;}
+   vector<double>  Events::ElecNoIsoPhiVec_() const{ return *selectedIDElectronsPhiVec;}
    vector<double>  Events::ElecPtVec_() const{ return *selectedIDIsoElectronsPtVec;}
    vector<double>  Events::ElecEtaVec_() const{ return *selectedIDIsoElectronsEtaVec;}
    vector<double>  Events::ElecPhiVec_() const{return *selectedIDIsoElectronsPhiVec;}

@@ -132,59 +132,122 @@ int main(int argc, char *argv[]){
     histobjmap[it->first]=histObj;
   }
 
+  // Veto Events with bad jets?
+  bool JetIdSwitch=false;
+  
+  // Count muon, electron, jets? 
+  bool counterSwitch=true;
+
   // To calculate JetId efficiency
   int nTotEvent=0 , nFailJetIdEvent=0;
 
   // Counter for muon
   int NSlimMu=0,NSlimMuEta=0,NSlimMuPt=0,NMuID=0,NMuIDIso=0;
   int MuEve_noCut=0,MuEve_Eta=0,MuEve_Pt=0,MuEve_ID=0,MuEve_IDIso=0;
-
+  // Counter for electron
+  int NSlimElec=0,NSlimElecEta=0,NSlimElecPt=0,NElecID=0,NElecIDIso=0;
+  int ElecEve_noCut=0,ElecEve_Eta=0,ElecEve_Pt=0,ElecEve_ID=0,ElecEve_IDIso=0;
+  // Counter for jet
+  int NSlimJet=0,NSlimJetEtaPt=0,NSlimJetID=0;
+  int JetEve_noCut=0,JetEve_EtaPt=0,JetEve_ID=0;
 
   // Loop over the events (tree entries)
   int eventN=0;
   while( evt->loadNext() ){
 
-    // Through out an event that contains HTjets with bad id
-    if(evt->JetId()==0)continue;
+    if(counterSwitch){
+      // Muon count 
+      NSlimMu+=evt->slimmedMuPtVec_().size(); 
+      for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+        if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
+          NSlimMuEta++;
+          if(evt->slimmedMuPtVec_()[i]>10.){
+            NSlimMuPt++;
+          }
+        }
+      }
+      NMuID+=evt->MuNoIsoPtVec_().size();
+      NMuIDIso+=evt->MuPtVec_().size();
+      if(evt->slimmedMuPtVec_().size()>0)MuEve_noCut++;
+      for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+        if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
+          MuEve_Eta++;
+          break;
+        }
+      }
+      for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
+        if(evt->slimmedMuPtVec_()[i]>10. && abs(evt->slimmedMuEtaVec_()[i])<2.4){
+          MuEve_Pt++;
+          break;
+        }
+      }
+      if(evt->MuNoIsoPtVec_().size()>0)MuEve_ID++;
+      if(evt->MuPtVec_().size()>0)MuEve_IDIso++;
 
+      // Elecon count
+      NSlimElec+=evt->slimmedElecPtVec_().size();
+      for(int i=0; i<evt->slimmedElecPtVec_().size();i++){
+        if(abs(evt->slimmedElecEtaVec_()[i])<2.5){
+          NSlimElecEta++;
+          if(evt->slimmedElecPtVec_()[i]>10.){
+            NSlimElecPt++;
+          }
+        }
+      }
+      NElecID+=evt->ElecNoIsoPtVec_().size();
+      NElecIDIso+=evt->ElecPtVec_().size();
+      if(evt->slimmedElecPtVec_().size()>0)ElecEve_noCut++;
+      for(int i=0; i<evt->slimmedElecPtVec_().size();i++){
+        if(abs(evt->slimmedElecEtaVec_()[i])<2.5){
+          ElecEve_Eta++;
+          break;
+        }
+      }
+      for(int i=0; i<evt->slimmedElecPtVec_().size();i++){
+        if(evt->slimmedElecPtVec_()[i]>10. && abs(evt->slimmedElecEtaVec_()[i])<2.5){
+          ElecEve_Pt++;
+          break;
+        }
+      }
+      if(evt->ElecNoIsoPtVec_().size()>0)ElecEve_ID++;
+      if(evt->ElecPtVec_().size()>0)ElecEve_IDIso++;
 
-
-    // Muon count 
-    NSlimMu+=evt->slimmedMuPtVec_().size(); 
-    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
-      if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
-        NSlimMuEta++;
-        if(evt->slimmedMuPtVec_()[i]>10.){
-          NSlimMuPt++;
+      // Jet count
+      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
+        if(evt->slimJetPtVec_()[i] > 10.){
+          NSlimJet++;
+          if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5.){
+            NSlimJetEtaPt++;    
+            if(evt->slimJetID_().at(i)==1)NSlimJetID++;
+          }
+        }
+      }
+      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
+        if(evt->slimJetPtVec_()[i] > 10.){
+          JetEve_noCut++;    
+          break;
+        }
+      }
+      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
+        if(evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5.){
+          JetEve_EtaPt++;
+          break;
+        }
+      }
+      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
+        if(evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5. && evt->slimJetID_().at(i)==1){
+          JetEve_ID++;
+          break;
         }
       }
     }
-    NMuID+=evt->MuNoIsoPtVec_().size();
-    NMuIDIso+=evt->MuPtVec_().size();
-    if(evt->slimmedMuPtVec_().size()>0)MuEve_noCut++;
-    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
-      if(abs(evt->slimmedMuEtaVec_()[i])<2.4){
-        MuEve_Eta++;
-        break;
-      }
-    }
-    for(int i=0; i<evt->slimmedMuPtVec_().size();i++){
-      if(evt->slimmedMuPtVec_()[i]>10. && abs(evt->slimmedMuEtaVec_()[i])<2.4){
-        MuEve_Pt++;
-        break;
-      }
-    }
-    if(evt->MuNoIsoPtVec_().size()>0)MuEve_ID++;
-    if(evt->MuPtVec_().size()>0)MuEve_IDIso++;
-
-
 
 
 
     // Print out some information
     if(verbose!=0){
       printf(" ########################### \n event #: %d \n",eventN);
-      printf(" ht: %g mht: %g nJets: %d nBtags: %d nIso: %d nLeptons: %d \n ",evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),evt->nIso(),evt->nLeptons());
+      printf(" ht: %g mht: %g nJets: %d nBtags: %d nIsoElec: %d nIsoMu: %d nIsoPion: %d nLeptons: %d \n ",evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),evt->nLeptons());
       printf(" @@@@\n Jets section: \n Njets: %d \n ", evt->nJets());
       for(int i=0;i<evt->JetsPtVec_().size();i++){
         printf("jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
@@ -217,7 +280,7 @@ int main(int argc, char *argv[]){
     }
 
     // Through out an event that contains HTjets with bad id
-    if(evt->JetId()==0)continue;
+    if(JetIdSwitch && evt->JetId()==0)continue;
 
     // Total weight
     double totWeight = evt->weight()*1.;
@@ -241,7 +304,7 @@ int main(int argc, char *argv[]){
         //////loop over cut names and fill the histograms
         for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
             histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
           } 
         }//end of loop over cut names
@@ -255,10 +318,18 @@ int main(int argc, char *argv[]){
     eventN++;
   } // End of loop over events
 
+  if(counterSwitch){
+    // Print out muon informations
+    printf("NSlimMu: %d NSlimMuEta: %d NSlimMuPt: %d NMuID: %d NMuIDIso: %d \n ",NSlimMu,NSlimMuEta,NSlimMuPt,NMuID,NMuIDIso);
+    printf("MuEve_noCut: %d MuEve_Eta: %d MuEve_Pt: %d MuEve_ID: %d MuEve_IDIso: %d \n ",MuEve_noCut,MuEve_Eta,MuEve_Pt,MuEve_ID,MuEve_IDIso);
+    // Print out electron informations
+    printf("NSlimElec: %d NSlimElecEta: %d NSlimElecPt: %d NElecID: %d NElecIDIso: %d \n ",NSlimElec,NSlimElecEta,NSlimElecPt,NElecID,NElecIDIso);
+    printf("ElecEve_noCut: %d ElecEve_Eta: %d ElecEve_Pt: %d ElecEve_ID: %d ElecEve_IDIso: %d \n ",ElecEve_noCut,ElecEve_Eta,ElecEve_Pt,ElecEve_ID,ElecEve_IDIso);
+    // Print out jet information
+    printf("NSlimJet: %d NSlimJetEtaPt: %d NSlimJetID: %d \n ",NSlimJet,NSlimJetEtaPt,NSlimJetID);
+    printf("JetEve_noCut: %d ,JetEve_EtaPt: %d ,JetEve_ID: %d \n ",JetEve_noCut,JetEve_EtaPt,JetEve_ID);
+  }
 
-  // Print out muon informations
-  printf("NSlimMu: %d NSlimMuEta: %d NSlimMuPt: %d NMuID: %d NMuIDIso: %d \n ",NSlimMu,NSlimMuEta,NSlimMuPt,NMuID,NMuIDIso);
-  printf("MuEve_noCut: %d MuEve_Eta: %d MuEve_Pt: %d MuEve_ID: %d MuEve_IDIso: %d \n ",MuEve_noCut,MuEve_Eta,MuEve_Pt,MuEve_ID,MuEve_IDIso);
 
   // Calculate JetId efficiency
 //  double JetIdEff = ((double)nFailJetIdEvent/nTotEvent)*100 ;

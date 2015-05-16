@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sun May 10 16:03:59 2015 by ROOT version 5.34/18
+// Sat May 16 10:28:08 2015 by ROOT version 5.34/25
 // from TTree PreSelection/PreSelection
-// found on file: /data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150510_191028/0000/ReducedSelection_1.root
+// found on file: /data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150515_175928/0000/ReducedSelection_1.root
 //////////////////////////////////////////////////////////
 
 #ifndef branches_h
@@ -13,7 +13,7 @@
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
-#include <vector>
+#include "/build/bellenot/source/root_v5.34.25/root/cint/cint/lib/prec_stl/vector"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -27,7 +27,9 @@ public :
    UInt_t          LumiBlockNum;
    UInt_t          EvtNum;
    Int_t           NVtx;
-   Int_t           isoTracks;
+   Int_t           isoElectronTracks;
+   Int_t           isoMuonTracks;
+   Int_t           isoPionTracks;
    Int_t           Leptons;
    Int_t           LeptonsNoMiniIsolation;
    Int_t           NJets;
@@ -63,8 +65,8 @@ public :
    vector<double>  *IsolatedTracksEtaVec;
    vector<double>  *IsolatedTracksPhiVec;
    UShort_t        IsolatedTracksNum;
-   Float_t         IsolatedTracksE[7];   //[IsolatedTracksNum]
-   Float_t         IsolatedTracksTLorentzVector[7];   //[IsolatedTracksNum]
+   Float_t         IsolatedTracksE[1];   //[IsolatedTracksNum]
+   Float_t         IsolatedTracksTLorentzVector[1];   //[IsolatedTracksNum]
    vector<double>  *selectedIDIsoMuonsPtVec;
    vector<double>  *selectedIDIsoMuonsEtaVec;
    vector<double>  *selectedIDIsoMuonsPhiVec;
@@ -187,7 +189,9 @@ public :
    TBranch        *b_LumiBlockNum;   //!
    TBranch        *b_EvtNum;   //!
    TBranch        *b_NVtx;   //!
-   TBranch        *b_isoTracks;   //!
+   TBranch        *b_isoElectronTracks;   //!
+   TBranch        *b_isoMuonTracks;   //!
+   TBranch        *b_isoPionTracks;   //!
    TBranch        *b_Leptons;   //!
    TBranch        *b_LeptonsNoMiniIsolation;   //!
    TBranch        *b_NJets;   //!
@@ -361,11 +365,11 @@ branches::branches(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150510_191028/0000/ReducedSelection_1.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150515_175928/0000/ReducedSelection_1.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150510_191028/0000/ReducedSelection_1.root");
+         f = new TFile("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150515_175928/0000/ReducedSelection_1.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150510_191028/0000/ReducedSelection_1.root:/TreeMaker2");
+      TDirectory * dir = (TDirectory*)f->Get("/data3/store/user/borzou/ntuples/Apr02/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-141029_PU40bx50_PLS170_V6AN2-v1/150515_175928/0000/ReducedSelection_1.root:/TreeMaker2");
       dir->GetObject("PreSelection",tree);
 
    }
@@ -476,7 +480,9 @@ void branches::Init(TTree *tree)
    fChain->SetBranchAddress("LumiBlockNum", &LumiBlockNum, &b_LumiBlockNum);
    fChain->SetBranchAddress("EvtNum", &EvtNum, &b_EvtNum);
    fChain->SetBranchAddress("NVtx", &NVtx, &b_NVtx);
-   fChain->SetBranchAddress("isoTracks", &isoTracks, &b_isoTracks);
+   fChain->SetBranchAddress("isoElectronTracks", &isoElectronTracks, &b_isoElectronTracks);
+   fChain->SetBranchAddress("isoMuonTracks", &isoMuonTracks, &b_isoMuonTracks);
+   fChain->SetBranchAddress("isoPionTracks", &isoPionTracks, &b_isoPionTracks);
    fChain->SetBranchAddress("Leptons", &Leptons, &b_Leptons);
    fChain->SetBranchAddress("LeptonsNoMiniIsolation", &LeptonsNoMiniIsolation, &b_LeptonsNoMiniIsolation);
    fChain->SetBranchAddress("NJets", &NJets, &b_NJets);
@@ -508,12 +514,12 @@ void branches::Init(TTree *tree)
    fChain->SetBranchAddress("ElectronsNum", &ElectronsNum, &b_ElectronsNum);
    fChain->SetBranchAddress("ElectronsE", ElectronsE, &b_ElectronsE);
    fChain->SetBranchAddress("ElectronsTLorentzVector", ElectronsTLorentzVector, &b_ElectronsTLorentzVector);
-   fChain->SetBranchAddress("IsolatedTracksPtVec", &IsolatedTracksPtVec, &b_IsolatedTracksPtVec);
-   fChain->SetBranchAddress("IsolatedTracksEtaVec", &IsolatedTracksEtaVec, &b_IsolatedTracksEtaVec);
-   fChain->SetBranchAddress("IsolatedTracksPhiVec", &IsolatedTracksPhiVec, &b_IsolatedTracksPhiVec);
-   fChain->SetBranchAddress("IsolatedTracksNum", &IsolatedTracksNum, &b_IsolatedTracksNum);
-   fChain->SetBranchAddress("IsolatedTracksE", IsolatedTracksE, &b_IsolatedTracksE);
-   fChain->SetBranchAddress("IsolatedTracksTLorentzVector", IsolatedTracksTLorentzVector, &b_IsolatedTracksTLorentzVector);
+//   fChain->SetBranchAddress("IsolatedTracksPtVec", &IsolatedTracksPtVec, &b_IsolatedTracksPtVec);
+//   fChain->SetBranchAddress("IsolatedTracksEtaVec", &IsolatedTracksEtaVec, &b_IsolatedTracksEtaVec);
+//   fChain->SetBranchAddress("IsolatedTracksPhiVec", &IsolatedTracksPhiVec, &b_IsolatedTracksPhiVec);
+//   fChain->SetBranchAddress("IsolatedTracksNum", &IsolatedTracksNum, &b_IsolatedTracksNum);
+//   fChain->SetBranchAddress("IsolatedTracksE", &IsolatedTracksE, &b_IsolatedTracksE);
+//   fChain->SetBranchAddress("IsolatedTracksTLorentzVector", &IsolatedTracksTLorentzVector, &b_IsolatedTracksTLorentzVector);
    fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec, &b_selectedIDIsoMuonsPtVec);
    fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec, &b_selectedIDIsoMuonsEtaVec);
    fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec, &b_selectedIDIsoMuonsPhiVec);

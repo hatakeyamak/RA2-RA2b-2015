@@ -361,7 +361,7 @@ using namespace std;
           //////loop over cut names and fill the histograms
           for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-            if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true){
+            if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
               histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
             }
           }//end of loop over cut names
@@ -420,7 +420,7 @@ using namespace std;
         // Select tau jet
         if( jetIdx == tauJetIdx ) {
           // Fill the tauJetPtHist after the cut "delphi" 
-          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIso())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
+          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
 
           break; // End the jet loop once the tau jet has been found
         }

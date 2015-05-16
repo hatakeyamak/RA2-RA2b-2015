@@ -30,7 +30,7 @@ public:
   bool mht_500_750(double mht_){if(mht_>=500 && mht_<750)return true; return false;}
   bool mht_750(double mht_){if(mht_>=750)return true; return false;}
 //  bool dphi(double dPhi0, double dPhi1, double dPhi2){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
-  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;}
+  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 6.)return true; return false;}
   bool nolep(int nLeptons_){if(nLeptons_==0)return true; return false;}
   bool Njet_4(int nJets_){if(nJets_ >= 4)return true; return false;}
   bool Njet_4_6(int nJets_){if(nJets_ >= 4 && nJets_ <= 6)return true; return false;}
@@ -40,10 +40,13 @@ public:
   bool btag_1(int nBtags_){if(nBtags_ == 1)return true; return false;}
   bool btag_2(int nBtags_){if(nBtags_ == 2)return true; return false;}
   bool btag_3(int nBtags_){if(nBtags_ >= 3)return true; return false;}
-  bool isoTrk(int nIso_){if(nIso_ ==0)return true; return false;}
+//  bool isoTrk(int nIso_){if(nIso_ ==0)return true; return false;}
+  bool ElecIsoTrk(int nElecIso_){if(nElecIso_ ==0)return true; return false;}
+  bool MuIsoTrk(int nMuIso_){if(nMuIso_ ==0)return true; return false;}
+  bool PionIsoTrk(int nPionIso_){if(nPionIso_ ==0)return true; return false;}
 
-  bool checkcut(string ss, double ht_, double mht_, double minDeltaPhiN_ , int nJets_, int nBtags_, int nLeptons_, int nIso_);
-  bool checkcut_HadTau(string ss, double ht_, double mht_, double minDeltaPhiN_ , int nJets_, int nBtags_, int nLeptons_, int nIso_);
+  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
+  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
 
 };
 

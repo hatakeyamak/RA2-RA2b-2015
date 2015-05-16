@@ -43,17 +43,17 @@ mhtH = (TH1D*) file->Get("hCorMHT_noW")->Clone();
 njetH = (TH1D*) file->Get("hCorNJet_noW")->Clone();
 nbH = (TH1D*) file->Get("hCorNBtag_noW")->Clone();
 
-searchH->Draw();
+searchH->Draw("text");
 c1->Print("Plots/SearchBinCorrelation_noW.png");
-searchH_b->Draw();
+searchH_b->Draw("text");
 c1->Print("Plots/SearchBinCorrelation_noW_b.png");
-htH->Draw();
+htH->Draw("text");
 c1->Print("Plots/htCorrelation_noW.png");
-mhtH->Draw();
+mhtH->Draw("text");
 c1->Print("Plots/mhtCorrelation_noW.png");
-njetH->Draw();
+njetH->Draw("text");
 c1->Print("Plots/njetCorrelation_noW.png");
-nbH->Draw();
+nbH->Draw("text");
 c1->Print("Plots/nbCorrelation_noW.png");
 
 

@@ -31,7 +31,10 @@ using namespace std;
    UInt_t          LumiBlockNum;
    UInt_t          EvtNum;
    Int_t           NVtx;
-   Int_t           isoTracks;
+//   Int_t           isoTracks;
+   Int_t           isoElectronTracks;
+   Int_t           isoMuonTracks;
+   Int_t           isoPionTracks;
    Int_t           Leptons;
    Int_t           NJets;
    Int_t           BTags;
@@ -108,12 +111,12 @@ using namespace std;
    vector<double>  *ElectronsPtVec;
    vector<double>  *ElectronsEtaVec;
    vector<double>  *ElectronsPhiVec;
+   vector<double>  *selectedIDElectronsPtVec;
+   vector<double>  *selectedIDElectronsEtaVec;
+   vector<double>  *selectedIDElectronsPhiVec;
    vector<double>  *selectedIDIsoElectronsPtVec;
    vector<double>  *selectedIDIsoElectronsEtaVec;
    vector<double>  *selectedIDIsoElectronsPhiVec;
-   vector<double>  *selectedIDIsoElectronsNoMiniIsoPtVec;
-   vector<double>  *selectedIDIsoElectronsNoMiniIsoEtaVec;
-   vector<double>  *selectedIDIsoElectronsNoMiniIsoPhiVec;
 
 
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
@@ -132,7 +135,10 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   int nJets() const;
   int nBtags() const;
   int nLeptons() const;
-  int nIso() const;
+//  int nIso() const;
+  int nIsoElec() const ;
+  int nIsoMu() const ;
+  int nIsoPion() const;
   double weight() const ;
   double ht() const ;
   double mht() const ;
@@ -198,6 +204,12 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  MuEtaVec_() const;
    vector<double>  MuPhiVec_() const;
 
+   vector<double>  slimmedElecPtVec_() const;
+   vector<double>  slimmedElecEtaVec_() const;
+   vector<double>  slimmedElecPhiVec_() const;
+   vector<double>  ElecNoIsoPtVec_() const;
+   vector<double>  ElecNoIsoEtaVec_() const;
+   vector<double>  ElecNoIsoPhiVec_() const;
    vector<double>  ElecPtVec_() const;
    vector<double>  ElecEtaVec_() const;
    vector<double>  ElecPhiVec_() const;
