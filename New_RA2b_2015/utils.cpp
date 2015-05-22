@@ -77,3 +77,19 @@ using namespace std;
       int bin = TauResponse_ptBin(muPt_);
       return vec_resp[bin]->GetRandom();
     }
+
+    
+    // Activity variable. Muon isolation and efficiency depends on muon's pT and activity variable.
+    // The latter maens the amount of hadronic activity around the muon. The higher this is, the harder 
+    // it is to find the muon. 
+    double Utils::MuActivity(double muEta, double muPhi, vector<double> JetPtVec,vector<double> JetEtaVec, vector<double> JetPhiVec,vector<double> JetChargedEmEnergyFraction, vector<double> JetChargedHadronEnergyFraction){
+      double result=0.;
+      double maxDeltaRMuActivity_ = 1.0; 
+      for(int i=0; i<JetPtVec.size();i++){
+        if(deltaR(muEta,JetEtaVec[i],muPhi,JetPhiVec[i]) >  maxDeltaRMuActivity_ ) continue;
+        result+=JetPtVec[i]*( JetChargedEmEnergyFraction[i] + JetChargedHadronEnergyFraction[i] );
+      }
+      return result;
+    }
+
+

@@ -150,6 +150,9 @@ int main(int argc, char *argv[]){
   // Counter for jet
   int NSlimJet=0,NSlimJetEtaPt=0,NSlimJetID=0;
   int JetEve_noCut=0,JetEve_EtaPt=0,JetEve_ID=0;
+  // Counter for IsoTrks
+  int NIsoElec=0,NIsoMu=0,NIsoPion=0;
+  int IsoElecEve=0,IsoMuEve=0,IsoPionEve=0;
 
   // Loop over the events (tree entries)
   int eventN=0;
@@ -240,6 +243,14 @@ int main(int argc, char *argv[]){
           break;
         }
       }
+
+      // IsoTrk count
+      NIsoElec+=evt->nIsoElec();
+      NIsoMu+=evt->nIsoMu();
+      NIsoPion+=evt->nIsoPion();
+      if(evt->nIsoElec()>0)IsoElecEve++;
+      if(evt->nIsoMu()>0)IsoMuEve++;
+      if(evt->nIsoPion()>0)IsoPionEve++;
     }
 
 
@@ -328,6 +339,9 @@ int main(int argc, char *argv[]){
     // Print out jet information
     printf("NSlimJet: %d NSlimJetEtaPt: %d NSlimJetID: %d \n ",NSlimJet,NSlimJetEtaPt,NSlimJetID);
     printf("JetEve_noCut: %d ,JetEve_EtaPt: %d ,JetEve_ID: %d \n ",JetEve_noCut,JetEve_EtaPt,JetEve_ID);
+    printf("NIsoElec: %d NIsoMu: %d NIsoPion: %d \n",NIsoElec,NIsoMu,NIsoPion);
+    printf("IsoElecEve: %d IsoMuEve: %d IsoPionEve: %d \n ",IsoElecEve,IsoMuEve,IsoPionEve);
+
   }
 
 

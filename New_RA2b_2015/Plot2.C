@@ -17,9 +17,9 @@ Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int c
   //
   // Set basic style
   //
-  gROOT->LoadMacro("tdrstyle.C");
-  setTDRStyle();
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+//  gROOT->LoadMacro("tdrstyle.C");
+//  setTDRStyle();
+//  gROOT->LoadMacro("CMS_lumi_v2.C");
 
   int W = 600;
   int H = 600;
@@ -189,7 +189,7 @@ else{
       //thist->GetYaxis()->SetLabelOffset(0.007);
       //thist->GetYaxis()->SetLabelSize(0.04);
       thist->GetYaxis()->SetTitleSize(0.05);
-      thist->GetYaxis()->SetTitleOffset(1.25);
+      thist->GetYaxis()->SetTitleOffset(1.0);
       thist->GetYaxis()->SetTitleFont(42);
     }
     if(histname=="search"){
@@ -202,8 +202,8 @@ else{
     if(histname=="HT"){
       sprintf(xtitlename,"H_{T} (GeV)");
       sprintf(ytitlename,"Events / 200 GeV");
-      thist->SetMaximum(5000);
-      thist->SetMinimum(0.7);
+      thist->SetMaximum(100);
+      thist->SetMinimum(0.0001);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,HT_x_max);
@@ -211,7 +211,7 @@ else{
     if(histname=="MHT"){
       sprintf(xtitlename,"#slash{H}_{T} (GeV)");
       sprintf(ytitlename,"Events / 100 GeV");
-      thist->SetMaximum(5000);
+      thist->SetMaximum(100);
       thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
@@ -220,14 +220,14 @@ else{
     if(histname=="NBtag"){
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(3000);
+      thist->SetMaximum(9);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
     
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(2000);
+      thist->SetMaximum(5);
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
     }
     if(i==0)thist->Draw("same hist");
@@ -314,7 +314,7 @@ else{
       //EstHist->GetYaxis()->SetLabelOffset(0.007);
       //EstHist->GetYaxis()->SetLabelSize(0.04);
       EstHist->GetYaxis()->SetTitleSize(0.13);
-      EstHist->GetYaxis()->SetTitleOffset(0.5);
+      EstHist->GetYaxis()->SetTitleOffset(0.3);
       EstHist->GetYaxis()->SetTitleFont(42);
 
       EstHist->GetXaxis()->SetTitle(xtitlename);
@@ -383,7 +383,7 @@ else{
       //denominator->GetYaxis()->SetLabelOffset(0.007);
       //denominator->GetYaxis()->SetLabelSize(0.04);
       denominator->GetYaxis()->SetTitleSize(0.13);
-      denominator->GetYaxis()->SetTitleOffset(0.5);
+//      denominator->GetYaxis()->SetTitleOffset(0.2);
       denominator->GetYaxis()->SetTitleFont(42);
 
       denominator->GetXaxis()->SetTitle(xtitlename);

@@ -12,6 +12,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   //
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
+  gStyle->SetPalette(1) ; // for better color output
   gROOT->LoadMacro("CMS_lumi_v2.C");
 
   int W = 600;

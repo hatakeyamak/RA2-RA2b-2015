@@ -33,5 +33,7 @@ public:
     unsigned int TauResponse_ptBin(double pt);
 
     double getRandom(double muPt_,vector<TH1*> vec_resp);
+
+    double MuActivity(double muEta, double muPhi, vector<double> JetPtVec,vector<double> JetEtaVec, vector<double> JetPhiVec,vector<double> JetChargedEmEnergyFraction, vector<double> JetChargedHadronEnergyFraction);
 };
 

@@ -1,5 +1,5 @@
 
-void plot_RatioMuFromTau(int icomp=0){
+void plot_MistagRate(string input=""){
 
   //
   // icomp=0: only show own results
@@ -47,26 +47,24 @@ void plot_RatioMuFromTau(int icomp=0){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  
-//  TFile *file_08TeV         = new TFile("tauTemplatesRes_8TeV.root","R"); 
-//  TFile *file_13TeV         = new TFile("Probability_Tau_mu_stacked.root","R"); 
-  TFile *file_13TeV_TTbar   = new TFile("Probability_Tau_mu_TTbar_.root","R");
+  sprintf(tempname,"TauBtaggedRate_TTbar_%s.root",input.c_str());
+  TFile *file   = new TFile(tempname,"R");
 
   TH1D * thist, * thist2;
-  catLeg1->SetHeader("Prob. of #mu from #tau ");
+//  catLeg1->SetHeader("Prob. of #mu from #tau ");
 
 
 //...........................................................................//
 // TTbar ....................................................................//
 //...........................................................................//
 
-    sprintf(tempname,"hProb_Tau_mu");
-    thist = (TH1D*)file_13TeV_TTbar->Get(tempname)->Clone();
+    sprintf(tempname,"TauBtaggedRate");
+    thist = (TH1D*)file->Get(tempname)->Clone();
     thist->SetLineColor(1);
 //    thist->SetFillColor(0);
-    thist->SetLineWidth(3);
-
-      thist->SetTitle("");    
+//    thist->SetLineWidth(3);
+    thist->SetTitle("");
+    
       thist->GetXaxis()->SetLabelFont(42);
       thist->GetXaxis()->SetLabelOffset(0.007);
       thist->GetXaxis()->SetLabelSize(0.04);
@@ -79,13 +77,13 @@ void plot_RatioMuFromTau(int icomp=0){
       thist->GetYaxis()->SetTitleSize(0.05);
       thist->GetYaxis()->SetTitleOffset(1.25);
       thist->GetYaxis()->SetTitleFont(42);
-      thist->GetXaxis()->SetTitle("p_{T_{#mu}}");
-      thist->GetYaxis()->SetTitle("Probability");
+      thist->GetXaxis()->SetTitle("p_{T}(#tau jet)");
+      thist->GetYaxis()->SetTitle("mistag rate");
 
     
     thist->Draw();
     sprintf(tempname,"T#bar{T}");
-    catLeg1->AddEntry(thist,tempname,"l");
+//    catLeg1->AddEntry(thist,tempname,"l");
 
 //...........................................................................//
 // TTbar + WJet .............................................................//
@@ -102,6 +100,7 @@ void plot_RatioMuFromTau(int icomp=0){
     catLeg1->Draw();
 
 */
-    c1->Print("Plot_Probability_Tau_mu.png");
+    sprintf(tempname,"TauBtaggedRate_%s.png",input.c_str());
+    c1->Print(tempname);
 
 }

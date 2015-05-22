@@ -545,7 +545,7 @@ using namespace std;
     fgentTau_jet.Close();
 
 
-    ///calculate the probability with which tau decays hadronically as function of pt
+    // calculate the probability with which tau decays hadronically as function of pt
     TH1D * genHadTauPtHist2 = static_cast<TH1D*>(genHadTauPtHist->Clone("genHadTauPtHist2"));
     genHadTauPtHist2->Divide(genHadTauPtHist,genTauPtHist,1,1,"");
 

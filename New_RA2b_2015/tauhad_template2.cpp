@@ -47,7 +47,6 @@ using namespace std;
   // Prototype a function // See AN-15-003 for more info.
   double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec );
 
-
   int main(int argc, char *argv[]){
     /////////////////////////////////////
     if (argc != 6)
@@ -69,6 +68,7 @@ using namespace std;
     vector<string> filesVec;
     ifstream fin(InRootList.c_str());
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
+
     char tempname[200];
     char histname[200];
     vector<TH1D > vec;
@@ -191,7 +191,9 @@ using namespace std;
       histobjmap[it->first]=histObj;
     }
 
+
     // Open some files and get the histograms ........................................//
+
 
     // Rate of bTagged tau jet
     TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_.root","R");
@@ -209,7 +211,11 @@ using namespace std;
     TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
-    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_LargerDelR.root","R");
+    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
+    TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
+    TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoPTActivity");
+
+    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -228,7 +234,6 @@ using namespace std;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
-
 /*
 //Temporary
           printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
@@ -546,8 +551,12 @@ printf("flag!\n");
         // get the effieciencies and acceptance
         // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
         double Eff;
+/*
+        double activity= utils->MuActivity(muEta,muPhi,JetPtVec,vector<double> JetEtaVec, vector<double> JetPhiVec,vector<double> JetChargedEmEnergyFraction, vector<double> JetChargedHadronEnergyFraction)
+
+*/
         if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
-          // Eff = hEff->GetBinContent(binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht)]);
+          // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht)]);
           Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
         }else{
           Eff=0.75;
@@ -556,7 +565,7 @@ printf("flag!\n");
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
         if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
-          // Acc = hAcc->GetBinContent(binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht)]);
+          // Acc = hAcc->GetBinContent(binMap[utils2::findBin_b(cntNJetsPt30Eta24,NewNB,HT,template_mht)]);
           Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
         }else{
           Acc=0.9;
@@ -595,7 +604,6 @@ printf("flag!\n");
 
           hCorSearch_noW_b->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht).c_str()]);
 
-
         /*
                   double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
                   printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
@@ -625,6 +633,8 @@ printf("flag!\n");
         printf("SimTauJet3Vec.Pt(): %g SimTauJet3Vec.Eta(): %g SimTauJet3Vec.Phi(): %g \n ",SimTauJet3Vec.Pt(),SimTauJet3Vec.Eta(),SimTauJet3Vec.Phi());
         printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt(),Muon3Vec.Eta(),Muon3Vec.Phi());
         */
+
+
         }
 
 
@@ -632,7 +642,6 @@ printf("flag!\n");
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
         double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
-
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -663,7 +672,7 @@ printf("flag!\n");
     } // end of loop over events
 
 
-    //open a file to write the histograms
+    // open a file to write the histograms
     sprintf(tempname,"TauHad2/HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
@@ -695,9 +704,9 @@ printf("flag!\n");
                 cdtoit = cdtoitt->mkdir((it->first).c_str());
                 cdtoit->cd();
                 int nHist = it->second.size();
-                for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
-                  sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
-                  it->second[i].Write(tempname);
+                for(int ii=0; ii<nHist; ii++){//since we only have 4 type of histograms
+                  sprintf(tempname,"%s_%s_%s",it->second[ii].GetName(),(it->first).c_str(),(itt->first).c_str());
+                  it->second[ii].Write(tempname);
                 }
                 cdtoitt->cd();
               }
@@ -710,9 +719,7 @@ printf("flag!\n");
     delete resp_file;
 
 
-
   } // end of main
-
 
   double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec ){
 
@@ -733,4 +740,3 @@ printf("flag!\n");
 
       return deltaT;
   }
-
