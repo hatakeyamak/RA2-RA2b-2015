@@ -291,7 +291,7 @@ printf("flag!\n");
         double eta=evt->MuEtaVec_().at(i);
         double phi=evt->MuPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
-        if( pt>20. && fabs(eta)< 2.1  ){
+        if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
           if(verbose==1)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoMuon3vec.push_back(temp3vec);

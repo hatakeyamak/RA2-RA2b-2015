@@ -19,8 +19,8 @@
 class LeptonAcceptance {
 public:
   // Definition of the lepton acceptance
-  static double muonPtMin() { return 10.; }
-  static double muonEtaMax() { return 2.4; }
+  static double muonPtMin() { return 20.; }
+  static double muonEtaMax() { return 2.1; }
   static double electronPtMin() { return 10.; }
   static double electronEtaMax() { return 2.5; }
 
