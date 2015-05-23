@@ -50,17 +50,16 @@ bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;
 
 
 
-  bool ElecIsoTrk(int nElecIso_){if(nElecIso_ ==0)return true; return false;}
-
-
-
+//  bool ElecIsoTrk(int nElecIso_){if(nElecIso_ ==0)return true; return false;}
+bool ElecIsoTrk(int nElecIso_){return true;} // Ahmad33
 
 
 //  bool MuIsoTrk(int nMuIso_){if(nMuIso_ ==0)return true; return false;}
 bool MuIsoTrk(int nMuIso_){return true;} // Ahmad33
 
 
-  bool PionIsoTrk(int nPionIso_){if(nPionIso_ ==0)return true; return false;}
+//  bool PionIsoTrk(int nPionIso_){if(nPionIso_ ==0)return true; return false;}
+bool PionIsoTrk(int nPionIso_){return true;} // Ahmad33
 
 
 

@@ -306,11 +306,15 @@ printf("flag!\n");
         double eta=evt->ElecEtaVec_().at(i);
         double phi=evt->ElecPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
-        if( pt>10. && fabs(eta)< 2.5 ){
+//        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
+          // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
+
           if(verbose==1)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoElec3vec.push_back(temp3vec);
-        }
+
+//        }
+
       }
 
       if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
@@ -550,17 +554,22 @@ printf("flag!\n");
 
         // get the effieciencies and acceptance
         // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
-        double Eff;
-/*
-        double activity= utils->MuActivity(muEta,muPhi,JetPtVec,vector<double> JetEtaVec, vector<double> JetPhiVec,vector<double> JetChargedEmEnergyFraction, vector<double> JetChargedHadronEnergyFraction)
+        double Eff,Eff_Arne;
 
-*/
+        double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
+        if(verbose!=0)cout << " activity: " << activity << endl;
+
+        // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
+        Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+        Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+
         if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
           // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht)]);
           Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
         }else{
           Eff=0.75;
         }
+
 
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
@@ -571,16 +580,21 @@ printf("flag!\n");
           Acc=0.9;
         }
 
-        if(verbose==1)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(verbose==1 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(verbose==1 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
 
         if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht);}
         if(Acc==0)Acc=0.9;
         if(Eff==0)Eff=0.75;
+        if(Eff_Arne==0)Eff_Arne=0.75;
+
 
         // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
 
-        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+
+cout<< " weight: " << evt->weight() << endl;
 
         // Apply baseline cuts
         if(HT>500. && template_mht > 200. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
