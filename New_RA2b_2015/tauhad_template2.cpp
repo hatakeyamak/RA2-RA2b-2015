@@ -469,22 +469,8 @@ printf("flag!\n");
         delete ran;
 
 
-
-        // If no jet matches the muon or the matched one meets the HTJet conditions after the modification, 
-        // HT and MHT will be calculated this way. 
-
-        // New HT:
-        double HT = evt->ht() + simTauJetPt-muPt;
-
-        //New MHT
-        double mhtX = evt->mht()*cos(evt->mhtphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
-        double mhtY = evt->mht()*sin(evt->mhtphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
-
-        if(verbose==1){
+        if(verbose==2){
           double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
-//          printf("\n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
-//          printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
-//          printf("evt->ht: %g HT: %g \n ",evt->ht(),HT);
           printf(" ========\n Jets section: \n ");
           for(int i=0;i<evt->slimJetPtVec_().size();i++){
             printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
@@ -508,52 +494,10 @@ printf("flag!\n");
           if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;
         }
 
-        double template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
-        double template_mhtphi=-99.;
-        if(mhtX>0)template_mhtphi = atan(mhtY/mhtX);
-        else{
-          if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
-          else template_mhtphi = -3.14+atan(mhtY/mhtX);
-        }
   
-        // What we did for new HT, MHT and NJets was ok if the new jet is already an HTJet.
-        // Otherwise we drop the jet and recalculate
-        JetIdx=-1;
-        if( utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
 
-          // if the new jet is not an HT jet just drop it from the collection
-          if(verbose==2)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
-
-          if(NewTauJet3Vec.Pt() < 30.){// the eta requirement is already satisfied. 
-
-            // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
-            NewNB=evt->nBtags(); 
            
-            NewJetPtVec.erase(NewJetPtVec.begin()+JetIdx);
-            NewJetEtaVec.erase(NewJetEtaVec.begin()+JetIdx);
-            NewJetPhiVec.erase(NewJetPhiVec.begin()+JetIdx);
-
-            // Recalculate HT and MHT 
-            mhtX=0;
-            mhtY=0;
-            HT=0;
-            for(int i=0; i< NewJetPtVec.size(); i++){
-              HT+=NewJetPtVec[i];
-              mhtX=mhtX-NewJetPtVec[i]*cos(NewJetPhiVec[i]);
-              mhtY=mhtY-NewJetPtVec[i]*sin(NewJetPhiVec[i]);
-            }
-            template_mht = sqrt(pow(mhtX,2)+pow(mhtY,2));
-            if(mhtX>0)template_mhtphi = atan(mhtY/mhtX);
-            else{
-              if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
-              else template_mhtphi = -3.14+atan(mhtY/mhtX);
-            }
-
-            if(verbose==1)printf(" Jet dropped. \n ");
-          }
-
-        }
-
+            
         //New MET
         double metX = evt->met()*cos(evt->metphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
         double metY = evt->met()*sin(evt->metphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
@@ -570,7 +514,6 @@ printf("flag!\n");
         }
 
         if(verbose==1)printf("\n evt->ht(): %g evt->mht(): %g, evt->mhtphi(): %g \n ",evt->ht(),evt->mht(),evt->mhtphi());
-        if(verbose==1)printf("\n HT: %g template_mht: %g, template_mhtphi: %g \n ",HT, template_mht,template_mhtphi);
         if(verbose==1)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
 
         // New minDelPhi_N
@@ -602,16 +545,10 @@ printf("flag!\n");
 
 //#############################################################
 
+        // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
+        if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
 
 
-
-
-        //add the simTau Jet to the list if it satisfy the conditions
-        double cntNJetsPt30Eta24=(double) NewJetPhiVec.size();
-        if(verbose==1){
-          cout << " NewJetPhiVec.size(): " <<(int) NewJetPhiVec.size() << endl;
-          cout << " cntNJetsPt30Eta24: " << (int)cntNJetsPt30Eta24 << endl;
-        }
 
         // get the effieciencies and acceptance
         // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
@@ -624,9 +561,9 @@ printf("flag!\n");
         Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
         Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
 
-        if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
-          // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht)]);
-          Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
+          // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
+          Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
         }else{
           Eff=0.75;
         }
@@ -634,17 +571,17 @@ printf("flag!\n");
 
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
-        if(cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200){
-          // Acc = hAcc->GetBinContent(binMap[utils2::findBin_b(cntNJetsPt30Eta24,NewNB,HT,template_mht)]);
-          Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
+          // Acc = hAcc->GetBinContent(binMap[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
+          Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
         }else{
           Acc=0.9;
         }
 
-        if(verbose==2 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
-        if(verbose==2 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
+        if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+        if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
 
-        if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht);}
+        if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT);}
         if(Acc==0)Acc=0.9;
         if(Eff==0)Eff=0.75;
         if(Eff_Arne==0)Eff_Arne=0.75;
@@ -657,65 +594,35 @@ printf("flag!\n");
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
         // Apply baseline cuts
-        if(HT>500. && template_mht > 200. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
+        if(newHT>500. && newMHT > 200. && mindpn > 4. && newNJet >= 4   ){
 
           // Fill Search bin histogram 
-          searchH->Fill( binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()],totWeight);
+          searchH->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);
 
-          searchH_b->Fill( binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht).c_str()],totWeight);
+          searchH_b->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],totWeight);
 
-          hCorSearch->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()],totWeight);
-          hCorHT->Fill(evt->ht(),HT,totWeight);
-          hCorMHT->Fill(evt->mht(),template_mht,totWeight);
-          hCorNJet->Fill(evt->nJets(),cntNJetsPt30Eta24,totWeight);
+          hCorSearch->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);
+          hCorHT->Fill(evt->ht(),newHT,totWeight);
+          hCorMHT->Fill(evt->mht(),newMHT,totWeight);
+          hCorNJet->Fill(evt->nJets(),newNJet,totWeight);
           hCorNBtag->Fill(evt->nBtags(),NewNB,totWeight);
 
-          hCorSearch_noW->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht).c_str()]);
-          hCorHT_noW->Fill(evt->ht(),HT);
-          hCorMHT_noW->Fill(evt->mht(),template_mht);
-          hCorNJet_noW->Fill(evt->nJets(),cntNJetsPt30Eta24);
+          hCorSearch_noW->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+          hCorHT_noW->Fill(evt->ht(),newHT);
+          hCorMHT_noW->Fill(evt->mht(),newMHT);
+          hCorNJet_noW->Fill(evt->nJets(),newNJet);
           hCorNBtag_noW->Fill(evt->nBtags(),NewNB);
 
-          hCorSearch_noW_b->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(cntNJetsPt30Eta24,NewNB,HT,template_mht).c_str()]);
+          hCorSearch_noW_b->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
-        /*
-                  double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
-                  printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
-                  for(int i=0;i<evt->slimJetPtVec_().size();i++){
-                    printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
-                    if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 5.){
-                      directMHTX-=evt->slimJetPtVec_()[i]*cos(evt->slimJetPhiVec_()[i]);
-                      directMHTY-=evt->slimJetPtVec_()[i]*sin(evt->slimJetPhiVec_()[i]);
-                    }
-                    if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
-                      directHT+=evt->slimJetPtVec_()[i];
-                    }
-
-                  }
-                  printf("========== \n");
-                  for(int i=0;i<evt->JetsPtVec_().size();i++){
-                    printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
-                  }
-                  printf("========== \n");
-                  directMHT = pow( (directMHTX*directMHTX+directMHTY*directMHTY) ,.5);
-                  printf("directHT: %g directMHT: %g \n",directHT,directMHT);
-                  if((int) directHT != (int) evt->ht() )cout << " Warning in HT calc. \n " ;
-                  if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;printf("OldHT: %g HT: %g \n OldMHT: %g MHT: %g \n ",evt->ht(),HT,evt->mht(),template_mht);
-        cout << " OldNJet: " << evt->nJets() << " NJet: " << cntNJetsPt30Eta24 << "\n OldNb: " << evt->nBtags() << " Nb: " << NewNB << " \n totWeight: " << totWeight << endl;
-        printf("========== \n OrigTauJet3Vec.Pt(): %g OrigTauJet3Vec.Eta(): %g OrigTauJet3Vec.Phi(): %g \n ",OrigTauJet3Vec.Pt(),OrigTauJet3Vec.Eta(),OrigTauJet3Vec.Phi());
-        printf("NewTauJet3Vec.Pt(): %g NewTauJet3Vec.Eta(): %g NewTauJet3Vec.Phi(): %g \n ",NewTauJet3Vec.Pt(),NewTauJet3Vec.Eta(),NewTauJet3Vec.Phi());
-        printf("SimTauJet3Vec.Pt(): %g SimTauJet3Vec.Eta(): %g SimTauJet3Vec.Phi(): %g \n ",SimTauJet3Vec.Pt(),SimTauJet3Vec.Eta(),SimTauJet3Vec.Phi());
-        printf("Muon3Vec.Pt(): %g Muon3Vec.Eta(): %g Muon3Vec.Phi(): %g \n ",Muon3Vec.Pt(),Muon3Vec.Eta(),Muon3Vec.Phi());
-        */
-
-
+     
         }
 
 
 
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-        double eveinfvec[] = {totWeight, HT, template_mht ,(double) cntNJetsPt30Eta24,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
+        double eveinfvec[] = {totWeight, newHT, newMHT ,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -729,7 +636,7 @@ printf("flag!\n");
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
 
-              if(sel->checkcut_HadTau(ite->first,HT,template_mht,mindpn,cntNJetsPt30Eta24,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+              if(sel->checkcut_HadTau(ite->first,newHT,newMHT,mindpn,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
 
