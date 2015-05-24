@@ -334,7 +334,8 @@ using namespace std;
       
 
       // Total weight
-      double totWeight = evt->weight()*1.;
+      // double totWeight = evt->weight()*1.;
+      double totWeight = 1.;
 
         // Apply baseline cuts
         if(evt->ht() >500. && evt->mht() > 200. && evt->minDeltaPhiN() > 4. && evt->nJets() >= 4   ){

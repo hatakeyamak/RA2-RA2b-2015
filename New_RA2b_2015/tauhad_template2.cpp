@@ -292,7 +292,7 @@ printf("flag!\n");
         double phi=evt->MuPhiVec_().at(i);
         // double mu_mt_w =muonsMtw->at(i);  ????
         if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
-          if(verbose==1)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+          if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoMuon3vec.push_back(temp3vec);
           // vec_recoMuMTW.push_back(mu_mt_w); ???????
@@ -309,7 +309,7 @@ printf("flag!\n");
 //        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
           // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
 
-          if(verbose==1)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+          if(verbose==2)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoElec3vec.push_back(temp3vec);
 
@@ -370,15 +370,63 @@ printf("flag!\n");
           if(verbose!=0)printf("No jet matched the muon. Adding a new jet.");
         }
 
-        // Calculate the new Jet pT
-        // pT is vector quantity and should be calculated using vector algebra. 
-        TVector3 OrigTauJet3Vec,SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
-        if(JetIdx!=-1)OrigTauJet3Vec.SetPtEtaPhi(evt->JetsPtVec_()[JetIdx],evt->JetsEtaVec_()[JetIdx],evt->JetsPhiVec_()[JetIdx]);
-        else OrigTauJet3Vec.SetPtEtaPhi(0,0,0);
+
+
+        // 3Vec of muon and scaledMu 
+        TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
         SimTauJet3Vec.SetPtEtaPhi(simTauJetPt,simTauJetEta,simTauJetPhi);
         Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
-        NewTauJet3Vec=OrigTauJet3Vec-Muon3Vec+SimTauJet3Vec;
-        
+       
+
+//######################################################################
+        // New ht and mht 
+        vector<TVector3> HT3JetVec,MHT3JetVec;
+        HT3JetVec.clear();
+        MHT3JetVec.clear();
+        TVector3 temp3Vec;
+        int slimJetIdx=-1;
+        utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+        // If there is no match, add the tau jet as a new one
+        if(slimJetIdx==-1){
+          NewTauJet3Vec=-Muon3Vec+SimTauJet3Vec;
+          if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+          if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+        }
+        for(int i=0;i<evt->slimJetPtVec_().size();i++){
+          if(i!=slimJetIdx){
+            temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<2.4)HT3JetVec.push_back(temp3Vec);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<5.)MHT3JetVec.push_back(temp3Vec);
+          }
+          else if(i==slimJetIdx){
+            temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+            NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+            if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+            if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+          }
+          
+        }
+
+        double newHT=0,newMHT=0,newMHTPhi=-1;
+        TVector3 newMHT3Vec;
+        for(int i=0;i<HT3JetVec.size();i++){
+          newHT+=HT3JetVec[i].Pt();
+        }        
+        for(int i=0;i<MHT3JetVec.size();i++){
+          newMHT3Vec-=MHT3JetVec[i];
+        }        
+        newMHT=newMHT3Vec.Pt();
+        newMHTPhi=newMHT3Vec.Phi();
+
+        if(verbose==1)printf("newHT: %g newMHT: %g newMHTPhi: %g \n ",newHT,newMHT,newMHTPhi);
+
+//######################################################################
+
+
+
+
+
+ 
 
         // Do not write number of B if the muon jet is btagged. 
         int nB=evt->nBtags();
@@ -432,11 +480,11 @@ printf("flag!\n");
         double mhtX = evt->mht()*cos(evt->mhtphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
         double mhtY = evt->mht()*sin(evt->mhtphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
-        if(verbose!=0){
+        if(verbose==1){
           double directHT=0,directMHTX=0,directMHTY=0,directMHT=0;
-          printf("\n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
-          printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
-          printf("evt->ht: %g HT: %g \n ",evt->ht(),HT);
+//          printf("\n mhtX: %g, mhtY: %g \n",mhtX,mhtY);
+//          printf("evt->mht: %g, evt->mhtphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->mht(),evt->mhtphi(),simTauJetPt,simTauJetPhi);
+//          printf("evt->ht: %g HT: %g \n ",evt->ht(),HT);
           printf(" ========\n Jets section: \n ");
           for(int i=0;i<evt->slimJetPtVec_().size();i++){
             printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
@@ -467,7 +515,6 @@ printf("flag!\n");
           if(mhtY>0) template_mhtphi = 3.14+atan(mhtY/mhtX);
           else template_mhtphi = -3.14+atan(mhtY/mhtX);
         }
-        if(verbose==1)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);      
   
         // What we did for new HT, MHT and NJets was ok if the new jet is already an HTJet.
         // Otherwise we drop the jet and recalculate
@@ -475,7 +522,7 @@ printf("flag!\n");
         if( utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
 
           // if the new jet is not an HT jet just drop it from the collection
-          if(verbose==1)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
+          if(verbose==2)printf(" NewJetPt: %g \n ",NewTauJet3Vec.Pt());
 
           if(NewTauJet3Vec.Pt() < 30.){// the eta requirement is already satisfied. 
 
@@ -512,7 +559,7 @@ printf("flag!\n");
         double metY = evt->met()*sin(evt->metphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
 
         if(verbose==1)printf("############ \n metX: %g, metY: %g \n",metX,metY);
-        if(verbose==1)printf("evt->met: %g, evt->metphi: %g, simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),simTauJetPt,simTauJetPhi);
+        if(verbose==1)printf("evt->met: %g, evt->metphi: %g,muPt: %g simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),muPt,simTauJetPt,simTauJetPhi);
 
         double template_met = sqrt(pow(metX,2)+pow(metY,2));
         double template_metphi=-99.;
@@ -522,9 +569,9 @@ printf("flag!\n");
           else template_metphi = -3.14+atan(metY/metX);
         }
 
-        if(verbose==1)printf("\n template_mht: %g, template_mhtphi: %g \n ", template_mht,template_mhtphi);
+        if(verbose==1)printf("\n evt->ht(): %g evt->mht(): %g, evt->mhtphi(): %g \n ",evt->ht(),evt->mht(),evt->mhtphi());
+        if(verbose==1)printf("\n HT: %g template_mht: %g, template_mhtphi: %g \n ",HT, template_mht,template_mhtphi);
         if(verbose==1)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
-        
 
         // New minDelPhi_N
         double dpnhat[3]; 
@@ -544,6 +591,20 @@ printf("flag!\n");
         } 
 
         if(verbose==1) cout << "\n evt->minDeltaPhiN(): " << evt->minDeltaPhiN() << " mindpn: " << mindpn << endl;
+
+
+
+//#############################################################
+
+
+        int newNJet = HT3JetVec.size(); 
+        if(verbose==1)printf("newNJet: %d \n ",newNJet);
+
+//#############################################################
+
+
+
+
 
         //add the simTau Jet to the list if it satisfy the conditions
         double cntNJetsPt30Eta24=(double) NewJetPhiVec.size();
@@ -580,8 +641,8 @@ printf("flag!\n");
           Acc=0.9;
         }
 
-        if(verbose==1 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
-        if(verbose==1 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
+        if(verbose==2 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht, binMap[utils2::findBin_NoB(cntNJetsPt30Eta24,HT,template_mht)]);
+        if(verbose==2 && cntNJetsPt30Eta24>=4 && HT >= 500 && template_mht >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
 
         if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, cntNJetsPt30Eta24,evt->nBtags(),HT,template_mht);}
         if(Acc==0)Acc=0.9;
@@ -592,9 +653,8 @@ printf("flag!\n");
         // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
 
-        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
-
-cout<< " weight: " << evt->weight() << endl;
+//        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
+        double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
         // Apply baseline cuts
         if(HT>500. && template_mht > 200. && mindpn > 4. && cntNJetsPt30Eta24 >= 4   ){
