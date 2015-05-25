@@ -52,9 +52,11 @@ using namespace std;
 
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
-    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins,1,totNbins);
+    map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
+    int totNbins_mht_nj=binMap_mht_nj.size();
+    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj);
     TH1* hIsoRecoAll = new TH1D("hIsoRecoAll","Efficiency -- All",totNbins,1,totNbins);
-    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins,1,totNbins);
+    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_mht_nj,1,totNbins_mht_nj);
     TH1* hIsoRecoPass = new TH1D("hIsoRecoPass","Efficiency -- Pass",totNbins,1,totNbins);
     hAccAll->Sumw2();
     hIsoRecoAll->Sumw2();
@@ -127,7 +129,7 @@ using namespace std;
 
       // Acceptance determination 1: Counter for all events
       // with muons at generator level
-      hAccAll->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()] );
+      hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
 
       // Check if generator-level muon is in acceptance
       if( genMuPt > LeptonAcceptance::muonPtMin() && std::abs(genMuEta) < LeptonAcceptance::muonEtaMax() ) {
@@ -135,7 +137,7 @@ using namespace std;
         // Acceptance determination 2: Counter for only those events
         // with generator-level muons inside acceptance
         // hAccPass->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
-        hAccPass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()] );
+        hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
 
         // Reconstruction-efficiency determination 1: Counter for all events
         // with generator-level muons inside acceptance, regardless of whether

@@ -34,6 +34,8 @@ namespace utils2{
   }
 
 
+//############################################################################################
+
 
   // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
 
@@ -65,6 +67,45 @@ namespace utils2{
       }
     return binMap_NoB;
   }
+
+
+//############################################################################################
+
+
+  // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
+
+      std::string findBin_mht_nj(int njet,double mht){
+        std::ostringstream binS;
+        int bNjet, bMht;
+        if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;else bNjet=9;
+        if(mht>=200 && mht<500)bMht=1;else if(mht>=500 && mht<750)bMht=2;else if(mht>=750)bMht=3; else bMht=9;
+        binS << 10*bNjet+bMht;
+
+        return binS.str();
+      }
+
+
+  // A map is needed between strings like "15" or "24" that specify the search bins ( without Btag)
+  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
+  std::map <std::string,int> BinMap_mht_nj(){
+      int binN=0;
+      std::map <std::string , int> binMap_mht_nj;
+      for(int bNjet=1; bNjet<=3;  bNjet++){
+          for(int bMht=1; bMht<=3; bMht++){
+              std::ostringstream binS;
+              binS << 10*bNjet+bMht;
+              binN++;
+              binMap_mht_nj[binS.str()]=binN;
+              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+          }
+      }
+    return binMap_mht_nj;
+  }
+
+
+
+
+
 
 
 

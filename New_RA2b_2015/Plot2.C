@@ -202,8 +202,8 @@ else{
     if(histname=="HT"){
       sprintf(xtitlename,"H_{T} (GeV)");
       sprintf(ytitlename,"Events / 200 GeV");
-      thist->SetMaximum(100);
-      thist->SetMinimum(0.0001);
+      thist->SetMaximum(10000);
+//      thist->SetMinimum(0.0001);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,HT_x_max);
@@ -211,7 +211,7 @@ else{
     if(histname=="MHT"){
       sprintf(xtitlename,"#slash{H}_{T} (GeV)");
       sprintf(ytitlename,"Events / 100 GeV");
-      thist->SetMaximum(100);
+      thist->SetMaximum(10000);
       thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
@@ -220,21 +220,35 @@ else{
     if(histname=="NBtag"){
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(9);
+      thist->SetMaximum(10000);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
     
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(5);
+      thist->SetMaximum(5500);
+      thist->SetMinimum(1);
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
+      gPad->SetLogy();
     }
-    if(i==0)thist->Draw("same hist");
-    else thist->Draw("same");
-    if(i==0)sprintf(tempname,"#tau_{hadronic} BG");
-    if(i==1)sprintf(tempname,"Data driven estimate");
-    catLeg1->AddEntry(thist,tempname,"l");
+    if(i==0){
+      thist->SetFillStyle(3004);
+      thist->SetFillColor(kGreen-3);
+      thist->Draw("e2");
+      
+    }
+    else{
+      thist->Draw("same ");
+    }
+    if(i==0){
+      sprintf(tempname,"#tau_{hadronic} BG");
+      catLeg1->AddEntry(thist,tempname,"f");
+    }
+    if(i==1){
+      sprintf(tempname,"Data driven estimate");
+      catLeg1->AddEntry(thist,tempname,"l");
+    }
     thist->GetXaxis()->SetTitle(xtitlename);
     thist->GetYaxis()->SetTitle(ytitlename);
   }

@@ -154,7 +154,9 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   GenHist->SetMinimum(0.);
   GenHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
 
-  GenHist->Draw("same, hist");
+  GenHist->SetFillStyle(3004);
+  GenHist->SetFillColor(kGreen-3);
+  GenHist->Draw("e2");
   EstHist->Draw("same");
 
   sprintf(tempname,"#tau_{hadronic} BG");

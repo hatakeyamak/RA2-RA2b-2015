@@ -127,6 +127,9 @@ using namespace std;
 
 
     // Introduce search bin histogram
+    map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
+
+    // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
     TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
@@ -372,13 +375,13 @@ printf("flag!\n");
 
 
 
+//######################################################################
+
         // 3Vec of muon and scaledMu 
         TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
         SimTauJet3Vec.SetPtEtaPhi(simTauJetPt,simTauJetEta,simTauJetPhi);
         Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
-       
 
-//######################################################################
         // New ht and mht 
         vector<TVector3> HT3JetVec,MHT3JetVec;
         HT3JetVec.clear();
@@ -424,9 +427,6 @@ printf("flag!\n");
 
 
 
-
-
- 
 
         // Do not write number of B if the muon jet is btagged. 
         int nB=evt->nBtags();
@@ -494,9 +494,7 @@ printf("flag!\n");
           if((int) directMHT != (int) evt->mht())cout << " Warning in MHT calc. \n " ;
         }
 
-  
-
-           
+             
             
         //New MET
         double metX = evt->met()*cos(evt->metphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
@@ -538,7 +536,7 @@ printf("flag!\n");
 
 
 //#############################################################
-
+        //New #Jet
 
         int newNJet = HT3JetVec.size(); 
         if(verbose==1)printf("newNJet: %d \n ",newNJet);
@@ -563,7 +561,7 @@ printf("flag!\n");
 
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
           // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
-          Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+          Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]); 
         }else{
           Eff=0.75;
         }
@@ -572,13 +570,14 @@ printf("flag!\n");
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
-          // Acc = hAcc->GetBinContent(binMap[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
-          Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+          // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
+          // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+          Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
         }else{
           Acc=0.9;
         }
 
-        if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+        if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
         if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
 
         if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT);}
