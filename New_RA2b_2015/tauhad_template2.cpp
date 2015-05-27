@@ -208,11 +208,14 @@ using namespace std;
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
+/* Ahmad33 
     // Acceptance and efficiencies
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
+
+Ahmad33 */
 
     TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
@@ -229,7 +232,11 @@ using namespace std;
     int c1=0,c2=0,c3=0;
     int nB_new;
 
+    // see how often gen mu doesn't match reco mu
+    int GenRecMu_all=0,GenRecMu_fail=0;
 
+    // see how often there are two leptons in the the event
+    int dilepton_all=0, dilepton_pass=0;
 
     int eventN=0;
     while( evt->loadNext() ){
@@ -237,41 +244,6 @@ using namespace std;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
-/*
-//Temporary
-          printf(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n event#: %d \n ========\n Jets section: \n ",eventN);
-          int nHTJets=0;
-          for(int i=0;i<evt->slimJetPtVec_().size();i++){
-            printf(" jet#: %d pt: %g eta: %g phi: %g JetID: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
-            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i]) < 2.4){
-              nHTJets++;
-            }
-
-          }
-          printf("========== \n");
-          for(int i=0;i<evt->JetsPtVec_().size();i++){
-            printf(" jet#: %d pt: %g eta: %g phi: %g \n ",i+1,evt->JetsPtVec_()[i],evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i]);
-            printf("Jets_chargedEmEnergyFraction_(): %g \n ",evt->Jets_chargedEmEnergyFraction_()[i]);
-            printf("Jets_chargedHadronEnergyFraction_(): %g \n ",evt->Jets_chargedHadronEnergyFraction_()[i]);
-            printf("Jets_chargedHadronMultiplicity_(): %d \n ",evt->Jets_chargedHadronMultiplicity_()[i]);
-            printf("Jets_electronMultiplicity_(): %d \n ",evt->Jets_electronMultiplicity_()[i]);
-            printf("Jets_jetArea_(): %g \n ",evt->Jets_jetArea_()[i]);
-            printf("Jets_muonEnergyFraction_(): %g \n ",evt->Jets_muonEnergyFraction_()[i]);
-            printf("Jets_muonMultiplicity_(): %d \n ",evt->Jets_muonMultiplicity_()[i]);
-            printf("Jets_neutralEmEnergyFraction_(): %g \n ",evt->Jets_neutralEmEnergyFraction_()[i]);
-            printf("Jets_neutralHadronMultiplicity_(): %d \n ",evt->Jets_neutralHadronMultiplicity_()[i]);
-            printf("Jets_photonEnergyFraction_(): %g \n ",evt->Jets_photonEnergyFraction_()[i]);
-            printf("Jets_photonMultiplicity_(): %d \n ",evt->Jets_photonMultiplicity_()[i]);
-          }
-          printf("========== \n nHTJets: %d \n evt->JetsPtVec_().size(): %d \n ",nHTJets,evt->JetsPtVec_().size());
-          printf("JetId: %d \n " ,evt->JetId());
-
-          if(nHTJets != evt->JetsPtVec_().size()){
-            printf("failed \n " );
-            continue;
-          }
-printf("flag!\n");
-*/
 
 
       /////////////////////////////////////////////////////////////////////////////////////
@@ -329,6 +301,11 @@ printf("flag!\n");
         muPhi = vec_recoMuon3vec[0].Phi();
         // muMtW = vec_recoMuMTW[0]; ???????
 
+dilepton_all++;
+if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)continue;
+dilepton_pass++;
+
+
         // Get random number from tau-response template
         // The template is chosen according to the muon pt
         const double scale = utils->getRandom(muPt,vec_resp );
@@ -347,12 +324,13 @@ printf("flag!\n");
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
         }
 
-       
+        GenRecMu_all++;
         // If muon does not match a GenMuon, drop the event. 
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
-//          printf(" Warning! There is no Gen Muon \n ");
-//          printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
+          GenRecMu_fail++;
+          printf(" Warning! There is no Gen Muon \n ");
+          printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
           for(int i=0; i<evt->GenMuPtVec_().size(); i++){
 //          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
           }
@@ -557,6 +535,8 @@ printf("flag!\n");
 
         // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
         Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+/* Ahmad33
+
         Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
 
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
@@ -566,9 +546,11 @@ printf("flag!\n");
           Eff=0.75;
         }
 
-
+Ahmad33*/
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
+/* Ahmad33
+
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
           // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
           // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
@@ -585,9 +567,18 @@ printf("flag!\n");
         if(Eff==0)Eff=0.75;
         if(Eff_Arne==0)Eff_Arne=0.75;
 
+Ahmad33
+*/
 
         // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
+
+//Ahmad33
+Acc=1.; // temporary
+
+
+
+
 
 //        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
@@ -650,8 +641,11 @@ printf("flag!\n");
       } // End if exactly one muon
 
     } // end of loop over events
-
-
+  
+    double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
+    printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
+    printf("dilepton_all: %d dilepton_pass: %d \n ",dilepton_all,dilepton_pass);  
+  
     // open a file to write the histograms
     sprintf(tempname,"TauHad2/HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");

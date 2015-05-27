@@ -1,4 +1,4 @@
-
+#include "LeptonAcceptance.h"
 #include "Events.h"
 #include "Selection.h"
 #include "utils.h"
@@ -215,7 +215,17 @@ using namespace std;
       // At the end dividing the two histograms give the percentage as a function
       // transverse momentum.
       int muN=evt->GenMuPtVec_().size();
-      int eleN=evt->GenElecPtVec_().size();
+
+      // Since we don't acount for efficiency and acceptance of Reco. electrons,
+      // for the sake of consistency, apply the same pT and eta cuts on the gen.
+      // electrons as those applied to Reco. electrons.  
+      int eleN=0;
+      for(int i=0;i<evt->GenElecPtVec_().size();i++){
+        double elept=evt->GenElecPtVec_()[i];
+        double eleeta=evt->GenElecEtaVec_()[i];
+        if(elept > LeptonAcceptance::electronPtMin() && std::abs(eleeta) < LeptonAcceptance::electronEtaMax())eleN++;
+      }
+
       double muPt=-99;
 
       //we want to consider events that pass the baseline cuts
@@ -265,11 +275,11 @@ using namespace std;
       genTauPtHist->Fill(genTauPt0);
 
       if(hadTau==false)continue;
-
       genHadTauPtHist->Fill(genTauPt);   
+
  
       // We want no muon and electron in the event
-      if(evt->GenMuPtVec_().size()!=0 || evt->GenElecPtVec_().size()!=0)continue;
+      if(evt->GenMuPtVec_().size()!=0 || eleN!=0)continue;
       if(verbose!=0){
       printf(" ####################### \n event#: %d \n ",eventN-1); 
       
@@ -326,6 +336,10 @@ using namespace std;
       double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
+// Ahmad33 this is to remove acceptance role to check other sources of error. 
+if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+
+
       //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
       for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
@@ -351,6 +365,7 @@ using namespace std;
       ////End of Closure Test Section
       ///////////////////////////////
 
+} // Ahmad33
 
       // Do the matching
       int tauJetIdx = -1;

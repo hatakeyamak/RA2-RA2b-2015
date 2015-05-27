@@ -202,7 +202,7 @@ else{
     if(histname=="HT"){
       sprintf(xtitlename,"H_{T} (GeV)");
       sprintf(ytitlename,"Events / 200 GeV");
-      thist->SetMaximum(10000);
+      thist->SetMaximum(50000);
 //      thist->SetMinimum(0.0001);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
       gPad->SetLogy();
@@ -211,7 +211,7 @@ else{
     if(histname=="MHT"){
       sprintf(xtitlename,"#slash{H}_{T} (GeV)");
       sprintf(ytitlename,"Events / 100 GeV");
-      thist->SetMaximum(10000);
+      thist->SetMaximum(50000);
       thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
       gPad->SetLogy();
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
@@ -227,15 +227,16 @@ else{
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(5500);
+      thist->SetMaximum(10000);
       thist->SetMinimum(1);
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
       gPad->SetLogy();
     }
     if(i==0){
+//      thist->Draw();
       thist->SetFillStyle(3004);
       thist->SetFillColor(kGreen-3);
-      thist->Draw("e2");
+      thist->Draw("same e2");
       
     }
     else{

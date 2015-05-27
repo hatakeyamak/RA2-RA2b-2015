@@ -71,7 +71,7 @@ using namespace std;
 
 
     // --- Analyse the events --------------------------------------------
-
+    Selection * sel = new Selection();
     Utils * utils = new Utils();
 
     // Interface to the event content
@@ -89,12 +89,12 @@ using namespace std;
 //printf("\n@@@@@@@@@@@@@@@@@@@@@@@@@@  \n event: %d \n Njet: %d HT: %g MHT: %g dphi1: %g dphi2: %g dphi3: %g  \n ",eventN-1,evt->nJets(),evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()); //Ahmad3
 
       // Apply the NJets baseline-cut
-      if( !Lepton_Selection::nJets(evt->nJets()) ) continue;
+      if( !sel->Njet_4(evt->nJets()) ) continue;
       // Apply the HT and MHT baseline-cuts
-      if( !Lepton_Selection::ht(evt->ht()) ) continue;
-      if( !Lepton_Selection::mht(evt->mht()) ) continue;
+      if( !sel->ht_500(evt->ht()) ) continue;
+      if( !sel->mht_200(evt->mht()) ) continue;
       // Apply the delta-phi cuts
-      if( !Lepton_Selection::deltaPhi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) ) continue;
+      if( !sel->dphi(evt->minDeltaPhiN()) ) continue;
 
       if(verbose!=0)printf("\n############ \n event: %d \n ",eventN-1);
 
@@ -108,12 +108,14 @@ using namespace std;
       bool isMuon = false;
 
       for(int i=0; i< evt->GenMuPtVec_().size(); i++){
-        genMuPt = evt->GenMuPtVec_().at(i);
-        genMuEta = evt->GenMuEtaVec_().at(i);
-        genMuPhi = evt->GenMuPhiVec_().at(i);
-        isMuon=true;
-        temp3vec.SetPtEtaPhi(genMuPt,genMuEta,genMuPhi);
-        genMuonVec.push_back(temp3vec);
+        if(evt->GenMuFromTauVec_()[i]==0){
+          genMuPt = evt->GenMuPtVec_().at(i);
+          genMuEta = evt->GenMuEtaVec_().at(i);
+          genMuPhi = evt->GenMuPhiVec_().at(i);
+          isMuon=true;
+          temp3vec.SetPtEtaPhi(genMuPt,genMuEta,genMuPhi);
+          genMuonVec.push_back(temp3vec);
+        }
         
         if(verbose!=0){
           printf("Muon # %d, pt: %g, eta: %g, phi: %g \n ",i,genMuPt,genMuEta,genMuPhi);
