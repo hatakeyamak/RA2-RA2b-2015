@@ -45,7 +45,7 @@ using namespace std;
   };
 
   // Prototype a function // See AN-15-003 for more info.
-  double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec );
+  double DeltaT(unsigned int i, vector<TVector3> Jet3vec );
 
   int main(int argc, char *argv[]){
     /////////////////////////////////////
@@ -221,11 +221,22 @@ Ahmad33 */
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoPTActivity");
 
+/*
+    // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
+*/
+
+    // Use Rishi's tau template 
+    TFile * resp_file = new TFile("TauHad/Rishi_TauTemplate.root","R");
+    for(int i=0; i<TauResponse_nBins; i++){
+      sprintf(histname,"response%d",i+2);
+      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+    }
+
 
 
     // Some variable for nBtag recalculation
@@ -237,6 +248,12 @@ Ahmad33 */
 
     // see how often there are two leptons in the the event
     int dilepton_all=0, dilepton_pass=0;
+
+    // how often a muon does not match a jet
+    double muBin[]={0,20,40,60,80,100,1000};
+    int muNbin = sizeof(muBin)/sizeof(muBin[0]) -1 ; 
+    TH1 * MuJet_all  = new TH1D("MuJet_all","mu match jet vs. pT -- all",muNbin,muBin);
+    TH1 * MuJet_fail = new TH1D("MuJet_fail","mu match jet vs. pT -- fail",muNbin,muBin);
 
     int eventN=0;
     while( evt->loadNext() ){
@@ -261,18 +278,31 @@ Ahmad33 */
       // select muons with pt>20. eta<2.1 relIso<.2
       // vec_recoMuMTW.clear(); ????????????
       vec_recoMuon3vec.clear();
+
+vector<int> MuFromTauVec;//Ahmad33
+MuFromTauVec.clear();//Ahmad33
+
+
+/* Ahmad33
       for(int i=0; i< evt->MuPtVec_().size(); i++){
         double pt=evt->MuPtVec_().at(i);
         double eta=evt->MuEtaVec_().at(i);
         double phi=evt->MuPhiVec_().at(i);
+Ahmad33 */
+      for(int i=0; i< evt->GenMuPtVec_().size(); i++){ // Ahmad33
+        double pt=evt->GenMuPtVec_().at(i); // Ahmad33
+        double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
+        double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
         // double mu_mt_w =muonsMtw->at(i);  ????
         if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
           if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
           vec_recoMuon3vec.push_back(temp3vec);
+          MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
           // vec_recoMuMTW.push_back(mu_mt_w); ???????
         }
       }
+
 
       ///select electrons with pt>10. eta<2.5 relIso<.2
       vec_recoElec3vec.clear();
@@ -301,9 +331,12 @@ Ahmad33 */
         muPhi = vec_recoMuon3vec[0].Phi();
         // muMtW = vec_recoMuMTW[0]; ???????
 
+
+// Ahmad33
 dilepton_all++;
 if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)continue;
 dilepton_pass++;
+// Ahmad33
 
 
         // Get random number from tau-response template
@@ -337,20 +370,6 @@ dilepton_pass++;
           continue;
         }
 
-        // New Jet(Pt/Eta/Phi)Vec
-        vector<double> NewJetPtVec = evt->JetsPtVec_();
-        vector<double> NewJetEtaVec = evt->JetsEtaVec_();
-        vector<double> NewJetPhiVec = evt->JetsPhiVec_();
-
-        // If no jet matches the muon, the simulated tau jet will be added to the HTJet collection.
-        JetIdx=-1; 
-        if(!utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) && fabs(simTauJetEta)<2.4 && (simTauJetPt-muPt)>30.){
-          NewJetPtVec.push_back(simTauJetPt-muPt);
-          NewJetEtaVec.push_back(simTauJetEta);
-          NewJetPhiVec.push_back(simTauJetPhi);
-          if(verbose!=0)printf("No jet matched the muon. Adding a new jet.");
-        }
-
 
 
 //######################################################################
@@ -366,10 +385,12 @@ dilepton_pass++;
         MHT3JetVec.clear();
         TVector3 temp3Vec;
         int slimJetIdx=-1;
-        utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+        MuJet_all->Fill(muPt);
+        utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
         // If there is no match, add the tau jet as a new one
         if(slimJetIdx==-1){
-          NewTauJet3Vec=-Muon3Vec+SimTauJet3Vec;
+          MuJet_fail->Fill(muPt);
+          NewTauJet3Vec=SimTauJet3Vec;
           if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
           if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
         }
@@ -481,26 +502,22 @@ dilepton_pass++;
         if(verbose==1)printf("############ \n metX: %g, metY: %g \n",metX,metY);
         if(verbose==1)printf("evt->met: %g, evt->metphi: %g,muPt: %g simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),muPt,simTauJetPt,simTauJetPhi);
 
-        double template_met = sqrt(pow(metX,2)+pow(metY,2));
-        double template_metphi=-99.;
-        if(metX>0)template_metphi = atan(metY/metX);
-        else{
-          if(metY>0) template_metphi = 3.14+atan(metY/metX);
-          else template_metphi = -3.14+atan(metY/metX);
-        }
+        double newMet = sqrt(pow(metX,2)+pow(metY,2));
+        double newMetphi=-99.;
+        newMetphi=TMath::ATan2(metY,metX);
 
         if(verbose==1)printf("\n evt->ht(): %g evt->mht(): %g, evt->mhtphi(): %g \n ",evt->ht(),evt->mht(),evt->mhtphi());
-        if(verbose==1)printf("\n template_met: %g, template_metphi: %g \n ", template_met,template_metphi);
+        if(verbose==1)printf("\n newMet: %g, newMetphi: %g \n ", newMet,newMetphi);
 
         // New minDelPhi_N
         double dpnhat[3]; 
         unsigned int goodcount=0;
-        for(unsigned int i=0; i< NewJetPtVec.size();i++){
-          if(goodcount<3 && NewJetPtVec[i] > 30. && fabs( NewJetEtaVec[i] ) < 5. ){ 
-            float dphi=std::abs(TVector2::Phi_mpi_pi(NewJetPhiVec[i] - evt->metphi()));
-            float dT=DeltaT(i, NewJetPtVec,NewJetPhiVec);
-            if(dT/evt->met()>=1.0)dpnhat[goodcount]=dphi/(TMath::Pi()/2.0);
-            else dpnhat[goodcount]=dphi/asin(dT/evt->met());
+        for(unsigned int i=0; i< HT3JetVec.size();i++){
+          if(goodcount<3 && HT3JetVec[i].Pt() > 30. && fabs( HT3JetVec[i].Eta() ) < 5. ){ 
+            float dphi=std::abs(TVector2::Phi_mpi_pi(HT3JetVec[i].Phi() - newMetphi));
+            float dT=DeltaT(i,HT3JetVec);
+            if(dT/newMet>=1.0)dpnhat[goodcount]=dphi/(TMath::Pi()/2.0);
+            else dpnhat[goodcount]=dphi/asin(dT/newMet);
             ++goodcount;
           }
         }// end loop over jets
@@ -575,8 +592,10 @@ Ahmad33
 
 //Ahmad33
 Acc=1.; // temporary
-
-
+//Ahmad33
+Eff_Arne=1.; // temporary 
+//Ahmad33
+Prob_Tau_mu=0; // temporary
 
 
 
@@ -614,6 +633,8 @@ Acc=1.; // temporary
 
         double eveinfvec[] = {totWeight, newHT, newMHT ,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
 
+if(MuFromTauVec[0]==0){ // Ahmad33
+
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
@@ -637,6 +658,7 @@ Acc=1.; // temporary
             
           }//end of bg_type determination
         }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+} //Ahmad33
 
       } // End if exactly one muon
 
@@ -645,7 +667,18 @@ Acc=1.; // temporary
     double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
     printf("dilepton_all: %d dilepton_pass: %d \n ",dilepton_all,dilepton_pass);  
-  
+
+    // calculate muon_jet match failure and write the histograms
+    TH1D * MuJet_rate = static_cast<TH1D*>(MuJet_fail->Clone("MuJet_rate"));
+    MuJet_rate->Divide(MuJet_fail,MuJet_all,1,1,"B");
+    //Write
+    sprintf(tempname,"TauHad2/MuJetMatchRate_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile MuJetfile(tempname,"RECREATE");
+    MuJet_rate->Write();
+    MuJet_fail->Write();
+    MuJet_all->Write();
+    MuJetfile.Close();
+
     // open a file to write the histograms
     sprintf(tempname,"TauHad2/HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
@@ -695,22 +728,22 @@ Acc=1.; // temporary
 
   } // end of main
 
-  double DeltaT(unsigned int i, vector<double>JetPtvec,vector<double>JetPhivec ){
+  double DeltaT(unsigned int i, vector<TVector3> Jet3vec ){
 
       double deltaT=0;
       float jres=0.1;
       double sum=0;
-      double Jpx_i= JetPtvec[i]*cos(JetPhivec[i]);
-      double Jpy_i= JetPtvec[i]*sin(JetPhivec[i]);
+      double Jpx_i= Jet3vec[i].Pt()*cos(Jet3vec[i].Phi());
+      double Jpy_i= Jet3vec[i].Pt()*sin(Jet3vec[i].Phi());
 
-      for(unsigned int j=0; j< JetPtvec.size(); ++j){
+      for(unsigned int j=0; j< Jet3vec.size(); ++j){
           if(j==i)continue;
-          double Jpx_j= JetPtvec[j]*cos(JetPhivec[j]);
-          double Jpy_j= JetPtvec[j]*sin(JetPhivec[j]);
+          double Jpx_j= Jet3vec[j].Pt()*cos(Jet3vec[j].Phi());
+          double Jpy_j= Jet3vec[j].Pt()*sin(Jet3vec[j].Phi());
 
           sum=sum+(Jpx_i*Jpy_j-Jpx_j*Jpy_i) * (Jpx_i*Jpy_j-Jpx_j*Jpy_i);
       }
-      deltaT=jres*sqrt(sum)/JetPtvec[i];
+      deltaT=jres*sqrt(sum)/Jet3vec[i].Pt();
 
       return deltaT;
   }
