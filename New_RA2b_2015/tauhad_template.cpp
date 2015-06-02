@@ -223,7 +223,8 @@ using namespace std;
       for(int i=0;i<evt->GenElecPtVec_().size();i++){
         double elept=evt->GenElecPtVec_()[i];
         double eleeta=evt->GenElecEtaVec_()[i];
-        if(elept > LeptonAcceptance::electronPtMin() && std::abs(eleeta) < LeptonAcceptance::electronEtaMax())eleN++;
+// Ahmad33        if(elept > LeptonAcceptance::electronPtMin() && std::abs(eleeta) < LeptonAcceptance::electronEtaMax())eleN++;
+      eleN++; // Ahmad33
       }
 
       double muPt=-99;

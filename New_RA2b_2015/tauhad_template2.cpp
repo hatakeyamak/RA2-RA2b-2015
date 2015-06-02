@@ -221,15 +221,15 @@ Ahmad33 */
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoPTActivity");
 
-/*
+
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
-*/
 
+/*
     // Use Rishi's tau template 
     TFile * resp_file = new TFile("TauHad/Rishi_TauTemplate.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
@@ -237,7 +237,7 @@ Ahmad33 */
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
 
-
+*/
 
     // Some variable for nBtag recalculation
     int c1=0,c2=0,c3=0;
@@ -306,6 +306,7 @@ Ahmad33 */
 
       ///select electrons with pt>10. eta<2.5 relIso<.2
       vec_recoElec3vec.clear();
+/* Ahmad33
       for(int i=0; i< evt->ElecPtVec_().size(); i++){
         double pt=evt->ElecPtVec_().at(i);
         double eta=evt->ElecEtaVec_().at(i);
@@ -313,6 +314,11 @@ Ahmad33 */
         // double mu_mt_w =muonsMtw->at(i);  ????
 //        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
           // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
+Ahmad33 */
+      for(int i=0; i< evt->GenElecPtVec_().size(); i++){// Ahmad33
+        double pt=evt->GenElecPtVec_().at(i); // Ahmad33
+        double eta=evt->GenElecEtaVec_().at(i); // Ahmad33 
+        double phi=evt->GenElecPhiVec_().at(i); // Ahmad33
 
           if(verbose==2)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
           temp3vec.SetPtEtaPhi(pt,eta,phi);
