@@ -248,6 +248,7 @@ Ahmad33 */
 
     // see how often there are two leptons in the the event
     int dilepton_all=0, dilepton_pass=0;
+    int nCleanEve=0;
 
     // how often a muon does not match a jet
     double muBin[]={0,20,40,60,80,100,1000};
@@ -259,9 +260,12 @@ Ahmad33 */
     while( evt->loadNext() ){
       eventN++;
 
+      if(eventN>5000000)break;
+
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
 
+      nCleanEve++;
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -672,7 +676,7 @@ if(MuFromTauVec[0]==0){ // Ahmad33
   
     double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
-    printf("dilepton_all: %d dilepton_pass: %d \n ",dilepton_all,dilepton_pass);  
+    printf("nCleanEve: %d dilepton_all: %d dilepton_pass: %d \n ",nCleanEve,dilepton_all,dilepton_pass);  
 
     // calculate muon_jet match failure and write the histograms
     TH1D * MuJet_rate = static_cast<TH1D*>(MuJet_fail->Clone("MuJet_rate"));

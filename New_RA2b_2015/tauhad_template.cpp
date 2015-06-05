@@ -20,6 +20,7 @@
 #include "TChain.h"
 #include "TH1.h"
 #include "TVector2.h" 
+#include "TVector3.h"
 
 using namespace std;
 
@@ -143,13 +144,6 @@ using namespace std;
       hTauResp.at(i)->Sumw2();
     }
 
-    // The Purpose of the following two histograms is to find the probability as function of
-    // pt with wich a tau lepton decays hadronically. One is filled with any tau in the event
-    // while the other with only hadronic tau. At the end we divide them. That gives a
-    // distributions wich will be used later when simulating Jet_tau's with muons.
-
-    TH1D * genTauPtHist = new TH1D("genTauPtHist","genTauPt",10,0,250);
-    TH1D * genHadTauPtHist = new TH1D("genHadTauPtHist","genHadTauPt",10,0,250);
       
     // We would like also to have the pt distribution of the tau Jets
     TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
@@ -195,15 +189,24 @@ using namespace std;
     for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
       histobjmap[it->first]=histObj;
     }
+    
+    // count # events at different stages
+    int nCleanEve=0,nHadTauEve=0,nNoLepEve=0;    
+
+    vector<double> HadTauPtVec;
+    vector<double> HadTauEtaVec;
+    vector<double> HadTauPhiVec;
 
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-    //  if(eventN>100)break;
+      if(eventN>5000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
+
+      nCleanEve++;
 
       // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
       // comparing with /<<<< w--> mu >>>>/
@@ -257,30 +260,41 @@ using namespace std;
 
       // We are interested in hadronically decaying taus only
       bool hadTau=false; 
-      double genTauPt=-1;
-      double genTauPt0=-1;
-      double genTauEta=-99;
-      double genTauPhi=-99;
+      double genTauPt=-1.;
+      double genTauEta=-99.;
+      double genTauPhi=-99.;
+      HadTauPtVec.clear();
+      HadTauEtaVec.clear();
+      HadTauPhiVec.clear();
+     
       for(int i=0; i<evt->GenTauHadVec_().size();i++){
-        genTauPt0=evt->GenTauPtVec_()[0];
         if(evt->GenTauHadVec_()[i]==1){
-          genTauPt0=evt->GenTauPtVec_()[i];
-          hadTau=true;
-          genTauPt = evt->GenTauPtVec_()[i];
-          genTauEta = evt->GenTauEtaVec_()[i];
-          genTauPhi = evt->GenTauPhiVec_()[i];
-          break; // This is to pick the more energetic tau in the event if there are more than one. 
+          double pt=evt->GenTauPtVec_()[i];
+          double eta=evt->GenTauEtaVec_()[i];
+          double phi=evt->GenTauPhiVec_()[i];
+          HadTauPtVec.push_back(pt);
+          HadTauEtaVec.push_back(eta);
+          HadTauPhiVec.push_back(phi);
+          if(pt > genTauPt && fabs(eta)<LeptonAcceptance::muonEtaMax()){ //Ahmad33
+            genTauPt = pt;
+            genTauEta = eta;
+            genTauPhi = phi;
+          }
         }
-      }      
-      
-      genTauPtHist->Fill(genTauPt0);
+      }
+      if(HadTauPtVec.size()>0)hadTau=true;
+       
+ 
 
       if(hadTau==false)continue;
-      genHadTauPtHist->Fill(genTauPt);   
 
+      nHadTauEve++;
  
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || eleN!=0)continue;
+
+      nNoLepEve++;
+
       if(verbose!=0){
       printf(" ####################### \n event#: %d \n ",eventN-1); 
       
@@ -384,7 +398,8 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
           TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[i],evt->GenTauNuEtaVec_()[i],evt->GenTauNuPhiVec_()[i]);
         }
       }
-      Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
+      if(genTauPt>0.)Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
+      else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
       Visible3Vec=Tau3Vec-TauNu3Vec;
 
       if(verbose!=0){      
@@ -423,8 +438,8 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
       // because lateron we will apply the response to muon+jet events
       if(verbose!=0)printf("genTauPt:%g genTauEta: %g  \n ",genTauPt,genTauEta); 
 
-      if( genTauPt < 20. ) continue; // 10.
-      if( std::abs(genTauEta) > 2.1 ) continue; // 2.4
+      if( genTauPt < LeptonAcceptance::muonPtMin() ) continue; // 10.
+      if( std::abs(genTauEta) > LeptonAcceptance::muonEtaMax() ) continue; // 2.4
 
       if(verbose!=0)printf("genTauPt>20 and eta< 2.1 passed \n ");  
 
@@ -466,7 +481,7 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
 
     } // End of loop over events  
 
-
+    printf("nCleanEve: %d nHadTauEve: %d nNoLepEve: %d \n ",nCleanEve,nHadTauEve,nNoLepEve);
 
     //open a file to write the histograms
     sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
@@ -537,9 +552,6 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
     fgentTau_jet.Close();
 
 
-    // calculate the probability with which tau decays hadronically as function of pt
-    TH1D * genHadTauPtHist2 = static_cast<TH1D*>(genHadTauPtHist->Clone("genHadTauPtHist2"));
-    genHadTauPtHist2->Divide(genHadTauPtHist,genTauPtHist,1,1,"");
 
     // Normalize the response distributions to get the probability density
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
@@ -557,8 +569,6 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
       hTauResp.at(i)->Write();
       hTauResp.at(i)->SetLineColor(i);
     }
-    //c1->Print("HadTau_TauResponseTemplates.pdf");
-    genHadTauPtHist2->Write();
 
     tauJetPtHist->Write();
 
