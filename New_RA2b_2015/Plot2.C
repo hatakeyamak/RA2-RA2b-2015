@@ -125,7 +125,7 @@ Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int c
   double NBtag_x_max=4.;
   double search_x_max=19.;
   double search_x_min=0.;
-
+  double DelPhiN_x_max=20.;
   
   for(int i=0; i<filevec.size(); i++){
 
@@ -232,6 +232,21 @@ else{
       thist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
       gPad->SetLogy();
     }
+    if(histname=="MET"){
+      sprintf(xtitlename,"MET (GeV)");
+      sprintf(ytitlename,"Events / 100 GeV");
+      thist->SetMaximum(50000);
+      thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+      gPad->SetLogy();
+      //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
+    }
+    if(histname=="DelPhiN"){
+      sprintf(xtitlename,"DelPhiN");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(500);
+      thist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
+    }    
+
     if(i==0){
 //      thist->Draw();
       thist->SetFillStyle(3004);
@@ -316,6 +331,17 @@ else{
         EstHist->GetXaxis()->SetRangeUser(0.,NJet_x_max);
         TLine *tline = new TLine(0.,1.,NJet_x_max,1.);
       }
+      if(histname=="MET"){
+        sprintf(xtitlename,"MET (GeV)");
+        EstHist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+        TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
+      }
+      if(histname=="DelPhiN"){
+        sprintf(xtitlename,"DelPhiN");
+        EstHist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
+        TLine *tline = new TLine(0.,1.,DelPhiN_x_max,1.);
+      }
+      
 
       // Setting style
       //EstHist->SetMaximum(1.4);
@@ -385,7 +411,16 @@ else{
         denominator->GetXaxis()->SetRangeUser(0.,NJet_x_max);
         TLine *tline = new TLine(0.,-.1,NJet_x_max,.1);
       }
-
+      if(histname=="MET"){
+        sprintf(xtitlename,"MET (GeV)");
+        denominator->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+        TLine *tline = new TLine(0.,-.1,MHT_x_max,.1);
+      }
+      if(histname=="DelPhiN"){
+        sprintf(xtitlename,"DelPhiN");
+        denominator->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
+        TLine *tline = new TLine(0.,-.1,DelPhiN_x_max,.1);
+      }
       // Setting style
       //denominator->SetMaximum(1.4);
       //denominator->GetXaxis()->SetLabelFont(42);

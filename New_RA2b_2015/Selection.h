@@ -29,11 +29,10 @@ public:
   bool mht_200_500(double mht_){if(mht_>=200 && mht_<500)return true; return false;}
   bool mht_500_750(double mht_){if(mht_>=500 && mht_<750)return true; return false;}
   bool mht_750(double mht_){if(mht_>=750)return true; return false;}
-//  bool dphi(double dPhi0, double dPhi1, double dPhi2){if(dPhi0>0.5 && dPhi1>0.3 && dPhi2>0.3)return true; return false;}
 
-
+  bool dphi(double dPhi0, double dPhi1, double dPhi2){if(dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3)return true; return false;}
 //  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 6.)return true; return false;}
-bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;} // Ahmad33
+//  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;} // Ahmad33
 
 
 
@@ -63,8 +62,11 @@ bool PionIsoTrk(int nPionIso_){return true;} // Ahmad33
 
 
 
-  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
-  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
+//  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
+//  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
+  bool checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
+  bool checkcut_HadTau(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
+
 
 };
 

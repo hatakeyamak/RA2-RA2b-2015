@@ -98,6 +98,21 @@ using namespace std;
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();
     vec.push_back(RA2MHT_hist);
+    TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
+    RA2MET_hist.Sumw2();
+    vec.push_back(RA2MET_hist);
+    TH1D RA2DelPhiN_hist = TH1D("DelPhiN","DelPhiN Distribution",20,0,20);
+    RA2DelPhiN_hist.Sumw2();
+    vec.push_back(RA2DelPhiN_hist);
+    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",20,0,20);
+    RA2DelPhi1_hist.Sumw2();
+    vec.push_back(RA2DelPhi1_hist);
+    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",20,0,20);
+    RA2DelPhi2_hist.Sumw2();
+    vec.push_back(RA2DelPhi2_hist);
+    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",20,0,20);
+    RA2DelPhi3_hist.Sumw2();
+    vec.push_back(RA2DelPhi3_hist);
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
     RA2NJet_hist.Sumw2();
     vec.push_back(RA2NJet_hist);
@@ -551,6 +566,43 @@ dilepton_pass++;
         // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
         if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
 
+        // New dphi1, dphi2, and dphi3
+        double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.;
+        //first order the jets based on their pT
+        double p1=0,p2=0,p3=0;
+        int i1=-1,i2=-1,i3=-1;
+        for(int i=0; i < HT3JetVec.size(); i++ ){
+          if(HT3JetVec[i].Pt()>p1){
+            p1=HT3JetVec[i].Pt();
+            i1=i;
+          }
+        }
+        for(int i=0; i < HT3JetVec.size(); i++ ){
+          if(i==i1)continue;
+          if(HT3JetVec[i].Pt()>p2){
+            p2=HT3JetVec[i].Pt();
+            i2=i;
+          }
+        }
+        for(int i=0; i < HT3JetVec.size(); i++ ){
+          if(i==i1 || i==i2)continue;
+          if(HT3JetVec[i].Pt()>p3){
+            p3=HT3JetVec[i].Pt();
+            i3=i;
+          }
+        }
+
+        if(i1!=-1)newDphi1=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i1].Phi() - newMetphi ));
+        if(i2!=-1)newDphi2=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i2].Phi() - newMetphi ));
+        if(i3!=-1)newDphi3=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i3].Phi() - newMetphi ));
+        
+        if(verbose!=0){
+          printf("newDphi1: %g newDphi2: %g newDphi3: %g \n ",newDphi1,newDphi2,newDphi3);
+          printf("i1: %d p1: %g i2: %d p2: %g i3: %d p3: %g \n ",i1,p1,i2,p2,i3,p3);
+          for(int i=0; i < HT3JetVec.size(); i++){
+            printf("i: %d HT3JetVec[i].Pt(): %g \n ",i,HT3JetVec[i].Pt());
+          }
+        }
 
 
         // get the effieciencies and acceptance
@@ -641,7 +693,7 @@ Prob_Tau_mu=0; // temporary
 
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-        double eveinfvec[] = {totWeight, newHT, newMHT ,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
+        double eveinfvec[] = {totWeight, newHT, newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
 
 if(MuFromTauVec[0]==0){ // Ahmad33
 
@@ -657,7 +709,8 @@ if(MuFromTauVec[0]==0){ // Ahmad33
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
 
-              if(sel->checkcut_HadTau(ite->first,newHT,newMHT,mindpn,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+//              if(sel->checkcut_HadTau(ite->first,newHT,newMHT,mindpn,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+              if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
 

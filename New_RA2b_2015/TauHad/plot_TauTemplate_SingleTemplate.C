@@ -60,6 +60,8 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
   TFile *file_Rishi_TTbar         = new TFile("Rishi_TTJetsResponse.root","R");
   TFile *file_Rishi_TTbar_new         = new TFile("Rishi_TTJetsResponse_new.root","R");
 
+  TFile *file_Ahmad_OldCone        = new TFile("NormalConeHadTau_TauResponseTemplates_TTbar_.root","R");
+
   TH1D * thist;
   catLeg1->SetHeader("p_{T}(#tau^{had}) [GeV]");
 
@@ -67,7 +69,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     thist = (TH1D*)file_13TeV->Get(tempname)->Clone();
     sprintf(tempname2,"hTauResp_%d_AB",i);
     thist->SetName(tempname2);
-    thist->SetLineColor(i+1);
+    thist->SetLineColor(6);
     thist->SetFillColor(0);
     thist->SetLineWidth(3);
 
@@ -128,7 +130,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     }
     sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
     thist_Rishi_TTbar_new->SetName(tempname2);
-    thist_Rishi_TTbar_new->SetLineColor(i+1);
+    thist_Rishi_TTbar_new->SetLineColor(3);
     thist_Rishi_TTbar_new->SetLineWidth(3);
     thist_Rishi_TTbar_new->SetLineStyle(2);
     thist_Rishi_TTbar_new->Draw("same,hist");
@@ -151,7 +153,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     }
     sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
     thist_Rishi_TTbar->SetName(tempname2);
-    thist_Rishi_TTbar->SetLineColor(i+1);
+    thist_Rishi_TTbar->SetLineColor(2);
     thist_Rishi_TTbar->SetLineWidth(3);
     thist_Rishi_TTbar->SetLineStyle(8);
     thist_Rishi_TTbar->Draw("same,hist");
@@ -162,6 +164,28 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     sprintf(tempname,"Rishi_TTbar_old");
     catLeg1->AddEntry(thist_Rishi_TTbar,tempname,"l");
   }
+
+  TH1D * thist_Ahmad_OldCone;
+  if (icomp==3){
+    sprintf(tempname,"hTauResp_%d",i);
+    thist_Ahmad_OldCone = (TH1D*)file_Ahmad_OldCone->Get(tempname)->Clone();
+    if(thist_Ahmad_OldCone->Integral("width") > 0.){
+     thist_Ahmad_OldCone->Scale(1./thist_Ahmad_OldCone->Integral("width"));
+    }
+    sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
+    thist_Ahmad_OldCone->SetName(tempname2);
+    thist_Ahmad_OldCone->SetLineColor(1);
+    thist_Ahmad_OldCone->SetLineWidth(3);
+    thist_Ahmad_OldCone->SetLineStyle(8);
+    thist_Ahmad_OldCone->Draw("same,hist");
+/*    if(i==0)sprintf(tempname,"20 - 30: Rishi_TTbar");
+    if(i==1)sprintf(tempname,"30 - 50: Rishi_TTbar");
+    if(i==2)sprintf(tempname,"50 - 100:Rishi_TTbar");
+    if(i==3)sprintf(tempname,">100: Rishi_TTbar");*/
+    sprintf(tempname,"Ahmad_DelR=.1/.2");
+    catLeg1->AddEntry(thist_Ahmad_OldCone,tempname,"l");
+  }
+
 
   catLeg1->Draw();  
 

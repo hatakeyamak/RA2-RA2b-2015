@@ -103,6 +103,21 @@ using namespace std;
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();
     vec.push_back(RA2MHT_hist);
+    TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
+    RA2MET_hist.Sumw2();
+    vec.push_back(RA2MET_hist);   
+    TH1D RA2DelPhiN_hist = TH1D("DelPhiN","DelPhiN Distribution",20,0,20);
+    RA2DelPhiN_hist.Sumw2();
+    vec.push_back(RA2DelPhiN_hist); 
+    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",20,0,20);
+    RA2DelPhi1_hist.Sumw2();
+    vec.push_back(RA2DelPhi1_hist);
+    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",20,0,20);
+    RA2DelPhi2_hist.Sumw2();
+    vec.push_back(RA2DelPhi2_hist);
+    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",20,0,20);
+    RA2DelPhi3_hist.Sumw2();
+    vec.push_back(RA2DelPhi3_hist);    
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
     RA2NJet_hist.Sumw2();
     vec.push_back(RA2NJet_hist);
@@ -348,7 +363,7 @@ using namespace std;
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
-      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
+      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
 // Ahmad33 this is to remove acceptance role to check other sources of error. 
@@ -366,7 +381,8 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
           //////loop over cut names and fill the histograms
           for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+//            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
               histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
             }
           }//end of loop over cut names
@@ -427,7 +443,8 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
         // Select tau jet
         if( jetIdx == tauJetIdx ) {
           // Fill the tauJetPtHist after the cut "delphi" 
-          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
+//          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
+          if(sel->checkcut("delphi",evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true)tauJetPtHist->Fill( evt->slimJetPtVec_().at(jetIdx), tauJetWeight);// this is tauJetPt that later is defined.
 
           break; // End the jet loop once the tau jet has been found
         }

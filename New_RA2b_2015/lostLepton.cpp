@@ -94,7 +94,8 @@ using namespace std;
       if( !sel->ht_500(evt->ht()) ) continue;
       if( !sel->mht_200(evt->mht()) ) continue;
       // Apply the delta-phi cuts
-      if( !sel->dphi(evt->minDeltaPhiN()) ) continue;
+//      if( !sel->dphi(evt->minDeltaPhiN()) ) continue;
+      if( !sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) ) continue;
 
       if(verbose!=0)printf("\n############ \n event: %d \n ",eventN-1);
 
