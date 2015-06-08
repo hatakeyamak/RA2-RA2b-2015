@@ -78,16 +78,17 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
     int TauResponse_nBins=4;
-    vector<TH1*> vec_resp;
+    vector<TH1*> vec_resp, vec_resp_x,vec_resp_y;
+    vector<TH2*> vec_resp_xy;
     vector<TVector3> vec_recoMuon3vec;
     vector<TVector3> vec_recoElec3vec;
     TVector3 temp3vec;
     double muPt;
     double muEta;
     double muPhi;
-    double simTauJetPt;
+    double simTauJetPt,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy;
     double simTauJetEta;
-    double simTauJetPhi;
+    double simTauJetPhi,simTauJetPhi_xy;
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -104,13 +105,13 @@ using namespace std;
     TH1D RA2DelPhiN_hist = TH1D("DelPhiN","DelPhiN Distribution",20,0,20);
     RA2DelPhiN_hist.Sumw2();
     vec.push_back(RA2DelPhiN_hist);
-    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",20,0,20);
+    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",50,0,5);
     RA2DelPhi1_hist.Sumw2();
     vec.push_back(RA2DelPhi1_hist);
-    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",20,0,20);
+    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",50,0,5);
     RA2DelPhi2_hist.Sumw2();
     vec.push_back(RA2DelPhi2_hist);
-    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",20,0,20);
+    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",50,0,5);
     RA2DelPhi3_hist.Sumw2();
     vec.push_back(RA2DelPhi3_hist);
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
@@ -238,20 +239,26 @@ Ahmad33 */
 
 
     // Use Ahmad's tau template
-    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
+//    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
+    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      sprintf(histname,"hTauResp_%d_x",i);
+      vec_resp_x.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      sprintf(histname,"hTauResp_%d_y",i);
+      vec_resp_y.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      sprintf(histname,"hTauResp_%d_xy",i);
+      vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
     }
 
 /*
     // Use Rishi's tau template 
-    TFile * resp_file = new TFile("TauHad/Rishi_TauTemplate.root","R");
+    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
-      sprintf(histname,"response%d",i+2);
+      sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
-
 */
 
     // Some variable for nBtag recalculation
@@ -275,7 +282,7 @@ Ahmad33 */
     while( evt->loadNext() ){
       eventN++;
 
-      if(eventN>5000000)break;
+//      if(eventN>1000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -367,10 +374,22 @@ dilepton_pass++;
         // Get random number from tau-response template
         // The template is chosen according to the muon pt
         const double scale = utils->getRandom(muPt,vec_resp );
+//        const double scale_x = utils->getRandom(muPt,vec_resp_x );
+//        const double scale_y = utils->getRandom(muPt,vec_resp_y );
+        Double_t scale_x=0,scale_y=0;
+        utils->getRandom2(muPt,vec_resp_xy,scale_x,scale_y );
 
+  
         simTauJetPt = scale * muPt;
         simTauJetEta = muEta;
         simTauJetPhi = muPhi;
+
+        double simTauJetPt_x = scale_x * muPt;  
+        double simTauJetPt_y = scale_y * muPt;
+        simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
+        simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
+
+        if(verbose!=0)printf(" \n ######### \n scale_x: %g scale_y: %g \n simTauJetPt_x: %g simTauJetPt_y: %g \n simTauJetPt_xy: %g simTauJetPt: %g \n simTauJetPhi_xy: %g simTauJetPhi: %g \n",scale_x,scale_y,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy,simTauJetPt,simTauJetPhi_xy,simTauJetPhi);
 
         // The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And,
         // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
@@ -378,7 +397,7 @@ dilepton_pass++;
         //Identify the jet containing the muon
         const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
         int JetIdx=-1;
-        if(verbose==1 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+        if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
         }
 
@@ -401,7 +420,7 @@ dilepton_pass++;
 
         // 3Vec of muon and scaledMu 
         TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
-        SimTauJet3Vec.SetPtEtaPhi(simTauJetPt,simTauJetEta,simTauJetPhi);
+        SimTauJet3Vec.SetPtEtaPhi(simTauJetPt_xy,simTauJetEta,simTauJetPhi_xy);
         Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
         // New ht and mht 
@@ -433,6 +452,18 @@ dilepton_pass++;
           }
           
         }
+
+        // Order the HT3JetVec and MHT3JetVec based on their pT
+        HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
+        MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
+/*
+        for(int i=0; i<HT3JetVec.size();i++){
+        printf("HT3JetVec[i].Pt(): %g HT3JetVec[i].Eta(): %g HT3JetVec[i].Phi(): %g \n ",HT3JetVec[i].Pt(),HT3JetVec[i].Eta(),HT3JetVec[i].Phi());
+        }
+        for(int i=0; i<MHT3JetVec.size();i++){
+        printf("MHT3JetVec[i].Pt(): %g MHT3JetVec[i].Eta(): %g MHT3JetVec[i].Phi(): %g \n ",MHT3JetVec[i].Pt(),MHT3JetVec[i].Eta(),MHT3JetVec[i].Phi());
+        }
+*/
 
         double newHT=0,newMHT=0,newMHTPhi=-1;
         TVector3 newMHT3Vec;
@@ -521,11 +552,11 @@ dilepton_pass++;
              
             
         //New MET
-        double metX = evt->met()*cos(evt->metphi())-(simTauJetPt-muPt)*cos(simTauJetPhi);///the minus sign is because of Mht definition.
-        double metY = evt->met()*sin(evt->metphi())-(simTauJetPt-muPt)*sin(simTauJetPhi);
+        double metX = evt->met()*cos(evt->metphi())-simTauJetPt_xy*cos(simTauJetPhi_xy)+muPt*cos(muPhi);///the minus sign is because of Mht definition.
+        double metY = evt->met()*sin(evt->metphi())-simTauJetPt_xy*cos(simTauJetPhi_xy)+muPt*sin(muPhi);
 
         if(verbose==1)printf("############ \n metX: %g, metY: %g \n",metX,metY);
-        if(verbose==1)printf("evt->met: %g, evt->metphi: %g,muPt: %g simTauJetPt: %g, simTauJetPhi: %g \n",evt->met(),evt->metphi(),muPt,simTauJetPt,simTauJetPhi);
+        if(verbose==1)printf("evt->met: %g, evt->metphi: %g,muPt: %g simTauJetPt: %g, simTauJetPhi_xy: %g \n",evt->met(),evt->metphi(),muPt,simTauJetPt,simTauJetPhi_xy);
 
         double newMet = sqrt(pow(metX,2)+pow(metY,2));
         double newMetphi=-99.;
@@ -693,7 +724,7 @@ Prob_Tau_mu=0; // temporary
 
         //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-        double eveinfvec[] = {totWeight, newHT, newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt};
+        double eveinfvec[] = {totWeight, newHT, newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt_xy};
 
 if(MuFromTauVec[0]==0){ // Ahmad33
 

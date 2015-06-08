@@ -56,11 +56,8 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
   TFile *file_13TeV_NoLowPtJet = new TFile("../../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R"); 
   TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
 
-  TFile *file_Rishi_TauGun         = new TFile("Rishi_TauTemplate.root","R");
-  TFile *file_Rishi_TTbar         = new TFile("Rishi_TTJetsResponse.root","R");
-  TFile *file_Rishi_TTbar_new         = new TFile("Rishi_TTJetsResponse_new.root","R");
+  TFile *file_Rishi_TauGun         = new TFile("HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
 
-  TFile *file_Ahmad_OldCone        = new TFile("NormalConeHadTau_TauResponseTemplates_TTbar_.root","R");
 
   TH1D * thist;
   catLeg1->SetHeader("p_{T}(#tau^{had}) [GeV]");
@@ -99,7 +96,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     if(i==3)sprintf(tempname,">100");
     catLeg1->AddEntry(thist,tempname,"l");
   catLeg1->Draw();
-/*
+
   TH1D * thist_Rishi_TauGun;
   if (icomp==3){
     sprintf(tempname,"response%d",i+2);
@@ -119,72 +116,45 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     if(i==3)sprintf(tempname,">100: Rishi_TauGun");
     catLeg1->AddEntry(thist_Rishi_TauGun,tempname,"l");
   }
-*/
 
-  TH1D * thist_Rishi_TTbar_new;
-  if (icomp==3){
-    sprintf(tempname,"response%d",i+2);
-    thist_Rishi_TTbar_new = (TH1D*)file_Rishi_TTbar_new->Get(tempname)->Clone();
-    if(thist_Rishi_TTbar_new->Integral("width") > 0.){
-     thist_Rishi_TTbar_new->Scale(1./thist_Rishi_TTbar_new->Integral("width"));
+
+
+
+  TH1D * thist_Template_x;
+  if (icomp==4){
+    sprintf(tempname,"hTauResp_%d_x",i);
+    thist_Template_x = (TH1D*)file_13TeV->Get(tempname)->Clone();
+    if(thist_Template_x->Integral("width") > 0.){
+     thist_Template_x->Scale(1./thist_Template_x->Integral("width"));
     }
-    sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
-    thist_Rishi_TTbar_new->SetName(tempname2);
-    thist_Rishi_TTbar_new->SetLineColor(3);
-    thist_Rishi_TTbar_new->SetLineWidth(3);
-    thist_Rishi_TTbar_new->SetLineStyle(2);
-    thist_Rishi_TTbar_new->Draw("same,hist");
-/*    if(i==0)sprintf(tempname,"20 - 30: Rishi_TTbar");
-    if(i==1)sprintf(tempname,"30 - 50: Rishi_TTbar");
-    if(i==2)sprintf(tempname,"50 - 100:Rishi_TTbar");
-    if(i==3)sprintf(tempname,">100: Rishi_TTbar");*/
-    sprintf(tempname,"Rishi_TTbar_new");
-    catLeg1->AddEntry(thist_Rishi_TTbar_new,tempname,"l");
+    sprintf(tempname2,"hTauResp_%d_X",i);
+    thist_Template_x->SetName(tempname2);
+    thist_Template_x->SetLineColor(1);
+    thist_Template_x->SetLineWidth(3);
+    thist_Template_x->SetLineStyle(8);
+    thist_Template_x->Draw("same,hist");
+    sprintf(tempname,"template_X");
+    catLeg1->AddEntry(thist_Template_x,tempname,"l");
   }
 
 
-
-  TH1D * thist_Rishi_TTbar;
-  if (icomp==3){
-    sprintf(tempname,"response%d",i+2);
-    thist_Rishi_TTbar = (TH1D*)file_Rishi_TTbar->Get(tempname)->Clone();
-    if(thist_Rishi_TTbar->Integral("width") > 0.){
-     thist_Rishi_TTbar->Scale(1./thist_Rishi_TTbar->Integral("width")); 
+  TH1D * thist_Template_y;
+  if (icomp==4){
+    sprintf(tempname,"hTauResp_%d_y",i);
+    thist_Template_y = (TH1D*)file_13TeV->Get(tempname)->Clone();
+    if(thist_Template_y->Integral("width") > 0.){
+     thist_Template_y->Scale(1./thist_Template_y->Integral("width"));
     }
-    sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
-    thist_Rishi_TTbar->SetName(tempname2);
-    thist_Rishi_TTbar->SetLineColor(2);
-    thist_Rishi_TTbar->SetLineWidth(3);
-    thist_Rishi_TTbar->SetLineStyle(8);
-    thist_Rishi_TTbar->Draw("same,hist");
-/*    if(i==0)sprintf(tempname,"20 - 30: Rishi_TTbar");
-    if(i==1)sprintf(tempname,"30 - 50: Rishi_TTbar");
-    if(i==2)sprintf(tempname,"50 - 100:Rishi_TTbar");
-    if(i==3)sprintf(tempname,">100: Rishi_TTbar");*/
-    sprintf(tempname,"Rishi_TTbar_old");
-    catLeg1->AddEntry(thist_Rishi_TTbar,tempname,"l");
+    sprintf(tempname2,"hTauResp_%d_Y",i);
+    thist_Template_y->SetName(tempname2);
+    thist_Template_y->SetLineColor(2);
+    thist_Template_y->SetLineWidth(3);
+    thist_Template_y->SetLineStyle(8);
+    thist_Template_y->Draw("same,hist");
+    sprintf(tempname,"template_Y");
+    catLeg1->AddEntry(thist_Template_y,tempname,"l");
   }
 
-  TH1D * thist_Ahmad_OldCone;
-  if (icomp==3){
-    sprintf(tempname,"hTauResp_%d",i);
-    thist_Ahmad_OldCone = (TH1D*)file_Ahmad_OldCone->Get(tempname)->Clone();
-    if(thist_Ahmad_OldCone->Integral("width") > 0.){
-     thist_Ahmad_OldCone->Scale(1./thist_Ahmad_OldCone->Integral("width"));
-    }
-    sprintf(tempname2,"hTauResp_%d_Rishi_TTbar",i);
-    thist_Ahmad_OldCone->SetName(tempname2);
-    thist_Ahmad_OldCone->SetLineColor(1);
-    thist_Ahmad_OldCone->SetLineWidth(3);
-    thist_Ahmad_OldCone->SetLineStyle(8);
-    thist_Ahmad_OldCone->Draw("same,hist");
-/*    if(i==0)sprintf(tempname,"20 - 30: Rishi_TTbar");
-    if(i==1)sprintf(tempname,"30 - 50: Rishi_TTbar");
-    if(i==2)sprintf(tempname,"50 - 100:Rishi_TTbar");
-    if(i==3)sprintf(tempname,">100: Rishi_TTbar");*/
-    sprintf(tempname,"Ahmad_DelR=.1/.2");
-    catLeg1->AddEntry(thist_Ahmad_OldCone,tempname,"l");
-  }
 
 
   catLeg1->Draw();  

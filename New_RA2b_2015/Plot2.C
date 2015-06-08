@@ -126,6 +126,7 @@ Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int c
   double search_x_max=19.;
   double search_x_min=0.;
   double DelPhiN_x_max=20.;
+  double Delphi1_x_max=5.;
   
   for(int i=0; i<filevec.size(); i++){
 
@@ -245,7 +246,26 @@ else{
       sprintf(ytitlename,"Events");
       thist->SetMaximum(500);
       thist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
-    }    
+    }   
+    if(histname=="DelPhi1"){
+      sprintf(xtitlename,"DelPhi1");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(200);
+      thist->SetMinimum(-10);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    }
+    if(histname=="DelPhi2"){
+      sprintf(xtitlename,"DelPhi2");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(500);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    }
+    if(histname=="DelPhi3"){
+      sprintf(xtitlename,"DelPhi3");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(500);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    } 
 
     if(i==0){
 //      thist->Draw();
@@ -341,6 +361,22 @@ else{
         EstHist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
         TLine *tline = new TLine(0.,1.,DelPhiN_x_max,1.);
       }
+      if(histname=="DelPhi1"){
+        sprintf(xtitlename,"DelPhi1");
+        EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
+      if(histname=="DelPhi2"){
+        sprintf(xtitlename,"DelPhi2");
+        EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
+      if(histname=="DelPhi3"){
+        sprintf(xtitlename,"DelPhi3");
+        EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
+
       
 
       // Setting style
@@ -421,6 +457,22 @@ else{
         denominator->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
         TLine *tline = new TLine(0.,-.1,DelPhiN_x_max,.1);
       }
+      if(histname=="DelPhi1"){
+        sprintf(xtitlename,"DelPhi1");
+        denominator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,-.1,Delphi1_x_max,.1);
+      }
+      if(histname=="DelPhi2"){
+        sprintf(xtitlename,"DelPhi2");
+        denominator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,-.1,Delphi1_x_max,.1);
+      }
+      if(histname=="DelPhi3"){
+        sprintf(xtitlename,"DelPhi3");
+        denominator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,-.1,Delphi1_x_max,.1);
+      }
+
       // Setting style
       //denominator->SetMaximum(1.4);
       //denominator->GetXaxis()->SetLabelFont(42);

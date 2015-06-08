@@ -109,13 +109,13 @@ using namespace std;
     TH1D RA2DelPhiN_hist = TH1D("DelPhiN","DelPhiN Distribution",20,0,20);
     RA2DelPhiN_hist.Sumw2();
     vec.push_back(RA2DelPhiN_hist); 
-    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",20,0,20);
+    TH1D RA2DelPhi1_hist = TH1D("DelPhi1","DelPhi1 Distribution",50,0,5);
     RA2DelPhi1_hist.Sumw2();
     vec.push_back(RA2DelPhi1_hist);
-    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",20,0,20);
+    TH1D RA2DelPhi2_hist = TH1D("DelPhi2","DelPhi2 Distribution",50,0,5);
     RA2DelPhi2_hist.Sumw2();
     vec.push_back(RA2DelPhi2_hist);
-    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",20,0,20);
+    TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",50,0,5);
     RA2DelPhi3_hist.Sumw2();
     vec.push_back(RA2DelPhi3_hist);    
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
@@ -154,9 +154,18 @@ using namespace std;
     
     // They are filled for different bins in generated tau-lepton pt.
     std::vector<TH1*> hTauResp(utils->TauResponse_nBins_());
+    std::vector<TH1*> hTauResp_x(utils->TauResponse_nBins_());
+    std::vector<TH1*> hTauResp_y(utils->TauResponse_nBins_());
+    std::vector<TH2*> hTauResp_xy(utils->TauResponse_nBins_());
     for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
       hTauResp.at(i) = new TH1D(utils->TauResponse_name(i),";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauResp.at(i)->Sumw2();
+      hTauResp_x.at(i) = new TH1D(utils->TauResponse_name(i)+"_x",";p_{T}(visible)_x / p_{T}(generated-#tau);Probability",50,0.,2.5);
+      hTauResp_x.at(i)->Sumw2();
+      hTauResp_y.at(i) = new TH1D(utils->TauResponse_name(i)+"_y",";p_{T}(visible)_y / p_{T}(generated-#tau);Probability",50,-2.5,2.5);
+      hTauResp_y.at(i)->Sumw2();
+      hTauResp_xy.at(i) = new TH2D(utils->TauResponse_name(i)+"_xy",";p_{T}(visible)_x / p_{T}(generated-#tau);p_{T}(visible)_y / p_{T}(generated-#tau)",50,0.,2.5,40,-1.,1.);
+      hTauResp_xy.at(i)->Sumw2();
     }
 
       
@@ -216,7 +225,7 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-      if(eventN>5000000)break;
+//      if(eventN>5000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -488,6 +497,14 @@ if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->de
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt );
 
+          double tauJetPhi = evt->slimJetPhiVec_().at(jetIdx);
+          const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
+          const double tauJetPt_y = tauJetPt * sin( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ); 
+          hTauResp_x.at(ptBin)->Fill( tauJetPt_x / genTauPt );
+          hTauResp_y.at(ptBin)->Fill( tauJetPt_y / genTauPt );
+
+          hTauResp_xy.at(ptBin)->Fill(tauJetPt_x / genTauPt , tauJetPt_y / genTauPt );
+
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
 
           break; // End the jet loop once the tau jet has been found
@@ -576,6 +593,18 @@ if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->de
         // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
         hTauResp.at(i)->Scale(1./hTauResp.at(i)->Integral("width"));
       }
+      if( hTauResp_x.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hTauResp_x.at(i)->Scale(1./hTauResp_x.at(i)->Integral("width"));
+      }
+      if( hTauResp_y.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hTauResp_y.at(i)->Scale(1./hTauResp_y.at(i)->Integral("width"));
+      }
+      if( hTauResp_xy.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hTauResp_xy.at(i)->Scale(1./hTauResp_xy.at(i)->Integral("width"));
+      }
     }
 
     // --- Save the Histograms to File -----------------------------------
@@ -585,6 +614,13 @@ if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->de
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
       hTauResp.at(i)->Write();
       hTauResp.at(i)->SetLineColor(i);
+      hTauResp_x.at(i)->Write();
+      hTauResp_x.at(i)->SetLineColor(i);
+      hTauResp_y.at(i)->Write();
+      hTauResp_y.at(i)->SetLineColor(i);      
+      hTauResp_xy.at(i)->Write();
+      hTauResp_xy.at(i)->SetLineColor(i);
+      
     }
 
     tauJetPtHist->Write();

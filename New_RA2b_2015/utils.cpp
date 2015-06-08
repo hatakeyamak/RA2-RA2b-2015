@@ -78,6 +78,10 @@ using namespace std;
       return vec_resp[bin]->GetRandom();
     }
 
+    void Utils::getRandom2(double muPt_,vector<TH2*> vec_resp_xy,Double_t & scale_x,Double_t & scale_y){
+      int bin = TauResponse_ptBin(muPt_);
+      vec_resp_xy[bin]->GetRandom2(scale_x,scale_y);
+    }
     
     // Activity variable. Muon isolation and efficiency depends on muon's pT and activity variable.
     // The latter maens the amount of hadronic activity around the muon. The higher this is, the harder 
@@ -90,6 +94,21 @@ using namespace std;
         result+=JetPtVec[i]*( JetChargedEmEnergyFraction[i] + JetChargedHadronEnergyFraction[i] );
       }
       return result;
+    }
+
+    vector<TVector3> Utils::Order_the_Vec(vector<TVector3> vec){
+      vector<TVector3> vecjvec=vec;
+      int key=1;
+      while(key!=0){
+        key=0;
+        for(int iv=0; iv<((int)vecjvec.size()-1);iv++){
+          if(vecjvec[iv].Pt()<vecjvec[iv+1].Pt()){
+            swap(vecjvec[iv],vecjvec[iv+1]);
+            key+=1;
+          }
+        }
+      }
+      return vecjvec;
     }
 
 

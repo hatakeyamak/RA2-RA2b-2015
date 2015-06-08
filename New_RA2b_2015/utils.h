@@ -1,5 +1,7 @@
 #include "TH1.h"
+#include "TH2.h"
 #include "TVector2.h"
+#include "TVector3.h"
 #include <cstdio>
 #include <iostream>
 #include "TString.h"
@@ -35,5 +37,9 @@ public:
     double getRandom(double muPt_,vector<TH1*> vec_resp);
 
     double MuActivity(double muEta, double muPhi, vector<double> JetPtVec,vector<double> JetEtaVec, vector<double> JetPhiVec,vector<double> JetChargedEmEnergyFraction, vector<double> JetChargedHadronEnergyFraction);
+
+    vector<TVector3> Order_the_Vec(vector<TVector3> vec);
+    
+    void getRandom2(double muPt_,vector<TH2*> vec_resp_xy,Double_t & scale_x,Double_t & scale_y);
 };
 
