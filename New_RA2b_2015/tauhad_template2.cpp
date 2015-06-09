@@ -215,12 +215,12 @@ using namespace std;
 
 
     // Rate of bTagged tau jet
-    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_.root","R");
+    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_Elog195.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
@@ -277,6 +277,17 @@ Ahmad33 */
     int muNbin = sizeof(muBin)/sizeof(muBin[0]) -1 ; 
     TH1 * MuJet_all  = new TH1D("MuJet_all","mu match jet vs. pT -- all",muNbin,muBin);
     TH1 * MuJet_fail = new TH1D("MuJet_fail","mu match jet vs. pT -- fail",muNbin,muBin);
+
+    // Determine which model to work with
+    // 0: The most simple model
+    // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
+    // 2:
+    int TauHadModel=1;    
+
+    if(TauHadModel!=0 && TauHadModel!=1){
+      cout << " The model is not recognized ! \n ";
+      return 1;
+    }
 
     int eventN=0;
     while( evt->loadNext() ){
@@ -388,6 +399,9 @@ dilepton_pass++;
         double simTauJetPt_y = scale_y * muPt;
         simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
         simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
+
+//simTauJetPhi_xy=simTauJetPhi;
+//simTauJetPt_xy=simTauJetPt;  
 
         if(verbose!=0)printf(" \n ######### \n scale_x: %g scale_y: %g \n simTauJetPt_x: %g simTauJetPt_y: %g \n simTauJetPt_xy: %g simTauJetPt: %g \n simTauJetPhi_xy: %g simTauJetPhi: %g \n",scale_x,scale_y,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy,simTauJetPt,simTauJetPhi_xy,simTauJetPhi);
 
@@ -623,9 +637,9 @@ dilepton_pass++;
           }
         }
 
-        if(i1!=-1)newDphi1=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i1].Phi() - newMetphi ));
-        if(i2!=-1)newDphi2=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i2].Phi() - newMetphi ));
-        if(i3!=-1)newDphi3=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i3].Phi() - newMetphi ));
+        if(i1!=-1)newDphi1=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i1].Phi() - newMHTPhi ));
+        if(i2!=-1)newDphi2=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i2].Phi() - newMHTPhi ));
+        if(i3!=-1)newDphi3=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i3].Phi() - newMHTPhi ));
         
         if(verbose!=0){
           printf("newDphi1: %g newDphi2: %g newDphi3: %g \n ",newDphi1,newDphi2,newDphi3);
@@ -688,7 +702,7 @@ Acc=1.; // temporary
 //Ahmad33
 Eff_Arne=1.; // temporary 
 //Ahmad33
-Prob_Tau_mu=0; // temporary
+        if(TauHadModel < 1)Prob_Tau_mu=0; // temporary
 
 
 
@@ -726,8 +740,10 @@ Prob_Tau_mu=0; // temporary
 
         double eveinfvec[] = {totWeight, newHT, newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt_xy};
 
-if(MuFromTauVec[0]==0){ // Ahmad33
-
+        bool pass0=false;
+        if(TauHadModel >= 1)pass0=true;
+        else if(MuFromTauVec[0]==0)pass0=true; // Ahmad33
+        if(pass0){
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 

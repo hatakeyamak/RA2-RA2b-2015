@@ -71,17 +71,10 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
 
-    double w_mu=0, w_tau=0; //Ahmad3
-    
-    // Inroduce two histogram to understand the probability of a muon coming from tau.
-    int MaxMuPt=100*10;
-    int NMuPtBins=MaxMuPt/10;
-    TH1D * hW_mu = new TH1D("hW_mu","Pt of mu from W",NMuPtBins,0,MaxMuPt);
-    hW_mu->Sumw2();
-    TH1D * hTau_mu = new TH1D("hTau_mu","Pt of mu from Tau",NMuPtBins,0,MaxMuPt);
-    hTau_mu->Sumw2();
 
     // Introduce two histograms to understand how often a gen tau does not match any jet
+    int MaxMuPt=100*10;
+    int NMuPtBins=MaxMuPt/10;
     TH1D * GenTau_Jet_all = new TH1D("GenTau_Jet_all","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
     GenTau_Jet_all->Sumw2();
     TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
@@ -147,6 +140,12 @@ using namespace std;
     int totNbins_b=binMap_b.size();
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b);
     searchH_b->Sumw2();
+
+    // Inroduce two histogram to understand the probability of a muon coming from tau.
+    TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins);
+    hW_mu->Sumw2();
+    TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins);
+    hTau_mu->Sumw2();
 
 
     // The tau response templates
@@ -225,7 +224,7 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-//      if(eventN>5000000)break;
+//      if(eventN>50000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -267,7 +266,7 @@ using namespace std;
         // Fill the hW_mu anyways.
         // See what is the parent of the mu. if tau fill the tau hist.
         // If w, see where w is coming from, if tau again, fill the tau hist.
-        if( eleN==0 && muN==1 )hW_mu->Fill(muPt);
+        if( eleN==0 && muN==1 )hW_mu->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()] );
 
         bool isTau_mu=false;
 
@@ -275,7 +274,7 @@ using namespace std;
           if(evt->GenMuFromTauVec_()[0]==1)isTau_mu=true;
         }
         
-        if( eleN==0 && muN==1 && isTau_mu==true )hTau_mu->Fill(muPt);
+        if( eleN==0 && muN==1 && isTau_mu==true )hTau_mu->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()] );
         
       } // end of baseline cuts
 

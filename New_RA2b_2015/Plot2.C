@@ -244,7 +244,7 @@ else{
     if(histname=="DelPhiN"){
       sprintf(xtitlename,"DelPhiN");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(500);
+      thist->SetMaximum(5000);
       thist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
     }   
     if(histname=="DelPhi1"){
