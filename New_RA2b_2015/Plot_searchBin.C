@@ -34,6 +34,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   char ytitlename[200];
 
   sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+//cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
@@ -168,7 +169,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   catLeg1->Draw();
 
   TText * ttext = new TText(10. , 1700. , "4 fb-1");
-  ttext->Draw();
+//  ttext->Draw();
   //
   // Bottom ratio plot
   //

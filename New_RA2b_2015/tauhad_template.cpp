@@ -132,19 +132,19 @@ using namespace std;
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
-    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
+    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins+1);
     searchH->Sumw2();
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
-    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b);
+    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
     searchH_b->Sumw2();
 
     // Inroduce two histogram to understand the probability of a muon coming from tau.
-    TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins);
+    TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins+1);
     hW_mu->Sumw2();
-    TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins);
+    TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hTau_mu->Sumw2();
 
 
@@ -361,7 +361,7 @@ using namespace std;
       double totWeight = 1.;
 
         // Apply baseline cuts
-        if(evt->ht() >500. && evt->mht() > 200. && evt->minDeltaPhiN() > 4. && evt->nJets() >= 4   ){
+        if(evt->ht() >500. && evt->mht() > 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
           // Fill Search bin histogram
           searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);

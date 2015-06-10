@@ -148,31 +148,31 @@ using namespace std;
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
-    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins);
+    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins+1);
     searchH->Sumw2();
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
-    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b);
+    TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
     searchH_b->Sumw2();   
  
     // Determine correlation between original and recalculated variables
-    TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins,totNbins,1,totNbins);
+    TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
     TH2 * hCorHT = new TH2D("hCorHT","original vs. recalculated HT",50,0,5000,50,0,5000);
     TH2 * hCorMHT = new TH2D("hCorMHT","original vs. recalculated MHT",100,0,5000,100,0,5000);
     TH2 * hCorNJet = new TH2D("hCorNJet","original vs. recalculated NJet",20,0,20,20,0,20);
     TH2 * hCorNBtag = new TH2D("hCorNBtag","original vs. recalculated NBtag",20,0,20,20,0,20);
 
     // Determine correlation between original and recalculated variables + nB info
-    TH2 * hCorSearch_noW = new TH2D("hCorSearch_noW","original vs. recalculated SearchBin",totNbins,1,totNbins,totNbins,1,totNbins);
+    TH2 * hCorSearch_noW = new TH2D("hCorSearch_noW","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
     TH2 * hCorHT_noW = new TH2D("hCorHT_noW","original vs. recalculated HT",50,0,5000,50,0,5000);
     TH2 * hCorMHT_noW = new TH2D("hCorMHT_noW","original vs. recalculated MHT",100,0,5000,100,0,5000);
     TH2 * hCorNJet_noW = new TH2D("hCorNJet_noW","original vs. recalculated NJet",20,0,20,20,0,20);
     TH2 * hCorNBtag_noW = new TH2D("hCorNBtag_noW","original vs. recalculated NBtag",20,0,20,20,0,20);
 
     // Determine correlation between original and recalculated variables + nB info
-    TH2 * hCorSearch_noW_b = new TH2D("hCorSearch_noW_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b,totNbins_b,1,totNbins_b);
+    TH2 * hCorSearch_noW_b = new TH2D("hCorSearch_noW_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
 
 
     // The tau response templates
@@ -710,7 +710,7 @@ Eff_Arne=1.; // temporary
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
         // Apply baseline cuts
-        if(newHT>500. && newMHT > 200. && mindpn > 4. && newNJet >= 4   ){
+        if(newHT>500. && newMHT > 200. && newDphi1>0.5 && newDphi1>0.5 && newDphi1>0.3 && newNJet >= 4   ){
 
           // Fill Search bin histogram 
           searchH->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);
