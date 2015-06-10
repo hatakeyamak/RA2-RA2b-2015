@@ -704,13 +704,11 @@ Eff_Arne=1.; // temporary
 //Ahmad33
         if(TauHadModel < 1)Prob_Tau_mu=0; // temporary
 
-
-
 //        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
         // Apply baseline cuts
-        if(newHT>500. && newMHT > 200. && newDphi1>0.5 && newDphi1>0.5 && newDphi1>0.3 && newNJet >= 4   ){
+        if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
 
           // Fill Search bin histogram 
           searchH->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);

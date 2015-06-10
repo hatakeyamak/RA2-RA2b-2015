@@ -15,6 +15,15 @@ EventYield_TauHad(){
     cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
     cutname[8]="delphi";cutname[9]="CSVM_0";
     cutname[10]="CSVM_1";cutname[11]="CSVM_2";cutname[12]="CSVM_3";
+    // search regions
+    cutname[13]="search1";cutname[14]="search2";cutname[15]="search3";
+    cutname[16]="search4";cutname[17]="search5";cutname[18]="search6";
+    cutname[19]="search7";cutname[20]="search8";cutname[21]="search9";
+    cutname[22]="search10";cutname[23]="search11";cutname[24]="search12";
+    cutname[25]="search13";cutname[26]="search14";cutname[27]="search15";
+    cutname[28]="search16";cutname[29]="search17";cutname[30]="search18";
+
+
 
   double exp=0,pre=0;
 

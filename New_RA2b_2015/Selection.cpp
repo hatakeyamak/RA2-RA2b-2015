@@ -12,11 +12,11 @@
 
     // search regions
     cutname[13]="search1";cutname[14]="search2";cutname[15]="search3";
-    cutname[16]="search1";cutname[17]="search2";cutname[18]="search3";
-    cutname[19]="search1";cutname[20]="search2";cutname[21]="search3";
-    cutname[22]="search1";cutname[23]="search2";cutname[24]="search3";
-    cutname[25]="search1";cutname[26]="search2";cutname[27]="search3";
-    cutname[28]="search1";cutname[29]="search2";cutname[30]="search3";
+    cutname[16]="search4";cutname[17]="search5";cutname[18]="search6";
+    cutname[19]="search7";cutname[20]="search8";cutname[21]="search9";
+    cutname[22]="search10";cutname[23]="search11";cutname[24]="search12";
+    cutname[25]="search13";cutname[26]="search14";cutname[27]="search15";
+    cutname[28]="search16";cutname[29]="search17";cutname[30]="search18";
 
 
   }
