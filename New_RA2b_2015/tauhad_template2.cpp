@@ -224,14 +224,12 @@ using namespace std;
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
-/* Ahmad33 
     // Acceptance and efficiencies
-    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_.root","R");
+    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
-Ahmad33 */
 
     TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
@@ -281,7 +279,7 @@ Ahmad33 */
     // Determine which model to work with
     int TauHadModel=utils2::TauHadModel;    
 
-    if(TauHadModel!=0 && TauHadModel!=1 && TauHadModel!=2){
+    if(TauHadModel!=0 && TauHadModel!=1 && TauHadModel!=2 && TauHadModel!=3){
       cout << " The model is not recognized! Please check utils2.h \n ";
       return 1;
     }
@@ -290,7 +288,7 @@ Ahmad33 */
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>2000000)break;
+//      if(eventN>1000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -312,6 +310,7 @@ Ahmad33 */
       // select muons with pt>20. eta<2.1 relIso<.2
       // vec_recoMuMTW.clear(); ????????????
       vec_recoMuon3vec.clear();
+        
 
 vector<int> MuFromTauVec;//Ahmad33
 MuFromTauVec.clear();//Ahmad33
@@ -323,20 +322,37 @@ MuFromTauVec.clear();//Ahmad33
         double eta=evt->MuEtaVec_().at(i);
         double phi=evt->MuPhiVec_().at(i);
 Ahmad33 */
-      for(int i=0; i< evt->GenMuPtVec_().size(); i++){ // Ahmad33
-        double pt=evt->GenMuPtVec_().at(i); // Ahmad33
-        double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
-        double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
-        // double mu_mt_w =muonsMtw->at(i);  ????
-        if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
-          if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
-          temp3vec.SetPtEtaPhi(pt,eta,phi);
-          vec_recoMuon3vec.push_back(temp3vec);
-          MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
-          // vec_recoMuMTW.push_back(mu_mt_w); ???????
+
+      if(TauHadModel>=3){
+        for(int i=0; i< evt->MuPtVec_().size(); i++){ // Ahmad33
+          double pt=evt->MuPtVec_().at(i); // Ahmad33
+          double eta=evt->MuEtaVec_().at(i); // Ahmad33
+          double phi=evt->MuPhiVec_().at(i); // Ahmad33
+          // double mu_mt_w =muonsMtw->at(i);  ????
+          if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
+            if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+            temp3vec.SetPtEtaPhi(pt,eta,phi);
+            vec_recoMuon3vec.push_back(temp3vec);
+            // vec_recoMuMTW.push_back(mu_mt_w); ???????
+          }
+        }
+
+      }
+      else{
+        for(int i=0; i< evt->GenMuPtVec_().size(); i++){ // Ahmad33
+          double pt=evt->GenMuPtVec_().at(i); // Ahmad33
+          double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
+          double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
+          // double mu_mt_w =muonsMtw->at(i);  ????
+          if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
+            if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+            temp3vec.SetPtEtaPhi(pt,eta,phi);
+            vec_recoMuon3vec.push_back(temp3vec);
+            MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
+            // vec_recoMuMTW.push_back(mu_mt_w); ???????
+          }
         }
       }
-
 
       ///select electrons with pt>10. eta<2.5 relIso<.2
       vec_recoElec3vec.clear();
@@ -413,7 +429,7 @@ Ahmad33 */
         // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
 
         //Identify the jet containing the muon
-        const double deltaRMax = muPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+        const double deltaRMax = 0.4; // 0.4 is delR of jet
         int JetIdx=-1;
         if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
           printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
@@ -448,7 +464,7 @@ Ahmad33 */
         TVector3 temp3Vec;
         int slimJetIdx=-1;
         MuJet_all->Fill(muPt);
-        utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
+        utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
         // If there is no match, add the tau jet as a new one
         if(slimJetIdx==-1){
           MuJet_fail->Fill(muPt);
@@ -663,9 +679,9 @@ Ahmad33 */
 
         // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
         Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
-/* Ahmad33
 
         Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+
 
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
           // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
@@ -674,10 +690,8 @@ Ahmad33 */
           Eff=0.75;
         }
 
-Ahmad33*/
         // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
         double Acc;
-/* Ahmad33
 
         if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
           // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
@@ -695,8 +709,6 @@ Ahmad33*/
         if(Eff==0)Eff=0.75;
         if(Eff_Arne==0)Eff_Arne=0.75;
 
-Ahmad33
-*/
 
         // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
@@ -704,9 +716,9 @@ Ahmad33
 //Ahmad33
 Acc=1.; // temporary
 //Ahmad33
-Eff_Arne=1.; // temporary 
+        if(TauHadModel<3)Eff_Arne=1.; 
 //Ahmad33
-        if(TauHadModel < 1)Prob_Tau_mu=0; // temporary
+        if(TauHadModel < 1)Prob_Tau_mu=0; 
 
 //        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
