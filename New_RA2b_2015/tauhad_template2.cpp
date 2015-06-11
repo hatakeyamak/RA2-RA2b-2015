@@ -279,7 +279,7 @@ using namespace std;
     // Determine which model to work with
     int TauHadModel=utils2::TauHadModel;    
 
-    if(TauHadModel!=0 && TauHadModel!=1 && TauHadModel!=2 && TauHadModel!=3){
+    if(TauHadModel!=0 && TauHadModel!=1 && TauHadModel!=2 && TauHadModel!=3 && TauHadModel!=4){
       cout << " The model is not recognized! Please check utils2.h \n ";
       return 1;
     }
@@ -714,7 +714,7 @@ Ahmad33 */
         double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
 
 //Ahmad33
-Acc=1.; // temporary
+        if(TauHadModel<4)Acc=1.; 
 //Ahmad33
         if(TauHadModel<3)Eff_Arne=1.; 
 //Ahmad33
@@ -722,6 +722,9 @@ Acc=1.; // temporary
 
 //        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
         double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+
+        // dilepton contamination
+        if(TauHadModel>=3)totWeight*=1./1.045;
 
         // Apply baseline cuts
         if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){

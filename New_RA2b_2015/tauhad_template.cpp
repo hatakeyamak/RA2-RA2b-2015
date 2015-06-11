@@ -220,12 +220,14 @@ using namespace std;
     vector<double> HadTauEtaVec;
     vector<double> HadTauPhiVec;
 
+    // Determine which model to work with
+    int TauHadModel=utils2::TauHadModel;
 
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-      if(eventN>2000000)break;
+//      if(eventN>1000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -291,18 +293,35 @@ using namespace std;
       HadTauEtaVec.clear();
       HadTauPhiVec.clear();
      
-      for(int i=0; i<evt->GenTauHadVec_().size();i++){
-        if(evt->GenTauHadVec_()[i]==1){
-          double pt=evt->GenTauPtVec_()[i];
-          double eta=evt->GenTauEtaVec_()[i];
-          double phi=evt->GenTauPhiVec_()[i];
-          HadTauPtVec.push_back(pt);
-          HadTauEtaVec.push_back(eta);
-          HadTauPhiVec.push_back(phi);
-          if(pt > genTauPt && fabs(eta)<LeptonAcceptance::muonEtaMax()){ //Ahmad33
+      if(TauHadModel>=4){
+        for(int i=0; i<evt->GenTauHadVec_().size();i++){
+          if(evt->GenTauHadVec_()[i]==1){
+            double pt=evt->GenTauPtVec_()[i];
+            double eta=evt->GenTauEtaVec_()[i];
+            double phi=evt->GenTauPhiVec_()[i];
+            HadTauPtVec.push_back(pt);
+            HadTauEtaVec.push_back(eta);
+            HadTauPhiVec.push_back(phi);
             genTauPt = pt;
             genTauEta = eta;
             genTauPhi = phi;
+          }
+        }
+      }
+      else{
+        for(int i=0; i<evt->GenTauHadVec_().size();i++){
+          if(evt->GenTauHadVec_()[i]==1){
+            double pt=evt->GenTauPtVec_()[i];
+            double eta=evt->GenTauEtaVec_()[i];
+            double phi=evt->GenTauPhiVec_()[i];
+            HadTauPtVec.push_back(pt);
+            HadTauEtaVec.push_back(eta);
+            HadTauPhiVec.push_back(phi);
+            if(pt > genTauPt && fabs(eta)<LeptonAcceptance::muonEtaMax()){ //Ahmad33
+              genTauPt = pt;
+              genTauEta = eta;
+              genTauPhi = phi;
+            }
           }
         }
       }
@@ -361,9 +380,14 @@ using namespace std;
       // double totWeight = evt->weight()*1.;
       double totWeight = 1.;
 
+      bool pass3=false;
+      if(TauHadModel>=4)pass3=true;
+      else{
+        // Ahmad33 this is to remove acceptance role to check other sources of error.
+        if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() )pass3=true;
+      }
 
-// Ahmad33 this is to remove acceptance role to check other sources of error.
-if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+      if(pass3){
         // Apply baseline cuts
         if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
@@ -372,44 +396,44 @@ if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcce
           searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
 
         }
-}
+      }
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
       double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
-// Ahmad33 this is to remove acceptance role to check other sources of error. 
-if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+      // Ahmad33 this is to remove acceptance role to check other sources of error. 
+      if(pass3){
 
 
-      //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
-      for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+        //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+        for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
-        ////determine what type of background should pass
-        if(itt->first=="allEvents"){//all the cuts are inside this
+          ////determine what type of background should pass
+          if(itt->first=="allEvents"){//all the cuts are inside this
 
-          //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+            //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
 
-          //////loop over cut names and fill the histograms
-          for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+            //////loop over cut names and fill the histograms
+            for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-//            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-              histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-            }
-          }//end of loop over cut names
+  //            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+  if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+                histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+              }
+            }//end of loop over cut names
 
-          ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
-          
-        }//end of bg_type determination
-      }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+            ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+            
+          }//end of bg_type determination
+        }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
-      ///////////////////////////////
-      ////End of Closure Test Section
-      ///////////////////////////////
+        ///////////////////////////////
+        ////End of Closure Test Section
+        ///////////////////////////////
 
-} // Ahmad33
+      } // Ahmad33
 
       // Do the matching
       int tauJetIdx = -1;

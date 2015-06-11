@@ -31,11 +31,15 @@ EventYield_TauHad(){
   for(int i=0; i<cutname.size();i++){
     sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
     tempHist=(TH1D*)exp_f->Get(tempname)->Clone();
-    exp=tempHist->GetEntries();
+//    exp=tempHist->GetEntries();
+    exp=tempHist->GetSumOfWeights();
     tempHist=(TH1D*)pre_f->Get(tempname)->Clone();
-    pre=tempHist->GetEntries();
+//    pre=tempHist->GetEntries();
+    pre=tempHist->GetSumOfWeights();
 
-    printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
+//    printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
+  
+    printf("cutname: %s ==>> prediction: %g expectation: %g Pre/Exp: %g \n \n ",cutname[i].c_str(),pre,exp,(pre/exp));
 
   }
 

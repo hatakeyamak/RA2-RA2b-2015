@@ -6,7 +6,9 @@ namespace utils2{
     // 0: The most simple model
     // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
     // 2: 1 but for veto(in the prediction code) reco objects are used and not gen ones 
-    int TauHadModel=3;
+    // 3: 2 but in prediction everything reco. Efficiency used
+    // 4: 3 but Acceptance added
+    int TauHadModel=4;
 
 
 
