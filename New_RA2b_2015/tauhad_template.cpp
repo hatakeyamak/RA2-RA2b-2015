@@ -220,11 +220,12 @@ using namespace std;
     vector<double> HadTauEtaVec;
     vector<double> HadTauPhiVec;
 
+
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-//      if(eventN>50000)break;
+      if(eventN>2000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;

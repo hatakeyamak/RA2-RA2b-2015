@@ -279,13 +279,10 @@ Ahmad33 */
     TH1 * MuJet_fail = new TH1D("MuJet_fail","mu match jet vs. pT -- fail",muNbin,muBin);
 
     // Determine which model to work with
-    // 0: The most simple model
-    // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
-    // 2:
-    int TauHadModel=1;    
+    int TauHadModel=utils2::TauHadModel;    
 
-    if(TauHadModel!=0 && TauHadModel!=1){
-      cout << " The model is not recognized ! \n ";
+    if(TauHadModel!=0 && TauHadModel!=1 && TauHadModel!=2){
+      cout << " The model is not recognized! Please check utils2.h \n ";
       return 1;
     }
 
@@ -293,7 +290,7 @@ Ahmad33 */
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>1000000)break;
+//      if(eventN>2000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -368,7 +365,11 @@ Ahmad33 */
       if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
 
       //if( template_nMuons == 1 && template_nElectrons == 0 ) {
-      if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 ){
+      bool pass1=false;
+      if(TauHadModel>=2){if( vec_recoMuon3vec.size() == 1)pass1=true;}
+      else {if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;}
+
+      if(pass1){
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
@@ -376,9 +377,12 @@ Ahmad33 */
 
 
 // Ahmad33
-dilepton_all++;
-if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)continue;
-dilepton_pass++;
+      dilepton_all++;
+      bool pass1_1=false;
+      if(TauHadModel>=2){if(evt->MuPtVec_().size()>1 || evt->ElecPtVec_().size()>0)pass1_1=true;}
+      else{ if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)pass1_1=true;}
+      if(pass1_1)continue;
+      dilepton_pass++;
 // Ahmad33
 
 

@@ -1,5 +1,15 @@
 
 namespace utils2{
+
+
+  // Determine which model to work with
+    // 0: The most simple model
+    // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
+    // 2: 1 but for veto(in the prediction code) reco objects are used and not gen ones 
+    int TauHadModel=2;
+
+
+
   // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
       std::string findBin(int njet,int nbtag,double ht,double mht){
 
