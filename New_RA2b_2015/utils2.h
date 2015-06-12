@@ -10,6 +10,8 @@ namespace utils2{
     // 4: 3 but Acceptance added
     int TauHadModel=4;
 
+  // Do the bootstrapping?
+  bool bootstrap = true;
 
 
   // find appropriate bin number for the given (Njet,Nbtag,ht,mht)

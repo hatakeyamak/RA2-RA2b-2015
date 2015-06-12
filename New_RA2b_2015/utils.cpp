@@ -82,7 +82,23 @@ using namespace std;
       int bin = TauResponse_ptBin(muPt_);
       vec_resp_xy[bin]->GetRandom2(scale_x,scale_y);
     }
-    
+   
+    double Utils::GetBinValue(double muPt_,vector<TH1*> vec_resp, int l ){
+      int bin = TauResponse_ptBin(muPt_);
+      return vec_resp[bin]->GetBinCenter(l);
+    }
+
+    double Utils::GetBinContent(double muPt_,vector<TH1*> vec_resp, int l ){
+      int bin = TauResponse_ptBin(muPt_);
+      return vec_resp[bin]->GetBinContent(l);
+    }
+
+    double Utils::GetBinWidth(double muPt_,vector<TH1*> vec_resp, int l ){
+      int bin = TauResponse_ptBin(muPt_);
+      return vec_resp[bin]->GetBinWidth(l);
+    }
+
+ 
     // Activity variable. Muon isolation and efficiency depends on muon's pT and activity variable.
     // The latter maens the amount of hadronic activity around the muon. The higher this is, the harder 
     // it is to find the muon. 
