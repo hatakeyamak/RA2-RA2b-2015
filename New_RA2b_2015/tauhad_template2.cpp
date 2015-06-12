@@ -225,9 +225,11 @@ using namespace std;
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
+//    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
+    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
     sprintf(histname,"hAcc");
-    TH1D * hAcc =(TH1D *) MuEffAcc_file->Get(histname)->Clone();
+    TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
 
@@ -383,7 +385,7 @@ Ahmad33 */
       //if( template_nMuons == 1 && template_nElectrons == 0 ) {
       bool pass1=false;
       if(TauHadModel>=2){if( vec_recoMuon3vec.size() == 1)pass1=true;}
-      else {if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;}
+      else {if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;} // recoElec is realy GenElec here
 
       if(pass1){
         muPt = vec_recoMuon3vec[0].Pt();
@@ -697,6 +699,10 @@ Ahmad33 */
           // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
           // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
           Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
+
+          // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
+          // Or use recomputed ht mht ... when making Acc. 
+          //Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht())]);
         }else{
           Acc=0.9;
         }

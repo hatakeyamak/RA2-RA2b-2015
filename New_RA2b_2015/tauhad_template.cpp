@@ -147,6 +147,13 @@ using namespace std;
     TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hTau_mu->Sumw2();
 
+    map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
+    int totNbins_mht_nj=binMap_mht_nj.size();
+    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    hAccAll->Sumw2();
+    hAccPass->Sumw2();
+
 
     // The tau response templates
     Utils * utils = new Utils();
@@ -227,7 +234,7 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-//      if(eventN>1000000)break;
+//      if(eventN>5000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -302,9 +309,11 @@ using namespace std;
             HadTauPtVec.push_back(pt);
             HadTauEtaVec.push_back(eta);
             HadTauPhiVec.push_back(phi);
-            genTauPt = pt;
-            genTauEta = eta;
-            genTauPhi = phi;
+            if(pt > genTauPt){
+              genTauPt = pt;
+              genTauEta = eta;
+              genTauPhi = phi;
+            }
           }
         }
       }
@@ -374,7 +383,14 @@ using namespace std;
           B_rate_tagged->Fill(evt->JetsPtVec_()[jet_index]);
         }
       }
-      
+
+     
+      // Acceptance determination 1: Counter for all events
+      // with muons at generator level
+      hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+      if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+        hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+      } 
 
       // Total weight
       // double totWeight = evt->weight()*1.;
@@ -544,6 +560,19 @@ using namespace std;
     } // End of loop over events  
 
     printf("nCleanEve: %d nHadTauEve: %d nNoLepEve: %d \n ",nCleanEve,nHadTauEve,nNoLepEve);
+
+
+    // Compute acceptance
+    TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
+    hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
+
+    sprintf(tempname,"TauHad/LostLepton2_MuonEfficienciesFrom%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    TFile outFile2(tempname,"RECREATE");
+    hAcc->Write();
+    hAccAll->Write();
+    hAccPass->Write();
+    outFile2.Close();
+
 
     //open a file to write the histograms
     sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());

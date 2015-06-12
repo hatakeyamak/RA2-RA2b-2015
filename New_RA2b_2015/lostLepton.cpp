@@ -47,6 +47,7 @@ using namespace std;
     ifstream fin(InRootList.c_str());
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
     char tempname[200];
+    char histname[200];
     const double deltaRMax = 0.1;
     const double deltaPtMax = 0.2;
 
@@ -63,6 +64,13 @@ using namespace std;
     hAccPass->Sumw2();
     hIsoRecoPass->Sumw2();
 
+    int TauResponse_nBins=4;
+    vector<TH1*> vec_resp;
+        TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
+    for(int i=0; i<TauResponse_nBins; i++){
+      sprintf(histname,"hTauResp_%d",i);
+      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+    }
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -130,9 +138,73 @@ using namespace std;
 
       if( !( isMuon ) ) continue;
 
+      // recompute ht mht njet
+      double scale;
+      if(genMuPt >=20.)scale = utils->getRandom(genMuPt,vec_resp );
+      else scale = utils->getRandom(20.,vec_resp );
+      double simTauJetPt = scale * genMuPt;
+      double simTauJetEta = genMuEta;
+      double simTauJetPhi = genMuPhi;
+
+        // 3Vec of muon and scaledMu
+        TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
+        SimTauJet3Vec.SetPtEtaPhi(simTauJetPt,simTauJetEta,simTauJetPhi);
+        Muon3Vec.SetPtEtaPhi(genMuPt,genMuEta,genMuPhi);
+
+        // New ht and mht
+        vector<TVector3> HT3JetVec,MHT3JetVec;
+        HT3JetVec.clear();
+        MHT3JetVec.clear();
+        TVector3 temp3Vec;
+        int slimJetIdx=-1;
+        utils->findMatchedObject(slimJetIdx,genMuEta,genMuPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+        // If there is no match, add the tau jet as a new one
+        if(slimJetIdx==-1){
+          NewTauJet3Vec=SimTauJet3Vec;
+          if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+          if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+        }
+        for(int i=0;i<evt->slimJetPtVec_().size();i++){
+          if(i!=slimJetIdx){
+            temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<2.4)HT3JetVec.push_back(temp3Vec);
+            if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<5.)MHT3JetVec.push_back(temp3Vec);
+          }
+          else if(i==slimJetIdx){
+            temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+            NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+            if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+            if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+          }
+
+        }
+
+        // Order the HT3JetVec and MHT3JetVec based on their pT
+        HT3JetVec = utils->Order_the_Vec(HT3JetVec);
+        MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
+
+
+        double newHT=0,newMHT=0,newMHTPhi=-1;
+        TVector3 newMHT3Vec;
+        for(int i=0;i<HT3JetVec.size();i++){
+          newHT+=HT3JetVec[i].Pt();
+        }
+        for(int i=0;i<MHT3JetVec.size();i++){
+          newMHT3Vec-=MHT3JetVec[i];
+        }
+        newMHT=newMHT3Vec.Pt();
+        newMHTPhi=newMHT3Vec.Phi();
+
+        //New #Jet
+        int newNJet = HT3JetVec.size();
+        if(verbose==1)printf("newNJet: %d \n ",newNJet);
+
+
+
       // Acceptance determination 1: Counter for all events
       // with muons at generator level
       hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+//      hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT).c_str()] ); // this doesn't work good
 
       // Check if generator-level muon is in acceptance
       if( genMuPt > LeptonAcceptance::muonPtMin() && std::abs(genMuEta) < LeptonAcceptance::muonEtaMax() ) {
@@ -141,6 +213,7 @@ using namespace std;
         // with generator-level muons inside acceptance
         // hAccPass->Fill( binMap[utils2::findBin(cntNJetsPt30Eta24,nbtag,HT,template_mht).c_str()] );
         hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+//        hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT).c_str()] );
 
         // Reconstruction-efficiency determination 1: Counter for all events
         // with generator-level muons inside acceptance, regardless of whether
