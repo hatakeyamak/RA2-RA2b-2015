@@ -234,6 +234,7 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
+
 //      if(eventN>5000000)break;
 
       // Through out an event that contains HTjets with bad id
@@ -566,7 +567,7 @@ using namespace std;
     TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
     hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
 
-    sprintf(tempname,"TauHad/LostLepton2_MuonEfficienciesFrom%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/LostLepton2_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile2(tempname,"RECREATE");
     hAcc->Write();
     hAccAll->Write();
@@ -575,7 +576,7 @@ using namespace std;
 
 
     //open a file to write the histograms
-    sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
     searchH_b->Write();
@@ -612,7 +613,7 @@ using namespace std;
     TH1D * TauBtaggedRate = static_cast<TH1D*>(B_rate_tagged->Clone("TauBtaggedRate"));
     TauBtaggedRate->Divide(B_rate_tagged,B_rate_all,1,1,"B");
     // Write the histogram 
-    sprintf(tempname,"TauHad/TauBtaggedRate_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/TauBtaggedRate_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile btagfile(tempname,"RECREATE");
     TauBtaggedRate->Write();
     B_rate_tagged->Write();
@@ -623,7 +624,7 @@ using namespace std;
     TH1D * hProb_Tau_mu = static_cast<TH1D*>(hTau_mu->Clone("hProb_Tau_mu"));
     hProb_Tau_mu->Divide(hTau_mu,hW_mu,1,1,"B");
     // Write the histograms
-    sprintf(tempname,"TauHad/Probability_Tau_mu_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/Probability_Tau_mu_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile fTau_mu(tempname,"RECREATE");
     hProb_Tau_mu->Write();
     hTau_mu->Write();
@@ -635,7 +636,7 @@ using namespace std;
     TH1D * FailRate_GenTau_jet = static_cast<TH1D*>(GenTau_Jet_fail->Clone("FailRate_GenTau_jet"));
     FailRate_GenTau_jet->Divide(GenTau_Jet_fail,GenTau_Jet_all,1,1,"B");
     // Write the histograms
-    sprintf(tempname,"TauHad/FailRate_GenTau_jet_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/FailRate_GenTau_jet_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile fgentTau_jet(tempname,"RECREATE");
     FailRate_GenTau_jet->Write();
     GenTau_Jet_fail->Write();
@@ -665,7 +666,7 @@ using namespace std;
     }
 
     // --- Save the Histograms to File -----------------------------------
-    sprintf(tempname,"TauHad/HadTau_TauResponseTemplates_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/HadTau_TauResponseTemplates_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile(tempname,"RECREATE");
     TCanvas *c1 = new TCanvas("c1","TauResponseTemplates",10,10,700,900);
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {

@@ -150,7 +150,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   EstHist->GetYaxis()->SetTitleFont(42);
   sprintf(xtitlename,"search bins");
   sprintf(ytitlename,"Events");
-//  gPad->SetLogy();
+  gPad->SetLogy();
   GenHist->SetMaximum(2000);
   GenHist->SetMinimum(0.);
   GenHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);

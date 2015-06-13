@@ -291,13 +291,12 @@ using namespace std;
     if(utils2::bootstrap)nLoops=50;
     else nLoops=1;
 
-    int testN=0;
 
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
 
-      if(eventN>1000000)break;
+//      if(eventN>100)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -426,7 +425,7 @@ Ahmad33 */
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
           GenRecMu_fail++;
-          if(eventN < 100000){
+          if(eventN < 100){
             printf(" Warning! There is no Gen Muon \n ");
             printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
           }
@@ -808,7 +807,6 @@ Ahmad33 */
 
 
     //              if(sel->checkcut_HadTau(ite->first,newHT,newMHT,mindpn,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-testN++;
                   if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                     histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
@@ -827,7 +825,6 @@ testN++;
 
     } // end of loop over events
 
-cout << " testN: " << testN << endl;  
 
     double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
@@ -837,7 +834,7 @@ cout << " testN: " << testN << endl;
     TH1D * MuJet_rate = static_cast<TH1D*>(MuJet_fail->Clone("MuJet_rate"));
     MuJet_rate->Divide(MuJet_fail,MuJet_all,1,1,"B");
     //Write
-    sprintf(tempname,"TauHad2/MuJetMatchRate_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/MuJetMatchRate_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile MuJetfile(tempname,"RECREATE");
     MuJet_rate->Write();
     MuJet_fail->Write();
@@ -845,7 +842,7 @@ cout << " testN: " << testN << endl;
     MuJetfile.Close();
 
     // open a file to write the histograms
-    sprintf(tempname,"TauHad2/HadTauEstimation_%s_%s.root",subSampleKey.c_str(),inputnumber.c_str());
+    sprintf(tempname,"%s/HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
     searchH_b->Write();
