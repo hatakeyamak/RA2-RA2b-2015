@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
+Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -42,10 +42,10 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   //
   // Define legend
   //
-  Float_t legendX1 = .60; //.50;
-  Float_t legendX2 = .90; //.70;
-  Float_t legendY1 = .60; //.65;
-  Float_t legendY2 = .80;
+  Float_t legendX1 = .55; //.50;
+  Float_t legendX2 = .85; //.70;
+  Float_t legendY1 = .75; //.65;
+  Float_t legendY2 = .90;
 
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.032);
@@ -113,7 +113,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
   double search_x_max=19.;
-  double search_x_min=0.;
+  double search_x_min=1.;
 
   sprintf(tempname,"%s",histname.c_str());
   EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
@@ -151,25 +151,29 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
   sprintf(xtitlename,"search bins");
   sprintf(ytitlename,"Events");
   gPad->SetLogy();
-  GenHist->SetMaximum(2000);
-  GenHist->SetMinimum(0.);
+  GenHist->SetMaximum(200000);
+  GenHist->SetMinimum(0.1);
   GenHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
 
   GenHist->SetFillStyle(3004);
   GenHist->SetFillColor(kGreen-3);
+  GenHist->SetTitle("");
   GenHist->Draw("e2");
+  //KH GenHist->Draw("same");
   EstHist->Draw("same");
+
+  TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("denominator"));
 
   sprintf(tempname,"#tau_{hadronic} BG");
   catLeg1->AddEntry(GenHist,tempname,"l");
-  sprintf(tempname,"Data driven estimate");
+  sprintf(tempname,"Data driven prediction");
   catLeg1->AddEntry(EstHist,tempname,"l");
   GenHist->GetXaxis()->SetTitle(xtitlename);
   GenHist->GetYaxis()->SetTitle(ytitlename);
   catLeg1->Draw();
 
   TText * ttext = new TText(10. , 1700. , "4 fb-1");
-//  ttext->Draw();
+  //  ttext->Draw();
   //
   // Bottom ratio plot
   //
@@ -219,6 +223,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
       EstHistD->GetXaxis()->SetTitle(xtitlename);
       EstHistD->GetYaxis()->SetTitle(ytitlename);
 
+      EstHistD->SetTitle("");
       EstHistD->Draw();
       tline->SetLineStyle(2);
       tline->Draw();
@@ -226,10 +231,15 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
 
   if(choice==1){
 
+    /*
       TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
       EstHistD->Add(GenHistD,-1);
       denominator->Divide(EstHistD,GenHistD,1,1,"");
-    
+    */
+      TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
+      //EstHistD->Add(GenHistD,-1);
+      denominator->Divide(GenHistD,EstHistD,1,1,"");
+
       // draw bottom figure
       canvas_dw->cd();
       // font size
@@ -238,13 +248,15 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
       denominator->GetYaxis()->SetLabelSize(font_size_dw);
       denominator->GetYaxis()->SetTitleSize(font_size_dw);
       
+      TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
+
       //
       // Common to all bottom plots
       //
-//      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
-      sprintf(ytitlename,"#frac{Sim. - Pred.}{Pred.} ");
-      denominator->SetMaximum(5);
-      denominator->SetMinimum(-5);
+      //sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
+      sprintf(ytitlename,"#frac{Expectation}{Prediction} ");
+      denominator->SetMaximum(2.65);
+      denominator->SetMinimum(0.0);
 
       //
       // Specific to each bottom plot
@@ -267,6 +279,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=0){
       denominator->GetXaxis()->SetTitle(xtitlename);
       denominator->GetYaxis()->SetTitle(ytitlename);
 
+      denominator->SetTitle("");
       denominator->Draw();
       tline->SetLineStyle(2);
       tline->Draw();

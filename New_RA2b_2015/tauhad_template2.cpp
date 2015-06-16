@@ -80,6 +80,7 @@ using namespace std;
     int TauResponse_nBins=4;
     vector<TH1*> vec_resp, vec_resp_x,vec_resp_y;
     vector<TH2*> vec_resp_xy;
+    vector<double> vec_recoMuMTW;
     vector<TVector3> vec_recoMuon3vec;
     vector<TVector3> vec_recoElec3vec;
     TVector3 temp3vec;
@@ -155,7 +156,12 @@ using namespace std;
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
-    searchH_b->Sumw2();   
+    searchH_b->Sumw2();  
+    TH1* searchH_b_noWeight = new TH1D("searchH_b_noWeight","search bin histogram",totNbins_b,1,totNbins_b+1);
+    searchH_b_noWeight->Sumw2();
+
+    // Introduce the bins for IsoTrk
+    map<string,int> binMap_ForIso = utils2::BinMap_ForIso(); 
  
     // Determine correlation between original and recalculated variables
     TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
@@ -173,6 +179,22 @@ using namespace std;
 
     // Determine correlation between original and recalculated variables + nB info
     TH2 * hCorSearch_noW_b = new TH2D("hCorSearch_noW_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
+
+    // calculate iso efficiencies
+    TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
+    IsoElec_all->Sumw2();
+    TH1* IsoElec_pass = new TH1D("IsoElec_pass","Isolated electron efficiency -- pass ",totNbins,1,totNbins+1);
+    IsoElec_pass->Sumw2();
+
+    TH1* IsoMu_all = new TH1D("IsoMu_all","Isolated muon efficiency -- all ",totNbins,1,totNbins+1);
+    IsoMu_all->Sumw2();
+    TH1* IsoMu_pass = new TH1D("IsoMu_pass","Isolated muon efficiency -- pass ",totNbins,1,totNbins+1);
+    IsoMu_pass->Sumw2();
+
+    TH1* IsoPion_all = new TH1D("IsoPion_all","Isolated pion efficiency -- all ",totNbins,1,totNbins+1);
+    IsoPion_all->Sumw2();
+    TH1* IsoPion_pass = new TH1D("IsoPion_pass","Isolated pion efficiency -- pass ",totNbins,1,totNbins+1);
+    IsoPion_pass->Sumw2();
 
 
     // The tau response templates
@@ -238,6 +260,11 @@ using namespace std;
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoPTActivity");
 
 
+    // Get IsoTrk efficiencies
+//    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog219.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+    TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
+
     // Use Ahmad's tau template
 //    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
@@ -296,7 +323,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>100)break;
+//      if(eventN>100000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -316,7 +343,7 @@ using namespace std;
 
 
       // select muons with pt>20. eta<2.1 relIso<.2
-      // vec_recoMuMTW.clear(); ????????????
+      vec_recoMuMTW.clear(); 
       vec_recoMuon3vec.clear();
         
 
@@ -336,12 +363,12 @@ Ahmad33 */
           double pt=evt->MuPtVec_().at(i); // Ahmad33
           double eta=evt->MuEtaVec_().at(i); // Ahmad33
           double phi=evt->MuPhiVec_().at(i); // Ahmad33
-          // double mu_mt_w =muonsMtw->at(i);  ????
+          double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());  
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
             vec_recoMuon3vec.push_back(temp3vec);
-            // vec_recoMuMTW.push_back(mu_mt_w); ???????
+            vec_recoMuMTW.push_back(mu_mt_w); 
           }
         }
 
@@ -351,13 +378,13 @@ Ahmad33 */
           double pt=evt->GenMuPtVec_().at(i); // Ahmad33
           double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
           double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
-          // double mu_mt_w =muonsMtw->at(i);  ????
+          double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
             vec_recoMuon3vec.push_back(temp3vec);
             MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
-            // vec_recoMuMTW.push_back(mu_mt_w); ???????
+            vec_recoMuMTW.push_back(mu_mt_w); 
           }
         }
       }
@@ -397,7 +424,7 @@ Ahmad33 */
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
-        // muMtW = vec_recoMuMTW[0]; ???????
+        //muMtW = vec_recoMuMTW[0]; 
 
 
 // Ahmad33
@@ -759,13 +786,38 @@ Ahmad33 */
             totWeight*=bootstrapWeight;
           }
 
+          // Apply IsoTrkVeto
+          if(utils2::applyIsoTrk){
+
+//            int binNum = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
+//            double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+
+            int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+            double IsoTrkWeight = hIsoEff->GetBinContent(binNum);           
+            if(IsoTrkWeight==0)IsoTrkWeight=0.6;
+
+            totWeight*= IsoTrkWeight;
+          }
+
           // Apply baseline cuts
           if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
+
+            if(!utils2::bootstrap){
+              // The followings doesn't make sense if bootstrap is on!
+              IsoElec_all->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              IsoMu_all->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              IsoPion_all->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+            }
 
             // Fill Search bin histogram 
             searchH->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);
 
             searchH_b->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],totWeight);
+
+            searchH_b_noWeight->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
             hCorSearch->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],totWeight);
             hCorHT->Fill(evt->ht(),newHT,totWeight);
@@ -830,6 +882,28 @@ Ahmad33 */
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
     printf("nCleanEve: %d dilepton_all: %d dilepton_pass: %d \n ",nCleanEve,dilepton_all,dilepton_pass);  
 
+    if(!utils2::bootstrap){
+      // Compute iso efficiencies
+      TH1* IsoElecEff = static_cast<TH1*>(IsoElec_pass->Clone("IsoElecEff"));
+      IsoElecEff->Divide(IsoElec_pass,IsoElec_all,1,1,"B");
+      TH1* IsoMuEff = static_cast<TH1*>(IsoMu_pass->Clone("IsoMuEff"));
+      IsoMuEff->Divide(IsoMu_pass,IsoMu_all,1,1,"B");
+      TH1* IsoPionEff = static_cast<TH1*>(IsoPion_pass->Clone("IsoPionEff"));
+      IsoPionEff->Divide(IsoPion_pass,IsoPion_all,1,1,"B");
+      sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile outFile3(tempname,"RECREATE");
+      IsoElecEff->Write();
+      IsoElec_pass->Write();
+      IsoElec_all->Write();
+      IsoMuEff->Write();
+      IsoMu_pass->Write();
+      IsoMu_all->Write();
+      IsoPionEff->Write();
+      IsoPion_pass->Write();
+      IsoPion_all->Write();
+      outFile3.Close();
+    }
+
     // calculate muon_jet match failure and write the histograms
     TH1D * MuJet_rate = static_cast<TH1D*>(MuJet_fail->Clone("MuJet_rate"));
     MuJet_rate->Divide(MuJet_fail,MuJet_all,1,1,"B");
@@ -846,6 +920,7 @@ Ahmad33 */
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
     searchH_b->Write();
+    searchH_b_noWeight->Write();
     hCorSearch->Write();
     hCorHT->Write();
     hCorMHT->Write();

@@ -141,12 +141,17 @@ using namespace std;
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
     searchH_b->Sumw2();
 
+    // Introduce a binning for IsoTrks
+    map<string,int> binMap_ForIso = utils2::BinMap_ForIso();
+    int totNbins_ForIso=binMap_ForIso.size();
+
     // Inroduce two histogram to understand the probability of a muon coming from tau.
     TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins+1);
     hW_mu->Sumw2();
     TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hTau_mu->Sumw2();
 
+    // calculate the acceptance
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
     int totNbins_mht_nj=binMap_mht_nj.size();
     TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj+1);
@@ -154,6 +159,27 @@ using namespace std;
     hAccAll->Sumw2();
     hAccPass->Sumw2();
 
+    // calculate iso efficiencies
+    TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoElec_all->Sumw2();
+    TH1* IsoElec_pass = new TH1D("IsoElec_pass","Isolated electron efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoElec_pass->Sumw2();
+
+    TH1* IsoMu_all = new TH1D("IsoMu_all","Isolated muon efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoMu_all->Sumw2();
+    TH1* IsoMu_pass = new TH1D("IsoMu_pass","Isolated muon efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoMu_pass->Sumw2();
+
+    TH1* IsoPion_all = new TH1D("IsoPion_all","Isolated pion efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoPion_all->Sumw2();
+    TH1* IsoPion_pass = new TH1D("IsoPion_pass","Isolated pion efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    IsoPion_pass->Sumw2();
+
+    TH1* Iso_all = new TH1D("Iso_all","Isolated Trk efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    Iso_all->Sumw2();
+    TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    Iso_pass->Sumw2();
+    
 
     // The tau response templates
     Utils * utils = new Utils();
@@ -235,7 +261,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>5000000)break;
+//     if(eventN>100000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -397,6 +423,14 @@ using namespace std;
       // double totWeight = evt->weight()*1.;
       double totWeight = 1.;
 
+      // Apply IsoTrkVeto
+      bool passIso=false;
+      if(utils2::applyIsoTrk){
+        if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)passIso=true;
+      }
+      else passIso=true;
+
+
       bool pass3=false;
       if(TauHadModel>=4)pass3=true;
       else{
@@ -405,15 +439,28 @@ using namespace std;
       }
 
       if(pass3){
-        // Apply baseline cuts
-        if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
+        if(passIso){
+          // Apply baseline cuts
+          if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
-          // Fill Search bin histogram
-          searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
-          searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+              IsoElec_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              IsoMu_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              IsoPion_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              Iso_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              
 
+            // Fill Search bin histogram
+            searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
+            searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+
+          }
         }
       }
+
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
@@ -423,32 +470,35 @@ using namespace std;
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
       if(pass3){
 
+        if(passIso){
 
-        //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
-        for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
+          //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+          for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
-          ////determine what type of background should pass
-          if(itt->first=="allEvents"){//all the cuts are inside this
+            ////determine what type of background should pass
+            if(itt->first=="allEvents"){//all the cuts are inside this
 
-            //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
+              //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
 
-            //////loop over cut names and fill the histograms
-            for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
+              //////loop over cut names and fill the histograms
+              for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-  //            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-  if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-                histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-              }
-            }//end of loop over cut names
+    //            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+    if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+                  histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+                }
+              }//end of loop over cut names
 
-            ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
-            
-          }//end of bg_type determination
-        }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+              ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
+              
+            }//end of bg_type determination
+          }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
-        ///////////////////////////////
-        ////End of Closure Test Section
-        ///////////////////////////////
+          ///////////////////////////////
+          ////End of Closure Test Section
+          ///////////////////////////////
+
+        }
 
       } // Ahmad33
 
@@ -562,6 +612,32 @@ using namespace std;
 
     printf("nCleanEve: %d nHadTauEve: %d nNoLepEve: %d \n ",nCleanEve,nHadTauEve,nNoLepEve);
 
+    // Compute iso efficiencies
+    TH1* IsoElecEff = static_cast<TH1*>(IsoElec_pass->Clone("IsoElecEff"));
+    IsoElecEff->Divide(IsoElec_pass,IsoElec_all,1,1,"B");
+    TH1* IsoMuEff = static_cast<TH1*>(IsoMu_pass->Clone("IsoMuEff"));
+    IsoMuEff->Divide(IsoMu_pass,IsoMu_all,1,1,"B");
+    TH1* IsoPionEff = static_cast<TH1*>(IsoPion_pass->Clone("IsoPionEff"));
+    IsoPionEff->Divide(IsoPion_pass,IsoPion_all,1,1,"B");
+    TH1* IsoEff = static_cast<TH1*>(Iso_pass->Clone("IsoEff"));
+    IsoEff->Divide(Iso_pass,Iso_all,1,1,"B");
+    
+    sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+    TFile outFile3(tempname,"RECREATE");
+    IsoElecEff->Write();
+    IsoElec_pass->Write();
+    IsoElec_all->Write();
+    IsoMuEff->Write();
+    IsoMu_pass->Write();
+    IsoMu_all->Write();
+    IsoPionEff->Write();
+    IsoPion_pass->Write();
+    IsoPion_all->Write();
+    IsoEff->Write();
+    Iso_pass->Write();
+    Iso_all->Write();
+    
+    outFile3.Close();
 
     // Compute acceptance
     TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));

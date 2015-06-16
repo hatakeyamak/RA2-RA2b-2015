@@ -48,6 +48,7 @@ public:
     
     double GetBinWidth(double muPt_,vector<TH1*> vec_resp, int l );
 
+    double calcMT(const double objPt, const double objPhi, const double met, const double metphi ) ;
 
 };
 

@@ -127,4 +127,11 @@ using namespace std;
       return vecjvec;
     }
 
+   double Utils::calcMT(const double objPt, const double objPhi, const double met, const double metphi ){
+
+      double mt = sqrt(  2* ( met*objPt -( met*cos(metphi)*objPt*cos(objPhi) + met*sin(metphi)*objPt*sin(objPhi) ) ) );
+
+      return mt;
+   }
+
 
