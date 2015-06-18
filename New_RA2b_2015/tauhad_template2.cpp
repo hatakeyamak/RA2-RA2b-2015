@@ -63,7 +63,7 @@ using namespace std;
     //////////////////////////////////////
     int verbose = atoi(verbosity.c_str());
 
-     //some varaibles
+    //some varaibles
     char filenames[500];
     vector<string> filesVec;
     ifstream fin(InRootList.c_str());
@@ -87,6 +87,7 @@ using namespace std;
     double muPt;
     double muEta;
     double muPhi;
+    double muMtW=-1.;
     double simTauJetPt,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
@@ -133,9 +134,7 @@ using namespace std;
     TH1D simTauJetPt_hist = TH1D("simTauJetPt","Pt of simulated tau Jet",80,0,400);
     simTauJetPt_hist.Sumw2();
     vec.push_back(simTauJetPt_hist);
-    /*TH1D RA2MtW_hist = TH1D("MtW","Mt of W Distribution",10,0,120);
-    RA2MtW_hist.Sumw2();
-    vec.push_back(RA2MtW_hist);
+/*
     TH1D Bjet_mu_hist = TH1D("Bjet_mu_hist","Is Muon from Bjet? ",2,0,2);
     Bjet_mu_hist.Sumw2();
     vec.push_back(Bjet_mu_hist);*/
@@ -262,8 +261,12 @@ using namespace std;
 
     // Get IsoTrk efficiencies
 //    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog219.root","R");
-    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+      TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
+
+    // Get MT efficiency that is calculated here in this code
+    TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
+    TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
 
     // Use Ahmad's tau template
 //    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
@@ -287,6 +290,9 @@ using namespace std;
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
 */
+
+    // muMtW Histogram
+    TH1D * muMtWHist = new TH1D("muMtW"," MT distribution of muon",40,0,200);
 
     // Some variable for nBtag recalculation
     int c1=0,c2=0,c3=0;
@@ -367,7 +373,10 @@ Ahmad33 */
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
-            vec_recoMuon3vec.push_back(temp3vec);
+            if(utils2::applyMT){
+              if(mu_mt_w < 100. )vec_recoMuon3vec.push_back(temp3vec);
+            }
+            else vec_recoMuon3vec.push_back(temp3vec);
             vec_recoMuMTW.push_back(mu_mt_w); 
           }
         }
@@ -382,7 +391,10 @@ Ahmad33 */
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
-            vec_recoMuon3vec.push_back(temp3vec);
+            if(utils2::applyMT){
+              if(mu_mt_w < 100. )vec_recoMuon3vec.push_back(temp3vec);
+            }
+            else vec_recoMuon3vec.push_back(temp3vec);
             MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
             vec_recoMuMTW.push_back(mu_mt_w); 
           }
@@ -413,6 +425,10 @@ Ahmad33 */
 
       }
 
+      
+      if(vec_recoMuMTW.size()>0)muMtW = vec_recoMuMTW[0]; 
+      muMtWHist->Fill(muMtW);
+
       if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
 
       //if( template_nMuons == 1 && template_nElectrons == 0 ) {
@@ -424,12 +440,13 @@ Ahmad33 */
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
-        //muMtW = vec_recoMuMTW[0]; 
 
 
 // Ahmad33
       dilepton_all++;
       bool pass1_1=false;
+      // for veto we have a lepton collection with softer requirements. pT > 10 not 20 and eta < 2.4 not 2.1 and also there is no 
+      // mT cut applied. 
       if(TauHadModel>=2){if(evt->MuPtVec_().size()>1 || evt->ElecPtVec_().size()>0)pass1_1=true;}
       else{ if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)pass1_1=true;}
       if(pass1_1)continue;
@@ -788,16 +805,28 @@ Ahmad33 */
 
           // Apply IsoTrkVeto
           if(utils2::applyIsoTrk){
-
 //            int binNum = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
 //            double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
 
             int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-            double IsoTrkWeight = hIsoEff->GetBinContent(binNum);           
+            double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+
             if(IsoTrkWeight==0)IsoTrkWeight=0.6;
 
             totWeight*= IsoTrkWeight;
           }
+
+          // Apply MT efficiency
+          if(utils2::applyMT){
+
+            int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+            double mtWeight = hMT->GetBinContent(binNum);
+
+            if(mtWeight==0)mtWeight=0.9;
+
+            totWeight/= mtWeight;
+          }
+
 
           // Apply baseline cuts
           if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
@@ -918,6 +947,7 @@ Ahmad33 */
     // open a file to write the histograms
     sprintf(tempname,"%s/HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
+    muMtWHist->Write();
     searchH->Write();
     searchH_b->Write();
     searchH_b_noWeight->Write();
