@@ -237,22 +237,26 @@ using namespace std;
 
     // Rate of bTagged tau jet
     TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
+//    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_stacked.root","R");
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
     TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_Elog195.root","R");
+//    TFile * Prob_Tau_mu_file = new TFile("TauHad/Stack/Probability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
 //    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
+
     TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
+//    TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked.root","R");
+
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
-
 
     TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
@@ -260,26 +264,25 @@ using namespace std;
 
 
     // Get IsoTrk efficiencies
-//    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog219.root","R");
-      TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+//    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
 
     // Get MT efficiency that is calculated here in this code
     TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
+//    TFile * MtFile = new TFile("TauHad2/Stack/MtEff_stacked.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
 
+
     // Use Ahmad's tau template
-//    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_.root","R");
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
+//    TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
-      sprintf(histname,"hTauResp_%d_x",i);
-      vec_resp_x.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
-      sprintf(histname,"hTauResp_%d_y",i);
-      vec_resp_y.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
       sprintf(histname,"hTauResp_%d_xy",i);
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
+
     }
 
 /*

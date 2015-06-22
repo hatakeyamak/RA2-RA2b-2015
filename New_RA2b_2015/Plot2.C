@@ -42,11 +42,11 @@ Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int c
   
   vector<TFile *> filevec;
   
-    
-  sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
-  sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
-  // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
 
   //

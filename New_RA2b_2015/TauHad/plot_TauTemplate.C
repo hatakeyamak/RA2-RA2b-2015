@@ -51,7 +51,7 @@ void plot_TauTemplate(int icomp=0, string input=""){
   
 //  TFile *file_08TeV         = new TFile("tauTemplatesRes_8TeV.root","R"); 
 //  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates_stacked.root","R"); 
-  sprintf(tempname,"HadTau_TauResponseTemplates_TTbar_%s.root",input.c_str());
+  sprintf(tempname,"HadTau_TauResponseTemplates_%s.root",input.c_str());
   TFile *file_13TeV         = new TFile(tempname,"R");
   TFile *file_13TeV_NoLowPtJet = new TFile("../../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R"); 
   TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
@@ -70,7 +70,8 @@ void plot_TauTemplate(int icomp=0, string input=""){
     thist->SetLineWidth(3);
 
     if(i==0){
-      thist->SetMaximum(1.4);
+      if(input.find("TTbar")!=string::npos)thist->SetMaximum(1.4);
+      if(input.find("WJet")!=string::npos)thist->SetMaximum(10);
       thist->GetXaxis()->SetLabelFont(42);
       thist->GetXaxis()->SetLabelOffset(0.007);
       thist->GetXaxis()->SetLabelSize(0.04);
@@ -160,7 +161,7 @@ void plot_TauTemplate(int icomp=0, string input=""){
 
   catLeg1->Draw();  
 
-  sprintf(tempname,"TauResponseTemplates_TTbar_%s.png",input.c_str());
+  sprintf(tempname,"TauResponseTemplates_%s.png",input.c_str());
   c1->Print(tempname);
 
 }

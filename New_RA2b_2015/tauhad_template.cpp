@@ -160,24 +160,24 @@ using namespace std;
     hAccPass->Sumw2();
 
     // calculate iso efficiencies
-    TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
     IsoElec_all->Sumw2();
-    TH1* IsoElec_pass = new TH1D("IsoElec_pass","Isolated electron efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoElec_pass = new TH1D("IsoElec_pass","Isolated electron efficiency -- pass ",totNbins,1,totNbins+1);
     IsoElec_pass->Sumw2();
 
-    TH1* IsoMu_all = new TH1D("IsoMu_all","Isolated muon efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoMu_all = new TH1D("IsoMu_all","Isolated muon efficiency -- all ",totNbins,1,totNbins+1);
     IsoMu_all->Sumw2();
-    TH1* IsoMu_pass = new TH1D("IsoMu_pass","Isolated muon efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoMu_pass = new TH1D("IsoMu_pass","Isolated muon efficiency -- pass ",totNbins,1,totNbins+1);
     IsoMu_pass->Sumw2();
 
-    TH1* IsoPion_all = new TH1D("IsoPion_all","Isolated pion efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoPion_all = new TH1D("IsoPion_all","Isolated pion efficiency -- all ",totNbins,1,totNbins+1);
     IsoPion_all->Sumw2();
-    TH1* IsoPion_pass = new TH1D("IsoPion_pass","Isolated pion efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* IsoPion_pass = new TH1D("IsoPion_pass","Isolated pion efficiency -- pass ",totNbins,1,totNbins+1);
     IsoPion_pass->Sumw2();
 
-    TH1* Iso_all = new TH1D("Iso_all","Isolated Trk efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* Iso_all = new TH1D("Iso_all","Isolated Trk efficiency -- all ",totNbins,1,totNbins+1);
     Iso_all->Sumw2();
-    TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
     Iso_pass->Sumw2();
     
 
@@ -208,11 +208,12 @@ using namespace std;
     // Because of bad reconstruction or so, sometimes no jet matches a Gen. hadronic tau. 
     // So we need to add into account the fail rate here. 
     // First open the fail rate histogram
+/*
     sprintf(tempname,"TauHad/FailRate_GenTau_jet_TTbar_%s.root",inputnumber.c_str());
     TFile * FailRateGenTau_Jet_file = new TFile(tempname,"R");
     sprintf(histname,"FailRate_GenTau_jet");
     TH1D * hFailRate_GenTau_Jet =(TH1D *) FailRateGenTau_Jet_file->Get(histname)->Clone();
- 
+*/
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -443,14 +444,14 @@ using namespace std;
           // Apply baseline cuts
           if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
-              IsoElec_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              IsoMu_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              IsoPion_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              Iso_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              IsoElec_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              IsoMu_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              IsoPion_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              Iso_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+              if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
               
 
             // Fill Search bin histogram
@@ -538,7 +539,7 @@ using namespace std;
           printf("JetEta: %g ,JetPhi(): %g ,JetPt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",evt->JetsEtaVec_()[tauJetIdx],evt->JetsPhiVec_()[tauJetIdx],evt->JetsPtVec_()[tauJetIdx],genTauEta,genTauPhi,genTauPt);
         }
       }
-
+/*
       // Fill tauJet Pt histogram
       double failRate = hFailRate_GenTau_Jet->GetBinContent(hFailRate_GenTau_Jet->GetXaxis()->FindBin(genTauPt));
       // We know N_tot = N_pass + N_fail. And, failRate=N_fial/N_tot ==> N_tot = 1/(1-failRate) N_pass
@@ -553,7 +554,7 @@ using namespace std;
           break; // End the jet loop once the tau jet has been found
         }
       } // End of loop over reco jets
-
+*/
 
       // Use only events where the tau is inside the muon acceptance
       // because lateron we will apply the response to muon+jet events

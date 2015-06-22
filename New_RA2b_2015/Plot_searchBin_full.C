@@ -59,10 +59,12 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
 //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
-  sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
 
   //
@@ -146,11 +148,23 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   double search_x_min=1.;
 
   sprintf(tempname,"%s",histname.c_str());
-  EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
-  GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
-  EstHistD=(TH1D*) EstFile->Get(tempname)->Clone();
-  GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
-
+  if(sample.find("stacked")!=string::npos){
+    tempstack=(THStack*)EstFile->Get(tempname)->Clone();
+    EstHist=(TH1D*) tempstack->GetStack()->Last();
+    tempstack=(THStack*)GenFile->Get(tempname)->Clone();   
+    GenHist=(TH1D*) tempstack->GetStack()->Last();
+    tempstack=(THStack*)EstFile->Get(tempname)->Clone();
+    EstHistD=(TH1D*) tempstack->GetStack()->Last();
+    tempstack=(THStack*)GenFile->Get(tempname)->Clone();
+    GenHistD=(TH1D*) tempstack->GetStack()->Last();
+    
+  }
+  else{
+    EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
+    GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
+    EstHistD=(TH1D*) EstFile->Get(tempname)->Clone();
+    GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
+  }
   GenHist->SetLineColor(2);
   EstHist->SetLineColor(4);
   //GenHist->GetXaxis()->SetLabelFont(42);
