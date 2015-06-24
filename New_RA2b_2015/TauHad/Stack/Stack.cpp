@@ -65,7 +65,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     else if(i==4)sprintf(tempname,"../../Results/results_WJet_600_inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
+    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
     WJet_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
@@ -470,7 +470,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(i==1)sprintf(tempname,"../../Results/results_TTbar_.root");
     else{cout << " Error!! There are only 1 TTbar ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
+    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
     TTbar_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 

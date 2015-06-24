@@ -3,7 +3,7 @@
 using namespace std;
 
 
-Plot(string cutname="nocut", string histname="MHT"){
+Plot(string cutname="PreSel", string histname="MHT"){
 
 char tempname[200];
  int W = 600;

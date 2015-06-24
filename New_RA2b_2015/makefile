@@ -21,7 +21,7 @@ OBJS4         = tauhad_template2.o Events.o Selection.o utils.o
 PROGRAM4      = run_tauHad2
 
 
-HEADERS       = $(DIR)/Events.h Selection.h utils.h utils2.h Lepton_Selection.h LeptonEfficiency.h LeptonAcceptance.h HistReader.h
+HEADERS       = $(DIR)/Events.h Selection.h utils.h utils2.h Lepton_Selection.h LeptonEfficiency.h LeptonAcceptance.h HistReader.h bootstrapUtils.h
 
 %.o : %.C $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<

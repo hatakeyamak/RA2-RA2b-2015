@@ -8,8 +8,9 @@ using namespace std;
 
 class Selection {
 
+  bool applyIsoTrk;
   map<int, string> cutname;
-
+  
 public:
 
 
@@ -49,24 +50,15 @@ public:
 
 
 
-//  bool ElecIsoTrk(int nElecIso_){if(nElecIso_ ==0)return true; return false;}
-bool ElecIsoTrk(int nElecIso_){return true;} // Ahmad33
-
-
-//  bool MuIsoTrk(int nMuIso_){if(nMuIso_ ==0)return true; return false;}
-bool MuIsoTrk(int nMuIso_){return true;} // Ahmad33
-
-
-//  bool PionIsoTrk(int nPionIso_){if(nPionIso_ ==0)return true; return false;}
-bool PionIsoTrk(int nPionIso_){return true;} // Ahmad33
-
+  bool ElecIsoTrk(int nElecIso_);
+  bool MuIsoTrk(int nMuIso_);
+  bool PionIsoTrk(int nPionIso_);
 
 
 //  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
 //  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
   bool checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
   bool checkcut_HadTau(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
-
 
 
 };

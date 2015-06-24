@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Plot2(string cutname="nocut", string histname="MHT",string sample="TTbar_",int choice=0){
+Plot2(string cutname="PreSel", string histname="MHT",string sample="TTbar_",int choice=0){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////

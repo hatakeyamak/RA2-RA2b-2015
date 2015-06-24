@@ -10,7 +10,7 @@ EventYield_TauHad(){
 
   map<int,string> cutname;
 
-    cutname[0]="nocut";cutname[1]="Njet_4";cutname[2]="ht_500";
+    cutname[0]="PreSel";cutname[1]="Njet_4";cutname[2]="ht_500";
     cutname[3]="mht_200";cutname[4]="nolep";
     cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
     cutname[8]="delphi";
@@ -29,7 +29,7 @@ EventYield_TauHad(){
 
   double exp=0,pre=0;
 
-  cout<< " nocut(corresponding with \"if(MuFromTauVec[0]==0){\" in elog 183 ) for prediction and with \"if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){\" for expectation )\n";
+  cout<< " PreSel(corresponding with \"if(MuFromTauVec[0]==0){\" in elog 183 ) for prediction and with \"if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){\" for expectation )\n";
   for(int i=0; i<cutname.size();i++){
     sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
     tempHist=(TH1D*)exp_f->Get(tempname)->Clone();

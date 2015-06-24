@@ -42,7 +42,6 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   TTbartype[0]="allEvents";
 
 
-
 // .....................................................................................................................................................//
 // WJet Section
 // .....................................................................................................................................................//
@@ -58,6 +57,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
   const int wjnHT = (int) WJet_xs_vec.size();   // Total number of HT bin samples
 
+cout << " flag \n " ;
   for(int i=1; i<=wjnHT ; i++){
     if(i==1)sprintf(tempname,"../../Results/results_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../../Results/results_WJet_200_400_.root");
@@ -65,7 +65,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
     else if(i==4)sprintf(tempname,"../../Results/results_WJet_600_inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
+    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
 printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
@@ -191,7 +191,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     if(i==1)sprintf(tempname,"../../Results/results_TTbar_.root");
     else{cout << " Error!! There are only 1 TTbaret ht binned sample " << endl;}
     file = new TFile(tempname, "R");
-    sprintf(tempname,"allEvents/nocut/MHT_nocut_allEvents");
+    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
 printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
