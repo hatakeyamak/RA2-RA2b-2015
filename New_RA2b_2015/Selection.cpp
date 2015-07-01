@@ -69,4 +69,4 @@
 
   map<int, string> Selection::cutName() const {return cutname;}
  
-
+  bool Selection::applyIsoTrk_() const {return applyIsoTrk;}

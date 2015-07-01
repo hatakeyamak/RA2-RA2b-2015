@@ -26,7 +26,7 @@ class mainClass{
   map<int, string> cutname, histname, Hname;
   map<int, string> WJettype, TTbartype;
   TFile *file, *file2, *file3;
-  TH1D *temphist, *temphist2;
+  TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
 
@@ -107,6 +107,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
+  Hname[2]="QCD_H";
   
   for(int j=0; j< Hname.size(); j++){
 
@@ -329,12 +330,19 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
-
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("TauBtaggedRate"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("TauBtaggedRate");
+  temphistIII->SetTitle("TauBtaggedRate");
+  temphistIII->Write();
+
 
   file->Close();
   printf("WJet mistag rate calculated. \n ");
@@ -384,12 +392,19 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
 
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc");
+  temphistIII->SetTitle("hAcc");
+  temphistIII->Write();
 
   file->Close();
   printf("WJet acceptance calculated. \n ");
@@ -440,12 +455,18 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
-
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff");
+  temphistIII->SetTitle("IsoEff");
+  temphistIII->Write();
 
   file->Close();
   printf("WJet IsoTrks calculated. \n ");
@@ -508,7 +529,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-  
+  Hname[2]="QCD_H";
+ 
   for(int j=0; j< Hname.size(); j++){
 
     for(int i=0; i<ttbarnHT ; i++){                                                  // loop over different HT bins
@@ -718,12 +740,19 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
 
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("TauBtaggedRate"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("TauBtaggedRate");
+  temphistIII->SetTitle("TauBtaggedRate");
+  temphistIII->Write();
 
   file->Close();
   printf("TTbar mistag rate calculated. \n ");
@@ -771,12 +800,19 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
 
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc");
+  temphistIII->SetTitle("hAcc");
+  temphistIII->Write();
 
   file->Close();
   printf("TTbar acceptance calculated. \n ");
@@ -823,12 +859,18 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
-
   }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff");
+  temphistIII->SetTitle("IsoEff");
+  temphistIII->Write();
 
   file->Close();
   printf("TTbar IsoTrks calculated. \n ");
@@ -875,7 +917,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-  
+  Hname[2]="QCD_H";
+
   for(int j=0; j< Hname.size(); j++){
 
     for(int i=0; i<NSamples ; i++){                                                  // loop over different HT bins

@@ -145,6 +145,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
   double search_x_max=73.;
+  if(histname=="QCD_H")search_x_max=224.;
   double search_x_min=1.;
 
   sprintf(tempname,"%s",histname.c_str());
@@ -206,7 +207,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   GenHist->GetXaxis()->SetTitle(xtitlename);
   GenHist->GetYaxis()->SetTitle(ytitlename);
   TH1D * GenHist_Normalize = static_cast<TH1D*>(GenHist->Clone("GenHist_Normalize"));
-  GenHist_Normalize->Scale(lumi/lumi_ttbar);
+//  GenHist_Normalize->Scale(lumi/lumi_ttbar);
   GenHist_Normalize->SetMaximum(ymax_top);
   GenHist_Normalize->SetMinimum(ymin_top);
   //GenHist->Draw("e");
@@ -221,7 +222,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   //EstHist->Draw("e2same");
   //EstHist->Draw("esame");
   TH1D * EstHist_Normalize = static_cast<TH1D*>(EstHist->Clone("EstHist_Normalize"));
-  EstHist_Normalize->Scale(lumi/lumi_ttbar);
+//  EstHist_Normalize->Scale(lumi/lumi_ttbar);
   EstHist_Normalize->DrawCopy("e2same");
   EstHist_Normalize->DrawCopy("esame");
 
@@ -231,102 +232,105 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   //
   // Re-draw to have "expectation" on top of "prediction"
   GenHist_Normalize->DrawCopy("esame");
+  //
+    // Legend & texts
+    sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
+    catLeg1->AddEntry(GenHist,tempname,"p");
+    sprintf(tempname,"Data driven prediction");
+    catLeg1->AddEntry(EstHist,tempname);
+    catLeg1->Draw();
 
   //
-  // Lines 
-  TLine *tline_top_1 = new TLine(25.,ymin_top,25.,ymax_top);
-  tline_top_1->SetLineStyle(2);
-  tline_top_1->Draw();
+  if(histname!="QCD_H"){
+    // Lines 
+    TLine *tline_top_1 = new TLine(25.,ymin_top,25.,ymax_top);
+    tline_top_1->SetLineStyle(2);
+    tline_top_1->Draw();
 
-  TLine *tline_top_2 = new TLine(49.,ymin_top,49.,ymax_top);
-  tline_top_2->SetLineStyle(2);
-  tline_top_2->Draw();
+    TLine *tline_top_2 = new TLine(49.,ymin_top,49.,ymax_top);
+    tline_top_2->SetLineStyle(2);
+    tline_top_2->Draw();
 
-  TLine *tline_top_1a = new TLine(7.,ymin_top,7.,ymax2_top);
-  tline_top_1a->SetLineStyle(3);
-  tline_top_1a->Draw();
-  TLine *tline_top_1b = new TLine(13.,ymin_top,13.,ymax2_top);
-  tline_top_1b->SetLineStyle(3);
-  tline_top_1b->Draw();
-  TLine *tline_top_1c = new TLine(19.,ymin_top,19.,ymax2_top);
-  tline_top_1c->SetLineStyle(3);
-  tline_top_1c->Draw();
+    TLine *tline_top_1a = new TLine(7.,ymin_top,7.,ymax2_top);
+    tline_top_1a->SetLineStyle(3);
+    tline_top_1a->Draw();
+    TLine *tline_top_1b = new TLine(13.,ymin_top,13.,ymax2_top);
+    tline_top_1b->SetLineStyle(3);
+    tline_top_1b->Draw();
+    TLine *tline_top_1c = new TLine(19.,ymin_top,19.,ymax2_top);
+    tline_top_1c->SetLineStyle(3);
+    tline_top_1c->Draw();
 
-  TLine *tline_top_2a = new TLine(31.,ymin_top,31.,ymax3_top);
-  tline_top_2a->SetLineStyle(3);
-  tline_top_2a->Draw();
-  TLine *tline_top_2b = new TLine(37.,ymin_top,37.,ymax3_top);
-  tline_top_2b->SetLineStyle(3);
-  tline_top_2b->Draw();
-  TLine *tline_top_2c = new TLine(43.,ymin_top,43.,ymax3_top);
-  tline_top_2c->SetLineStyle(3);
-  tline_top_2c->Draw();
+    TLine *tline_top_2a = new TLine(31.,ymin_top,31.,ymax3_top);
+    tline_top_2a->SetLineStyle(3);
+    tline_top_2a->Draw();
+    TLine *tline_top_2b = new TLine(37.,ymin_top,37.,ymax3_top);
+    tline_top_2b->SetLineStyle(3);
+    tline_top_2b->Draw();
+    TLine *tline_top_2c = new TLine(43.,ymin_top,43.,ymax3_top);
+    tline_top_2c->SetLineStyle(3);
+    tline_top_2c->Draw();
 
-  TLine *tline_top_3a = new TLine(55.,ymin_top,55.,ymax4_top);
-  tline_top_3a->SetLineStyle(3);
-  tline_top_3a->Draw();
-  TLine *tline_top_3b = new TLine(61.,ymin_top,61.,ymax4_top);
-  tline_top_3b->SetLineStyle(3);
-  tline_top_3b->Draw();
-  TLine *tline_top_3c = new TLine(67.,ymin_top,67.,ymax4_top);
-  tline_top_3c->SetLineStyle(3);
-  tline_top_3c->Draw();
+    TLine *tline_top_3a = new TLine(55.,ymin_top,55.,ymax4_top);
+    tline_top_3a->SetLineStyle(3);
+    tline_top_3a->Draw();
+    TLine *tline_top_3b = new TLine(61.,ymin_top,61.,ymax4_top);
+    tline_top_3b->SetLineStyle(3);
+    tline_top_3b->Draw();
+    TLine *tline_top_3c = new TLine(67.,ymin_top,67.,ymax4_top);
+    tline_top_3c->SetLineStyle(3);
+    tline_top_3c->Draw();
 
-  //
-  // Legend & texts
-  sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
-  catLeg1->AddEntry(GenHist,tempname,"p");
-  sprintf(tempname,"Data driven prediction");
-  catLeg1->AddEntry(EstHist,tempname);
-  catLeg1->Draw();
 
-  TLatex * ttext1 = new TLatex(13. , ymax_top/4. , "4 #leq N_{jets} #leq 6");
-  ttext1->SetTextFont(42);
-  ttext1->SetTextSize(0.04);
-  ttext1->SetTextAlign(22);
-  ttext1->Draw();
+    TLatex * ttext1 = new TLatex(13. , ymax_top/4. , "4 #leq N_{jets} #leq 6");
+    ttext1->SetTextFont(42);
+    ttext1->SetTextSize(0.04);
+    ttext1->SetTextAlign(22);
+    ttext1->Draw();
 
-  TLatex * ttext2 = new TLatex(37. , ymax_top/4. , "7 #leq N_{jets} #leq 8");
-  ttext2->SetTextFont(42);
-  ttext2->SetTextSize(0.04);
-  ttext2->SetTextAlign(22);
-  ttext2->Draw();
+    TLatex * ttext2 = new TLatex(37. , ymax_top/4. , "7 #leq N_{jets} #leq 8");
+    ttext2->SetTextFont(42);
+    ttext2->SetTextSize(0.04);
+    ttext2->SetTextAlign(22);
+    ttext2->Draw();
 
-  TLatex * ttext3 = new TLatex(61. , ymax_top/400. , "N_{jets} #geq 9");
-  ttext3->SetTextFont(42);
-  ttext3->SetTextSize(0.04);
-  ttext3->SetTextAlign(22);
-  ttext3->Draw();
+    TLatex * ttext3 = new TLatex(61. , ymax_top/400. , "N_{jets} #geq 9");
+    ttext3->SetTextFont(42);
+    ttext3->SetTextSize(0.04);
+    ttext3->SetTextAlign(22);
+    ttext3->Draw();
 
-  TLatex * ttext1a = new TLatex(4. , ymax_top/20. , "N_{b} = 0");
-  ttext1a->SetTextFont(42);
-  ttext1a->SetTextSize(0.04);
-  ttext1a->SetTextAlign(22);
-  ttext1a->Draw();
-  
-  TLatex * ttext1b = new TLatex(10. , ymax_top/20. , "N_{b} = 1");
-  ttext1b->SetTextFont(42);
-  ttext1b->SetTextSize(0.04);
-  ttext1b->SetTextAlign(22);
-  ttext1b->Draw();
-  
-  TLatex * ttext1c = new TLatex(16. , ymax_top/20. , "N_{b} = 2");
-  ttext1c->SetTextFont(42);
-  ttext1c->SetTextSize(0.04);
-  ttext1c->SetTextAlign(22);
-  ttext1c->Draw();
-  
-  TLatex * ttext1d = new TLatex(22. , ymax_top/20. , "N_{b} #geq 3");
-  ttext1d->SetTextFont(42);
-  ttext1d->SetTextSize(0.04);
-  ttext1d->SetTextAlign(22);
-  ttext1d->Draw();
-  
-  TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
-  ttext->SetTextFont(42);
-  ttext->SetTextSize(0.045);
-  ttext->SetTextAlign(22);
-  ttext->Draw();
+    TLatex * ttext1a = new TLatex(4. , ymax_top/20. , "N_{b} = 0");
+    ttext1a->SetTextFont(42);
+    ttext1a->SetTextSize(0.04);
+    ttext1a->SetTextAlign(22);
+    ttext1a->Draw();
+    
+    TLatex * ttext1b = new TLatex(10. , ymax_top/20. , "N_{b} = 1");
+    ttext1b->SetTextFont(42);
+    ttext1b->SetTextSize(0.04);
+    ttext1b->SetTextAlign(22);
+    ttext1b->Draw();
+    
+    TLatex * ttext1c = new TLatex(16. , ymax_top/20. , "N_{b} = 2");
+    ttext1c->SetTextFont(42);
+    ttext1c->SetTextSize(0.04);
+    ttext1c->SetTextAlign(22);
+    ttext1c->Draw();
+    
+    TLatex * ttext1d = new TLatex(22. , ymax_top/20. , "N_{b} #geq 3");
+    ttext1d->SetTextFont(42);
+    ttext1d->SetTextSize(0.04);
+    ttext1d->SetTextAlign(22);
+    ttext1d->Draw();
+    
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();
+
+  }
   //
   // Bottom ratio plot
   //

@@ -56,7 +56,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
   TFile *file_13TeV_NoLowPtJet = new TFile("../../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R"); 
   TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
 
-  TFile *file_Rishi_TauGun         = new TFile("HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
+  TFile *file_WJet         = new TFile("Stack/HadTau_TauResponseTemplates_WJet_stacked.root","R");
 
 
   TH1D * thist;
@@ -66,7 +66,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     thist = (TH1D*)file_13TeV->Get(tempname)->Clone();
     sprintf(tempname2,"hTauResp_%d_AB",i);
     thist->SetName(tempname2);
-    thist->SetLineColor(6);
+    thist->SetLineColor(4);
     thist->SetFillColor(0);
     thist->SetLineWidth(3);
 
@@ -97,24 +97,25 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     catLeg1->AddEntry(thist,tempname,"l");
   catLeg1->Draw();
 
-  TH1D * thist_Rishi_TauGun;
+  TH1D * thist_WJet;
   if (icomp==3){
-    sprintf(tempname,"response%d",i+2);
-    thist_Rishi_TauGun = (TH1D*)file_Rishi_TauGun->Get(tempname)->Clone();
-    if(thist_Rishi_TauGun->Integral("width") > 0.){
-     thist_Rishi_TauGun->Scale(1./thist_Rishi_TauGun->Integral("width")); 
+    sprintf(tempname,"hTauResp_%d",i);
+    thist_WJet = (TH1D*)file_WJet->Get(tempname)->Clone();
+    if(thist_WJet->Integral("width") > 0.){
+     thist_WJet->Scale(1./thist_WJet->Integral("width")); 
     }
-    sprintf(tempname2,"hTauResp_%d_Rishi_TauGun",i);
-    thist_Rishi_TauGun->SetName(tempname2);
-    thist_Rishi_TauGun->SetLineColor(i+1);
-    thist_Rishi_TauGun->SetLineWidth(3);
-    thist_Rishi_TauGun->SetLineStyle(3);
-    thist_Rishi_TauGun->Draw("same,hist");
-    if(i==0)sprintf(tempname,"20 - 30: Rishi_TauGun");
-    if(i==1)sprintf(tempname,"30 - 50: Rishi_TauGun");
-    if(i==2)sprintf(tempname,"50 - 100:Rishi_TauGun");
-    if(i==3)sprintf(tempname,">100: Rishi_TauGun");
-    catLeg1->AddEntry(thist_Rishi_TauGun,tempname,"l");
+    sprintf(tempname2,"hTauResp_%d_WJet",i);
+    thist_WJet->SetName(tempname2);
+    thist_WJet->SetLineColor(2);
+    thist_WJet->SetFillColor(0);
+    thist_WJet->SetLineWidth(3);
+    thist_WJet->SetLineStyle(3);
+    thist_WJet->Draw("same,hist");
+    if(i==0)sprintf(tempname,"20 - 30: WJet");
+    if(i==1)sprintf(tempname,"30 - 50: WJet");
+    if(i==2)sprintf(tempname,"50 - 100:WJet");
+    if(i==3)sprintf(tempname,">100: WJet");
+    catLeg1->AddEntry(thist_WJet,tempname,"l");
   }
 
 

@@ -1,5 +1,5 @@
 
-void plot_FailRate_GenTau_Jet(string input=""){
+void plot_FailRate_GenTau_Jet(string sample="TTbar_"){
 
   //
   // icomp=0: only show own results
@@ -47,7 +47,7 @@ void plot_FailRate_GenTau_Jet(string input=""){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  sprintf(tempname,"FailRate_GenTau_jet_TTbar_%s.root",input.c_str());
+  sprintf(tempname,"FailRate_GenTau_jet_%s.root",sample.c_str());
   TFile *file   = new TFile(tempname,"R");
 
   TH1D * thist, * thist2;
@@ -100,7 +100,7 @@ void plot_FailRate_GenTau_Jet(string input=""){
     catLeg1->Draw();
 
 */
-    sprintf(tempname,"Plot_failRate_GenTau_Jet_%s.png",input.c_str());
+    sprintf(tempname,"Plot_failRate_GenTau_Jet_%s.png",sample.c_str());
     c1->Print(tempname);
 
 }

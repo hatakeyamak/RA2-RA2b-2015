@@ -153,6 +153,15 @@ using namespace std;
     // Make another hist to be filled during bootstrapping
     TH1 * searchH_evt = static_cast<TH1D*>(searchH->Clone("searchH_evt")); 
 
+    // Introduce QCD histogram
+    map<string,int> binMap_QCD = utils2::BinMap_QCD();
+    int totNbins_QCD=binMap_QCD.size();
+    TH1* QCD_H = new TH1D("QCD_H","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_H->Sumw2();
+    // Make another hist to be filled during bootstrapping
+    TH1 * QCD_H_evt = static_cast<TH1D*>(QCD_H->Clone("QCD_H_evt"));
+    
+
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
@@ -249,8 +258,8 @@ using namespace std;
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_Elog195.root","R");
-//    TFile * Prob_Tau_mu_file = new TFile("TauHad/Stack/Probability_Tau_mu_stacked.root","R");
+    //TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_Elog195.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_Elog242.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
@@ -279,6 +288,14 @@ using namespace std;
     TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
 //    TFile * MtFile = new TFile("TauHad2/Stack/MtEff_stacked.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
+
+
+    // Inroduce two histogram to understand the probability of a muon coming from tau.
+    // and also those reco mu that does not match a gen mu
+    TH1D * hAll_mu = new TH1D("hAll_mu","mu from W -- search bin",totNbins,1,totNbins+1);
+    hAll_mu->Sumw2();
+    TH1D * hNonW_mu = new TH1D("hNonW_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
+    hNonW_mu->Sumw2();
 
 
     // Use Ahmad's tau template
@@ -476,7 +493,7 @@ Ahmad33 */
         }
 
         GenRecMu_all++;
-        // If muon does not match a GenMuon, drop the event. 
+        // If muon does not match a GenMuon, drop the event. We do this by applying some corrections 
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
           GenRecMu_fail++;
@@ -487,7 +504,7 @@ Ahmad33 */
           for(int i=0; i<evt->GenMuPtVec_().size(); i++){
 //          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
           }
-          continue;
+          
         }
 
 
@@ -802,7 +819,7 @@ Ahmad33 */
 
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
-            double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(hProb_Tau_mu->GetXaxis()->FindBin(muPt));
+            double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
 
     //Ahmad33
             if(TauHadModel<4)Acc=1.; 
@@ -837,7 +854,10 @@ Ahmad33 */
 
               if(mtWeight==0)mtWeight=0.9;
 
-              totWeight/= mtWeight;
+              if(!utils2::CalcMT)totWeight/= mtWeight;
+              else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
+
+
             }
 
 
@@ -852,6 +872,12 @@ Ahmad33 */
                 if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
                 IsoPion_all->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
                 if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                
+                // Non W muons calculation
+                hAll_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                if(GenMuIdx<0)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+
               }
 
               double searchWeight = totWeight;
@@ -874,6 +900,7 @@ Ahmad33 */
               // Fill Search bin histogram 
               searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 
+
               searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
               searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
@@ -895,6 +922,27 @@ Ahmad33 */
          
             }
 
+            // Fill QCD histogram
+            // Fill the histogram in the inverted delta phi region
+            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
+              double searchWeight = totWeight;
+
+              // applyIsoTrk here 
+              if(utils2::applyIsoTrk){
+
+                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+                double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+
+                if(IsoTrkWeight==0)IsoTrkWeight=0.6;
+
+                searchWeight = totWeight*IsoTrkWeight;
+
+              }
+              else searchWeight = totWeight;
+
+              // Fill QCD histograms
+              QCD_H_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+            }
 
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -952,6 +1000,7 @@ Ahmad33 */
 
       // Correct the uncertainties
       bootstrapUtils::HistogramFillForEventTH1(searchH, searchH_evt);
+      bootstrapUtils::HistogramFillForEventTH1(QCD_H, QCD_H_evt);
       bootstrapUtils::HistogramFillForEventTH1(searchH_b, searchH_b_noWeight, searchH_b_evt, searchH_b_noWeight_evt);
 
 
@@ -996,6 +1045,16 @@ Ahmad33 */
       IsoPion_pass->Write();
       IsoPion_all->Write();
       outFile3.Close();
+
+      // Calculate probability of finding non-W muons
+      TH1* hNonWMuProb = static_cast<TH1*>(hNonW_mu->Clone("hProb_Tau_mu"));
+      hNonWMuProb->Divide(hNonW_mu,hAll_mu,1,1,"B");
+      sprintf(tempname,"%s/Probability_Tau_mu_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile muProbFile(tempname,"RECREATE");     
+      hNonWMuProb->Write();
+      hAll_mu->Write();
+      hNonW_mu->Write();
+      muProbFile.Close();
     }
 
     // calculate muon_jet match failure and write the histograms
@@ -1014,6 +1073,7 @@ Ahmad33 */
     TFile *resFile = new TFile(tempname, "RECREATE");
     muMtWHist->Write();
     searchH->Write();
+    QCD_H->Write();
     searchH_b->Write();
     searchH_b_noWeight->Write();
     hCorSearch->Write();

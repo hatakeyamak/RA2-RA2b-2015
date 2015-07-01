@@ -135,6 +135,12 @@ using namespace std;
     TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins+1);
     searchH->Sumw2();
 
+    // Introduce QCD histogram
+    map<string,int> binMap_QCD = utils2::BinMap_QCD();
+    int totNbins_QCD=binMap_QCD.size();
+    TH1* QCD_H = new TH1D("QCD_H","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_H->Sumw2();
+
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
@@ -229,6 +235,12 @@ using namespace std;
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
 
+    // applyIsoTrk should be on/off in both places 
+    if(sel->applyIsoTrk_()!=utils2::applyIsoTrk){
+      cout << " \n\n\n\n Make sure IsoTrk is on/off bothe in utils2 and Selection \n\n\n\n" ;
+      return 2;
+    }
+
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
@@ -262,7 +274,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-    // if(eventN>100000)break;
+ //if(eventN>1000000)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -440,27 +452,38 @@ using namespace std;
       }
 
       if(pass3){
-        if(passIso){
-          // Apply baseline cuts
-          if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
+        // Apply baseline cuts
+        if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
-              IsoElec_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              IsoMu_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              IsoPion_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              Iso_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
-              
+          IsoElec_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          IsoMu_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          IsoPion_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          Iso_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          
 
-            // Fill Search bin histogram
-            searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
-            searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
-
+          if(passIso){
+              // Fill Search bin histogram
+              searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
+              searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
           }
         }
       }
+
+      // Fill QCD histogram
+      if(pass3){
+        // Fill the histogram in the inverted delta phi region
+        if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3) && evt->nJets() >= 4){
+          // Fill QCD histograms
+          if(passIso){
+            QCD_H->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+          }
+        }
+      }
+
 
 
       // Build and array that contains the quantities we need a histogram for.
@@ -654,6 +677,7 @@ using namespace std;
     sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     searchH->Write();
+    QCD_H->Write();
     searchH_b->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;

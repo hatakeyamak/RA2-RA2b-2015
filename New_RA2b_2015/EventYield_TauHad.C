@@ -1,20 +1,30 @@
+#include "Selection.h"
 #include <map>
 #include <cstdio>
+#include <string>
 
-EventYield_TauHad(){
+EventYield_TauHad(string sample="TTbar_"){
   char tempname[200];
   TH1D * tempHist;
-  
-  TFile * exp_f = new TFile("TauHad/GenInfo_HadTauEstimation_TTbar_.root","R");
-  TFile * pre_f = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
+  THStack * tempstack;
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str()); 
+  TFile * exp_f = new TFile(tempname,"R");
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
+  TFile * pre_f = new TFile(tempname,"R");
 
   map<int,string> cutname;
-
+    cutname[0]="PreSel";cutname[1]="nolep";cutname[2]="Njet_4";cutname[3]="ht_500";
+    cutname[4]="mht_200";cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
+    cutname[8]="delphi";
+  
+/*
     cutname[0]="PreSel";cutname[1]="Njet_4";cutname[2]="ht_500";
     cutname[3]="mht_200";cutname[4]="nolep";
     cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
     cutname[8]="delphi";
-/*
     cutname[9]="CSVM_0";
     cutname[10]="CSVM_1";cutname[11]="CSVM_2";cutname[12]="CSVM_3";
     // search regions
@@ -32,12 +42,26 @@ EventYield_TauHad(){
   cout<< " PreSel(corresponding with \"if(MuFromTauVec[0]==0){\" in elog 183 ) for prediction and with \"if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){\" for expectation )\n";
   for(int i=0; i<cutname.size();i++){
     sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
-    tempHist=(TH1D*)exp_f->Get(tempname)->Clone();
-//    exp=tempHist->GetEntries();
-    exp=tempHist->GetSumOfWeights();
-    tempHist=(TH1D*)pre_f->Get(tempname)->Clone();
-//    pre=tempHist->GetEntries();
-    pre=tempHist->GetSumOfWeights();
+
+    if(sample.find("stack")!=string::npos){
+      tempstack=(THStack*) exp_f->Get(tempname)->Clone();
+      tempHist= (TH1D*) tempstack->GetStack()->Last();
+  //    exp=tempHist->GetEntries();
+      exp=tempHist->GetSumOfWeights();
+      tempstack=(THStack*) pre_f->Get(tempname)->Clone();
+      tempHist= (TH1D*) tempstack->GetStack()->Last();
+  //    pre=tempHist->GetEntries();
+      pre=tempHist->GetSumOfWeights();
+    }
+    else{
+      tempHist=(TH1D*) exp_f->Get(tempname)->Clone();
+  //    exp=tempHist->GetEntries();
+      exp=tempHist->GetSumOfWeights();
+      tempHist=(TH1D*) pre_f->Get(tempname)->Clone();
+  //    pre=tempHist->GetEntries();
+      pre=tempHist->GetSumOfWeights();
+     
+    }
 
 //    printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
   

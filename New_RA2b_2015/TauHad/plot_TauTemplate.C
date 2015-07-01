@@ -55,7 +55,7 @@ void plot_TauTemplate(int icomp=0, string input=""){
   TFile *file_13TeV         = new TFile(tempname,"R");
   TFile *file_13TeV_NoLowPtJet = new TFile("../../TauHad/HadTau_TauResponseTemplates_TTbar_.root","R"); 
   TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
-  TFile *file_Rishi         = new TFile("Rishi_TauTemplate.root","R");
+  TFile *file_WJet         = new TFile("Stack/HadTau_TauResponseTemplates_WJet_stacked.root","R");
 
   TH1D * thist;
   catLeg1->SetHeader("p_{T}(#tau^{had}) [GeV]");
@@ -66,12 +66,12 @@ void plot_TauTemplate(int icomp=0, string input=""){
     sprintf(tempname2,"hTauResp_%d_AB",i);
     thist->SetName(tempname2);
     thist->SetLineColor(i+1);
-    thist->SetFillColor(0);
+//    thist->SetFillColor(0);
     thist->SetLineWidth(3);
 
     if(i==0){
       if(input.find("TTbar")!=string::npos)thist->SetMaximum(1.4);
-      if(input.find("WJet")!=string::npos)thist->SetMaximum(10);
+      if(input.find("WJet")!=string::npos)thist->SetMaximum(1.4);
       thist->GetXaxis()->SetLabelFont(42);
       thist->GetXaxis()->SetLabelOffset(0.007);
       thist->GetXaxis()->SetLabelSize(0.04);
@@ -124,7 +124,7 @@ void plot_TauTemplate(int icomp=0, string input=""){
     sprintf(tempname2,"hTauResp_%d_TTbar",i);
     thist_ttbar->SetName(tempname2);
     thist_ttbar->SetLineColor(i+1);
-    thist_ttbar->SetFillColor(0);
+//    thist_ttbar->SetFillColor(0);
     thist_ttbar->SetLineWidth(3);
     thist_ttbar->SetLineStyle(3);
     thist_ttbar->Draw("same,hist");
@@ -136,25 +136,25 @@ void plot_TauTemplate(int icomp=0, string input=""){
   }
   }
 
-  TH1D * thist_Rishi;
+  TH1D * thist_WJet;
   if (icomp==3){
   for(int i=0;i<4;i++){
-    sprintf(tempname,"response%d",i+2);
-    thist_Rishi = (TH1D*)file_Rishi->Get(tempname)->Clone();
-    if(thist_Rishi->Integral("width") > 0.){
-     thist_Rishi->Scale(1./thist_Rishi->Integral("width")); 
+    sprintf(tempname,"hTauResp_%d",i);
+    thist_WJet = (TH1D*)file_WJet->Get(tempname)->Clone();
+    if(thist_WJet->Integral("width") > 0.){
+     thist_WJet->Scale(1./thist_WJet->Integral("width")); 
     }
-    sprintf(tempname2,"hTauResp_%d_Rishi",i);
-    thist_Rishi->SetName(tempname2);
-    thist_Rishi->SetLineColor(i+1);
-    thist_Rishi->SetLineWidth(3);
-    thist_Rishi->SetLineStyle(3);
-    thist_Rishi->Draw("same,hist");
-    if(i==0)sprintf(tempname,"20 - 30: Rishi");
-    if(i==1)sprintf(tempname,"30 - 50: Rishi");
-    if(i==2)sprintf(tempname,"50 - 100:Rishi");
-    if(i==3)sprintf(tempname,">100: Rishi");
-    catLeg1->AddEntry(thist_Rishi,tempname,"l");
+    sprintf(tempname2,"hTauResp_%d_WJet",i);
+    thist_WJet->SetName(tempname2);
+    thist_WJet->SetLineColor(i+1);
+    thist_WJet->SetLineWidth(3);
+    thist_WJet->SetLineStyle(3);
+    thist_WJet->Draw("same,hist");
+    if(i==0)sprintf(tempname,"20 - 30: WJet");
+    if(i==1)sprintf(tempname,"30 - 50: WJet");
+    if(i==2)sprintf(tempname,"50 - 100:WJet");
+    if(i==3)sprintf(tempname,">100: WJet");
+    catLeg1->AddEntry(thist_WJet,tempname,"l");
   }
   }
 

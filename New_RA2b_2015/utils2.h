@@ -14,6 +14,13 @@ namespace utils2{
   bool bootstrap = true;
 
   bool applyMT = true;
+  // We calculate MTEff in the same code where it is alos being used. 
+  // So, it doesn't make sense to apply MT weight when calculating it.
+  // To calc. MT eff. first turn off applyMT and applyIsoTrk but turn on bootstrap and 
+  // CalcMT. Save the search bin histogram. Next turn on applyMT and run again. Divide 
+  // the two search bin histograms, after and before applyMT. 
+  // At the end, turn off CalcMT.
+  bool CalcMT =false;
 
   bool applyIsoTrk = true;
 
@@ -160,6 +167,50 @@ namespace utils2{
 
 
 //############################################################################################
+
+  // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
+      std::string findBin_QCD(int njet,int nbtag,double ht,double mht){
+
+        std::ostringstream binS;
+        int bNjet, bNbtag, bHtMht;
+
+        if(njet == 4)bNjet=1; else if(njet==5)bNjet=2; else if(njet==6)bNjet=3; else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5;
+        else bNjet=9;
+
+        if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
+
+        if(ht >= 500 && ht <800 && mht>=200 && mht<300)bHtMht=1;else if(ht >= 800 && ht <1200 && mht>=200 && mht<300)bHtMht=2;
+        else if(ht >= 1200 && mht>=200 && mht<300)bHtMht=3; 
+        if(ht >= 500 && ht <800 && mht>=300 && mht<500)bHtMht=4;else if(ht >= 800 && ht <1200 && mht>=300 && mht<500)bHtMht=5;
+        else if(ht >= 1200 && mht>=300 && mht<500)bHtMht=6;
+        else if(ht >= 500 && ht <800 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 800 && ht <1200 && mht>=500 && mht<750)bHtMht=8;
+        else if(ht >=1200 && mht>=500 && mht<750)bHtMht=9;else if(ht >=800 && ht<1200 && mht>=750)bHtMht=10;
+        else if(ht>=1200 && mht>=750)bHtMht=11; else bHtMht=19;
+        binS << 1000*bNjet+100*bNbtag+bHtMht ;
+
+        return binS.str();
+      }
+
+  // A map is needed between strings like "132" or "2143" that specify the searc bins
+  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
+  std::map <std::string,int> BinMap_QCD(){
+      int binN=0;
+      std::map <std::string , int> binMap;
+      for(int bNjet=1; bNjet<=5;  bNjet++){
+        for(int bNbtag=1; bNbtag<=4; bNbtag++){
+          for(int bHtMht=1; bHtMht<=11; bHtMht++){
+              std::ostringstream binS;
+              binS << 1000*bNjet+100*bNbtag+bHtMht;
+              binN++;
+              binMap[binS.str()]=binN;
+              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+          }
+        }
+      }
+    return binMap;
+  }
+
+
 
 
 

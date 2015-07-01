@@ -1,5 +1,5 @@
 
-void plot_MistagRate(string sample="TTbar_"){
+void plot_MistagRate_allSamples(string sample="TTbar_"){
 
   //
   // icomp=0: only show own results
@@ -9,6 +9,7 @@ void plot_MistagRate(string sample="TTbar_"){
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
+  gStyle->SetOptStat(0);  ///to avoid the stat. on the plots 
   gROOT->LoadMacro("tdrstyle.C");
 //  setTDRStyle();
   gROOT->LoadMacro("CMS_lumi_v2.C");
@@ -39,7 +40,7 @@ void plot_MistagRate(string sample="TTbar_"){
   Float_t legendX1 = .60; //.50;
   Float_t legendX2 = .90; //.70;
   Float_t legendY1 = .60; //.65;
-  Float_t legendY2 = .90;
+  Float_t legendY2 = .70;
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.042);
   catLeg1->SetTextFont(42);
@@ -47,9 +48,11 @@ void plot_MistagRate(string sample="TTbar_"){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauBtaggedRate_%s.root",sample.c_str());
-  else sprintf(tempname,"Stack/TauBtaggedRate_%s.root",sample.c_str());
-  TFile *file   = new TFile(tempname,"R");
+  sprintf(tempname,"Stack/TauBtaggedRate_TTbar_stacked.root");
+  TFile *file_TTbar   = new TFile(tempname,"R");
+  sprintf(tempname,"Stack/TauBtaggedRate_WJet_stacked.root");
+  TFile *file_WJet   = new TFile(tempname,"R");
+  
 
   TH1D * thist, * thist2;
   THStack * tempstack;
@@ -59,51 +62,46 @@ void plot_MistagRate(string sample="TTbar_"){
 //...........................................................................//
 // TTbar ....................................................................//
 //...........................................................................//
+    double XUp = 500. , maxVal=3.;
 
     sprintf(tempname,"TauBtaggedRate");
-    thist = (TH1D*)file->Get(tempname)->Clone();
+    thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
+    thist2->GetXaxis()->SetRangeUser(0.,XUp);
+    thist2->SetMaximum(maxVal);
+    thist2->SetTitle("");
     
+    thist2->GetXaxis()->SetLabelFont(42);
+    thist2->GetXaxis()->SetLabelOffset(0.007);
+    thist2->GetXaxis()->SetLabelSize(0.04);
+    thist2->GetXaxis()->SetTitleSize(0.05);
+    thist2->GetXaxis()->SetTitleOffset(0.9);
+    thist2->GetXaxis()->SetTitleFont(42);
+    thist2->GetYaxis()->SetLabelFont(42);
+    thist2->GetYaxis()->SetLabelOffset(0.007);
+    thist2->GetYaxis()->SetLabelSize(0.04);
+    thist2->GetYaxis()->SetTitleSize(0.05);
+    thist2->GetYaxis()->SetTitleOffset(1.25);
+    thist2->GetYaxis()->SetTitleFont(42);
+    thist2->GetXaxis()->SetTitle("p_{T}(#tau jet)");
+    thist2->GetYaxis()->SetTitle("mistag rate");
+    thist2->GetXaxis()->SetRangeUser(0.,XUp);
+    thist2->SetMaximum(maxVal);
+    thist2->SetLineColor(2);
+    thist2->Draw();
+
+    thist = (TH1D*)file_TTbar->Get(tempname)->Clone();
     thist->SetLineColor(1);
 //    thist->SetFillColor(0);
 //    thist->SetLineWidth(3);
-    thist->SetTitle("");
     
-      thist->GetXaxis()->SetLabelFont(42);
-      thist->GetXaxis()->SetLabelOffset(0.007);
-      thist->GetXaxis()->SetLabelSize(0.04);
-      thist->GetXaxis()->SetTitleSize(0.05);
-      thist->GetXaxis()->SetTitleOffset(0.9);
-      thist->GetXaxis()->SetTitleFont(42);
-      thist->GetYaxis()->SetLabelFont(42);
-      thist->GetYaxis()->SetLabelOffset(0.007);
-      thist->GetYaxis()->SetLabelSize(0.04);
-      thist->GetYaxis()->SetTitleSize(0.05);
-      thist->GetYaxis()->SetTitleOffset(1.25);
-      thist->GetYaxis()->SetTitleFont(42);
-      thist->GetXaxis()->SetTitle("p_{T}(#tau jet)");
-      thist->GetYaxis()->SetTitle("mistag rate");
-
-    
-    thist->Draw();
+    thist->Draw("same");
     sprintf(tempname,"T#bar{T}");
-//    catLeg1->AddEntry(thist,tempname,"l");
-
-//...........................................................................//
-// TTbar + WJet .............................................................//
-//...........................................................................//
-/*
-    sprintf(tempname,"hProb_Tau_mu");
-    thist2 = (TH1D*)file_13TeV->Get(tempname)->Clone();
-    thist2->SetLineColor(2);
-  //  thist2->SetFillColor(0);
-    thist2->SetLineWidth(1);
-    thist2->Draw("same");
-    sprintf(tempname,"T#bar{T} + WJ");
-    catLeg1->AddEntry(thist2,tempname,"l");
+    catLeg1->AddEntry(thist,tempname,"l");
+    sprintf(tempname,"WJet");
+    catLeg1->AddEntry(thist2,tempname,"l");    
     catLeg1->Draw();
-
-*/
-    sprintf(tempname,"TauBtaggedRate_%s.png",sample.c_str());
+  
+    sprintf(tempname,"TauBtaggedRate_allSamples.png");
     c1->Print(tempname);
 
 }

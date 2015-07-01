@@ -39,26 +39,59 @@ catLeg1->SetTextFont(42);
 
 TFile * before = new TFile("AfterMTBeforeIsoHadTauEstimation_stacked.root","R");
 TFile * after = new TFile("BeforeMTandIsoHadTauEstimation_stacked.root","R");
+TFile * before_TTbar = new TFile("AfterMTBeforeIsoHadTauEstimation_TTbar_stacked.root","R");
+TFile * after_TTbar = new TFile("BeforeMTandIsoHadTauEstimation_TTbar_stacked.root","R");
+TFile * before_WJet = new TFile("AfterMTBeforeIsoHadTauEstimation_WJet_stacked.root","R");
+TFile * after_WJet = new TFile("BeforeMTandIsoHadTauEstimation_WJet_stacked.root","R");
 
-TH1D * thist;
-TH1D * thist2;
+
+TH1D * thist, *thist_TTbar, *thist_WJet;
+TH1D * thist2, *thist_TTbar2, *thist_WJet2;
 THStack * tempstack;
+
+// WJet
+THStack * tempstack_WJet = (THStack *) before_WJet->Get("searchH")->Clone("after");
+thist_WJet = (TH1D*) tempstack_WJet->GetStack()->Last();
+tempstack_WJet = (THStack *) after_WJet->Get("searchH")->Clone("before");
+thist_WJet2 = (TH1D*) tempstack_WJet->GetStack()->Last();
+TH1D * MtCutEff_WJet = static_cast<TH1D*>(thist_WJet->Clone("MtCutEff_WJet"));
+MtCutEff_WJet->Divide(thist_WJet,thist_WJet2,1,1,"B");
+MtCutEff_WJet->SetLineColor(2);
+MtCutEff_WJet->SetMinimum(0.);
+MtCutEff_WJet->SetMaximum(2.);
+catLeg1->AddEntry(MtCutEff_WJet,"WJet","l");
+MtCutEff_WJet->Draw();
+
+
+
+// TTbar
+THStack * tempstack_TTbar = (THStack *) before_TTbar->Get("searchH")->Clone("after");
+thist_TTbar = (TH1D*) tempstack_TTbar->GetStack()->Last();
+tempstack_TTbar = (THStack *) after_TTbar->Get("searchH")->Clone("before");
+thist_TTbar2 = (TH1D*) tempstack_TTbar->GetStack()->Last();
+TH1D * MtCutEff_TTbar = static_cast<TH1D*>(thist_TTbar->Clone("MtCutEff_TTbar"));
+MtCutEff_TTbar->Divide(thist_TTbar,thist_TTbar2,1,1,"B");
+MtCutEff_TTbar->SetLineColor(4);
+MtCutEff_TTbar->Draw("same");
+catLeg1->AddEntry(MtCutEff_TTbar,"T#bar{T}","l");
+
+// TTbar+WJet
 tempstack = (THStack *) before->Get("searchH")->Clone("after");
 thist = (TH1D*) tempstack->GetStack()->Last();
-
 tempstack = (THStack *) after->Get("searchH")->Clone("before");
 thist2 = (TH1D*) tempstack->GetStack()->Last();
-
-
 TH1D * MtCutEff = static_cast<TH1D*>(thist->Clone("MtCutEff"));
 MtCutEff->Divide(thist,thist2,1,1,"B");
+MtCutEff->SetLineColor(3);
+//MtCutEff->Draw("same");
 
-cout << "flag \n " ;
-MtCutEff->Draw();
+catLeg1->Draw();
 sprintf(tempname,"MtEff.png");
 c1->Print(tempname);
 
 TFile * outFile = new TFile("MtEff_stacked.root","RECREATE");
+MtCutEff_WJet->Write();
+MtCutEff_TTbar->Write();
 MtCutEff->Write();
 outFile->Close();
 

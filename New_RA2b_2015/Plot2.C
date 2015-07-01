@@ -17,9 +17,10 @@ Plot2(string cutname="PreSel", string histname="MHT",string sample="TTbar_",int 
   //
   // Set basic style
   //
-//  gROOT->LoadMacro("tdrstyle.C");
-//  setTDRStyle();
-//  gROOT->LoadMacro("CMS_lumi_v2.C");
+  gROOT->LoadMacro("tdrstyle.C");
+  setTDRStyle();
+  gStyle->SetPalette(1) ; // for better color output
+  gROOT->LoadMacro("CMS_lumi_v2.C");
 
   int W = 600;
   int H = 600;
@@ -29,6 +30,31 @@ Plot2(string cutname="PreSel", string histname="MHT",string sample="TTbar_",int 
   float B = 0.12*H_ref;
   float L = 0.12*W_ref;
   float R = 0.08*W_ref;
+
+  //
+  // Various vertical line coordinates
+  float ymax_top = 40000.;
+  float ymin_top = 0.01;
+
+  float ymax2_top = 1000.;
+  float ymax3_top = 200.;
+  float ymax4_top = 30.;
+
+  float ymax_bottom = 2.65;
+  float ymin_bottom = 0.;
+
+  float ymax2_bottom = 2.15;
+  float ymax3_bottom = 2.15;
+  float ymax4_bottom = 2.15;
+
+  //
+  // Luminosity information for scaling
+  double lumi = 3.; // normaliza to 3 (fb-1)
+
+  double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
+  int    nevent_ttbar = 25348009;
+  double lumi_ttbar   = 31.445; // (fb-1)
+
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -144,8 +170,8 @@ if(sample.find("stacked")!=string::npos){
     }
     tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
     thist=(TH1D*) tempstack->GetStack()->Last();
-    thist->SetLineColor(2*i+2);
-    thist->SetFillColor(0);
+//    thist->SetLineColor(2*i+2);
+//    thist->SetFillColor(0);
 
 }
 else{
@@ -271,7 +297,7 @@ else{
 //      thist->Draw();
       thist->SetFillStyle(3004);
       thist->SetFillColor(kGreen-3);
-      thist->Draw("same e2");
+      thist->Draw("e2same");
       
     }
     else{
