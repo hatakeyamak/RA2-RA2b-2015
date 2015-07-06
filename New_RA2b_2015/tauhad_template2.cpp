@@ -92,6 +92,9 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
+Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
+                         450.,500.,600.,1000.,5000.};
+
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
     vec.push_back(weight_hist);
@@ -99,8 +102,11 @@ using namespace std;
     RA2HT_hist.Sumw2();
     vec.push_back(RA2HT_hist);
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
-    RA2MHT_hist.Sumw2();
+    RA2MHT_hist.Sumw2();    
     vec.push_back(RA2MHT_hist);
+    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",13,mht_bins);
+    RA2MHT2_hist.Sumw2();
+    vec.push_back(RA2MHT2_hist);
     TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
     RA2MET_hist.Sumw2();
     vec.push_back(RA2MET_hist);
@@ -156,11 +162,15 @@ using namespace std;
     // Introduce QCD histogram
     map<string,int> binMap_QCD = utils2::BinMap_QCD();
     int totNbins_QCD=binMap_QCD.size();
-    TH1* QCD_H = new TH1D("QCD_H","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
-    QCD_H->Sumw2();
+    TH1* QCD_Low = new TH1D("QCD_Low","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_Low->Sumw2();
     // Make another hist to be filled during bootstrapping
-    TH1 * QCD_H_evt = static_cast<TH1D*>(QCD_H->Clone("QCD_H_evt"));
-    
+    TH1 * QCD_Low_evt = static_cast<TH1D*>(QCD_Low->Clone("QCD_Low_evt"));
+    TH1* QCD_Up = new TH1D("QCD_Up","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_Up->Sumw2();
+    // Make another hist to be filled during bootstrapping
+    TH1 * QCD_Up_evt = static_cast<TH1D*>(QCD_Up->Clone("QCD_Up_evt"));
+ 
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
@@ -357,7 +367,10 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>10000)break;
+//      if(eventN>223491)break;
+//      if(eventN>58006.8)break;
+//      if(eventN>6840.03)break;
+//      if(eventN>2313.63)break;
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
@@ -900,6 +913,8 @@ Ahmad33 */
               // Fill Search bin histogram 
               searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 
+              // Fill QCD histograms
+              QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
               searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
@@ -941,13 +956,13 @@ Ahmad33 */
               else searchWeight = totWeight;
 
               // Fill QCD histograms
-              QCD_H_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+              QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
             }
 
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt_xy};
+            double eveinfvec[] = {totWeight, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt_xy};
 
             bool pass0=false;
             if(TauHadModel >= 1)pass0=true;
@@ -1000,7 +1015,8 @@ Ahmad33 */
 
       // Correct the uncertainties
       bootstrapUtils::HistogramFillForEventTH1(searchH, searchH_evt);
-      bootstrapUtils::HistogramFillForEventTH1(QCD_H, QCD_H_evt);
+      bootstrapUtils::HistogramFillForEventTH1(QCD_Up, QCD_Up_evt);
+      bootstrapUtils::HistogramFillForEventTH1(QCD_Low, QCD_Low_evt);
       bootstrapUtils::HistogramFillForEventTH1(searchH_b, searchH_b_noWeight, searchH_b_evt, searchH_b_noWeight_evt);
 
 
@@ -1073,7 +1089,8 @@ Ahmad33 */
     TFile *resFile = new TFile(tempname, "RECREATE");
     muMtWHist->Write();
     searchH->Write();
-    QCD_H->Write();
+    QCD_Up->Write();
+    QCD_Low->Write();
     searchH_b->Write();
     searchH_b_noWeight->Write();
     hCorSearch->Write();
