@@ -1,0 +1,7 @@
+
+This is now the main directory for the anlaysis.
+
+Example job-running commands:
+] ./run_tauHad "filelist_TTJets_PU20bx25.txt" "TTbar" "TauHad" "00" "0"
+
+
