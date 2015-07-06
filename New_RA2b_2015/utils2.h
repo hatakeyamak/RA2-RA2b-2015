@@ -26,6 +26,8 @@ namespace utils2{
 
 
 //###############################################################################################################
+// Full 72 search bins
+//
 
   // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
       std::string findBin(int njet,int nbtag,double ht,double mht){
@@ -62,7 +64,8 @@ namespace utils2{
 
 
 //############################################################################################
-
+// Search bins integrated over nbtags
+//
 
   // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
 
@@ -97,9 +100,10 @@ namespace utils2{
 
 
 //############################################################################################
+// Bins defined by Njet and mht only
+//
 
-
-  // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
+  // find appropriate bin number for the given (Njet,mht) (and no Btag)
 
       std::string findBin_mht_nj(int njet,double mht){
         std::ostringstream binS;
@@ -132,7 +136,8 @@ namespace utils2{
 
 
 //############################################################################################
-
+// Bins defined by Njet, HT, MHT (no b-tag) used for Iso-track veto parametrization
+//
 
   // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
 
@@ -167,6 +172,8 @@ namespace utils2{
 
 
 //############################################################################################
+// QCD binnings
+//
 
   // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
       std::string findBin_QCD(int njet,int nbtag,double ht,double mht){
@@ -179,14 +186,22 @@ namespace utils2{
 
         if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
 
-        if(ht >= 500 && ht <800 && mht>=200 && mht<300)bHtMht=1;else if(ht >= 800 && ht <1200 && mht>=200 && mht<300)bHtMht=2;
-        else if(ht >= 1200 && mht>=200 && mht<300)bHtMht=3; 
-        if(ht >= 500 && ht <800 && mht>=300 && mht<500)bHtMht=4;else if(ht >= 800 && ht <1200 && mht>=300 && mht<500)bHtMht=5;
-        else if(ht >= 1200 && mht>=300 && mht<500)bHtMht=6;
-        else if(ht >= 500 && ht <800 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 800 && ht <1200 && mht>=500 && mht<750)bHtMht=8;
-        else if(ht >=1200 && mht>=500 && mht<750)bHtMht=9;else if(ht >=800 && ht<1200 && mht>=750)bHtMht=10;
-        else if(ht>=1200 && mht>=750)bHtMht=11; else bHtMht=19;
+        if     (ht >=  500 && ht < 800 && mht>=200 && mht<300) bHtMht=1;
+	else if(ht >=  800 && ht <1200 && mht>=200 && mht<300) bHtMht=2;
+        else if(ht >= 1200             && mht>=200 && mht<300) bHtMht=3; 
+        else if(ht >=  500 && ht < 800 && mht>=300 && mht<500) bHtMht=4;
+        else if(ht >=  800 && ht <1200 && mht>=300 && mht<500) bHtMht=5;
+        else if(ht >= 1200             && mht>=300 && mht<500) bHtMht=6;
+        else if(ht >=  500 && ht <800  && mht>=500 && mht<750) bHtMht=7;
+        else if(ht >=  800 && ht <1200 && mht>=500 && mht<750) bHtMht=8;
+        else if(ht >= 1200             && mht>=500 && mht<750) bHtMht=9;
+        else if(ht >=  800 && ht<1200  && mht>=750)            bHtMht=10;
+        else if(ht >= 1200             && mht>=750)            bHtMht=11;
+        else bHtMht=19;
         binS << 1000*bNjet+100*bNbtag+bHtMht ;
+
+	//std::cout << ht << " " << mht << " " << njet << " " << nbtag << std::endl;
+	//std::cout << bHtMht << " " << bNjet << " " << bNbtag << std::endl;
 
         return binS.str();
       }
