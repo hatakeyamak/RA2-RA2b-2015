@@ -35,7 +35,7 @@ HEADERS       = $(DIR)/Events.h Selection.h utils.h utils2.h Lepton_Selection.h 
 %.o : %.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-all : $(PROGRAM) $(PROGRAM 2)
+all : $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 
 .PHONY : all 
 
