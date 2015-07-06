@@ -34,6 +34,9 @@ HEADERS       = $(DIR)/Events.h Selection.h utils.h utils2.h Lepton_Selection.h 
 
 all : $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 
+clean : *.o $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
+	$(RM) *.o $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
+
 .PHONY : all 
 
 $(PROGRAM): $(OBJS)
