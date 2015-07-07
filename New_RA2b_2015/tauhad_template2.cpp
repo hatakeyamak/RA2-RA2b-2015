@@ -147,6 +147,14 @@ Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
 
     int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
+    // Introduce cutflow histogram to monior event yields for early preselection
+    TH1D* cutflow_preselection = new TH1D("cutflow_preselection","cutflow_preselectoion",
+                                         10,0.,10.);
+    cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
+    cutflow_preselection->GetXaxis()->SetBinLabel(2,"JetID Cleaning");
+    cutflow_preselection->GetXaxis()->SetBinLabel(3,"1-lepton");
+    cutflow_preselection->GetXaxis()->SetBinLabel(4,"Lepton vetoes");
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"Preselection");
 
     // Introduce search bin histogram
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
@@ -367,13 +375,16 @@ Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
     while( evt->loadNext() ){
       eventN++;
 
-//      if(eventN>223491)break;
-//      if(eventN>58006.8)break;
-//      if(eventN>6840.03)break;
-//      if(eventN>2313.63)break;
+      //      if(eventN>223491)break;
+      //      if(eventN>58006.8)break;
+      //      if(eventN>6840.03)break;
+      //      if(eventN>2313.63)break;
+
+      cutflow_preselection->Fill(0.); // keep track of all events processed
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
+      cutflow_preselection->Fill(1.); // events passing JetID event cleaning
 
       nCleanEve++;
 
@@ -482,6 +493,7 @@ Ahmad33 */
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
 
+	cutflow_preselection->Fill(2.); // 1-mu selection
 
 // Ahmad33
       dilepton_all++;
@@ -494,6 +506,7 @@ Ahmad33 */
       dilepton_pass++;
 // Ahmad33
 
+      cutflow_preselection->Fill(3.); // Lepton vetos
 
         // The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And,
         // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
@@ -519,7 +532,6 @@ Ahmad33 */
           }
           
         }
-
 
 
         // start of bootstrapping ( if is on ) 
@@ -873,6 +885,8 @@ Ahmad33 */
 
             }
 
+	    if (l==1 && m==0)                 // Fill this only once per event l=[1,nLoops] m=[0,1]
+	      cutflow_preselection->Fill(4.); // All preselection
 
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
@@ -968,6 +982,7 @@ Ahmad33 */
             if(TauHadModel >= 1)pass0=true;
             else if(MuFromTauVec[0]==0)pass0=true; // Ahmad33
             if(pass0){
+
               //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
               for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map_evt.begin(); itt!=map_map_evt.end();itt++){//this will be terminated after the cuts
 
@@ -1088,6 +1103,7 @@ Ahmad33 */
     sprintf(tempname,"%s/HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
     muMtWHist->Write();
+    cutflow_preselection->Write();
     searchH->Write();
     QCD_Up->Write();
     QCD_Low->Write();
