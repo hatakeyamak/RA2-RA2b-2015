@@ -129,6 +129,16 @@ using namespace std;
 
     int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
+    // Introduce cutflow histogram to monior event yields for early preselection
+    TH1D* cutflow_preselection = new TH1D("cutflow_preselection","cutflow_preselectoion",
+                                         10,0.,10.);
+    cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
+    cutflow_preselection->GetXaxis()->SetBinLabel(2,"JetID Cleaning");
+    cutflow_preselection->GetXaxis()->SetBinLabel(3,"Hadronic tau");
+    cutflow_preselection->GetXaxis()->SetBinLabel(4,"Lepton vetoes");
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"Preselection 1");
+    cutflow_preselection->GetXaxis()->SetBinLabel(6,"Preselection 2");
+
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
@@ -274,10 +284,13 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
- //if(eventN>1000000)break;
+      //if(eventN>10000000)break;
+
+      cutflow_preselection->Fill(0.); // keep track of all events processed
 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
+      cutflow_preselection->Fill(1.); // events passing JetID event cleaning
 
       nCleanEve++;
 
@@ -376,14 +389,14 @@ using namespace std;
       }
       if(HadTauPtVec.size()>0)hadTau=true;
        
- 
-
       if(hadTau==false)continue;
+      cutflow_preselection->Fill(2.); // hadronic tau events
 
       nHadTauEve++;
  
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || eleN!=0)continue;
+      cutflow_preselection->Fill(3.); // events passing lepton vetos
 
       nNoLepEve++;
 
@@ -452,6 +465,8 @@ using namespace std;
       }
 
       if(pass3){
+	cutflow_preselection->Fill(4.); // We may ask genTau within muon acceptance
+
         // Apply baseline cuts
         if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
 
@@ -479,12 +494,12 @@ using namespace std;
         if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3) && evt->nJets() >= 4){
           // Fill QCD histograms
           if(passIso){
+	    //std::cout << binMap_QCD[utils2::findBin_QCD(4,0,520.,220.).c_str()]
+	    //	      << std::endl;
             QCD_H->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
           }
         }
       }
-
-
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
@@ -494,6 +509,7 @@ using namespace std;
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
       if(pass3){
 
+	cutflow_preselection->Fill(5.); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -676,6 +692,7 @@ using namespace std;
     //open a file to write the histograms
     sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile *resFile = new TFile(tempname, "RECREATE");
+    cutflow_preselection->Write();
     searchH->Write();
     QCD_H->Write();
     searchH_b->Write();
