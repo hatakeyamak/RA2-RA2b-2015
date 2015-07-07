@@ -21,10 +21,10 @@ class mainClass{
   // Some variables
   double tempvalue;
   char tempname[200];
-  vector<double> WJet_scalevec, TTbar_scalevec;
-  vector<TFile *> WJet_inputfilevec, TTbar_inputfilevec;
+  vector<double> T_scalevec, WJet_scalevec, TTbar_scalevec;
+  vector<TFile *> T_inputfilevec,WJet_inputfilevec, TTbar_inputfilevec;
   map<int, string> cutname, histname,Hname;
-  map<int, string> WJettype, TTbartype;
+  map<int, string> Ttype, WJettype, TTbartype;
   TFile *file, *file2, *file3;
   TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII;
   THStack * tempstack;
@@ -40,6 +40,144 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
   WJettype[0]="allEvents";
   TTbartype[0]="allEvents";
+  Ttype[0]="allEvents";
+
+// .....................................................................................................................................................//
+// Single Top Section
+// .....................................................................................................................................................//
+
+  //build a vector of scale factors
+  //first load the cross sections into a vector
+  vector<double> T_xs_vec;
+  T_xs_vec.push_back(2.); // T_s
+  T_xs_vec.push_back(103.4);  // T_t 
+  T_xs_vec.push_back(35.);  // T_u 
+  T_xs_vec.push_back(1.); // Tbar_s
+  T_xs_vec.push_back(61.6);  // Tbar_t 
+  T_xs_vec.push_back(35.);  // Tbar_u 
+
+
+  const int tnHT = (int) T_xs_vec.size();   // Total number of HT bin samples
+
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../../Results/results_T_s_.root");
+    else if(i==2)sprintf(tempname,"../../Results/results_T_t_.root");
+    else if(i==3)sprintf(tempname,"../../Results/results_T_u_.root");
+    else if(i==4)sprintf(tempname,"../../Results/results_Tbar_s_.root");
+    else if(i==5)sprintf(tempname,"../../Results/results_Tbar_t_.root");
+    else if(i==6)sprintf(tempname,"../../Results/results_Tbar_u_.root");
+    else{cout << " Error!! There are only 6 T ht binned sample " << endl;}
+    file = new TFile(tempname, "R");
+    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
+    tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+    T_scalevec.push_back(tempvalue);
+  }//end of loop over HTbins 
+  std::cout << "T normalization scale factor determination done \n " << std::endl;
+
+
+
+
+//..........................................//
+// main histograms like HT, MHT, ...
+//..........................................//
+
+  // Load the files to a vector 
+  // These are the HT, MHT, .. variables
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../HadTauEstimation_T_s_.root");
+    else if(i==2)sprintf(tempname,"../HadTauEstimation_T_t_.root");
+    else if(i==3)sprintf(tempname,"../HadTauEstimation_T_u_.root");
+    else if(i==4)sprintf(tempname,"../HadTauEstimation_Tbar_s_.root");
+    else if(i==5)sprintf(tempname,"../HadTauEstimation_Tbar_t_.root");
+    else if(i==6)sprintf(tempname,"../HadTauEstimation_Tbar_u_.root");
+    else{cout << " Error!! There are only 6 T ht binned sample " << endl;}
+    T_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins 
+
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"HadTauEstimation_T_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+  histname.clear();
+  histname[0]="weight";
+  histname[1]="HT";
+  histname[2]="MHT";
+  histname[3]="NJet";
+  histname[4]="NBtag";
+  histname[5]="DelPhi1";
+  histname[6]="DelPhi2";
+  histname[7]="DelPhi3";
+
+  Hname.clear();
+  Hname[0]="searchH";
+  Hname[1]="searchH_b";
+//  Hname[2]="QCD_Up";
+//  Hname[3]="QCD_Low";
+  
+  for(int j=0; j< Hname.size(); j++){
+
+    for(int i=0; i<tnHT ; i++){                                                  // loop over different HT bins
+
+      sprintf(tempname,"%s",(Hname[j]).c_str());
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      temphist->Scale(T_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+    sprintf(tempname,"%s",(Hname[j]).c_str());
+    tempstack->Write(tempname);
+
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+
+
+
+
+  for(map<int , string >::iterator itt=Ttype.begin(); itt!=Ttype.end();itt++){        // loop over different event types
+
+    cdtoitt = file->mkdir((itt->second).c_str());
+    cdtoitt->cd();
+
+    for(map<int , string >::iterator it=cutname.begin(); it!=cutname.end();it++){   // loop over different cutnames
+
+      cdtoit =  cdtoitt->mkdir((it->second).c_str());
+      cdtoit->cd();
+
+      for(int j=0; j<histname.size(); j++){                                        // loop over different histograms
+
+        for(int i=0; i<tnHT ; i++){                                                  // loop over different HT bins
+
+          //cout << "================================" << endl;
+          //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
+          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+          temphist->Scale(T_scalevec[i]);
+          temphist->SetFillColor(i+2);
+          tempstack->Add(temphist);
+
+        }//end of loop over HTbins 1..7
+
+        sprintf(tempname,"%s_%s_%s",histname[j].c_str(),(it->second).c_str(),(itt->second).c_str());
+        tempstack->Write(tempname);
+
+        delete tempstack;
+        tempstack = new THStack("stack","Binned Sample Stack");
+
+      }//end of loop over histograms
+
+    }//end of loop over cutnames 
+
+  }//end of loop over event types
+
+  file->Close();
+  printf("T main histograms stacked \n ");
+
+
+
 
 
 // .....................................................................................................................................................//
@@ -49,11 +187,11 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   //build a vector of scale factors
   //first load the cross sections into a vector
   vector<double> WJet_xs_vec;
-
-  WJet_xs_vec.push_back(1817.0); // HT 100-200
-  WJet_xs_vec.push_back(471.6);  // HT 200-400
-  WJet_xs_vec.push_back(55.61);  // HT 400-600
-  WJet_xs_vec.push_back(18.81);  // HT 600-Inf
+  double k_w = 1.23;
+  WJet_xs_vec.push_back(k_w*1817.0); // HT 100-200
+  WJet_xs_vec.push_back(k_w*471.6);  // HT 200-400
+  WJet_xs_vec.push_back(k_w*55.61);  // HT 400-600
+  WJet_xs_vec.push_back(k_w*18.81);  // HT 600-Inf
 
   const int wjnHT = (int) WJet_xs_vec.size();   // Total number of HT bin samples
 
@@ -109,7 +247,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-  Hname[2]="QCD_H";  
+  Hname[2]="QCD_Up";  
+  Hname[3]="QCD_Low";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -191,7 +330,6 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
 
-
   // Stack
   tempstack = new THStack("stack","Binned Sample Stack");
   sprintf(tempname,"Probability_Tau_mu_WJet_stacked.root");
@@ -201,7 +339,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   histname[0]="hProb_Tau_mu";
   histname[1]="hNonW_mu";
   histname[2]="hAll_mu";
-
+/*
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
@@ -235,7 +373,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
 
 
-
+*/
 
 
 
@@ -299,7 +437,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-  Hname[2]="QCD_H";  
+  Hname[2]="QCD_Up";  
+  Hname[3]="QCD_Low";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -426,11 +565,11 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
 
 // ..................................................................................................................................................... //
-// Stack main histograms from TTbar and WJet
+// Stack main histograms from TTbar and WJet and Single Top
 // ..................................................................................................................................................... //
 
-  // There are two contributors 1-TTbar and 2-WJet
-  int NSamples=2;
+  // There are two contributors 1-TTbar and 2-WJet 3-T
+  int NSamples=3;
 
   // A vector that contains all the samples
   vector<TFile*> sample_inputfilevec;
@@ -442,7 +581,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   for(int i=1; i<=NSamples ; i++){
     if(i==1)sprintf(tempname,"HadTauEstimation_TTbar_stacked.root");
     else if(i==2)sprintf(tempname,"HadTauEstimation_WJet_stacked.root");
-    else{cout << " Error!! There are only 2 contributors! " << endl;}
+    else if(i==3)sprintf(tempname,"HadTauEstimation_T_stacked.root");
+    else{cout << " Error!! There are only 3 contributors! " << endl;}
     sample_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
 
@@ -464,7 +604,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-  Hname[2]="QCD_H";  
+//  Hname[2]="QCD_Up";  
+//  Hname[3]="QCD_Low";
 
   for(int j=0; j< Hname.size(); j++){
 

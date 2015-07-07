@@ -3,6 +3,14 @@
 
 using namespace std;
 
+/*
+
+.L Plot_searchBin_full.C
+Plot_searchBin_full("stacked","QCD_H");
+Plot_searchBin_full("stacked","searchH_b");
+
+*/
+
 Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +52,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
   //
   // Luminosity information for scaling
-  double lumi = 3.; // normaliza to 3 (fb-1)
+  double lumi = 10.; // normaliza to 10 (fb-1)
 
   double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
   int    nevent_ttbar = 25348009;
@@ -145,7 +153,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
   double search_x_max=73.;
-  if(histname=="QCD_H")search_x_max=224.;
+  if(histname.find("QCD")!=string::npos)search_x_max=224.;
   double search_x_min=1.;
 
   sprintf(tempname,"%s",histname.c_str());
@@ -207,7 +215,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   GenHist->GetXaxis()->SetTitle(xtitlename);
   GenHist->GetYaxis()->SetTitle(ytitlename);
   TH1D * GenHist_Normalize = static_cast<TH1D*>(GenHist->Clone("GenHist_Normalize"));
-//  GenHist_Normalize->Scale(lumi/lumi_ttbar);
+  //KH  GenHist_Normalize->Scale(lumi/lumi_ttbar);
   GenHist_Normalize->SetMaximum(ymax_top);
   GenHist_Normalize->SetMinimum(ymin_top);
   //GenHist->Draw("e");
@@ -241,96 +249,127 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     catLeg1->Draw();
 
   //
-  if(histname!="QCD_H"){
-    // Lines 
-    TLine *tline_top_1 = new TLine(25.,ymin_top,25.,ymax_top);
-    tline_top_1->SetLineStyle(2);
-    tline_top_1->Draw();
-
-    TLine *tline_top_2 = new TLine(49.,ymin_top,49.,ymax_top);
-    tline_top_2->SetLineStyle(2);
-    tline_top_2->Draw();
-
-    TLine *tline_top_1a = new TLine(7.,ymin_top,7.,ymax2_top);
-    tline_top_1a->SetLineStyle(3);
-    tline_top_1a->Draw();
-    TLine *tline_top_1b = new TLine(13.,ymin_top,13.,ymax2_top);
-    tline_top_1b->SetLineStyle(3);
-    tline_top_1b->Draw();
-    TLine *tline_top_1c = new TLine(19.,ymin_top,19.,ymax2_top);
-    tline_top_1c->SetLineStyle(3);
-    tline_top_1c->Draw();
-
-    TLine *tline_top_2a = new TLine(31.,ymin_top,31.,ymax3_top);
-    tline_top_2a->SetLineStyle(3);
-    tline_top_2a->Draw();
-    TLine *tline_top_2b = new TLine(37.,ymin_top,37.,ymax3_top);
-    tline_top_2b->SetLineStyle(3);
-    tline_top_2b->Draw();
-    TLine *tline_top_2c = new TLine(43.,ymin_top,43.,ymax3_top);
-    tline_top_2c->SetLineStyle(3);
-    tline_top_2c->Draw();
-
-    TLine *tline_top_3a = new TLine(55.,ymin_top,55.,ymax4_top);
-    tline_top_3a->SetLineStyle(3);
-    tline_top_3a->Draw();
-    TLine *tline_top_3b = new TLine(61.,ymin_top,61.,ymax4_top);
-    tline_top_3b->SetLineStyle(3);
-    tline_top_3b->Draw();
-    TLine *tline_top_3c = new TLine(67.,ymin_top,67.,ymax4_top);
-    tline_top_3c->SetLineStyle(3);
-    tline_top_3c->Draw();
-
-
-    TLatex * ttext1 = new TLatex(13. , ymax_top/4. , "4 #leq N_{jets} #leq 6");
-    ttext1->SetTextFont(42);
-    ttext1->SetTextSize(0.04);
-    ttext1->SetTextAlign(22);
-    ttext1->Draw();
-
-    TLatex * ttext2 = new TLatex(37. , ymax_top/4. , "7 #leq N_{jets} #leq 8");
-    ttext2->SetTextFont(42);
-    ttext2->SetTextSize(0.04);
-    ttext2->SetTextAlign(22);
-    ttext2->Draw();
-
-    TLatex * ttext3 = new TLatex(61. , ymax_top/400. , "N_{jets} #geq 9");
-    ttext3->SetTextFont(42);
-    ttext3->SetTextSize(0.04);
-    ttext3->SetTextAlign(22);
-    ttext3->Draw();
-
-    TLatex * ttext1a = new TLatex(4. , ymax_top/20. , "N_{b} = 0");
-    ttext1a->SetTextFont(42);
-    ttext1a->SetTextSize(0.04);
-    ttext1a->SetTextAlign(22);
-    ttext1a->Draw();
+  if(histname.find("QCD")==string::npos ){
     
-    TLatex * ttext1b = new TLatex(10. , ymax_top/20. , "N_{b} = 1");
-    ttext1b->SetTextFont(42);
-    ttext1b->SetTextSize(0.04);
-    ttext1b->SetTextAlign(22);
-    ttext1b->Draw();
+    //-----------------------------------------------------------
+    // Putting lines and labels explaining search region definitions
+    //-----------------------------------------------------------
+
+    // Njet separation lines
+    TLine *tl_njet = new TLine();
+    tl_njet->SetLineStyle(2);
+    tl_njet->DrawLine(25.,ymin_top,25.,ymax_top); 
+    tl_njet->DrawLine(49.,ymin_top,49.,ymax_top); 
+
+    // Njet labels
+    TLatex * ttext_njet = new TLatex();
+    ttext_njet->SetTextFont(42);
+    ttext_njet->SetTextSize(0.04);
+    ttext_njet->SetTextAlign(22);
+    ttext_njet->DrawLatex(13. , ymax_top/4. , "4 #leq N_{jets} #leq 6");
+    ttext_njet->DrawLatex(37. , ymax_top/4. , "7 #leq N_{jets} #leq 8");
+    ttext_njet->DrawLatex(61. , ymax_top/400. , "N_{jets} #geq 9");
+
+    // Nb separation lines
+    TLine *tl_nb = new TLine();
+    tl_nb->SetLineStyle(3);
+    tl_nb->DrawLine( 7.,ymin_top, 7.,ymax2_top); 
+    tl_nb->DrawLine(13.,ymin_top,13.,ymax2_top); 
+    tl_nb->DrawLine(19.,ymin_top,19.,ymax2_top); 
+    tl_nb->DrawLine(31.,ymin_top,31.,ymax3_top); 
+    tl_nb->DrawLine(37.,ymin_top,37.,ymax3_top); 
+    tl_nb->DrawLine(43.,ymin_top,43.,ymax3_top); 
+    tl_nb->DrawLine(55.,ymin_top,55.,ymax4_top); 
+    tl_nb->DrawLine(61.,ymin_top,61.,ymax4_top); 
+    tl_nb->DrawLine(67.,ymin_top,67.,ymax4_top); 
     
-    TLatex * ttext1c = new TLatex(16. , ymax_top/20. , "N_{b} = 2");
-    ttext1c->SetTextFont(42);
-    ttext1c->SetTextSize(0.04);
-    ttext1c->SetTextAlign(22);
-    ttext1c->Draw();
+    // Nb labels
+    TLatex * ttext_nb = new TLatex();
+    ttext_nb->SetTextFont(42);
+    ttext_nb->SetTextSize(0.04);
+    ttext_nb->SetTextAlign(22);
+
+    ttext_nb->DrawLatex( 4. , ymax_top/20. , "N_{b} = 0");
+    ttext_nb->DrawLatex(10. , ymax_top/20. , "N_{b} = 1");
+    ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
+    ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
     
-    TLatex * ttext1d = new TLatex(22. , ymax_top/20. , "N_{b} #geq 3");
-    ttext1d->SetTextFont(42);
-    ttext1d->SetTextSize(0.04);
-    ttext1d->SetTextAlign(22);
-    ttext1d->Draw();
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 10 fb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();
+
+    //
+  } else {
     
-    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
+    //-----------------------------------------------------------
+    // Putting lines and labels explaining search region definitions
+    //-----------------------------------------------------------
+
+    // Njet separation lines
+    TLine *tl_njet = new TLine();
+    tl_njet->SetLineStyle(2);
+    tl_njet->DrawLine( 45.,ymin_top, 45.,ymax_top); 
+    tl_njet->DrawLine( 89.,ymin_top, 89.,ymax_top); 
+    tl_njet->DrawLine(133.,ymin_top,133.,ymax_top); 
+    tl_njet->DrawLine(177.,ymin_top,177.,ymax_top/100.); 
+
+    // Njet labels
+    TLatex * ttext_njet = new TLatex();
+    ttext_njet->SetTextFont(42);
+    ttext_njet->SetTextSize(0.04);
+    ttext_njet->SetTextAlign(22);
+    ttext_njet->DrawLatex(23. , ymax_top/4. , "N_{jets} = 4");
+    ttext_njet->DrawLatex(67. , ymax_top/4. , "N_{jets} = 5");
+    ttext_njet->DrawLatex(111., ymax_top/4. , "N_{jets} = 6");
+    ttext_njet->DrawLatex(155., ymax_top/400. , "7 #leq N_{jets} #leq 8");
+    ttext_njet->DrawLatex(199., ymax_top/400. , "N_{jets} #geq 9");
+
+    // Nb separation lines
+    TLine *tl_nb = new TLine();
+    tl_nb->SetLineStyle(3);
+    tl_nb->DrawLine(12.,ymin_top,12.,ymax2_top); 
+    tl_nb->DrawLine(23.,ymin_top,23.,ymax2_top); 
+    tl_nb->DrawLine(34.,ymin_top,34.,ymax2_top); 
+
+    tl_nb->DrawLine(56.,ymin_top,56.,ymax2_top); 
+    tl_nb->DrawLine(67.,ymin_top,67.,ymax2_top); 
+    tl_nb->DrawLine(78.,ymin_top,78.,ymax2_top); 
+
+    tl_nb->DrawLine(100.,ymin_top,100.,ymax2_top); 
+    tl_nb->DrawLine(111.,ymin_top,111.,ymax2_top); 
+    tl_nb->DrawLine(122.,ymin_top,122.,ymax2_top); 
+
+    tl_nb->DrawLine(144.,ymin_top,144.,ymax3_top); 
+    tl_nb->DrawLine(155.,ymin_top,155.,ymax3_top); 
+    tl_nb->DrawLine(166.,ymin_top,166.,ymax3_top); 
+
+    tl_nb->DrawLine(188.,ymin_top,188.,ymax4_top); 
+    tl_nb->DrawLine(199.,ymin_top,199.,ymax4_top); 
+    tl_nb->DrawLine(210.,ymin_top,210.,ymax4_top); 
+
+    // Nb labels
+    TLatex * ttext_nb = new TLatex();
+    ttext_nb->SetTextFont(42);
+    ttext_nb->SetTextSize(0.04);
+    ttext_nb->SetTextAlign(22);
+    ttext_nb->SetTextAngle(90);
+
+    ttext_nb->DrawLatex( 6. , ymax_top/50. , "N_{b} = 0");
+    ttext_nb->DrawLatex(17. , ymax_top/50. , "N_{b} = 1");
+    ttext_nb->DrawLatex(28. , ymax_top/50. , "N_{b} = 2");
+    ttext_nb->DrawLatex(39. , ymax_top/50. , "N_{b} #geq 3");
+    
+    TText * ttext = new TLatex(160. , ymax_top/50. , "Normalized to 10 fb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
     ttext->Draw();
 
   }
+
+
   //
   // Bottom ratio plot
   //
@@ -466,49 +505,43 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
       tline->SetLineStyle(2);
       tline->Draw();
 
-      TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
-      tline_bottom_1->SetLineStyle(2);
-      tline_bottom_1->Draw();
+      // Njet separation lines
+      TLine *tl_njet = new TLine();
+      tl_njet->SetLineStyle(2);
+      tl_njet->DrawLine( 45.,ymin_bottom, 45.,ymax_bottom); 
+      tl_njet->DrawLine( 89.,ymin_bottom, 89.,ymax_bottom); 
+      tl_njet->DrawLine(133.,ymin_bottom,133.,ymax_bottom); 
+      tl_njet->DrawLine(177.,ymin_bottom,177.,ymax_bottom); 
+
+
+      // Nb separation lines
+      TLine *tl_nb = new TLine();
+      tl_nb->SetLineStyle(3);
+      tl_nb->DrawLine(12.,ymin_bottom,12.,ymax2_bottom); 
+      tl_nb->DrawLine(23.,ymin_bottom,23.,ymax2_bottom); 
+      tl_nb->DrawLine(34.,ymin_bottom,34.,ymax2_bottom); 
       
-      TLine *tline_bottom_2 = new TLine(49.,ymin_bottom,49.,ymax_bottom);
-      tline_bottom_2->SetLineStyle(2);
-      tline_bottom_2->Draw();
+      tl_nb->DrawLine(56.,ymin_bottom,56.,ymax2_bottom); 
+      tl_nb->DrawLine(67.,ymin_bottom,67.,ymax2_bottom); 
+      tl_nb->DrawLine(78.,ymin_bottom,78.,ymax2_bottom); 
+      
+      tl_nb->DrawLine(100.,ymin_bottom,100.,ymax2_bottom); 
+      tl_nb->DrawLine(111.,ymin_bottom,111.,ymax2_bottom); 
+      tl_nb->DrawLine(122.,ymin_bottom,122.,ymax2_bottom); 
 
-      TLine *tline_bottom_1a = new TLine(7.,ymin_bottom,7.,ymax2_bottom);
-      tline_bottom_1a->SetLineStyle(3);
-      tline_bottom_1a->Draw();
-      TLine *tline_bottom_1b = new TLine(13.,ymin_bottom,13.,ymax2_bottom);
-      tline_bottom_1b->SetLineStyle(3);
-      tline_bottom_1b->Draw();
-      TLine *tline_bottom_1c = new TLine(19.,ymin_bottom,19.,ymax2_bottom);
-      tline_bottom_1c->SetLineStyle(3);
-      tline_bottom_1c->Draw();
-
-      TLine *tline_bottom_2a = new TLine(31.,ymin_bottom,31.,ymax3_bottom);
-      tline_bottom_2a->SetLineStyle(3);
-      tline_bottom_2a->Draw();
-      TLine *tline_bottom_2b = new TLine(37.,ymin_bottom,37.,ymax3_bottom);
-      tline_bottom_2b->SetLineStyle(3);
-      tline_bottom_2b->Draw();
-      TLine *tline_bottom_2c = new TLine(43.,ymin_bottom,43.,ymax3_bottom);
-      tline_bottom_2c->SetLineStyle(3);
-      tline_bottom_2c->Draw();
-
-      TLine *tline_bottom_3a = new TLine(55.,ymin_bottom,55.,ymax4_bottom);
-      tline_bottom_3a->SetLineStyle(3);
-      tline_bottom_3a->Draw();
-      TLine *tline_bottom_3b = new TLine(61.,ymin_bottom,61.,ymax4_bottom);
-      tline_bottom_3b->SetLineStyle(3);
-      tline_bottom_3b->Draw();
-      TLine *tline_bottom_3c = new TLine(67.,ymin_bottom,67.,ymax4_bottom);
-      tline_bottom_3c->SetLineStyle(3);
-      tline_bottom_3c->Draw();
-
+      tl_nb->DrawLine(144.,ymin_bottom,144.,ymax2_bottom); 
+      tl_nb->DrawLine(155.,ymin_bottom,155.,ymax2_bottom); 
+      tl_nb->DrawLine(166.,ymin_bottom,166.,ymax2_bottom); 
+      
+      tl_nb->DrawLine(188.,ymin_bottom,188.,ymax2_bottom); 
+      tl_nb->DrawLine(199.,ymin_bottom,199.,ymax2_bottom); 
+      tl_nb->DrawLine(210.,ymin_bottom,210.,ymax2_bottom); 
+    
   }
 
-  sprintf(tempname,"%s_SearchBin_Full_Plot.png",sample.c_str());
+  sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_SearchBin_Full_Plot.pdf",sample.c_str());
+  sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
 //  canvas->Print(tempname);
 
-}
+  }

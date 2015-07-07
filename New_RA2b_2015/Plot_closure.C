@@ -226,7 +226,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
     }
 
     thist->SetTitle("");
-    thist->Scale(lumi/lumi_ttbar);
+//    thist->Scale(lumi/lumi_ttbar);
 
     //
     // Setting style

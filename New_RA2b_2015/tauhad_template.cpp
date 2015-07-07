@@ -86,6 +86,8 @@ using namespace std;
     TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",NMuPtBins,0,MaxMuPt);
     B_rate_tagged->Sumw2();
 
+    Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
+                             450.,500.,600.,1000.,5000.};
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -96,6 +98,9 @@ using namespace std;
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();
     vec.push_back(RA2MHT_hist);
+    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",13,mht_bins);
+    RA2MHT2_hist.Sumw2();
+    vec.push_back(RA2MHT2_hist);
     TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
     RA2MET_hist.Sumw2();
     vec.push_back(RA2MET_hist);   
@@ -148,8 +153,10 @@ using namespace std;
     // Introduce QCD histogram
     map<string,int> binMap_QCD = utils2::BinMap_QCD();
     int totNbins_QCD=binMap_QCD.size();
-    TH1* QCD_H = new TH1D("QCD_H","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
-    QCD_H->Sumw2();
+    TH1* QCD_Low = new TH1D("QCD_Low","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_Low->Sumw2();
+    TH1* QCD_Up = new TH1D("QCD_Up","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_Up->Sumw2();
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
@@ -284,7 +291,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>10000000)break;
+      // if(eventN>47160)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
@@ -483,9 +490,11 @@ using namespace std;
           if(passIso){
               // Fill Search bin histogram
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
+              QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
               searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
           }
         }
+
       }
 
       // Fill QCD histogram
@@ -494,16 +503,16 @@ using namespace std;
         if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3) && evt->nJets() >= 4){
           // Fill QCD histograms
           if(passIso){
-	    //std::cout << binMap_QCD[utils2::findBin_QCD(4,0,520.,220.).c_str()]
-	    //	      << std::endl;
-            QCD_H->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+
+            QCD_Low->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+
           }
         }
       }
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
-      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
+      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
@@ -694,7 +703,8 @@ using namespace std;
     TFile *resFile = new TFile(tempname, "RECREATE");
     cutflow_preselection->Write();
     searchH->Write();
-    QCD_H->Write();
+    QCD_Low->Write();
+    QCD_Up->Write();
     searchH_b->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
