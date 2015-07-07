@@ -32,10 +32,13 @@ cp HadTauEstimation_TTbar_.root ../TauHad2
 #hadd Probability_Tau_mu_TTbar_.root `ls Probability_Tau_mu_TTbar*00.root `
 #cp Probability_Tau_mu_TTbar_.root ../TauHad2
 
+cd ..
+
+root -l -b -q Scale_ByLumi.C
 
 echo " hadd done. Stacking... " 
 
-cd ../TauHad2/Stack/
+cd TauHad2/Stack/
 
 ./Stack "10000"
 

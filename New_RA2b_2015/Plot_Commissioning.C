@@ -159,6 +159,7 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   hPreWJ6I->Add(hPreWJ24);
   hPreWJ6I->Add(hPreWJ12);
   hPre->Add(hPreWJ6I);
+  hPre->Scale(1/100.);
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
 
