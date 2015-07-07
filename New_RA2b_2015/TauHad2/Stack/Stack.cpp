@@ -112,8 +112,8 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-//  Hname[2]="QCD_Up";
-//  Hname[3]="QCD_Low";
+  Hname[2]="QCD_Up";
+  Hname[3]="QCD_Low";
   
   for(int j=0; j< Hname.size(); j++){
 
@@ -604,8 +604,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
   Hname.clear();
   Hname[0]="searchH";
   Hname[1]="searchH_b";
-//  Hname[2]="QCD_Up";  
-//  Hname[3]="QCD_Low";
+  Hname[2]="QCD_Up";  
+  Hname[3]="QCD_Low";
 
   for(int j=0; j< Hname.size(); j++){
 
