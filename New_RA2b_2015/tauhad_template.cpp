@@ -71,19 +71,19 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
 
+    // The tau response templates
+    Utils * utils = new Utils();
 
     // Introduce two histograms to understand how often a gen tau does not match any jet
-    int MaxMuPt=100*10;
-    int NMuPtBins=MaxMuPt/10;
-    TH1D * GenTau_Jet_all = new TH1D("GenTau_Jet_all","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    TH1D * GenTau_Jet_all = new TH1D("GenTau_Jet_all","Pt of Gen Tau",utils->NMuPtBins(),0,utils->MaxMuPt());
     GenTau_Jet_all->Sumw2();
-    TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",NMuPtBins,0,MaxMuPt);
+    TH1D * GenTau_Jet_fail = new TH1D("GenTau_Jet_fail","Pt of Gen Tau",utils->NMuPtBins(),0,utils->MaxMuPt());
     GenTau_Jet_fail->Sumw2();
 
     // Two histograms to find rate of btagged(mistagged) tau jets as a function of pT. 
-    TH1D * B_rate_all = new TH1D("B_rate_all","Pt of all matched tau jets",NMuPtBins,0,MaxMuPt);
+    TH1D * B_rate_all = new TH1D("B_rate_all","Pt of all matched tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_all->Sumw2();
-    TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",NMuPtBins,0,MaxMuPt);
+    TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_tagged->Sumw2();
 
     Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
@@ -204,8 +204,6 @@ using namespace std;
     Iso_pass->Sumw2();
     
 
-    // The tau response templates
-    Utils * utils = new Utils();
     
     // They are filled for different bins in generated tau-lepton pt.
     std::vector<TH1*> hTauResp(utils->TauResponse_nBins_());

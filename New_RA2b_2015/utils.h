@@ -50,5 +50,9 @@ public:
 
     double calcMT(const double objPt, const double objPhi, const double met, const double metphi ) ;
 
+    int MaxMuPt();
+    int NMuPtBins();    
+
+
 };
 

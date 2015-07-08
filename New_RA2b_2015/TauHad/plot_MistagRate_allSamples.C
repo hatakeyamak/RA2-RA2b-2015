@@ -52,9 +52,12 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
   TFile *file_TTbar   = new TFile(tempname,"R");
   sprintf(tempname,"Stack/TauBtaggedRate_WJet_stacked.root");
   TFile *file_WJet   = new TFile(tempname,"R");
-  
+  sprintf(tempname,"../TauHad2/Stack/TauBtaggedRate_TTbar_stacked.root");
+  TFile *file_TTbar_mu   = new TFile(tempname,"R");
+  sprintf(tempname,"../TauHad2/Stack/TauBtaggedRate_WJet_stacked.root");
+  TFile *file_WJet_mu   = new TFile(tempname,"R");  
 
-  TH1D * thist, * thist2;
+  TH1D * thist, * thist2, *thist_tt_mu, * thist_wj_mu;
   THStack * tempstack;
 //  catLeg1->SetHeader("Prob. of #mu from #tau ");
 
@@ -62,7 +65,7 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
 //...........................................................................//
 // TTbar ....................................................................//
 //...........................................................................//
-    double XUp = 500. , maxVal=3.;
+    double XUp = 500. , maxVal=2.;
 
     sprintf(tempname,"TauBtaggedRate");
     thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
@@ -87,18 +90,32 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
     thist2->GetXaxis()->SetRangeUser(0.,XUp);
     thist2->SetMaximum(maxVal);
     thist2->SetLineColor(2);
-    thist2->Draw();
+    thist2->DrawCopy("same");
 
     thist = (TH1D*)file_TTbar->Get(tempname)->Clone();
     thist->SetLineColor(1);
 //    thist->SetFillColor(0);
 //    thist->SetLineWidth(3);
-    
-    thist->Draw("same");
+    thist->DrawCopy("same");
+
+
+    thist_wj_mu = (TH1D*)file_WJet_mu->Get(tempname)->Clone();
+    thist_wj_mu->SetLineColor(3); 
+    thist_wj_mu->SetMarkerStyle(20);
+    thist_wj_mu->DrawCopy("same");
+
+    thist_tt_mu = (TH1D*)file_TTbar_mu->Get(tempname)->Clone();
+    thist_tt_mu->SetLineColor(4);   
+    thist_tt_mu->DrawCopy("same");
+
     sprintf(tempname,"T#bar{T}");
     catLeg1->AddEntry(thist,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg1->AddEntry(thist2,tempname,"l");    
+    sprintf(tempname,"mu from T#bar{T}");
+    catLeg1->AddEntry(thist_tt_mu,tempname,"l");
+    sprintf(tempname,"mu from WJet");
+    catLeg1->AddEntry(thist_wj_mu,tempname,"p");
     catLeg1->Draw();
   
     sprintf(tempname,"TauBtaggedRate_allSamples.png");

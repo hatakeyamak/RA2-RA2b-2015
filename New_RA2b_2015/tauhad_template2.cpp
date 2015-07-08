@@ -92,8 +92,8 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
-                         450.,500.,600.,1000.,5000.};
+    Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
+                             450.,500.,600.,1000.,5000.};
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -128,12 +128,6 @@ Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
     TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
     RA2NBtag_hist.Sumw2();
     vec.push_back(RA2NBtag_hist);
-    TH1D nB_hist = TH1D("nB","Number of B Distribution",20,0,20);
-    nB_hist.Sumw2();
-    vec.push_back(nB_hist);
-    TH1D nB_new_hist = TH1D("nB_new","Number of recalculated B",20,0,20);
-    nB_new_hist.Sumw2();
-    vec.push_back(nB_new_hist);
     TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
     RA2MuonPt_hist.Sumw2();
     vec.push_back(RA2MuonPt_hist);
@@ -339,9 +333,11 @@ Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
     // muMtW Histogram
     TH1D * muMtWHist = new TH1D("muMtW"," MT distribution of muon",40,0,200);
 
-    // Some variable for nBtag recalculation
-    int c1=0,c2=0,c3=0;
-    int nB_new;
+    // Two histograms to find rate of btagged(mistagged) tau jets as a function of pT. 
+    TH1D * B_rate_all = new TH1D("B_rate_all","Pt of all matched tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
+    B_rate_all->Sumw2();
+    TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
+    B_rate_tagged->Sumw2();
 
     // see how often gen mu doesn't match reco mu
     int GenRecMu_all=0,GenRecMu_fail=0;
@@ -630,40 +626,19 @@ Ahmad33 */
 
   //######################################################################
 
-
+          // Calculate muon's btag rate 
+          if(!utils2::bootstrap){
+            JetIdx=-1;
+            utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+            B_rate_all->Fill(simTauJetPt);
+            if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814){
+              B_rate_tagged->Fill(simTauJetPt);
+            }
+          }
 
           // start of btag on/off for had tau jets ( if is on ) 
           for(int m=0; m<nBtagsForHadTau;m++){
 
-
-            // Do not write number of B if the muon jet is btagged. 
-            int nB=evt->nBtags();
-            if(JetIdx!=-1 && evt->csvVec()[JetIdx]> 0.814)nB=-1; 
-            // Recalculate nBtag
-            // From tauhad_template.cpp we know that in 0% of 0B events
-            // 2.7% of 1B events, 7.6% of 2B events and 23% of 3+B
-            // events, tau jet is btagged(mistagging). On the other hand
-            // from nB and evt->nBtags() we know almost none of muon jets
-            // are bTagged.
-            // This means we should recalculate #Btags. 
-            if(evt->nBtags()==0){
-              nB_new=evt->nBtags();
-            }else if(evt->nBtags()==1){
-              nB_new=evt->nBtags();
-              c1++;
-              if(c1<=3)nB_new++;
-              if(c1==100)c1=0;
-            }else if(evt->nBtags()==2){
-              nB_new=evt->nBtags();
-              c2++;
-              if(c2<=8)nB_new++;
-              if(c2==100)c2=0;
-            }else if(evt->nBtags()>=3){
-              nB_new=evt->nBtags();
-              c3++;
-              if(c3<=23)nB_new++;
-              if(c3==100)c3=0;
-            }         
             
             // New #b
             double NewNB=evt->nBtags();
@@ -976,7 +951,7 @@ Ahmad33 */
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double)nB,(double)nB_new ,(double) muPt, simTauJetPt_xy};
+            double eveinfvec[] = {totWeight, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double) muPt, simTauJetPt_xy};
 
             bool pass0=false;
             if(TauHadModel >= 1)pass0=true;
@@ -1057,6 +1032,18 @@ Ahmad33 */
     printf("nCleanEve: %d dilepton_all: %d dilepton_pass: %d \n ",nCleanEve,dilepton_all,dilepton_pass);  
 
     if(!utils2::bootstrap){
+
+      // Calculate tau mistagged(btagged) rate
+      TH1D * TauBtaggedRate = static_cast<TH1D*>(B_rate_tagged->Clone("TauBtaggedRate"));
+      TauBtaggedRate->Divide(B_rate_tagged,B_rate_all,1,1,"B");
+      // Write the histogram 
+      sprintf(tempname,"%s/TauBtaggedRate_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile btagfile(tempname,"RECREATE");
+      TauBtaggedRate->Write();
+      B_rate_tagged->Write();
+      B_rate_all->Write();
+      btagfile.Close();
+
       // Compute iso efficiencies
       TH1* IsoElecEff = static_cast<TH1*>(IsoElec_pass->Clone("IsoElecEff"));
       IsoElecEff->Divide(IsoElec_pass,IsoElec_all,1,1,"B");
