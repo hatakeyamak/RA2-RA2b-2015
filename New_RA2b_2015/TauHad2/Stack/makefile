@@ -24,6 +24,10 @@ HEADERS       = ../../Selection.h
 %.o : %.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
 
+all : $(PROGRAM2)
+
+clean : *.o $(PROGRAM2) 
+	$(RM) *.o $(PROGRAM2)
 
 .PHONY : all
 

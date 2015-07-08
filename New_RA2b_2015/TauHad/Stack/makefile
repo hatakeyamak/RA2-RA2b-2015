@@ -26,6 +26,9 @@ HEADERS       = $(DIR)/Selection.h
 
 all : $(PROGRAM) $(PROGRAM2)
 
+clean : *.o $(PROGRAM2) 
+	$(RM) *.o $(PROGRAM2)
+
 .PHONY : all
 
 

@@ -3,8 +3,14 @@
 
 using namespace std;
 
+//
+// newLum: luminosity in fb-1, where we want to project our results
+// imode:  0: keep the relative stat uncertainty reflecting full MC stat power
+//            i.e. both content and error are scale by lumi
+//         1: project the stat uncertainy to the targetted luminosity
+//            i.e. content is scale by lumi, while scale the error by sqrt(lumi)
 
-Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to xxx fb^{-1}
+Scale_ByLumi(double newLum=10, int imode=1){   // Scale histogram contents and uncertainty to xxx fb^{-1}
 
   char tempname[200];
   TH1D * temphist;
@@ -47,10 +53,12 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
     //#######
 
     cout << " \n Working on sample: " << sample[filei] << endl;
-    sprintf(tempname,"TauHad2/HadTauEstimation_%s_.root",sample[filei].c_str());
+    sprintf(tempname,"TauHad2/HadTauEstimation_%s_org.root",sample[filei].c_str());
     TFile * file_in  = new TFile(tempname,"READ");
-    sprintf(tempname,"TauHad2/HadTauEstimation_%s_LumiScaledTo%.1ffbinv.root",sample[filei].c_str(),newLum);
-    TFile * file_out = new TFile(tempname,"RECREATE");
+    if (imode==1)      sprintf(tempname,"TauHad2/HadTauEstimation_%s_LumiScaledTo%.1ffbinv.root",sample[filei].c_str(),newLum);
+    else if (imode==0) sprintf(tempname,"TauHad2/HadTauEstimation_%s_%.1ffbinv_OrigRelStatError.root",sample[filei].c_str(),newLum);
+    else { printf("This mode is not supported\n"); break; }
+    TFile * file_out = new TFile(tempname,"UPDATE");
 
     //#######
     // QCD_Low
@@ -63,10 +71,12 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
     if (filei==0) temphist->Print("all");
     else temphist->Print("range");
 
-    sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
-    double nevents_from_root_file = (* (TH1D*)file_in->Get(tempname)).GetEntries();
+    //sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
+    //double nevents_from_root_file = (* (TH1D*)file_in->Get(tempname)).GetEntries();
+    sprintf(tempname,"cutflow_preselection");
+    double nevents_from_root_file = (* (TH1D*)file_in->Get(tempname)).GetBinContent(1);
   
-    double originalSampleLum = sample_nevents[filei] / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
+    double originalSampleLum = nevents_from_root_file / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
                                                                                    // 1/1000. to convert pb^{-1} to fb^{-1}
     printf("Sample name = %10s, sample lumi = %8.3f, total events = %8.0f, events from allEvent folder = %8.0f\n",
 	   sample[filei].c_str(),originalSampleLum,sample_nevents[filei],nevents_from_root_file
@@ -76,12 +86,14 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
       double bin=temphist->GetBinContent(ibin);
       temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
       double binEr=temphist->GetBinError(ibin);
-      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
     }
 
     cout << " QCD_Low: After fix: \n ############### \n ";
     if (filei==0) temphist->Print("all");
     else temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
 
     temphist->Write();
 
@@ -101,11 +113,39 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
       double bin=temphist->GetBinContent(ibin);
       temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
       double binEr=temphist->GetBinError(ibin);
-      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
     }
 
     cout << " QCD_Up: After fix: \n ############### \n ";
     temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
+
+    temphist->Write();
+
+    //#######
+    // searchH_b
+    //#######
+
+    temphist = (TH1D*) file_in->Get("searchH_b")->Clone();
+
+    cout << " searchH_b: Before fix: \n ############### \n ";
+    temphist->GetXaxis()->SetRange(1,1);
+    temphist->Print("range");
+
+    double originalSampleLum = sample_nevents[filei] / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
+
+    for (int ibin=0; ibin<temphist->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
+      double bin=temphist->GetBinContent(ibin);
+      temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
+      double binEr=temphist->GetBinError(ibin);
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
+    }
+
+    cout << " searchH_b: After fix: \n ############### \n ";
+    temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
 
     temphist->Write();
 
@@ -118,13 +158,15 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
   for(int filei=0;filei<sampleSize;filei++){
 
     cout << " \n Working on sample: " << sample[filei] << endl;
-    sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_.root",sample[filei].c_str());
+    sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_org.root",sample[filei].c_str());
     TFile * file_in = new TFile(tempname,"READ");
-    sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_LumiScaledTo%.1ffbinv.root",sample[filei].c_str(),newLum);
-    TFile * file_out = new TFile(tempname,"RECREATE");
+    if (imode==1)      sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_LumiScaledTo%.1ffbinv.root",sample[filei].c_str(),newLum);
+    else if (imode==0) sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s_%.1ffbinv_OrigRelStatError.root",sample[filei].c_str(),newLum);
+    
+    TFile * file_out = new TFile(tempname,"UPDATE");
 
     //#######
-    // QCD_Up
+    // QCD_Low
     //#######
    
     temphist = (TH1D*) file_in->Get("QCD_Low")->Clone();
@@ -133,16 +175,26 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
     temphist->GetXaxis()->SetRange(1,1);
     temphist->Print("range");
     
+    sprintf(tempname,"cutflow_preselection");
+    double nevents_from_root_file = (* (TH1D*)file_in->Get(tempname)).GetBinContent(1);
+
+   double originalSampleLum = nevents_from_root_file / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
+                                                                                   // 1/1000. to convert pb^{-1} to fb^{-1}
+    printf("Sample name = %10s, sample lumi = %8.3f, total events = %8.0f, events from allEvent folder = %8.0f\n",
+	   sample[filei].c_str(),originalSampleLum,sample_nevents[filei],nevents_from_root_file
+	   );
 
     for (int ibin=0; ibin<temphist->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
       double bin=temphist->GetBinContent(ibin);
       temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
       double binEr=temphist->GetBinError(ibin);
-      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
     }
 
     cout << " QCD_Low: After fix: \n ############### \n ";
     temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
 
     temphist->Write();
 
@@ -156,15 +208,45 @@ Scale_ByLumi(double newLum=10){   // Scale histogram contents and uncertainty to
     temphist->GetXaxis()->SetRange(1,1);
     temphist->Print("range");
 
+   double originalSampleLum = sample_nevents[filei] / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
+
     for (int ibin=0; ibin<temphist->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
       double bin=temphist->GetBinContent(ibin);
       temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
       double binEr=temphist->GetBinError(ibin);
-      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
     }
 
     cout << " QCD_Up: After fix: \n ############### \n ";
     temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
+
+    temphist->Write();
+
+    //#######
+    // searchH_b
+    //#######
+
+    temphist = (TH1D*) file_in->Get("searchH_b")->Clone();
+
+    cout << " searchH_b: Before fix: \n ############### \n ";
+    temphist->GetXaxis()->SetRange(1,1);
+    temphist->Print("range");
+
+   double originalSampleLum = sample_nevents[filei] / sample_xsec[filei] / 1000.; // original sample luminosity in terms of fb^{-1}
+
+    for (int ibin=0; ibin<temphist->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
+      double bin=temphist->GetBinContent(ibin);
+      temphist->SetBinContent(ibin, bin*newLum/originalSampleLum );
+      double binEr=temphist->GetBinError(ibin);
+      if (imode==1)      temphist->SetBinError(ibin,   binEr*sqrt(newLum/originalSampleLum) );
+      else if (imode==0) temphist->SetBinError(ibin,   binEr*newLum/originalSampleLum );
+    }
+
+    cout << " searchH_b: After fix: \n ############### \n ";
+    temphist->Print("range");
+    temphist->GetXaxis()->SetRange();
 
     temphist->Write();
 

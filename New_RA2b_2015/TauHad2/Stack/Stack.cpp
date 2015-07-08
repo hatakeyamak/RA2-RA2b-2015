@@ -121,7 +121,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(T_scalevec[i]);
+      if (luminosity>0) temphist->Scale(T_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -155,7 +155,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(T_scalevec[i]);
+          if (luminosity>0) temphist->Scale(T_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -206,7 +206,8 @@ cout << " flag \n " ;
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
-printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
+    if (luminosity>0)
+      printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
 
     WJet_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
@@ -256,7 +257,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(WJet_scalevec[i]);
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -289,7 +290,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
           //cout << "HT#: " <<i << ", WJettype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(WJet_scalevec[i]);
+          if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -412,7 +413,11 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+<<<<<<< HEAD
       temphist->Scale(WJet_scalevec[i]);
+=======
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
+>>>>>>> 3842af32acb1588c0a730ae1dc251cd8eafee1e1
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -461,7 +466,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
-printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
+    if (luminosity>0)
+      printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
 
     TTbar_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
@@ -508,7 +514,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(TTbar_scalevec[i]);
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -542,7 +548,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
           //cout << "HT#: " <<i << ", TTbartype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(TTbar_scalevec[i]);
+          if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -596,7 +602,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(TTbar_scalevec[i]);
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -653,7 +659,11 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+<<<<<<< HEAD
       temphist->Scale(TTbar_scalevec[i]);
+=======
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
+>>>>>>> 3842af32acb1588c0a730ae1dc251cd8eafee1e1
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
