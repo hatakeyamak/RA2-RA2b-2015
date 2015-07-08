@@ -121,7 +121,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(T_scalevec[i]);
+      if (luminosity>0) temphist->Scale(T_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -155,7 +155,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(T_scalevec[i]);
+          if (luminosity>0) temphist->Scale(T_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -206,7 +206,8 @@ cout << " flag \n " ;
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
-printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
+    if (luminosity>0)
+      printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
 
     WJet_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
@@ -256,7 +257,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(WJet_scalevec[i]);
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -289,7 +290,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
           //cout << "HT#: " <<i << ", WJettype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(WJet_scalevec[i]);
+          if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -376,6 +377,68 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 */
 
 
+//..........................................//
+// Mistag rate 
+//..........................................//
+
+  // Load the files to a vector
+  // These are tau template files
+
+  WJet_inputfilevec.clear();
+
+  for(int i=1; i<=wjnHT ; i++){
+    if(i==1)sprintf(tempname,"../TauBtaggedRate_WJet_100_200_.root");
+    else if(i==2)sprintf(tempname,"../TauBtaggedRate_WJet_200_400_.root");
+    else if(i==3)sprintf(tempname,"../TauBtaggedRate_WJet_400_600_.root");
+    else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_inf_.root");
+    else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
+    WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"TauBtaggedRate_WJet_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="TauBtaggedRate";
+  histname[1]="B_rate_tagged";
+  histname[2]="B_rate_all";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("TauBtaggedRate"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("TauBtaggedRate");
+  temphistIII->SetTitle("TauBtaggedRate");
+  temphistIII->Write();
+
+
+  file->Close();
+  printf("WJet mistag rate calculated. \n ");
+
+
+
 
 
 
@@ -399,7 +462,8 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 
-printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
+    if (luminosity>0)
+      printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,TTbar_xs_vec[i-1]);
 
     TTbar_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
@@ -446,7 +510,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(TTbar_scalevec[i]);
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -480,7 +544,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
           //cout << "HT#: " <<i << ", TTbartype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-          temphist->Scale(TTbar_scalevec[i]);
+          if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -534,7 +598,7 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
     for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(TTbar_scalevec[i]);
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -556,6 +620,65 @@ printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(
 
   file->Close();
   printf("TTbar Mu from nonW calculated. \n ");
+
+
+//..........................................//
+// Mistag rate 
+//..........................................//
+
+  // Load the files to a vector
+  // These are tau template files
+
+  TTbar_inputfilevec.clear();
+
+  for(int i=1; i<=ttbarnHT ; i++){
+    if(i==1)sprintf(tempname,"../TauBtaggedRate_TTbar_.root");
+    else{cout << " Error!! There are only 1 TTbar ht binned sample " << endl;}
+    TTbar_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"TauBtaggedRate_TTbar_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="TauBtaggedRate";
+  histname[1]="B_rate_tagged";
+  histname[2]="B_rate_all";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("TauBtaggedRate"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("TauBtaggedRate");
+  temphistIII->SetTitle("TauBtaggedRate");
+  temphistIII->Write();
+
+  file->Close();
+  printf("TTbar mistag rate calculated. \n ");
+
 
 
 
