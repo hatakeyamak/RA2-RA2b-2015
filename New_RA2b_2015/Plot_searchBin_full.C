@@ -6,8 +6,9 @@ using namespace std;
 /*
 
 .L Plot_searchBin_full.C
-Plot_searchBin_full("stacked","QCD_H");
 Plot_searchBin_full("stacked","searchH_b");
+Plot_searchBin_full("stacked","QCD_Low");
+Plot_searchBin_full("stacked","QCD_Up");
 
 */
 
@@ -69,11 +70,13 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
-//cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
+  //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
 
   //
   // Define legend
@@ -230,7 +233,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   //EstHist->Draw("e2same");
   //EstHist->Draw("esame");
   TH1D * EstHist_Normalize = static_cast<TH1D*>(EstHist->Clone("EstHist_Normalize"));
-//  EstHist_Normalize->Scale(lumi/lumi_ttbar);
+  //  EstHist_Normalize->Scale(lumi/lumi_ttbar);
   EstHist_Normalize->DrawCopy("e2same");
   EstHist_Normalize->DrawCopy("esame");
 
@@ -505,6 +508,32 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
       tline->SetLineStyle(2);
       tline->Draw();
 
+      //
+      if(histname.find("QCD")==string::npos ){
+	
+      // Njet separation lines
+      TLine *tl_njet = new TLine();
+      tl_njet->SetLineStyle(2);
+      tl_njet->DrawLine( 25.,ymin_bottom, 25.,ymax_bottom); 
+      tl_njet->DrawLine( 49.,ymin_bottom, 49.,ymax_bottom); 
+
+      // Nb separation lines
+      TLine *tl_nb = new TLine();
+      tl_nb->SetLineStyle(3);
+      tl_nb->DrawLine( 7.,ymin_bottom, 7.,ymax2_bottom); 
+      tl_nb->DrawLine(13.,ymin_bottom,13.,ymax2_bottom); 
+      tl_nb->DrawLine(19.,ymin_bottom,19.,ymax2_bottom); 
+      
+      tl_nb->DrawLine(31.,ymin_bottom,31.,ymax2_bottom); 
+      tl_nb->DrawLine(37.,ymin_bottom,37.,ymax2_bottom); 
+      tl_nb->DrawLine(43.,ymin_bottom,43.,ymax2_bottom); 
+      
+      tl_nb->DrawLine(55.,ymin_bottom,55.,ymax2_bottom); 
+      tl_nb->DrawLine(61.,ymin_bottom,61.,ymax2_bottom); 
+      tl_nb->DrawLine(67.,ymin_bottom,67.,ymax2_bottom); 
+
+      } else {
+	
       // Njet separation lines
       TLine *tl_njet = new TLine();
       tl_njet->SetLineStyle(2);
@@ -539,9 +568,11 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     
   }
 
+  }
+
   sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
-//  canvas->Print(tempname);
+  canvas->Print(tempname);
 
   }
