@@ -134,4 +134,5 @@ using namespace std;
       return mt;
    }
 
-
+    int Utils::MaxMuPt(){return 100*10;}
+    int Utils::NMuPtBins(){return MaxMuPt()/10;}
