@@ -1,5 +1,6 @@
 #!/bin/sh
-cd /home/borzou/CMSSW_7_4_0_pre1/src/RA2-RA2b-2015/New_RA2b_2015
+#cd /home/borzou/CMSSW_7_4_0_pre1/src/RA2-RA2b-2015/New_RA2b_2015
+cd $PBS_O_WORKDIR
 source ~cmssoft/shrc
 eval `scramv1 runtime -sh`
 #
