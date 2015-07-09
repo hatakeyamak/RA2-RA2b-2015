@@ -48,77 +48,118 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  sprintf(tempname,"Stack/TauBtaggedRate_TTbar_stacked.root");
-  TFile *file_TTbar   = new TFile(tempname,"R");
-  sprintf(tempname,"Stack/TauBtaggedRate_WJet_stacked.root");
-  TFile *file_WJet   = new TFile(tempname,"R");
-  sprintf(tempname,"../TauHad2/Stack/TauBtaggedRate_TTbar_stacked.root");
-  TFile *file_TTbar_mu   = new TFile(tempname,"R");
-  sprintf(tempname,"../TauHad2/Stack/TauBtaggedRate_WJet_stacked.root");
-  TFile *file_WJet_mu   = new TFile(tempname,"R");  
+  TH1D * temp_tt_tauH, * temp_wj_tauH, *temp_tt_muH, * temp_wj_muH;
+  
 
-  TH1D * thist, * thist2, *thist_tt_mu, * thist_wj_mu;
-  THStack * tempstack;
+  TFile file_WJet("Stack/TauBtaggedRate_WJet_stacked.root","R");
+  temp_wj_tauH = (TH1D*)file_WJet.Get("TauBtaggedRate")->Clone();
+  TH1D * wj_tauH = new TH1D("wj_tauH","WJet -- Tau mistag",temp_wj_tauH->GetNbinsX(),temp_wj_tauH->GetXaxis()->GetXmin(),temp_wj_tauH->GetXaxis()->GetXmax());
+  for(int ibin=0;ibin<wj_tauH->GetNbinsX()+2;ibin++){
+    double con = (double)temp_wj_tauH->GetBinContent(ibin);
+    double err = (double)temp_wj_tauH->GetBinError(ibin);
+    cout << "con: " << con << " err: " << err << endl;
+    wj_tauH->SetBinContent(ibin,con);
+    wj_tauH->SetBinError(ibin,err);
+  }
+
+
+
+  TFile file_TTbar("Stack/TauBtaggedRate_TTbar_stacked.root","R");  
+  temp_tt_tauH = (TH1D*)file_TTbar.Get("TauBtaggedRate")->Clone();
+  TH1D * tt_tauH = new TH1D("tt_tauH","WJet -- Tau mistag",temp_tt_tauH->GetNbinsX(),temp_tt_tauH->GetXaxis()->GetXmin(),temp_tt_tauH->GetXaxis()->GetXmax());
+  for(int ibin=0;ibin<tt_tauH->GetNbinsX()+2;ibin++){
+    double con = (double)temp_tt_tauH->GetBinContent(ibin);
+    double err = (double)temp_tt_tauH->GetBinError(ibin);
+    cout << "con: " << con << " err: " << err << endl;
+    tt_tauH->SetBinContent(ibin,con);
+    tt_tauH->SetBinError(ibin,err);
+  }
+
+
+  TFile file_WJet_mu("../TauHad2/Stack/TauBtaggedRate_WJet_stacked.root","R");  
+  temp_wj_muH = (TH1D*)file_WJet_mu.Get("TauBtaggedRate")->Clone();
+  TH1D * wj_muH = new TH1D("wj_muH","WJet -- Tau mistag",temp_wj_muH->GetNbinsX(),temp_wj_muH->GetXaxis()->GetXmin(),temp_wj_muH->GetXaxis()->GetXmax());
+  for(int ibin=0;ibin<wj_muH->GetNbinsX()+2;ibin++){
+    double con = (double)temp_wj_muH->GetBinContent(ibin);
+    double err = (double)temp_wj_muH->GetBinError(ibin);
+    cout << "con: " << con << " err: " << err << endl;
+    wj_muH->SetBinContent(ibin,con);
+    wj_muH->SetBinError(ibin,err);
+  }
+
+
+
+  TFile file_TTbar_mu("../TauHad2/Stack/TauBtaggedRate_TTbar_stacked.root","R");
+  temp_tt_muH = (TH1D*)file_TTbar_mu.Get("TauBtaggedRate")->Clone();
+  TH1D * tt_muH = new TH1D("tt_muH","WJet -- Tau mistag",temp_tt_muH->GetNbinsX(),temp_tt_muH->GetXaxis()->GetXmin(),temp_tt_muH->GetXaxis()->GetXmax());
+  for(int ibin=0;ibin<tt_muH->GetNbinsX()+2;ibin++){
+    double con = (double)temp_tt_muH->GetBinContent(ibin);
+    double err = (double)temp_tt_muH->GetBinError(ibin);
+    cout << "con: " << con << " err: " << err << endl;
+    tt_muH->SetBinContent(ibin,con);
+    tt_muH->SetBinError(ibin,err);
+  }
+
+
+
+
 //  catLeg1->SetHeader("Prob. of #mu from #tau ");
 
 
 //...........................................................................//
 // TTbar ....................................................................//
 //...........................................................................//
-    double XUp = 500. , maxVal=2.;
+    double XUp = 500. , maxVal=1.;
 
-    sprintf(tempname,"TauBtaggedRate");
-    thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
-    thist2->GetXaxis()->SetRangeUser(0.,XUp);
-    thist2->SetMaximum(maxVal);
-    thist2->SetTitle("");
+    wj_tauH->GetXaxis()->SetRangeUser(0.,XUp);
+    wj_tauH->SetMaximum(maxVal);
+    wj_tauH->SetTitle("");
     
-    thist2->GetXaxis()->SetLabelFont(42);
-    thist2->GetXaxis()->SetLabelOffset(0.007);
-    thist2->GetXaxis()->SetLabelSize(0.04);
-    thist2->GetXaxis()->SetTitleSize(0.05);
-    thist2->GetXaxis()->SetTitleOffset(0.9);
-    thist2->GetXaxis()->SetTitleFont(42);
-    thist2->GetYaxis()->SetLabelFont(42);
-    thist2->GetYaxis()->SetLabelOffset(0.007);
-    thist2->GetYaxis()->SetLabelSize(0.04);
-    thist2->GetYaxis()->SetTitleSize(0.05);
-    thist2->GetYaxis()->SetTitleOffset(1.25);
-    thist2->GetYaxis()->SetTitleFont(42);
-    thist2->GetXaxis()->SetTitle("p_{T}(#tau jet)");
-    thist2->GetYaxis()->SetTitle("mistag rate");
-    thist2->GetXaxis()->SetRangeUser(0.,XUp);
-    thist2->SetMaximum(maxVal);
-    thist2->SetLineColor(2);
-    thist2->DrawCopy("same");
-
-    thist = (TH1D*)file_TTbar->Get(tempname)->Clone();
-    thist->SetLineColor(1);
-//    thist->SetFillColor(0);
-//    thist->SetLineWidth(3);
-    thist->DrawCopy("same");
+    wj_tauH->GetXaxis()->SetLabelFont(42);
+    wj_tauH->GetXaxis()->SetLabelOffset(0.007);
+    wj_tauH->GetXaxis()->SetLabelSize(0.04);
+    wj_tauH->GetXaxis()->SetTitleSize(0.05);
+    wj_tauH->GetXaxis()->SetTitleOffset(0.9);
+    wj_tauH->GetXaxis()->SetTitleFont(42);
+    wj_tauH->GetYaxis()->SetLabelFont(42);
+    wj_tauH->GetYaxis()->SetLabelOffset(0.007);
+    wj_tauH->GetYaxis()->SetLabelSize(0.04);
+    wj_tauH->GetYaxis()->SetTitleSize(0.05);
+    wj_tauH->GetYaxis()->SetTitleOffset(1.25);
+    wj_tauH->GetYaxis()->SetTitleFont(42);
+    wj_tauH->GetXaxis()->SetTitle("p_{T}(#tau jet)");
+    wj_tauH->GetYaxis()->SetTitle("mistag rate");
+    wj_tauH->GetXaxis()->SetRangeUser(0.,XUp);
+    wj_tauH->SetMaximum(maxVal);
+    wj_tauH->SetLineColor(2);
+    wj_tauH->Draw();
 
 
-    thist_wj_mu = (TH1D*)file_WJet_mu->Get(tempname)->Clone();
-    thist_wj_mu->SetLineColor(3); 
-    thist_wj_mu->SetMarkerStyle(20);
-    thist_wj_mu->DrawCopy("same");
+    tt_tauH->SetLineColor(1);
+//    thist.SetFillColor(0);
+//    thist.SetLineWidth(3);
+    tt_tauH->Draw("same");
 
-    thist_tt_mu = (TH1D*)file_TTbar_mu->Get(tempname)->Clone();
-    thist_tt_mu->SetLineColor(4);   
-    thist_tt_mu->DrawCopy("same");
+
+    wj_muH->SetLineColor(3); 
+//    wj_muH->SetMarkerStyle(20);
+    wj_muH->Draw("same");
+
+    tt_muH->SetLineColor(4);   
+    tt_muH->Draw("same");
+
 
     sprintf(tempname,"T#bar{T}");
-    catLeg1->AddEntry(thist,tempname,"l");
+    catLeg1->AddEntry(tt_tauH,tempname,"l");
     sprintf(tempname,"WJet");
-    catLeg1->AddEntry(thist2,tempname,"l");    
+    catLeg1->AddEntry(wj_tauH,tempname,"l");    
     sprintf(tempname,"mu from T#bar{T}");
-    catLeg1->AddEntry(thist_tt_mu,tempname,"l");
+    catLeg1->AddEntry(tt_muH,tempname,"l");
     sprintf(tempname,"mu from WJet");
-    catLeg1->AddEntry(thist_wj_mu,tempname,"p");
+    catLeg1->AddEntry(wj_muH,tempname,"l");
     catLeg1->Draw();
   
+
     sprintf(tempname,"TauBtaggedRate_allSamples.png");
     c1->Print(tempname);
-
 }

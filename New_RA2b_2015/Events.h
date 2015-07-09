@@ -41,7 +41,7 @@ using namespace std;
    Float_t         Weight;
    Float_t         HT;
    Float_t         MHT;
-   Float_t         MHTPhi; 
+   Float_t         MHT_Phi; 
    Float_t         METPt;
    Float_t         METPhi;
    Float_t         DeltaPhi1;
