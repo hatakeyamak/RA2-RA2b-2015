@@ -187,24 +187,43 @@ using namespace std;
 
     // Introduce the bins for IsoTrk
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso(); 
- 
+
+    // Studying event weight
+    TH2 * hWeightForSearchBin  = new TH2D("hWeightForSearchBin", "Weight vs. SearchBin",100.,0.,2.,totNbins_b,1,totNbins_b+1);
+    hWeightForSearchBin->Sumw2(); 
+    TH2 * hWeight2ForSearchBin = new TH2D("hWeight2ForSearchBin","Weight vs. SearchBin",100.,0.,2.,totNbins_b,1,totNbins_b+1);
+    hWeight2ForSearchBin->Sumw2(); 
+    double weightEffAcc;
+
     // Determine correlation between original and recalculated variables
     TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
+    hCorSearch->Sumw2(); TH2 * hCorSearch_evt = static_cast<TH2D*>(hCorSearch->Clone("hCorSearch_evt"));
     TH2 * hCorHT = new TH2D("hCorHT","original vs. recalculated HT",50,0,5000,50,0,5000);
+    hCorHT->Sumw2(); TH2 * hCorHT_evt = static_cast<TH2D*>(hCorHT->Clone("hCorHT_evt"));
     TH2 * hCorMHT = new TH2D("hCorMHT","original vs. recalculated MHT",100,0,5000,100,0,5000);
+    hCorMHT->Sumw2(); TH2 * hCorMHT_evt = static_cast<TH2D*>(hCorMHT->Clone("hCorMHT_evt"));
     TH2 * hCorNJet = new TH2D("hCorNJet","original vs. recalculated NJet",20,0,20,20,0,20);
+    hCorNJet->Sumw2(); TH2 * hCorNJet_evt = static_cast<TH2D*>(hCorNJet->Clone("hCorNJet_evt"));
     TH2 * hCorNBtag = new TH2D("hCorNBtag","original vs. recalculated NBtag",20,0,20,20,0,20);
+    hCorNBtag->Sumw2(); TH2 * hCorNBtag_evt = static_cast<TH2D*>(hCorNBtag->Clone("hCorNBtag_evt"));
 
     // Determine correlation between original and recalculated variables + nB info
     TH2 * hCorSearch_noW = new TH2D("hCorSearch_noW","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
+    hCorSearch_noW->Sumw2(); TH2 * hCorSearch_noW_evt = static_cast<TH2D*>(hCorSearch->Clone("hCorSearch_noW_evt"));
     TH2 * hCorHT_noW = new TH2D("hCorHT_noW","original vs. recalculated HT",50,0,5000,50,0,5000);
+    hCorHT_noW->Sumw2(); TH2 * hCorHT_noW_evt = static_cast<TH2D*>(hCorHT->Clone("hCorHT_noW_evt"));
     TH2 * hCorMHT_noW = new TH2D("hCorMHT_noW","original vs. recalculated MHT",100,0,5000,100,0,5000);
+    hCorMHT_noW->Sumw2(); TH2 * hCorMHT_noW_evt = static_cast<TH2D*>(hCorMHT->Clone("hCorMHT_noW_evt"));
     TH2 * hCorNJet_noW = new TH2D("hCorNJet_noW","original vs. recalculated NJet",20,0,20,20,0,20);
+    hCorNJet_noW->Sumw2(); TH2 * hCorNJet_noW_evt = static_cast<TH2D*>(hCorNJet->Clone("hCorNJet_noW_evt"));
     TH2 * hCorNBtag_noW = new TH2D("hCorNBtag_noW","original vs. recalculated NBtag",20,0,20,20,0,20);
+    hCorNBtag_noW->Sumw2(); TH2 * hCorNBtag_noW_evt = static_cast<TH2D*>(hCorNBtag->Clone("hCorNBtag_noW_evt"));
 
     // Determine correlation between original and recalculated variables + nB info
-    TH2 * hCorSearch_noW_b = new TH2D("hCorSearch_noW_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
-
+    TH2 * hCorSearch_b = new TH2D("hCorSearch_b","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
+    hCorSearch_b->Sumw2(); TH2 * hCorSearch_b_evt = static_cast<TH2D*>(hCorSearch_b->Clone("hCorSearch_b_evt"));
+    TH2 * hCorSearch_b_noW = new TH2D("hCorSearch_b_noW","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
+    hCorSearch_b_noW->Sumw2(); TH2 * hCorSearch_b_noW_evt = static_cast<TH2D*>(hCorSearch_b_noW->Clone("hCorSearch_b_noW_evt"));
 
     // calculate iso efficiencies
     TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
@@ -834,6 +853,8 @@ Ahmad33 */
             // dilepton contamination
             if(TauHadModel>=3)totWeight*=1./1.045;
 
+	    weightEffAcc = totWeight;;
+
             // if bootstrap is on weigh the events such that 
             // the total number of events remains the same.
             // That means the sum over bootstrapWeights = 1
@@ -854,9 +875,8 @@ Ahmad33 */
 
               if(mtWeight==0)mtWeight=0.9;
 
-              if(!utils2::CalcMT)totWeight/= mtWeight;
+              if(!utils2::CalcMT){totWeight/= mtWeight;weightEffAcc/= mtWeight;}
               else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
-
 
             }
 
@@ -893,9 +913,10 @@ Ahmad33 */
                 if(IsoTrkWeight==0)IsoTrkWeight=0.6;
 
                 searchWeight = totWeight*IsoTrkWeight;
+		weightEffAcc *= IsoTrkWeight;
 
               }
-              else searchWeight = totWeight;
+              else searchWeight = totWeight; 
 
 
               
@@ -909,21 +930,22 @@ Ahmad33 */
 
               searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
-              hCorSearch->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
-              hCorHT->Fill(evt->ht(),newHT,searchWeight);
-              hCorMHT->Fill(evt->mht(),newMHT,searchWeight);
-              hCorNJet->Fill(evt->nJets(),newNJet,searchWeight);
-              hCorNBtag->Fill(evt->nBtags(),NewNB,searchWeight);
+	      // Fill correlation histograms
+              hCorSearch_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+              hCorHT_evt->Fill(evt->ht(),newHT,searchWeight);
+              hCorMHT_evt->Fill(evt->mht(),newMHT,searchWeight);
+              hCorNJet_evt->Fill(evt->nJets(),newNJet,searchWeight);
+              hCorNBtag_evt->Fill(evt->nBtags(),NewNB,searchWeight);
 
-              hCorSearch_noW->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
-              hCorHT_noW->Fill(evt->ht(),newHT);
-              hCorMHT_noW->Fill(evt->mht(),newMHT);
-              hCorNJet_noW->Fill(evt->nJets(),newNJet);
-              hCorNBtag_noW->Fill(evt->nBtags(),NewNB);
+              hCorSearch_noW_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+              hCorHT_noW_evt->Fill(evt->ht(),newHT);
+              hCorMHT_noW_evt->Fill(evt->mht(),newMHT);
+              hCorNJet_noW_evt->Fill(evt->nJets(),newNJet);
+              hCorNBtag_noW_evt->Fill(evt->nBtags(),NewNB);
 
-              hCorSearch_noW_b->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
+              hCorSearch_b_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+              hCorSearch_b_noW_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
-         
             }
 
             // Fill QCD histogram
@@ -1002,13 +1024,29 @@ Ahmad33 */
 
       } // End if exactly one muon
 
+      
+      // Studying weights
+      for (int ibin=0; ibin<searchH_b_evt->GetNbinsX()+2; ibin++){
+	if (searchH_b_evt->GetBinContent(ibin)>0.){
+	  double fullWeight = searchH_b_evt->GetBinContent(ibin);
+	  //std::cout << ibin << " " << weightEffAcc << " " << fullWeight << std::endl;
+	  hWeightForSearchBin->Fill(weightEffAcc,ibin,fullWeight);
+	  hWeight2ForSearchBin->Fill(fullWeight,ibin,fullWeight);
+	}
+      }
 
       // Correct the uncertainties
       bootstrapUtils::HistogramFillForEventTH1(searchH, searchH_evt);
       bootstrapUtils::HistogramFillForEventTH1(QCD_Up, QCD_Up_evt);
       bootstrapUtils::HistogramFillForEventTH1(QCD_Low, QCD_Low_evt);
       bootstrapUtils::HistogramFillForEventTH1(searchH_b, searchH_b_noWeight, searchH_b_evt, searchH_b_noWeight_evt);
-
+            
+      // for correlation studies
+      bootstrapUtils::HistogramFillForEventTH2(hCorSearch_b, hCorSearch_b_noW, hCorSearch_b_evt, hCorSearch_b_noW_evt);
+      bootstrapUtils::HistogramFillForEventTH2(hCorHT,    hCorHT_noW,    hCorHT_evt,    hCorHT_noW_evt);
+      bootstrapUtils::HistogramFillForEventTH2(hCorMHT,   hCorMHT_noW,   hCorMHT_evt,   hCorMHT_noW_evt);
+      bootstrapUtils::HistogramFillForEventTH2(hCorNJet,  hCorNJet_noW,  hCorNJet_evt,  hCorNJet_noW_evt);
+      bootstrapUtils::HistogramFillForEventTH2(hCorNBtag, hCorNBtag_noW, hCorNBtag_evt, hCorNBtag_noW_evt);
 
       // Correct the uncertainties
       // Loop over differnt event types
@@ -1097,16 +1135,19 @@ Ahmad33 */
     searchH_b->Write();
     searchH_b_noWeight->Write();
     hCorSearch->Write();
+    hCorSearch_b->Write();
     hCorHT->Write();
     hCorMHT->Write();
     hCorNJet->Write();
     hCorNBtag->Write();
     hCorSearch_noW->Write();
-    hCorSearch_noW_b->Write();
+    hCorSearch_b_noW->Write();
     hCorHT_noW->Write();
     hCorMHT_noW->Write();
     hCorNJet_noW->Write();
     hCorNBtag_noW->Write();
+    hWeightForSearchBin->Write(); 
+    hWeight2ForSearchBin->Write(); 
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
