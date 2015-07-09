@@ -11,7 +11,7 @@ namespace utils2{
     int TauHadModel=4;
 
   // Do the bootstrapping?
-  bool bootstrap = false;
+  bool bootstrap = true;
 
   bool applyMT = true;
   // We calculate MTEff in the same code where it is alos being used. 
