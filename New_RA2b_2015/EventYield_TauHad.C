@@ -7,20 +7,63 @@ EventYield_TauHad(string sample="TTbar_"){
   char tempname[200];
   TH1D * tempHist;
   THStack * tempstack;
+  TH1D * expHist;
+  TH1D * preHist;
 
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str()); 
   TFile * exp_f = new TFile(tempname,"R");
+  std::cout << tempname << std::endl;
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
   TFile * pre_f = new TFile(tempname,"R");
+  std::cout << tempname << std::endl;
 
+  //
+  // Up to preselection
+  sprintf(tempname,"cutflow_preselection");
+
+  if(sample.find("stack")!=string::npos){
+    tempstack=(THStack*) exp_f->Get(tempname)->Clone();
+    expHist= (TH1D*) tempstack->GetStack()->Last();
+    //
+    tempstack=(THStack*) pre_f->Get(tempname)->Clone();
+    preHist= (TH1D*) tempstack->GetStack()->Last();
+  }
+  else{
+    expHist=(TH1D*) exp_f->Get(tempname)->Clone("cutflow_preselection_exp");
+    //
+    preHist=(TH1D*) pre_f->Get(tempname)->Clone("cutflow_preselection_pre");
+  }
+
+  if(sample.find("stack")!=string::npos){
+    //
+    // Not implemented yet
+    //
+  } else {
+    printf("\nExpectation\n");
+    for (int ibin=1; ibin<=expHist->GetNbinsX(); ibin++){
+      if (expHist->GetBinContent(ibin)){
+	printf("%-20s: %12.1f\n",expHist->GetXaxis()->GetBinLabel(ibin),expHist->GetBinContent(ibin));
+      }
+    }
+    printf("\nPrediction\n");
+    for (int ibin=1; ibin<=preHist->GetNbinsX(); ibin++){
+      if (preHist->GetBinContent(ibin)){
+	printf("%-20s: %12.1f\n",preHist->GetXaxis()->GetBinLabel(ibin),preHist->GetBinContent(ibin));
+      }
+    }
+  }
+
+  //
+  // Beyond Preselection
+  //
   map<int,string> cutname;
     cutname[0]="PreSel";cutname[1]="nolep";cutname[2]="Njet_4";cutname[3]="ht_500";
     cutname[4]="mht_200";cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
     cutname[8]="delphi";
   
-/*
+    /*
     cutname[0]="PreSel";cutname[1]="Njet_4";cutname[2]="ht_500";
     cutname[3]="mht_200";cutname[4]="nolep";
     cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
@@ -34,43 +77,41 @@ EventYield_TauHad(string sample="TTbar_"){
     cutname[22]="search10";cutname[23]="search11";cutname[24]="search12";
     cutname[25]="search13";cutname[26]="search14";cutname[27]="search15";
     cutname[28]="search16";cutname[29]="search17";cutname[30]="search18";
-*/
-
+    */
 
   double exp=0,pre=0;
 
-  cout<< " PreSel(corresponding with \"if(MuFromTauVec[0]==0){\" in elog 183 ) for prediction and with \"if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){\" for expectation )\n";
+  //cout<< " PreSel(corresponding with \"if(MuFromTauVec[0]==0){\" in elog 183 )
+  //for prediction and with \"if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){\" for expectation )\n";
+
+  printf("\n");
   for(int i=0; i<cutname.size();i++){
     sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
 
     if(sample.find("stack")!=string::npos){
       tempstack=(THStack*) exp_f->Get(tempname)->Clone();
       tempHist= (TH1D*) tempstack->GetStack()->Last();
-  //    exp=tempHist->GetEntries();
+      //exp=tempHist->GetEntries();
       exp=tempHist->GetSumOfWeights();
       tempstack=(THStack*) pre_f->Get(tempname)->Clone();
       tempHist= (TH1D*) tempstack->GetStack()->Last();
-  //    pre=tempHist->GetEntries();
+      //pre=tempHist->GetEntries();
       pre=tempHist->GetSumOfWeights();
     }
     else{
       tempHist=(TH1D*) exp_f->Get(tempname)->Clone();
-  //    exp=tempHist->GetEntries();
+      //exp=tempHist->GetEntries();
       exp=tempHist->GetSumOfWeights();
       tempHist=(TH1D*) pre_f->Get(tempname)->Clone();
-  //    pre=tempHist->GetEntries();
+      //pre=tempHist->GetEntries();
       pre=tempHist->GetSumOfWeights();
      
     }
 
-//    printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
+    //printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
   
-    printf("cutname: %s ==>> prediction: %g expectation: %g Pre/Exp: %g \n \n ",cutname[i].c_str(),pre,exp,(pre/exp));
+    printf("cutname: %-12s ==>> prediction: %12.1f expectation: %10.1f Pre/Exp: %6.3f\n\n",cutname[i].c_str(),pre,exp,(pre/exp));
 
   }
-
-
-
-
 
 }
