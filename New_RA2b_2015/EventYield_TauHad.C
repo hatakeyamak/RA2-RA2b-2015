@@ -3,6 +3,16 @@
 #include <cstdio>
 #include <string>
 
+/*
+root.exe -b -q 'EventYield_TauHad.C("TTbar_")'
+root.exe -b -q 'EventYield_TauHad.C("WJet_600_inf_")'
+
+root.exe -b -q 'EventYield_TauHad.C("stacked")'
+root.exe -b -q 'EventYield_TauHad.C("TTbar_stacked")'
+root.exe -b -q 'EventYield_TauHad.C("WJet_stacked")'
+root.exe -b -q 'EventYield_TauHad.C("T_stacked")'
+*/
+
 EventYield_TauHad(string sample="TTbar_"){
   char tempname[200];
   TH1D * tempHist;
@@ -36,22 +46,16 @@ EventYield_TauHad(string sample="TTbar_"){
     preHist=(TH1D*) pre_f->Get(tempname)->Clone("cutflow_preselection_pre");
   }
 
-  if(sample.find("stack")!=string::npos){
-    //
-    // Not implemented yet
-    //
-  } else {
-    printf("\nExpectation\n");
-    for (int ibin=1; ibin<=expHist->GetNbinsX(); ibin++){
-      if (expHist->GetBinContent(ibin)){
-	printf("%-20s: %12.1f\n",expHist->GetXaxis()->GetBinLabel(ibin),expHist->GetBinContent(ibin));
-      }
+  printf("\nExpectation\n");
+  for (int ibin=1; ibin<=expHist->GetNbinsX(); ibin++){
+    if (expHist->GetBinContent(ibin)){
+      printf("%-20s: %12.1f\n",expHist->GetXaxis()->GetBinLabel(ibin),expHist->GetBinContent(ibin));
     }
-    printf("\nPrediction\n");
-    for (int ibin=1; ibin<=preHist->GetNbinsX(); ibin++){
-      if (preHist->GetBinContent(ibin)){
-	printf("%-20s: %12.1f\n",preHist->GetXaxis()->GetBinLabel(ibin),preHist->GetBinContent(ibin));
-      }
+  }
+  printf("\nPrediction\n");
+  for (int ibin=1; ibin<=preHist->GetNbinsX(); ibin++){
+    if (preHist->GetBinContent(ibin)){
+      printf("%-20s: %12.1f\n",preHist->GetXaxis()->GetBinLabel(ibin),preHist->GetBinContent(ibin));
     }
   }
 

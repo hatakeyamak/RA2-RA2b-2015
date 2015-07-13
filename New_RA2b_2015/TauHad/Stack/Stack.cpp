@@ -109,6 +109,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
   
   // Loop over Hname
   for(int j=0; j< Hname.size(); j++){
@@ -239,6 +240,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
   
   for(int j=0; j< Hname.size(); j++){
 
@@ -662,6 +664,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
  
   for(int j=0; j< Hname.size(); j++){
 
@@ -1052,6 +1055,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
 
   for(int j=0; j< Hname.size(); j++){
 
