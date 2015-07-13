@@ -114,6 +114,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
   
   for(int j=0; j< Hname.size(); j++){
 
@@ -250,6 +251,7 @@ cout << " flag \n " ;
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -349,7 +351,7 @@ cout << " flag \n " ;
     for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-      temphist->Scale(WJet_scalevec[i]);
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -413,11 +415,7 @@ cout << " flag \n " ;
     for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
-<<<<<<< HEAD
-      temphist->Scale(WJet_scalevec[i]);
-=======
       if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
->>>>>>> 3842af32acb1588c0a730ae1dc251cd8eafee1e1
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -507,6 +505,7 @@ cout << " flag \n " ;
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -659,11 +658,7 @@ cout << " flag \n " ;
     for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
-<<<<<<< HEAD
-      temphist->Scale(TTbar_scalevec[i]);
-=======
       if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
->>>>>>> 3842af32acb1588c0a730ae1dc251cd8eafee1e1
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -737,6 +732,7 @@ cout << " flag \n " ;
   Hname[1]="searchH_b";
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
+  Hname[4]="cutflow_preselection";
 
   for(int j=0; j< Hname.size(); j++){
 
