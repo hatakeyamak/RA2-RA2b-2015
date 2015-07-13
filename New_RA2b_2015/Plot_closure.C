@@ -52,6 +52,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   float ytext_top = 3200.;
   float x_legend = 10.;
   float y_legend = 4000.;
+  float xtext_top;
   
   //
   // Luminosity information for scaling
@@ -268,7 +269,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       //thist->GetXaxis()->SetLimits(0.,HT_x_max);
     }
     if(histname=="MHT"){
-      xtext_tpop = 650.;
+      xtext_top = 650.;
       //y_legend = 500.;
       ymax_top = 1000000.;
       ymin_top = 0.05;
@@ -646,11 +647,10 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       tline->Draw();
   }
 
-
   sprintf(tempname,"%s_%s_%s_Plot.png",sample.c_str(),cutname.c_str(),histname.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"%s_%s_%s_Plot.pdf",sample.c_str(),cutname.c_str(),histname.c_str());
-//  canvas->Print(tempname);
+  canvas->Print(tempname);
 
 }
 
