@@ -22,6 +22,7 @@
 #include "TFile.h"
 #include "TChain.h"
 #include "TH1.h"
+#include "TProfile.h"
 #include "TVector2.h"
 #include "TVector3.h"
 #include "TRandom3.h"
@@ -149,6 +150,7 @@ using namespace std;
     cutflow_preselection->GetXaxis()->SetBinLabel(3,"1-lepton");
     cutflow_preselection->GetXaxis()->SetBinLabel(4,"Lepton vetoes");
     cutflow_preselection->GetXaxis()->SetBinLabel(5,"Preselection");
+    cutflow_preselection->GetXaxis()->SetBinLabel(6,"Presel with weight");
 
     // Introduce search bin histogram
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
@@ -193,7 +195,21 @@ using namespace std;
     hWeightForSearchBin->Sumw2(); 
     TH2 * hWeight2ForSearchBin = new TH2D("hWeight2ForSearchBin","Weight vs. SearchBin",100.,0.,2.,totNbins_b,1,totNbins_b+1);
     hWeight2ForSearchBin->Sumw2(); 
+    TH2 * hWeight3ForSearchBin = new TH2D("hWeight3ForSearchBin","Weight vs. SearchBin",100.,0.,2.,totNbins_b,1,totNbins_b+1);
+    hWeight3ForSearchBin->Sumw2(); 
+    TH2 * hWeight4ForSearchBin = new TH2D("hWeight4ForSearchBin","Weight vs. SearchBin",100.,0.,2.,totNbins_b,1,totNbins_b+1);
+    hWeight4ForSearchBin->Sumw2(); 
+
+    TProfile * prWeightForSearchBin  = new TProfile("prWeightForSearchBin", "Weight vs. SearchBin",totNbins_b,1,totNbins_b+1,0.,2.,"s");
+    prWeightForSearchBin->Sumw2(); 
+    TProfile * prWeight2ForSearchBin = new TProfile("prWeight2ForSearchBin","Weight vs. SearchBin",totNbins_b,1,totNbins_b+1,0.,2.,"s");
+    prWeight2ForSearchBin->Sumw2(); 
+    TProfile * prWeight3ForSearchBin = new TProfile("prWeight3ForSearchBin","Weight vs. SearchBin",totNbins_b,1,totNbins_b+1,0.,2.,"s");
+    prWeight3ForSearchBin->Sumw2(); 
+    TProfile * prWeight4ForSearchBin = new TProfile("prWeight4ForSearchBin","Weight vs. SearchBin",totNbins_b,1,totNbins_b+1,0.,2.,"s");
+    prWeight4ForSearchBin->Sumw2(); 
     double weightEffAcc;
+    double weightEffAccForEvt;
 
     // Determine correlation between original and recalculated variables
     TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
@@ -394,6 +410,7 @@ using namespace std;
       //      if(eventN>58006.8)break;
       //      if(eventN>6840.03)break;
       //      if(eventN>2313.63)break;
+      //      if(eventN>100000.)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
@@ -413,7 +430,6 @@ using namespace std;
       // - use the simulated tau-pt to predict HT, MHT, and N(jets)
 
       if(verbose!=0)printf("@@@@@@@@@@@@@@@@@@@@@@@@ \n eventN: %d \n ",eventN);
-
 
       // select muons with pt>20. eta<2.1 relIso<.2
       vec_recoMuMTW.clear(); 
@@ -853,7 +869,7 @@ Ahmad33 */
             // dilepton contamination
             if(TauHadModel>=3)totWeight*=1./1.045;
 
-	    weightEffAcc = totWeight;;
+	    weightEffAcc = totWeight;
 
             // if bootstrap is on weigh the events such that 
             // the total number of events remains the same.
@@ -880,8 +896,10 @@ Ahmad33 */
 
             }
 
-	    if (l==1 && m==0)                 // Fill this only once per event l=[1,nLoops] m=[0,1]
+	    if (l==1 && m==0){                 // Fill this only once per event l=[1,nLoops] m=[0,1]
 	      cutflow_preselection->Fill(4.); // All preselection
+	    }
+	    cutflow_preselection->Fill(5.,totWeight); // All preselection
 
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
@@ -913,13 +931,11 @@ Ahmad33 */
                 if(IsoTrkWeight==0)IsoTrkWeight=0.6;
 
                 searchWeight = totWeight*IsoTrkWeight;
-		weightEffAcc *= IsoTrkWeight;
+		weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
 
               }
               else searchWeight = totWeight; 
 
-
-              
               // Fill Search bin histogram 
               searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 
@@ -1029,9 +1045,14 @@ Ahmad33 */
       for (int ibin=0; ibin<searchH_b_evt->GetNbinsX()+2; ibin++){
 	if (searchH_b_evt->GetBinContent(ibin)>0.){
 	  double fullWeight = searchH_b_evt->GetBinContent(ibin);
-	  //std::cout << ibin << " " << weightEffAcc << " " << fullWeight << std::endl;
-	  hWeightForSearchBin->Fill(weightEffAcc,ibin,fullWeight);
-	  hWeight2ForSearchBin->Fill(fullWeight,ibin,fullWeight);
+	  hWeightForSearchBin->Fill(weightEffAccForEvt,ibin,fullWeight);
+	  hWeight2ForSearchBin->Fill(weightEffAccForEvt,ibin);
+	  hWeight3ForSearchBin->Fill(fullWeight,ibin,fullWeight);
+	  hWeight4ForSearchBin->Fill(fullWeight,ibin);
+	  prWeightForSearchBin->Fill(ibin,weightEffAccForEvt,fullWeight);
+	  prWeight2ForSearchBin->Fill(ibin,weightEffAccForEvt);
+	  prWeight3ForSearchBin->Fill(ibin,fullWeight,fullWeight);
+	  prWeight4ForSearchBin->Fill(ibin,fullWeight);
 	}
       }
 
@@ -1148,6 +1169,12 @@ Ahmad33 */
     hCorNBtag_noW->Write();
     hWeightForSearchBin->Write(); 
     hWeight2ForSearchBin->Write(); 
+    hWeight3ForSearchBin->Write(); 
+    hWeight4ForSearchBin->Write(); 
+    prWeightForSearchBin->Write(); 
+    prWeight2ForSearchBin->Write(); 
+    prWeight3ForSearchBin->Write(); 
+    prWeight4ForSearchBin->Write(); 
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
