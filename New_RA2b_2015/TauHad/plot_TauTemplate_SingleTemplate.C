@@ -57,6 +57,7 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
   TFile *file_13TeV_TTbar   = new TFile(tempname,"R");
 
   TFile *file_WJet         = new TFile("Stack/HadTau_TauResponseTemplates_WJet_stacked.root","R");
+  TFile *file_TauGan       = new TFile("ROOTsOfTTbar/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
 
 
   TH1D * thist;
@@ -116,6 +117,27 @@ void plot_TauTemplate_SingleTemplate(int i,int icomp=3, string input=""){
     if(i==2)sprintf(tempname,"50 - 100:WJet");
     if(i==3)sprintf(tempname,">100: WJet");
     catLeg1->AddEntry(thist_WJet,tempname,"l");
+  }
+
+  TH1D * thist_TauGan;
+  if (icomp==3){
+    sprintf(tempname,"hTauResp_%d",i);
+    thist_TauGan = (TH1D*)file_TauGan->Get(tempname)->Clone();
+    if(thist_TauGan->Integral("width") > 0.){
+     thist_TauGan->Scale(1./thist_TauGan->Integral("width"));
+    }
+    sprintf(tempname2,"hTauResp_%d_TauGan",i);
+    thist_TauGan->SetName(tempname2);
+    thist_TauGan->SetLineColor(6);
+    thist_TauGan->SetFillColor(0);
+    thist_TauGan->SetLineWidth(3);
+    thist_TauGan->SetLineStyle(3);
+    thist_TauGan->Draw("same,hist");
+    if(i==0)sprintf(tempname,"20 - 30: TauGan");
+    if(i==1)sprintf(tempname,"30 - 50: TauGan");
+    if(i==2)sprintf(tempname,"50 - 100:TauGan");
+    if(i==3)sprintf(tempname,">100: TauGan");
+    catLeg1->AddEntry(thist_TauGan,tempname,"l");
   }
 
 

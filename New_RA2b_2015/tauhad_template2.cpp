@@ -272,6 +272,17 @@ using namespace std;
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
 
+    // Check consistancy
+    bool isData;
+    if(subSampleKey.find("Data")!=string::npos || subSampleKey.find("data")!=string::npos)isData=true;
+    else isData=false;
+    // 
+    if( isData != evt->DataBool_() ){
+      cout << " Your second input indicates code will run on Data/MC. \n Change the value of the DataBool in Events.cpp \n ";
+      return 2;
+    }
+
+
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
 
@@ -447,6 +458,12 @@ MuFromTauVec.clear();//Ahmad33
         double phi=evt->MuPhiVec_().at(i);
 Ahmad33 */
 
+      // Consistancy check
+      if(isData==true && TauHadModel<3){
+        cout << "Only TauHadModel>=3 is valid for Data \n ";
+        return 2;
+      }
+      
       if(TauHadModel>=3){
         for(int i=0; i< evt->MuPtVec_().size(); i++){ // Ahmad33
           double pt=evt->MuPtVec_().at(i); // Ahmad33
@@ -914,9 +931,11 @@ Ahmad33 */
                 if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
                 
                 // Non W muons calculation
-                hAll_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
-                if(GenMuIdx<0)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
-                else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                if(!isData){ 
+                  hAll_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  if(GenMuIdx<0)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                }
 
               }
 
