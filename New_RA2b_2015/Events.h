@@ -25,8 +25,11 @@
 using namespace std;
 
   class Events{
+   
+   // See if working with Data or MC
+   bool DataBool;
 
-       // Declaration of leaf types
+   // Declaration of leaf types
    UInt_t          RunNum;
    UInt_t          LumiBlockNum;
    UInt_t          EvtNum;
@@ -151,6 +154,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double minDeltaPhiN() const ;
   int nGenMu() const ;
   int JetId() const ; 
+
+  bool DataBool_() const;
 
    vector<double>  GenMuPtVec_() const;
    vector<double>  GenMuEtaVec_() const;

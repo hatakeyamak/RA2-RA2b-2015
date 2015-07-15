@@ -5,6 +5,9 @@
   //Constructor
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
+    // Data or MC ?
+    DataBool=true;
+  
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -48,7 +51,6 @@
      JetsEtaVec=new vector<double>();
      JetsPhiVec=new vector<double>();
 //     Jets_bDiscriminator=new Float_t();
-
      slimmedMuonsPtVec=new vector<double>();
      slimmedMuonsEtaVec=new vector<double>();
      slimmedMuonsPhiVec=new vector<double>();
@@ -113,71 +115,75 @@
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      fChain->SetBranchAddress("JetID", &JetID);
      
-   fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
-   fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
-   fChain->SetBranchAddress("GenMuPhiVec", &GenMuPhiVec);
-   fChain->SetBranchAddress("GenMu_GenMuFromTau", GenMu_GenMuFromTau);
-   fChain->SetBranchAddress("GenElecPtVec", &GenElecPtVec);
-   fChain->SetBranchAddress("GenElecEtaVec", &GenElecEtaVec);
-   fChain->SetBranchAddress("GenElecPhiVec", &GenElecPhiVec);
-   fChain->SetBranchAddress("GenElec_GenElecFromTau", GenElec_GenElecFromTau);
-   fChain->SetBranchAddress("GenTauPtVec", &GenTauPtVec);
-   fChain->SetBranchAddress("GenTauEtaVec", &GenTauEtaVec);
-   fChain->SetBranchAddress("GenTauPhiVec", &GenTauPhiVec);
-   fChain->SetBranchAddress("GenTau_GenTauHad", GenTau_GenTauHad);
-   fChain->SetBranchAddress("GenTauNuPtVec", &GenTauNuPtVec);
-   fChain->SetBranchAddress("GenTauNuEtaVec", &GenTauNuEtaVec);
-   fChain->SetBranchAddress("GenTauNuPhiVec", &GenTauNuPhiVec);
+     if(!DataBool){
+       fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
+       fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
+       fChain->SetBranchAddress("GenMuPhiVec", &GenMuPhiVec);
+       fChain->SetBranchAddress("GenMu_GenMuFromTau", GenMu_GenMuFromTau);
+       fChain->SetBranchAddress("GenElecPtVec", &GenElecPtVec);
+       fChain->SetBranchAddress("GenElecEtaVec", &GenElecEtaVec);
+       fChain->SetBranchAddress("GenElecPhiVec", &GenElecPhiVec);
+       fChain->SetBranchAddress("GenElec_GenElecFromTau", GenElec_GenElecFromTau);
+       fChain->SetBranchAddress("GenTauPtVec", &GenTauPtVec);
+       fChain->SetBranchAddress("GenTauEtaVec", &GenTauEtaVec);
+       fChain->SetBranchAddress("GenTauPhiVec", &GenTauPhiVec);
+       fChain->SetBranchAddress("GenTau_GenTauHad", GenTau_GenTauHad);
+       fChain->SetBranchAddress("GenTauNuPtVec", &GenTauNuPtVec);
+       fChain->SetBranchAddress("GenTauNuEtaVec", &GenTauNuEtaVec);
+       fChain->SetBranchAddress("GenTauNuPhiVec", &GenTauNuPhiVec);
+     }
 
-   fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
-   fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
-   fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
-   fChain->SetBranchAddress("Jets_bDiscriminator", Jets_bDiscriminator);
-   fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", Jets_chargedEmEnergyFraction);
-   fChain->SetBranchAddress("Jets_chargedHadronEnergyFraction", Jets_chargedHadronEnergyFraction);
-   fChain->SetBranchAddress("Jets_chargedHadronMultiplicity", Jets_chargedHadronMultiplicity);
-   fChain->SetBranchAddress("Jets_electronMultiplicity", Jets_electronMultiplicity);
-   fChain->SetBranchAddress("Jets_jetArea", Jets_jetArea);
-   fChain->SetBranchAddress("Jets_muonEnergyFraction", Jets_muonEnergyFraction);
-   fChain->SetBranchAddress("Jets_muonMultiplicity", Jets_muonMultiplicity);
-   fChain->SetBranchAddress("Jets_neutralEmEnergyFraction", Jets_neutralEmEnergyFraction);
-   fChain->SetBranchAddress("Jets_neutralHadronMultiplicity", Jets_neutralHadronMultiplicity);
-   fChain->SetBranchAddress("Jets_photonEnergyFraction", Jets_photonEnergyFraction);
-   fChain->SetBranchAddress("Jets_photonMultiplicity", Jets_photonMultiplicity);
+     fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
+     fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
+     fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
+     fChain->SetBranchAddress("Jets_bDiscriminator", Jets_bDiscriminator);
+     fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", Jets_chargedEmEnergyFraction);
+     fChain->SetBranchAddress("Jets_chargedHadronEnergyFraction", Jets_chargedHadronEnergyFraction);
+     fChain->SetBranchAddress("Jets_chargedHadronMultiplicity", Jets_chargedHadronMultiplicity);
+     fChain->SetBranchAddress("Jets_electronMultiplicity", Jets_electronMultiplicity);
+     fChain->SetBranchAddress("Jets_jetArea", Jets_jetArea);
+     fChain->SetBranchAddress("Jets_muonEnergyFraction", Jets_muonEnergyFraction);
+     fChain->SetBranchAddress("Jets_muonMultiplicity", Jets_muonMultiplicity);
+     fChain->SetBranchAddress("Jets_neutralEmEnergyFraction", Jets_neutralEmEnergyFraction);
+     fChain->SetBranchAddress("Jets_neutralHadronMultiplicity", Jets_neutralHadronMultiplicity);
+     fChain->SetBranchAddress("Jets_photonEnergyFraction", Jets_photonEnergyFraction);
+     fChain->SetBranchAddress("Jets_photonMultiplicity", Jets_photonMultiplicity);
 
 
-   fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
-   fChain->SetBranchAddress("slimmedMuonsEtaVec", &slimmedMuonsEtaVec);
-   fChain->SetBranchAddress("slimmedMuonsPhiVec", &slimmedMuonsPhiVec);
-   fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
-   fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
-   fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
-   fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
-   fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec);
-   fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec);
-   fChain->SetBranchAddress("selectedIDMuonsPtVec", &selectedIDMuonsPtVec);
-   fChain->SetBranchAddress("selectedIDMuonsEtaVec", &selectedIDMuonsEtaVec);
-   fChain->SetBranchAddress("selectedIDMuonsPhiVec", &selectedIDMuonsPhiVec);
+     fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
+     fChain->SetBranchAddress("slimmedMuonsEtaVec", &slimmedMuonsEtaVec);
+     fChain->SetBranchAddress("slimmedMuonsPhiVec", &slimmedMuonsPhiVec);
+     fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
+     fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
+     fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
+     fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
+     fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec);
+     fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec);
+     fChain->SetBranchAddress("selectedIDMuonsPtVec", &selectedIDMuonsPtVec);
+     fChain->SetBranchAddress("selectedIDMuonsEtaVec", &selectedIDMuonsEtaVec);
+     fChain->SetBranchAddress("selectedIDMuonsPhiVec", &selectedIDMuonsPhiVec);
 
-   fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
-   fChain->SetBranchAddress("slimmedElectronsEtaVec", &slimmedElectronsEtaVec);
-   fChain->SetBranchAddress("slimmedElectronsPhiVec", &slimmedElectronsPhiVec);
-   fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
-   fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
-   fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
-   fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
-   fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
-   fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
-   fChain->SetBranchAddress("selectedIDElectronsPtVec", &selectedIDElectronsPtVec);
-   fChain->SetBranchAddress("selectedIDElectronsEtaVec", &selectedIDElectronsEtaVec);
-   fChain->SetBranchAddress("selectedIDElectronsPhiVec", &selectedIDElectronsPhiVec);
+     fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
+     fChain->SetBranchAddress("slimmedElectronsEtaVec", &slimmedElectronsEtaVec);
+     fChain->SetBranchAddress("slimmedElectronsPhiVec", &slimmedElectronsPhiVec);
+     fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
+     fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
+     fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
+     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
+     fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
+     fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
+     fChain->SetBranchAddress("selectedIDElectronsPtVec", &selectedIDElectronsPtVec);
+     fChain->SetBranchAddress("selectedIDElectronsEtaVec", &selectedIDElectronsEtaVec);
+     fChain->SetBranchAddress("selectedIDElectronsPhiVec", &selectedIDElectronsPhiVec);
 
-   fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
-   fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
-   fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
-   fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-   fChain->SetBranchAddress("GenTauNu_TauNuMomPt", GenTauNu_TauNuMomPt);
-
+     fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
+     fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
+     fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
+     fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
+     if(!DataBool){
+       fChain->SetBranchAddress("GenTauNu_TauNuMomPt", GenTauNu_TauNuMomPt);
+     }
+      
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
     template_Entries = fChain->GetEntries();
@@ -269,6 +275,8 @@ fChain->SetBranchAddress("testVec", &testVec);
 */
     return JetID;
   }
+
+  bool Events::DataBool_() const { return DataBool; }
 
   // Gen Muon 
    vector<double>  Events::GenMuPtVec_() const { return *GenMuPtVec ;}
