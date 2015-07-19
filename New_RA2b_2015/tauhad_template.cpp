@@ -289,7 +289,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-      // if(eventN>47160)break;
+      //if(eventN>47160)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
@@ -396,7 +396,6 @@ using namespace std;
        
       if(hadTau==false)continue;
       cutflow_preselection->Fill(2.); // hadronic tau events
-
       nHadTauEve++;
  
       // We want no muon and electron in the event
@@ -429,10 +428,9 @@ using namespace std;
 
        
       }
-
-      int jet_index=-99;
+      int jet_index=-1;
       int nB = evt->nBtags();
-      double deltaR = genTauPt < 50. ? 0.2 : 0.1;
+      double deltaR = 0.4;
       // We don't write the event for nB if the matched tau jet is btaged. 
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
         B_rate_all->Fill(evt->JetsPtVec_()[jet_index]);
