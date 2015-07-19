@@ -13,10 +13,16 @@ using namespace std;
 .x Plot_Commissioning.C("HT")
 .x Plot_Commissioning.C("MHT")
 
+Please note that the root files for the expectation code is 
+expected to be normalized to 10/fb already. If not, the
+lumi scaling needs to be adjusted in this room macro.
+The following two lines should be adjusted.
+  hExpTT->Scale(lumi/(10000));
+  hExpWJ->Scale(lumi/(10000));
+
  */
 
-//Plot_Commissioning(string histname="MHT",int choice=0){
-Plot_Commissioning(string histname="MHT",int choice=0){
+Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=22.1, bool normalize=true, int rebin=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -53,6 +59,7 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   char ytitlename[200];
 
 
+  TFile * PreData = new TFile("HadTauEstimation_data_HTMHT_05.root","R");
   TFile * PreTT = new TFile("HadTauEstimation_TTbar_.root","R");
   TFile * PreWJ12 = new TFile("HadTauEstimation_WJet_100_200_.root","R");
   TFile * PreWJ24 = new TFile("HadTauEstimation_WJet_200_400_.root","R");
@@ -64,7 +71,7 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   //
   // Define legend
   //
-  Float_t legendX1 = .40; //.50;
+  Float_t legendX1 = .38; //.50;
   Float_t legendX2 = .85; //.70;
   Float_t legendY1 = .65; //.65;
   Float_t legendY2 = .85;
@@ -128,7 +135,7 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   // draw top figure
   canvas_up->cd();
 
-  TH1D * hExpTT, * hExpWJ, * hPreTT, * hPreWJ12, * hPreWJ24, * hPreWJ46, * hPreWJ6I;
+  TH1D * hExpTT, * hExpWJ, * hPreTT, * hPreWJ12, * hPreWJ24, * hPreWJ46, * hPreWJ6I, hPreData;
   TH1D * histTemplate;
   THStack * tempstack, * ExpStack;
   ExpStack = new THStack("","");
@@ -141,48 +148,91 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   double search_x_max=19.;
   double search_x_min=1.;
 
-  sprintf(tempname,"allEvents/delphi/%s_delphi_allEvents",histname.c_str());
+  cout << "aaa" << std::endl;
+  sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   tempstack=(THStack*)ExpTT->Get(tempname)->Clone();
   hExpTT=(TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)ExpWJ->Get(tempname)->Clone();   
   hExpWJ=(TH1D*) tempstack->GetStack()->Last();
+  cout << "aaa" << std::endl;
   
+  hPreData  =(TH1D*) PreData->Get(tempname)->Clone();
   hPreTT  =(TH1D*) PreTT->Get(tempname)->Clone();
   hPreWJ12=(TH1D*) PreWJ12->Get(tempname)->Clone();
   hPreWJ24=(TH1D*) PreWJ24->Get(tempname)->Clone();
   hPreWJ46=(TH1D*) PreWJ46->Get(tempname)->Clone();
   hPreWJ6I=(TH1D*) PreWJ6I->Get(tempname)->Clone();
-
-  TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
   
-  hPreWJ6I->Add(hPreWJ46);
-  hPreWJ6I->Add(hPreWJ24);
-  hPreWJ6I->Add(hPreWJ12);
-  hPre->Add(hPreWJ6I);
-  hPre->Scale(1/100.);
+  //TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
+  TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
+
+  //hPre->Add(hPreWJ46);
+  //hPre->Add(hPreWJ24);
+  //hPre->Add(hPreWJ12);
+  //hPre->Add(hPreWJ6I);
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
 
-  hExpTT->Scale(1/100.);
+  TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
+  hExp->Add(hExpWJ);
+
+  double scale = hPre->GetSum()/hExp->GetSum();
+  
+  //hExpTT->Scale(1/100.);
+  if (normalize) hExpTT->Scale(scale);
+  else           hExpTT->Scale(lumi/(10000));
   hExpTT->SetFillColor(kRed);
-  hExpWJ->Scale(1/100.);
+
+  //hExpWJ->Scale(1/100.);
+  if (normalize) hExpWJ->Scale(scale);
+  else           hExpWJ->Scale(lumi/(10000));
   hExpWJ->SetFillColor(kBlue);
   
   TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
   hExp->Add(hExpWJ);
 
+  if (rebin==1 && histname=="MHT"){
+    Double_t mht_bins[14] = {
+        0., 50.,100.,150.,200.,250.,300.,350.,400.,450.,
+	500.,600.,1000.,5000.};
+    TH1D *hExpTT_Rebin = hExpTT->Rebin(13,"hExpTT_Rebin",mht_bins);
+    TH1D *hExpWJ_Rebin = hExpWJ->Rebin(13,"hExpWJ_Rebin",mht_bins);
+    TH1D *hPre_Rebin   = hPre->Rebin(13,"hPre_Rebin",mht_bins);
+    TH1D *hExp_Rebin   = hExp->Rebin(13,"hExp_Rebin",mht_bins);
+    hPre_Rebin->Print("all");
+    hExp_Rebin->Print("all");
+    hExp_Rebin->SetBinContent(11,hExp->GetBinContent(11)+hExp->GetBinContent(12));
+    hExp_Rebin->SetBinError(11,hExp->GetBinError(11)+hExp->GetBinError(12));
+    hExp_Rebin->SetBinContent(12,hExp->GetBinContent(13)+hExp->GetBinContent(14)
+				+hExp->GetBinContent(15)+hExp->GetBinContent(16));
+    hExp_Rebin->SetBinError(12,hExp->GetBinError(13)+hExp->GetBinError(14)
+				+hExp->GetBinError(15)+hExp->GetBinError(16));
+    hPre_Rebin->SetBinContent(11,hPre->GetBinContent(11)+hPre->GetBinContent(12));
+    hPre_Rebin->SetBinError(11,hPre->GetBinError(11)+hPre->GetBinError(12));
+    hPre_Rebin->SetBinContent(12,hPre->GetBinContent(13)+hPre->GetBinContent(14)
+				+hPre->GetBinContent(15)+hPre->GetBinContent(16));
+    hPre_Rebin->SetBinError(12,hPre->GetBinError(13)+hPre->GetBinError(14)
+				+hPre->GetBinError(15)+hPre->GetBinError(16));
+    hPre_Rebin->Print("all");
+    hExp_Rebin->Print("all");
+    hPre   = hPre_Rebin;
+    hExp   = hExp_Rebin;
+    hExpTT = hExpTT_Rebin;
+    hExpWJ = hExpWJ_Rebin;
+  }
+  
   ExpStack->Add(hExpTT);
   ExpStack->Add(hExpWJ);
-  
+
   if(histname=="MHT"){
     xtext_top = 1800.;
     //y_legend  = 2000.;
     ymax_top = 300.;
-    ymin_top = 0.015;
+    ymin_top = 0.15;
     xmax = 1000.;
     xmin = 100;
     sprintf(xtitlename,"#slash{H}_{T} (GeV)");
-    sprintf(ytitlename,"Events / 50 GeV");
+    sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
   if(histname=="NBtag"){
@@ -244,173 +294,81 @@ Plot_Commissioning(string histname="MHT",int choice=0){
   catLeg1->AddEntry(hPre,tempname);
   catLeg1->Draw();
 
-  TLatex * ttext = new TLatex(xmin, ymax_top*1.3,"CMS Preliminary, 0.1 fb^{-1}, #sqrt{s} = 13 TeV");
+  sprintf(tempname,"CMS Preliminary, %d pb^{-1}, #sqrt{s} = 13 TeV",lumi);
+  TLatex * ttext = new TLatex(xmin, ymax_top*1.3,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.050);
   ttext->SetTextAlign(11);
   ttext->Draw();
-
-  /*
-  GenHist->SetLineColor(2);
-  EstHist->SetLineColor(4);
-  //GenHist->GetXaxis()->SetLabelFont(42);
-  //GenHist->GetXaxis()->SetLabelOffset(0.007);
-  //GenHist->GetXaxis()->SetLabelSize(0.04);
-  GenHist->GetXaxis()->SetTitleSize(0.05);
-  GenHist->GetXaxis()->SetTitleOffset(0.9);
-  GenHist->GetXaxis()->SetTitleFont(42);
-  //GenHist->GetYaxis()->SetLabelFont(42);
-  //GenHist->GetYaxis()->SetLabelOffset(0.007);
-  //GenHist->GetYaxis()->SetLabelSize(0.04);
-  GenHist->GetYaxis()->SetTitleSize(0.05);
-  GenHist->GetYaxis()->SetTitleOffset(1.25);
-  GenHist->GetYaxis()->SetTitleFont(42);
-
-  //EstHist->GetXaxis()->SetLabelFont(42);
-  //EstHist->GetXaxis()->SetLabelOffset(0.007);
-  //EstHist->GetXaxis()->SetLabelSize(0.04);
-  EstHist->GetXaxis()->SetTitleSize(0.05);
-  EstHist->GetXaxis()->SetTitleOffset(0.9);
-  EstHist->GetXaxis()->SetTitleFont(42);
-  //EstHist->GetYaxis()->SetLabelFont(42);
-  //EstHist->GetYaxis()->SetLabelOffset(0.007);
-  //EstHist->GetYaxis()->SetLabelSize(0.04);
-  EstHist->GetYaxis()->SetTitleSize(0.05);
-  EstHist->GetYaxis()->SetTitleOffset(1.25);
-  EstHist->GetYaxis()->SetTitleFont(42);
-  sprintf(xtitlename,"search bins");
-  sprintf(ytitlename,"Events");
-  gPad->SetLogy();
-  GenHist->SetMaximum(200000);
-  GenHist->SetMinimum(0.1);
-  GenHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
-
-  GenHist->SetFillStyle(3004);
-  GenHist->SetFillColor(kGreen-3);
-  GenHist->SetTitle("");
-  GenHist->Draw("e2");
-  //KH GenHist->Draw("same");
-  EstHist->Draw("same");
-
-  */
 
   //
   // Bottom ratio plot
   //
   // ----------
 
-  if(choice==0){
-      //KH -- flip the numerator and denominator
-      TH1D * hPreOverExp = (TH1D*) hPre->Clone();
-      hPreOverExp->Divide(hExp);
-      hPre->Print("all");
-      hPreTT->Print("all");
-      hPreWJ12->Print("all");
-      hPreWJ24->Print("all");
-      hPreWJ46->Print("all");
-      hPreWJ6I->Print("all");
-      hExp->Print("all");
-      hPreOverExp->Print("all");
-      
-      // draw bottom figure
-      canvas_dw->cd();
-      // font size
-      hPreOverExp->GetXaxis()->SetLabelSize(font_size_dw);
-      hPreOverExp->GetXaxis()->SetTitleSize(font_size_dw);
-      hPreOverExp->GetYaxis()->SetLabelSize(font_size_dw);
-      hPreOverExp->GetYaxis()->SetTitleSize(font_size_dw);
-      
-      //
-      // Common to all bottom plots
-      //
-      sprintf(ytitlename,"#frac{Prediction}{Expectation}");
-      hPreOverExp->GetYaxis()->SetTitle(ytitlename);
-      hPreOverExp->SetMaximum(2.65);
-      hPreOverExp->SetMinimum(0.0);
+  //KH -- flip the numerator and denominator
+  TH1D * hPreOverExp = (TH1D*) hPre->Clone();
+  hPreOverExp->Divide(hExp);
+  /*
+    hPre->Print("all");
+    hPreTT->Print("all");
+    hPreWJ12->Print("all");
+    hPreWJ24->Print("all");
+    hPreWJ46->Print("all");
+    hPreWJ6I->Print("all");
+    hExp->Print("all");
+  */
+  hPreOverExp->Print("all");
 
-      //
-      // Specific to each bottom plot
-      //
-      //sprintf(xtitlename,"search bin");
-      hPreOverExp->GetXaxis()->SetRangeUser(xmin,xmax);
-      TLine *tline = new TLine(xmin,1.,xmax,1.);
+  // draw bottom figure
+  canvas_dw->cd();
+  // font size
+  hPreOverExp->GetXaxis()->SetLabelSize(font_size_dw);
+  hPreOverExp->GetXaxis()->SetTitleSize(font_size_dw);
+  hPreOverExp->GetYaxis()->SetLabelSize(font_size_dw);
+  hPreOverExp->GetYaxis()->SetTitleSize(font_size_dw);
+  
+  //
+  // Common to all bottom plots
+  //
+  sprintf(ytitlename,"#frac{Prediction}{Expectation}");
+  hPreOverExp->GetYaxis()->SetTitle(ytitlename);
+  hPreOverExp->SetMaximum(2.65);
+  hPreOverExp->SetMinimum(0.0);
 
-      // Setting style
-      //hPreOverExp->SetMaximum(1.4);
-      //hPreOverExp->GetXaxis()->SetLabelFont(42);
-      hPreOverExp->GetXaxis()->SetLabelOffset(0.007);
-      hPreOverExp->GetXaxis()->SetLabelSize(0.12);
-      hPreOverExp->GetXaxis()->SetTitleSize(0.16);
-      hPreOverExp->GetXaxis()->SetTitleOffset(0.80);
-      hPreOverExp->GetXaxis()->SetTitleFont(42);
-      //hPreOverExp->GetYaxis()->SetLabelFont(42);
-      //hPreOverExp->GetYaxis()->SetLabelOffset(0.007);
-      hPreOverExp->GetYaxis()->SetLabelSize(0.12);
-      hPreOverExp->GetYaxis()->SetTitleSize(0.16);
-      hPreOverExp->GetYaxis()->SetTitleOffset(0.4);
-      hPreOverExp->GetYaxis()->SetTitleFont(42);
-      hPreOverExp->GetXaxis()->SetTickSize(0.08);
+  //
+  // Specific to each bottom plot
+  //
+  //sprintf(xtitlename,"search bin");
+  hPreOverExp->GetXaxis()->SetRangeUser(xmin,xmax);
+  TLine *tline = new TLine(xmin,1.,xmax,1.);
+  
+  // Setting style
+  //hPreOverExp->SetMaximum(1.4);
+  //hPreOverExp->GetXaxis()->SetLabelFont(42);
+  hPreOverExp->GetXaxis()->SetLabelOffset(0.007);
+  hPreOverExp->GetXaxis()->SetLabelSize(0.12);
+  hPreOverExp->GetXaxis()->SetTitleSize(0.16);
+  hPreOverExp->GetXaxis()->SetTitleOffset(0.80);
+  hPreOverExp->GetXaxis()->SetTitleFont(42);
+  //hPreOverExp->GetYaxis()->SetLabelFont(42);
+  //hPreOverExp->GetYaxis()->SetLabelOffset(0.007);
+  hPreOverExp->GetYaxis()->SetLabelSize(0.12);
+  hPreOverExp->GetYaxis()->SetTitleSize(0.16);
+  hPreOverExp->GetYaxis()->SetTitleOffset(0.4);
+  hPreOverExp->GetYaxis()->SetTitleFont(42);
+  hPreOverExp->GetXaxis()->SetTickSize(0.08);
 
-      hPreOverExp->SetTitle("");
-      hPreOverExp->Draw();
-      tline->SetLineStyle(2);
-      tline->Draw();
-  }
+  hPreOverExp->SetTitle("");
+  hPreOverExp->Draw();
+  tline->SetLineStyle(2);
+  tline->Draw();
 
-  if(choice==1){
-
-      TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
-      //EstHistD->Add(GenHistD,-1);
-      denominator->Divide(GenHistD,EstHistD,1,1,"");
-
-      // draw bottom figure
-      canvas_dw->cd();
-      // font size
-      denominator->GetXaxis()->SetLabelSize(font_size_dw);
-      denominator->GetXaxis()->SetTitleSize(font_size_dw);
-      denominator->GetYaxis()->SetLabelSize(font_size_dw);
-      denominator->GetYaxis()->SetTitleSize(font_size_dw);
-      
-      TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
-
-      //
-      // Common to all bottom plots
-      //
-      //sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
-      sprintf(ytitlename,"#frac{Expectation}{Prediction} ");
-      denominator->SetMaximum(2.65);
-      denominator->SetMinimum(0.0);
-
-      //
-      // Specific to each bottom plot
-      //
-      // Setting style
-      //denominator->SetMaximum(1.4);
-      //denominator->GetXaxis()->SetLabelFont(42);
-      //denominator->GetXaxis()->SetLabelOffset(0.007);
-      //denominator->GetXaxis()->SetLabelSize(0.04);
-      denominator->GetXaxis()->SetTitleSize(0.12);
-      denominator->GetXaxis()->SetTitleOffset(0.9);
-      denominator->GetXaxis()->SetTitleFont(42);
-      //denominator->GetYaxis()->SetLabelFont(42);
-      //denominator->GetYaxis()->SetLabelOffset(0.007);
-      //denominator->GetYaxis()->SetLabelSize(0.04);
-      denominator->GetYaxis()->SetTitleSize(0.13);
-      denominator->GetYaxis()->SetTitleOffset(0.5);
-      denominator->GetYaxis()->SetTitleFont(42);
-
-      denominator->GetXaxis()->SetTitle(xtitlename);
-      denominator->GetYaxis()->SetTitle(ytitlename);
-
-      denominator->SetTitle("");
-      denominator->Draw();
-      tline->SetLineStyle(2);
-      tline->Draw();
-  }
-
-  sprintf(tempname,"Commissioning_hadtau_%s_Plot.png",histname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.png",histname.c_str(),cutname.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"Commissioning_hadtau_%s_Plot.pdf",histname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str());
   canvas->Print(tempname);
-
+  
 }
