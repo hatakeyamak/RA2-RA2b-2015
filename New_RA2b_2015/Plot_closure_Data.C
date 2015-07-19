@@ -24,7 +24,7 @@ using namespace std;
 
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_",int choice=0){
+Plot_closure_Data(string cutname="delphi", string histname="MHT",string sample="stacked",int choice=0){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +77,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
-  // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
+  sprintf(tempname,"TauHad2/HadTauEstimation_Data_.root");
   filevec.push_back(TFile::Open(tempname,"R"));
 
   //
@@ -177,6 +175,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
           tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
           GenHist=(TH1D*) tempstack->GetStack()->Last();
+  
+          tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
+          thist=(TH1D*) tempstack->GetStack()->Last();
         }
       }
       if(i==1){
@@ -186,12 +187,11 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         }        
         else{
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-          tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
-          EstHist=(TH1D*) tempstack->GetStack()->Last();
+          EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+
+          thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
         }
       }
-      tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
-      thist=(TH1D*) tempstack->GetStack()->Last();
       thist->SetLineColor(2*i+2);
       thist->SetFillColor(0);
       
@@ -209,8 +209,6 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         }
       }
       if(i==1){
-  //      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
-  //      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
         if(histname=="search"){
           sprintf(tempname,"searchH");
           EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
@@ -223,7 +221,6 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       //    thist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
       thist=static_cast<TH1D*>(filevec.at(i)->Get(tempname)->Clone());
       thist->SetLineColor(2*i+2);
-      
     }
 
     thist->SetTitle("");
@@ -401,7 +398,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       catLeg1->AddEntry(thist,tempname,"p");
     }
     else if(i==1){
-      sprintf(tempname,"Data driven prediction");
+      sprintf(tempname,"Data");
       catLeg1->AddEntry(thist,tempname);
     }
   }
@@ -409,7 +406,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   GenHist_Clone->DrawCopy("esame");
   catLeg1->Draw();
 
-  TText * ttext = new TLatex(xtext_top, ytext_top, "Normalized to 10 fb^{-1}");
+  TText * ttext = new TLatex(xtext_top, ytext_top, "");
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.045);
   ttext->SetTextAlign(22);
