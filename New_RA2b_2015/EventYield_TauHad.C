@@ -13,7 +13,7 @@ root.exe -b -q 'EventYield_TauHad.C("WJet_stacked")'
 root.exe -b -q 'EventYield_TauHad.C("T_stacked")'
 */
 
-EventYield_TauHad(string sample="TTbar_"){
+EventYield_TauHad(string sample="TTbar_", bool mc=false){
   char tempname[200];
   TH1D * tempHist;
   THStack * tempstack;
@@ -34,23 +34,28 @@ EventYield_TauHad(string sample="TTbar_"){
   sprintf(tempname,"cutflow_preselection");
 
   if(sample.find("stack")!=string::npos){
+    if (mc) {
     tempstack=(THStack*) exp_f->Get(tempname)->Clone();
     expHist= (TH1D*) tempstack->GetStack()->Last();
+    }
     //
     tempstack=(THStack*) pre_f->Get(tempname)->Clone();
     preHist= (TH1D*) tempstack->GetStack()->Last();
   }
   else{
+    if (mc)
     expHist=(TH1D*) exp_f->Get(tempname)->Clone("cutflow_preselection_exp");
     //
     preHist=(TH1D*) pre_f->Get(tempname)->Clone("cutflow_preselection_pre");
   }
 
+  if (mc) {
   printf("\nExpectation\n");
   for (int ibin=1; ibin<=expHist->GetNbinsX(); ibin++){
     if (expHist->GetBinContent(ibin)){
       printf("%-20s: %12.1f\n",expHist->GetXaxis()->GetBinLabel(ibin),expHist->GetBinContent(ibin));
     }
+  }
   }
   printf("\nPrediction\n");
   for (int ibin=1; ibin<=preHist->GetNbinsX(); ibin++){
@@ -93,19 +98,23 @@ EventYield_TauHad(string sample="TTbar_"){
     sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
 
     if(sample.find("stack")!=string::npos){
+      if (mc) {
       tempstack=(THStack*) exp_f->Get(tempname)->Clone();
       tempHist= (TH1D*) tempstack->GetStack()->Last();
       //exp=tempHist->GetEntries();
       exp=tempHist->GetSumOfWeights();
+      }
       tempstack=(THStack*) pre_f->Get(tempname)->Clone();
       tempHist= (TH1D*) tempstack->GetStack()->Last();
       //pre=tempHist->GetEntries();
       pre=tempHist->GetSumOfWeights();
     }
     else{
+      if (mc) {
       tempHist=(TH1D*) exp_f->Get(tempname)->Clone();
       //exp=tempHist->GetEntries();
       exp=tempHist->GetSumOfWeights();
+      }
       tempHist=(TH1D*) pre_f->Get(tempname)->Clone();
       //pre=tempHist->GetEntries();
       pre=tempHist->GetSumOfWeights();
@@ -114,7 +123,10 @@ EventYield_TauHad(string sample="TTbar_"){
 
     //printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
   
-    printf("cutname: %-12s ==>> prediction: %12.1f expectation: %10.1f Pre/Exp: %6.3f\n\n",cutname[i].c_str(),pre,exp,(pre/exp));
+    if (mc)
+    printf("cutname: %-12s ==>> prediction: %12.1f expectation: %10.1f Pre/Exp: %6.3f\n",cutname[i].c_str(),pre,exp,(pre/exp));
+    else 
+    printf("cutname: %-12s ==>> prediction: %12.1f\n\n",cutname[i].c_str(),pre);
 
   }
 

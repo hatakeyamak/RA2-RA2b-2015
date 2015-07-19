@@ -31,11 +31,8 @@ class mainClass{
 public:
 mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
-
   Selection * sel = new Selection();
   cutname = sel->cutName();
-
-
 
   WJettype[0]="allEvents";
   TTbartype[0]="allEvents";
@@ -58,6 +55,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   const int tnHT = (int) T_xs_vec.size();   // Total number of HT bin samples
 
   for(int i=1; i<=tnHT ; i++){
+    /*
     if(i==1)sprintf(tempname,"../../Results/results_T_s_.root");
     else if(i==2)sprintf(tempname,"../../Results/results_T_t_.root");
     else if(i==3)sprintf(tempname,"../../Results/results_T_u_.root");
@@ -68,6 +66,18 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     file = new TFile(tempname, "R");
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+    */
+    if(i==1)sprintf(tempname,"../GenInfo_HadTauEstimation_T_s_.root");
+    else if(i==2)sprintf(tempname,"../GenInfo_HadTauEstimation_T_t_.root");
+    else if(i==3)sprintf(tempname,"../GenInfo_HadTauEstimation_T_u_.root");
+    else if(i==4)sprintf(tempname,"../GenInfo_HadTauEstimation_Tbar_s_.root");
+    else if(i==5)sprintf(tempname,"../GenInfo_HadTauEstimation_Tbar_t_.root");
+    else if(i==6)sprintf(tempname,"../GenInfo_HadTauEstimation_Tbar_u_.root");
+    else{cout << " Error!! There are only 6 single top sample " << endl;}
+    file = new TFile(tempname, "R");
+    sprintf(tempname,"cutflow_preselection");
+    std::cout << luminosity << " " << T_xs_vec[i-1] << (* (TH1D* ) file->Get(tempname)).GetBinContent(1) << std::endl;
+    tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
     T_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "T normalization scale factor determination done \n " << std::endl;
@@ -182,14 +192,20 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   //first load the cross sections into a vector
   vector<double> WJet_xs_vec;
   double k_w = 1.23;
-  WJet_xs_vec.push_back(k_w*1817.0); // HT 100-200
-  WJet_xs_vec.push_back(k_w*471.6);  // HT 200-400
-  WJet_xs_vec.push_back(k_w*55.61);  // HT 400-600
-  WJet_xs_vec.push_back(k_w*18.81);  // HT 600-Inf
+  //WJet_xs_vec.push_back(k_w*1817.0); // HT 100-200
+  //WJet_xs_vec.push_back(k_w*471.6);  // HT 200-400
+  //WJet_xs_vec.push_back(k_w*55.61);  // HT 400-600
+  //WJet_xs_vec.push_back(k_w*18.81);  // HT 600-Inf
+  // Based on https://twiki.cern.ch/twiki/bin/view/CMS/RA2b13TeVCommissioning#Technical_details
+  WJet_xs_vec.push_back(1566.); // HT 100-200
+  WJet_xs_vec.push_back(469.);  // HT 200-400
+  WJet_xs_vec.push_back(58.1);  // HT 400-600
+  WJet_xs_vec.push_back(24.2);  // HT 600-Inf
 
   const int wjnHT = (int) WJet_xs_vec.size();   // Total number of HT bin samples
 
   for(int i=1; i<=wjnHT ; i++){
+    /*
     if(i==1)sprintf(tempname,"../../Results/results_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../../Results/results_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../../Results/results_WJet_400_600_.root");
@@ -198,6 +214,15 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     file = new TFile(tempname, "R");
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+    */
+    if(i==1)sprintf(tempname,"../GenInfo_HadTauEstimation_WJet_100_200_.root");
+    else if(i==2)sprintf(tempname,"../GenInfo_HadTauEstimation_WJet_200_400_.root");
+    else if(i==3)sprintf(tempname,"../GenInfo_HadTauEstimation_WJet_400_600_.root");
+    else if(i==4)sprintf(tempname,"../GenInfo_HadTauEstimation_WJet_600_inf_.root");
+    else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
+    file = new TFile(tempname, "R");
+    sprintf(tempname,"cutflow_preselection");
+    tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
     WJet_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "WJet normalization scale factor determination done \n " << std::endl;
@@ -616,16 +641,25 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   //first load the cross sections into a vector
   vector<double> TTbar_xs_vec;
 
-  TTbar_xs_vec.push_back(806.1); // 
+  //TTbar_xs_vec.push_back(806.1); // 
+  // Based on https://twiki.cern.ch/twiki/bin/view/CMS/RA2b13TeVCommissioning#Technical_details
+  TTbar_xs_vec.push_back(815.96); // 
 
   const int ttbarnHT = (int) TTbar_xs_vec.size();   // Total number of HT bin samples
 
   for(int i=1; i<=ttbarnHT ; i++){
+    /*
     if(i==1)sprintf(tempname,"../../Results/results_TTbar_.root");
     else{cout << " Error!! There are only 1 TTbar ht binned sample " << endl;}
     file = new TFile(tempname, "R");
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
+    */
+    if(i==1)sprintf(tempname,"../GenInfo_HadTauEstimation_TTbar_.root");
+    else{cout << " Error!! There are only 1 inclusive TTbar sample " << endl;}
+    file = new TFile(tempname, "R");
+    sprintf(tempname,"cutflow_preselection");
+    tempvalue = (luminosity*TTbar_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
     TTbar_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "TTbar normalization scale factor determination done \n " << std::endl;
