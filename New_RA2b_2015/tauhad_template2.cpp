@@ -311,7 +311,10 @@ using namespace std;
 
     // Rate of bTagged tau jet
     TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
-//    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_stacked.root","R");
+/* Btag_flag
+    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog260.root","R");
+    cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
+*/
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
@@ -618,6 +621,7 @@ Ahmad33 */
 
           // 3Vec of muon and scaledMu 
           TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
+          double NewTauJetPt=0.0;
           SimTauJet3Vec.SetPtEtaPhi(simTauJetPt_xy,simTauJetEta,simTauJetPhi_xy);
           Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
@@ -633,6 +637,7 @@ Ahmad33 */
           if(slimJetIdx==-1){
             MuJet_fail->Fill(muPt);
             NewTauJet3Vec=SimTauJet3Vec;
+            NewTauJetPt = NewTauJet3Vec.Pt();
             if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
             if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
           }
@@ -645,6 +650,7 @@ Ahmad33 */
             else if(i==slimJetIdx){
               temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
               NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+              NewTauJetPt = NewTauJet3Vec.Pt();
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
@@ -682,9 +688,9 @@ Ahmad33 */
           if(!utils2::bootstrap){
             JetIdx=-1;
             utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
-            B_rate_all->Fill(simTauJetPt);
+            B_rate_all->Fill(NewTauJetPt);
             if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814){
-              B_rate_tagged->Fill(simTauJetPt);
+              B_rate_tagged->Fill(NewTauJetPt);
             }
           }
 
@@ -786,6 +792,19 @@ Ahmad33 */
 
             // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
             if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
+/*
+Btag_flag
+            // if muon jet is dropped and muon is btagged, #original b shoud reduce by 1
+            // if muon jet is dropped but muon is not btagged, #b shoud stat the same as original one(no increase).
+            // if muon jet is not dropped but is btagged, #b shoud stat the same as original one(no increase).
+            JetIdx=-1;
+            utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+            if( (int) HT3JetVec.size() < (int) evt->nJets() ){
+              if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags()-1;
+              else NewNB=evt->nBtags(); 
+            }
+            else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags();
+*/
 
             // New dphi1, dphi2, and dphi3
             double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.;

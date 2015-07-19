@@ -3,6 +3,7 @@
 i=$1
 j=$2
 k=$3
+l=$4
 
 if [ $i -eq 1 ]
 then
@@ -61,7 +62,7 @@ fi
 #Single Top
 #####
 
-if [ $j -eq 1 ]; then 
+if [ $k -eq 1 ]; then 
 #  root -l -b -q Plot_closure.C'("mht_200","NJet","T_stacked",1)'
 #  root -l -b -q Plot_closure.C'("mht_200","NBtag","T_stacked",1)'
 #  root -l -b -q Plot_closure.C'("mht_200","HT","T_stacked",1)'
@@ -87,7 +88,7 @@ fi
 #TTbar+WJet+SingleT
 #####
 
-if [ $k -eq 1 ]; then
+if [ $l -eq 1 ]; then
 
 #  root -l -b -q Plot_closure.C'("mht_200","NJet","stacked",1)'
 #  root -l -b -q Plot_closure.C'("mht_200","NBtag","stacked",1)'
