@@ -36,7 +36,7 @@ cp HadTauEstimation_TTbar_.root ../TauHad2
 cd ..
 
 #####
-exit
+#exit
 #####
 
 #
