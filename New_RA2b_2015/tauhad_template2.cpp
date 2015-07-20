@@ -1130,6 +1130,7 @@ Btag_flag
           // Loop over different histograms
           for(int ii=0; ii<nHist; ii++){//since we only have 4 type of histograms
 
+	    //KH--- for MaxWeight hisotgrams --- can be improved... starts
 	    //std::cout << it->first << " " << itt->first << std::endl;
 	    if (it->first=="delphi" && itt->first=="allEvents"){
 	      if (ii==1){
@@ -1175,21 +1176,13 @@ Btag_flag
 		}
 	      }
 	    }
+	    //KH--ends
 
 	    bootstrapUtils::HistogramFillForEventTH1( &it->second[ii] , &map_map_evt[itt->first][it->first][ii] );
 	    
           } // nHist
         }   // 
       }     // map_map
-
-      /*
-      hMaxWeight_HT->Write();
-      hMaxWeight_HT2->Write();
-      hMaxWeight_MHT->Write();
-      hMaxWeight_MHT2->Write();
-      hMaxWeight_NJet->Write();
-      hMaxWeight_NBtag->Write();
-      */
 
     } // end of loop over events
 
