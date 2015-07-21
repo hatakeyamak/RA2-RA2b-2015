@@ -113,6 +113,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="DelPhi1";
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
+  //histname[8]="HT2";
+  //histname[9]="MHT2";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -259,6 +261,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="DelPhi1";
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
+  histname[8]="HT2";
+  histname[9]="MHT2";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -692,6 +696,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="DelPhi1";
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
+  histname[8]="HT2";
+  histname[9]="MHT2";
 
   Hname.clear();
   Hname[0]="searchH";

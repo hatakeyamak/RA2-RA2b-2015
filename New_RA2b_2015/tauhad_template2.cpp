@@ -93,8 +93,11 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-    Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
-                             450.,500.,600.,1000.,5000.};
+    Double_t ht_bins[15] = {
+      0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
+      1000.,1200.,1500.,2000.,5000.};
+    Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
+                             700.,1000.,5000.};
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -102,10 +105,13 @@ using namespace std;
     TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
     RA2HT_hist.Sumw2();
     vec.push_back(RA2HT_hist);
+    TH1D RA2HT2_hist = TH1D("HT2","HT2 Distribution",14,ht_bins);
+    RA2HT2_hist.Sumw2();
+    vec.push_back(RA2HT2_hist);
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();    
     vec.push_back(RA2MHT_hist);
-    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",13,mht_bins);
+    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",12,mht_bins);
     RA2MHT2_hist.Sumw2();
     vec.push_back(RA2MHT2_hist);
     TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
@@ -240,6 +246,14 @@ using namespace std;
     hCorSearch_b->Sumw2(); TH2 * hCorSearch_b_evt = static_cast<TH2D*>(hCorSearch_b->Clone("hCorSearch_b_evt"));
     TH2 * hCorSearch_b_noW = new TH2D("hCorSearch_b_noW","original vs. recalculated SearchBin",totNbins_b,1,totNbins_b+1,totNbins_b,1,totNbins_b+1);
     hCorSearch_b_noW->Sumw2(); TH2 * hCorSearch_b_noW_evt = static_cast<TH2D*>(hCorSearch_b_noW->Clone("hCorSearch_b_noW_evt"));
+
+    // Checking weights in each bin
+    TH1 * hMaxWeight_HT   = new TH1D("hMaxWeight_HT",  "hMaxWeight_HT",  50,0,5000);
+    TH1 * hMaxWeight_HT2  = new TH1D("hMaxWeight_HT2", "hMaxWeight_HT2", 14,ht_bins);
+    TH1 * hMaxWeight_MHT  = new TH1D("hMaxWeight_MHT", "hMaxWeight_MHT", 100,0,5000);
+    TH1 * hMaxWeight_MHT2 = new TH1D("hMaxWeight_MHT2","hMaxWeight_MHT2",12,mht_bins);
+    TH1 * hMaxWeight_NJet   = new TH1D("hMaxWeight_NJet",  "hMaxWeight_NJet",  20,0,20);
+    TH1 * hMaxWeight_NBtag  = new TH1D("hMaxWeight_NBtag", "hMaxWeight_NBtag", 20,0,20);
 
     // calculate iso efficiencies
     TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
@@ -1027,7 +1041,7 @@ Btag_flag
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double) muPt, simTauJetPt_xy};
+            double eveinfvec[] = {totWeight, newHT, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double) muPt, simTauJetPt_xy};
 
             bool pass0=false;
             if(TauHadModel >= 1)pass0=true;
@@ -1115,11 +1129,60 @@ Btag_flag
           int nHist = it->second.size();
           // Loop over different histograms
           for(int ii=0; ii<nHist; ii++){//since we only have 4 type of histograms
-            bootstrapUtils::HistogramFillForEventTH1( &it->second[ii] , &map_map_evt[itt->first][it->first][ii] );
-          }
-        }
-      }
 
+	    //KH--- for MaxWeight hisotgrams --- can be improved... starts
+	    //std::cout << it->first << " " << itt->first << std::endl;
+	    if (it->first=="delphi" && itt->first=="allEvents"){
+	      if (ii==1){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_HT->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_HT->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	      if (ii==2){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_HT2->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_HT2->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	      if (ii==3){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_MHT->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_MHT->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	      if (ii==4){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_MHT2->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_MHT2->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	      if (ii==10){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_NJet->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_NJet->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	      if (ii==11){
+		//map_map_evt[itt->first][it->first][ii].Print();
+		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
+		  if (hMaxWeight_NBtag->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
+		    hMaxWeight_NBtag->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
+		}
+	      }
+	    }
+	    //KH--ends
+
+	    bootstrapUtils::HistogramFillForEventTH1( &it->second[ii] , &map_map_evt[itt->first][it->first][ii] );
+	    
+          } // nHist
+        }   // 
+      }     // map_map
 
     } // end of loop over events
 
@@ -1213,6 +1276,12 @@ Btag_flag
     prWeight2ForSearchBin->Write(); 
     prWeight3ForSearchBin->Write(); 
     prWeight4ForSearchBin->Write(); 
+    hMaxWeight_HT->Write();
+    hMaxWeight_HT2->Write();
+    hMaxWeight_MHT->Write();
+    hMaxWeight_MHT2->Write();
+    hMaxWeight_NJet->Write();
+    hMaxWeight_NBtag->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
