@@ -86,8 +86,11 @@ using namespace std;
     TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_tagged->Sumw2();
 
-    Double_t mht_bins[14] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,
-                             450.,500.,600.,1000.,5000.};
+    Double_t ht_bins[15] = {
+      0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
+      1000.,1200.,1500.,2000.,5000.};
+    Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
+                             700.,1000.,5000.};
 
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -95,10 +98,13 @@ using namespace std;
     TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
     RA2HT_hist.Sumw2();
     vec.push_back(RA2HT_hist);
+    TH1D RA2HT2_hist = TH1D("HT2","HT2 Distribution",14,ht_bins);
+    RA2HT2_hist.Sumw2();
+    vec.push_back(RA2HT2_hist);
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();
     vec.push_back(RA2MHT_hist);
-    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",13,mht_bins);
+    TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",12,mht_bins);
     RA2MHT2_hist.Sumw2();
     vec.push_back(RA2MHT2_hist);
     TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
@@ -289,6 +295,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
+      //if(eventN>10000)break;
       //if(eventN>47160)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
@@ -511,7 +518,7 @@ using namespace std;
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
-      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
+      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
