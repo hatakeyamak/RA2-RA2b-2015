@@ -310,11 +310,10 @@ using namespace std;
 
 
     // Rate of bTagged tau jet
-    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
-/* Btag_flag
-    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog260.root","R");
+//    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog269.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
-*/
+
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
@@ -792,8 +791,7 @@ Ahmad33 */
 
             // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
             if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
-/*
-Btag_flag
+
             // if muon jet is dropped and muon is btagged, #original b shoud reduce by 1
             // if muon jet is dropped but muon is not btagged, #b shoud stat the same as original one(no increase).
             // if muon jet is not dropped but is btagged, #b shoud stat the same as original one(no increase).
@@ -804,7 +802,7 @@ Btag_flag
               else NewNB=evt->nBtags(); 
             }
             else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags();
-*/
+
 
             // New dphi1, dphi2, and dphi3
             double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.;

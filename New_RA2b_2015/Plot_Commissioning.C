@@ -22,7 +22,7 @@ The following two lines should be adjusted.
 
  */
 
-Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=22.1, bool normalize=true, int rebin=1){
+Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=36, bool normalize=true, int rebin=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -59,14 +59,14 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
   char ytitlename[200];
 
 
-  TFile * PreData = new TFile("HadTauEstimation_data_HTMHT_05.root","R");
-  TFile * PreTT = new TFile("HadTauEstimation_TTbar_.root","R");
-  TFile * PreWJ12 = new TFile("HadTauEstimation_WJet_100_200_.root","R");
-  TFile * PreWJ24 = new TFile("HadTauEstimation_WJet_200_400_.root","R");
-  TFile * PreWJ46 = new TFile("HadTauEstimation_WJet_400_600_.root","R");
-  TFile * PreWJ6I = new TFile("HadTauEstimation_WJet_600_inf_.root","R");
-  TFile * ExpTT = new TFile("GenInfo_HadTauEstimation_TTbar_stacked.root","R");
-  TFile * ExpWJ = new TFile("GenInfo_HadTauEstimation_WJet_stacked.root","R");
+  TFile * PreData = new TFile("TauHad2/HadTauEstimation_data_HTMHT_06.root","R");
+  TFile * PreTT = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
+  TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
+  TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
+  TFile * PreWJ46 = new TFile("TauHad2/HadTauEstimation_WJet_400_600_.root","R");
+  TFile * PreWJ6I = new TFile("TauHad2/HadTauEstimation_WJet_600_inf_.root","R");
+  TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
+  TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
 
   //
   // Define legend
