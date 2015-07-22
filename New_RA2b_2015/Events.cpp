@@ -182,9 +182,6 @@
      fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
      fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
      fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-     if(!DataBool){
-       fChain->SetBranchAddress("GenTauNu_TauNuMomPt", GenTauNu_TauNuMomPt);
-     }
       
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
@@ -297,14 +294,6 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::GenTauNuPtVec_() const { return *GenTauNuPtVec ;}
    vector<double>  Events::GenTauNuEtaVec_() const { return *GenTauNuEtaVec ;}
    vector<double>  Events::GenTauNuPhiVec_() const { return *GenTauNuPhiVec ;}
-
-   vector<double>  Events::TauNuMomPt() const {
-    vector<double> tempVec;
-    for( int i=0; i < GenTauNuPtVec->size(); i++ ){
-      tempVec.push_back((double)*(GenTauNu_TauNuMomPt+i));
-    } 
-    return tempVec;
-   }
 
    vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
    vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}

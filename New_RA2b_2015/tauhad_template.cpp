@@ -361,6 +361,7 @@ using namespace std;
       double genTauPt=-1.;
       double genTauEta=-99.;
       double genTauPhi=-99.;
+      int NuIndex = -1;
       HadTauPtVec.clear();
       HadTauEtaVec.clear();
       HadTauPhiVec.clear();
@@ -376,6 +377,7 @@ using namespace std;
             HadTauPhiVec.push_back(phi);
             if(pt > genTauPt){
               genTauPt = pt;
+              NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
             }
@@ -393,6 +395,7 @@ using namespace std;
             HadTauPhiVec.push_back(phi);
             if(pt > genTauPt && fabs(eta)<LeptonAcceptance::muonEtaMax()){ //Ahmad33
               genTauPt = pt;
+              NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
             }
@@ -400,7 +403,14 @@ using namespace std;
         }
       }
       if(HadTauPtVec.size()>0)hadTau=true;
-       
+
+      if(verbose!=0){      
+        for(int i=0; i<evt->GenTauPtVec_().size();i++){
+          printf("tau: \n ##### \n idx: %d pt: %g \n NU: \n #### \n idx: %d pt: %g \n ",i,evt->GenTauPtVec_()[i],i,evt->GenTauNuPtVec_()[i]);
+        }
+        printf("NuIndex: %d HadTau: %d genTauPt: %g \n ============================ \n ",NuIndex,hadTau,genTauPt); 
+      }
+
       if(hadTau==false)continue;
       cutflow_preselection->Fill(2.); // hadronic tau events
       nHadTauEve++;
@@ -427,13 +437,6 @@ using namespace std;
               printf("GenTauNu # : %d pt: %g eta: %g phi: %g \n ",i+1,evt->GenTauNuPtVec_()[i],evt->GenTauNuEtaVec_()[i],evt->GenTauNuPhiVec_()[i]);
             }
             printf(" @@@@\n Mom of TauNu section: \n ");
-            for(int i=0;i<evt->TauNuMomPt().size();i++){
-              printf("MomofTauNu # : %d pt: %g \n ",i+1,evt->TauNuMomPt()[i]);
-            }
-
-
-
-       
       }
       int jet_index=-1;
       int nB = evt->nBtags();
@@ -564,9 +567,7 @@ using namespace std;
       // 
       TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
       for(int i=0; i < evt->GenTauNuPtVec_().size(); i++){
-        if(evt->TauNuMomPt()[i]==genTauPt){
-          TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[i],evt->GenTauNuEtaVec_()[i],evt->GenTauNuPhiVec_()[i]);
-        }
+        TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[NuIndex],evt->GenTauNuEtaVec_()[NuIndex],evt->GenTauNuPhiVec_()[NuIndex]);
       }
       if(genTauPt>0.)Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
       else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}

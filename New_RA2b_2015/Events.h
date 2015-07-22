@@ -127,7 +127,6 @@ using namespace std;
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
    Int_t           slimJet_slimJetID[100];
-   Float_t         GenTauNu_TauNuMomPt[10]; 
    UChar_t         JetID; 
 
 public:
@@ -174,8 +173,6 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenTauNuPtVec_() const;
    vector<double>  GenTauNuEtaVec_() const;
    vector<double>  GenTauNuPhiVec_() const;
-
-   vector<double>  TauNuMomPt() const;
 
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
