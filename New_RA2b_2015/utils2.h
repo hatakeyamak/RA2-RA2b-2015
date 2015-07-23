@@ -1,6 +1,19 @@
 
 namespace utils2{
 
+  // Determine which Iso trk veto to work with
+  // 0: IsoTrk effeiciency is calculated from expection code
+  //    and is applied in the prediction code as weight
+  // 1: The veto stays the same as 0, for the expectation code.
+  //    From the expectation code, We calculte how many times 
+  //    the tau-jet(and only the leading tau jet) gets vetoed 
+  //    by the isoTrks.
+  //    In the prediction code, we veto the events if the
+  //    leading muon does not match any of the available trks.
+  //    alos, we will apply the efficiency that was calculated
+  //    and talked about above as weight.
+  int IsoTrkModel=1;
+
 
   // Determine which model to work with
     // 0: The most simple model
