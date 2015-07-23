@@ -55,6 +55,12 @@ using namespace std;
       return match;
     }
 
+    bool Utils::RelPt(double genTauPt, double IsoPt,double relPt){
+      bool bo=false;
+      if( abs(genTauPt-IsoPt)/genTauPt < relPt )bo=true;
+      return bo;
+    }
+
     int Utils::TauResponse_nBins_(){
       return 4;
     }

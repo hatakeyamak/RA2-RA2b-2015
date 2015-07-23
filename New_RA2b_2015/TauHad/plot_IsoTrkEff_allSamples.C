@@ -1,5 +1,5 @@
 
-void plot_IsoTrkEff_allSamples(string sample="TTbar_"){
+void plot_IsoTrkEff_allSamples(int IsoModel=0){
 
   //
   // icomp=0: only show own results
@@ -64,7 +64,12 @@ void plot_IsoTrkEff_allSamples(string sample="TTbar_"){
 //...........................................................................//
     double XUp = 500. , maxVal=3.;
 
-    sprintf(tempname,"IsoEff");
+    if(IsoModel==0)sprintf(tempname,"IsoEff");
+    else if(IsoModel==1)sprintf(tempname,"IsoEff2");
+    else{
+      cout << " Error! IsoModel not known \n ";
+      return 2;
+    }
     thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
     thist2->GetXaxis()->SetRangeUser(0.,XUp);
     thist2->SetMaximum(maxVal);

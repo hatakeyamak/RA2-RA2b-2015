@@ -636,6 +636,40 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
 
+
+  histname.clear();
+  histname[0]="IsoEff2";
+  histname[1]="Iso_pass2";
+  histname[2]="Iso_all2";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff2");
+  temphistIII->SetTitle("IsoEff2");
+  temphistIII->Write();
+
   file->Close();
   printf("WJet IsoTrks calculated. \n ");
 
@@ -1053,6 +1087,40 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
 
+  histname.clear();
+  histname[0]="IsoEff2";
+  histname[1]="Iso_pass2";
+  histname[2]="Iso_all2";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff2");
+  temphistIII->SetTitle("IsoEff2");
+  temphistIII->Write();
+
+
   file->Close();
   printf("TTbar IsoTrks calculated. \n ");
 
@@ -1419,6 +1487,25 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Write();
 
   }
+
+  histname.clear();
+  histname[0]="Iso_pass2";
+  histname[1]="Iso_all2";
+
+
+  for(int j=0; j<histname.size(); j++){
+
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+    temphist->Add(temphist,temphist2,1,1);
+
+  temphist->Write();
+
+  }
+
+
   file3->Close();
   file2->Close();
   file->Close();
@@ -1436,6 +1523,17 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Divide(temphist,temphist2,1,1,"B");
   temphist->SetName("IsoEff");
   temphist->SetTitle("IsoEff");
+  temphist->Write();
+
+
+  sprintf(tempname,"Iso_pass2");
+  temphist = (TH1D *) file->Get(tempname)->Clone();
+  sprintf(tempname,"Iso_all2");
+  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+  temphist->Divide(temphist,temphist2,1,1,"B");
+  temphist->SetName("IsoEff2");
+  temphist->SetTitle("IsoEff2");
   temphist->Write();
 
   file->Close();

@@ -208,6 +208,11 @@ using namespace std;
     Iso_all->Sumw2();
     TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
     Iso_pass->Sumw2();
+
+    TH1* Iso_all2 = new TH1D("Iso_all2","Isolated Trk efficiency for leading tau jet -- all ",totNbins,1,totNbins+1);
+    Iso_all2->Sumw2();
+    TH1* Iso_pass2 = new TH1D("Iso_pass2","Isolated Trk efficiency for leading tau jet -- pass ",totNbins,1,totNbins+1);
+    Iso_pass2->Sumw2();
     
 
     
@@ -295,7 +300,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>10000)break;
+      //if(eventN>100000)break;
       //if(eventN>47160)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
@@ -493,6 +498,19 @@ using namespace std;
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           
 
+
+          // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
+          Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
+          utils->findMatchedObject(IsoElecIdx,genTauEta,genTauPhi,evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+          utils->findMatchedObject(IsoMuIdx,genTauEta,genTauPhi,evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
+          utils->findMatchedObject(IsoPionIdx,genTauEta,genTauPhi,evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
+          if( IsoElecIdx==-1 && IsoMuIdx==-1 && IsoPionIdx==-1)
+            Iso_pass2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]); 
+
+
+ 
+
           if(passIso){
               // Fill Search bin histogram
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
@@ -672,7 +690,9 @@ using namespace std;
     IsoPionEff->Divide(IsoPion_pass,IsoPion_all,1,1,"B");
     TH1* IsoEff = static_cast<TH1*>(Iso_pass->Clone("IsoEff"));
     IsoEff->Divide(Iso_pass,Iso_all,1,1,"B");
-    
+    TH1* IsoEff2 = static_cast<TH1*>(Iso_pass2->Clone("IsoEff2"));
+    IsoEff2->Divide(Iso_pass2,Iso_all2,1,1,"B");   
+ 
     sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile3(tempname,"RECREATE");
     IsoElecEff->Write();
@@ -687,6 +707,9 @@ using namespace std;
     IsoEff->Write();
     Iso_pass->Write();
     Iso_all->Write();
+    IsoEff2->Write();
+    Iso_pass2->Write();
+    Iso_all2->Write();
     
     outFile3.Close();
 

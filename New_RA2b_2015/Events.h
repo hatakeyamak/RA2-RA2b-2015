@@ -122,6 +122,18 @@ using namespace std;
    vector<double>  *selectedIDIsoElectronsEtaVec;
    vector<double>  *selectedIDIsoElectronsPhiVec;
 
+   vector<double>  *IsolatedElectronTracksVetoPtVec;
+   vector<double>  *IsolatedElectronTracksVetoEtaVec;
+   vector<double>  *IsolatedElectronTracksVetoPhiVec;
+
+   vector<double>  *IsolatedMuonTracksVetoPtVec;
+   vector<double>  *IsolatedMuonTracksVetoEtaVec;
+   vector<double>  *IsolatedMuonTracksVetoPhiVec;
+
+   vector<double>  *IsolatedPionTracksVetoPtVec;
+   vector<double>  *IsolatedPionTracksVetoEtaVec;
+   vector<double>  *IsolatedPionTracksVetoPhiVec;
+
 
    Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
@@ -219,10 +231,20 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  ElecEtaVec_() const;
    vector<double>  ElecPhiVec_() const;
 
-
    vector<int>     GenMuFromTauVec_() const;   
    vector<int>     GenElecFromTauVec_() const;   
    vector<int>     GenTauHadVec_() const;   
+
+   vector<double>  IsoElecPtVec_() const;
+   vector<double>  IsoElecEtaVec_() const;
+   vector<double>  IsoElecPhiVec_() const;
+   vector<double>  IsoMuPtVec_() const;
+   vector<double>  IsoMuEtaVec_() const;
+   vector<double>  IsoMuPhiVec_() const;
+   vector<double>  IsoPionPtVec_() const;
+   vector<double>  IsoPionEtaVec_() const;
+   vector<double>  IsoPionPhiVec_() const;
+
 
 };//end of class Events
 #endif
