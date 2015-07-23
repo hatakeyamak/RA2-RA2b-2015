@@ -135,6 +135,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
 //Functions
   bool loadNext();
+  int Runnum() const;
+  int Evtnum() const;
   int nJets() const;
   int nBtags() const;
   int nLeptons() const;

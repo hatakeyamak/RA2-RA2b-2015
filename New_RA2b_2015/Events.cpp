@@ -6,7 +6,7 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=false;
+    DataBool=true;
   
     //Initialize some varaibles
      RunNum=-1;
@@ -220,6 +220,10 @@ fChain->SetBranchAddress("testVec", &testVec);
 
 
 // Some Functions
+
+  // Run number & event number
+  int Events::Runnum() const { return RunNum; }
+  int Events::Evtnum() const { return EvtNum; }
 
   // Event weight (for luminosity and PU profile)
   double Events::weight() const { return Weight; }

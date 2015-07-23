@@ -141,7 +141,7 @@ using namespace std;
     TH1D simTauJetPt_hist = TH1D("simTauJetPt","Pt of simulated tau Jet",80,0,400);
     simTauJetPt_hist.Sumw2();
     vec.push_back(simTauJetPt_hist);
-/*
+    /*
     TH1D Bjet_mu_hist = TH1D("Bjet_mu_hist","Is Muon from Bjet? ",2,0,2);
     Bjet_mu_hist.Sumw2();
     vec.push_back(Bjet_mu_hist);*/
@@ -214,8 +214,8 @@ using namespace std;
     prWeight3ForSearchBin->Sumw2(); 
     TProfile * prWeight4ForSearchBin = new TProfile("prWeight4ForSearchBin","Weight vs. SearchBin",totNbins_b,1,totNbins_b+1,0.,2.,"s");
     prWeight4ForSearchBin->Sumw2(); 
-    double weightEffAcc;
-    double weightEffAccForEvt;
+    double weightEffAcc;       // weight from lepton efficiency and acceptance
+    double weightEffAccForEvt; // + isotrack efficiency
 
     // Determine correlation between original and recalculated variables
     TH2 * hCorSearch = new TH2D("hCorSearch","original vs. recalculated SearchBin",totNbins,1,totNbins+1,totNbins,1,totNbins+1);
@@ -295,7 +295,6 @@ using namespace std;
       cout << " Your second input indicates code will run on Data/MC. \n Change the value of the DataBool in Events.cpp \n ";
       return 2;
     }
-
 
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
@@ -989,12 +988,12 @@ Ahmad33 */
               // Fill Search bin histogram 
               searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 
-              // Fill QCD histograms
-              QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
-
               searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
               searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
+
+              // Fill QCD histograms
+              QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
 	      // Fill correlation histograms
               hCorSearch_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
@@ -1131,42 +1130,51 @@ Ahmad33 */
 	    //KH--- for MaxWeight hisotgrams --- can be improved... starts
 	    //std::cout << it->first << " " << itt->first << std::endl;
 	    if (it->first=="delphi" && itt->first=="allEvents"){
-	      if (ii==1){
+	      if (isData){
+	      if (ii==1){ // HT
+		if (map_map_evt[itt->first][it->first][ii].GetSumOfWeights()>0.25){
+		  printf("run,event: %10d,%10d, Njet,Nbtag,HT,MHT: %8d,%8d,%10.1f,%10.1f, muon pt,eta,phi=%6.1f,%6.1f,%6.1f\n",
+			 evt->Runnum(),evt->Evtnum(),evt->nJets(),evt->nBtags(),evt->ht(),evt->mht(),
+			 muPt,muEta,muPhi);
+		}
+	      }
+	      }
+	      if (ii==1){ // HT
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_HT->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
 		    hMaxWeight_HT->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
 		}
 	      }
-	      if (ii==2){
+	      if (ii==2){ // HT2
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_HT2->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
 		    hMaxWeight_HT2->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
 		}
 	      }
-	      if (ii==3){
+	      if (ii==3){ // MHT
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_MHT->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
 		    hMaxWeight_MHT->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
 		}
 	      }
-	      if (ii==4){
+	      if (ii==4){ //MHT2
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_MHT2->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
 		    hMaxWeight_MHT2->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
 		}
 	      }
-	      if (ii==10){
+	      if (ii==10){ // NJet
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_NJet->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
 		    hMaxWeight_NJet->SetBinContent(ibin,map_map_evt[itt->first][it->first][ii].GetBinContent(ibin));
 		}
 	      }
-	      if (ii==11){
+	      if (ii==11){ // NBtag
 		//map_map_evt[itt->first][it->first][ii].Print();
 		for (int ibin=0;ibin<map_map_evt[itt->first][it->first][ii].GetNbinsX()+2;ibin++) {
 		  if (hMaxWeight_NBtag->GetBinContent(ibin)<map_map_evt[itt->first][it->first][ii].GetBinContent(ibin)) 
@@ -1332,3 +1340,5 @@ Ahmad33 */
 
       return deltaT;
   }
+
+  
