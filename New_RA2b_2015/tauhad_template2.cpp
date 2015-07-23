@@ -357,6 +357,8 @@ using namespace std;
     TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
 //    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
+    TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
+    TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
     TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
@@ -915,7 +917,9 @@ Ahmad33 */
             double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
 
             // dilepton contamination
-            if(TauHadModel>=3)totWeight*=1./1.045;
+            if(TauHadModel>=3){
+              if(utils2::IsoTrkModel==0)totWeight*=1./1.045;
+            }
 
 	    weightEffAcc = totWeight;
 
@@ -949,6 +953,8 @@ Ahmad33 */
 	    }
 	    cutflow_preselection->Fill(5.,totWeight); // All preselection
 
+            double IsoTrkWeight;
+            bool PassIso2=false;
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
 
@@ -970,46 +976,86 @@ Ahmad33 */
 
               }
 
-              double searchWeight = totWeight;
 
+              double searchWeight = totWeight;
               // applyIsoTrk here 
               if(utils2::applyIsoTrk){
 
-                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-                double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+                // Determine which Iso model is chosen
+                // and apply the neccessary cuts 
+                if(utils2::IsoTrkModel==0)PassIso2=true;
+                else if(utils2::IsoTrkModel==1){
+                  int nIsoElec=0, nIsoMu=0, nIsoPion=0;
+                  int IsoElecIdx=-1,IsoMuIdx=-1,IsoPionIdx=-1;
+                  for(int k=0;k<evt->IsoElecPtVec_().size();k++){
+                    if(utils->findMatchedObject(IsoElecIdx,muEta,muPhi,evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.1,verbose))
+                      continue;
+                    nIsoElec++;
+                  }
+                  for(int k=0;k<evt->IsoMuPtVec_().size();k++){
+                    if(utils->findMatchedObject(IsoMuIdx,muEta,muPhi,evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.1,verbose))
+                      continue;
+                    nIsoMu++;
+                  }
+                  for(int k=0;k<evt->IsoPionPtVec_().size();k++){
+                    if(utils->findMatchedObject(IsoPionIdx,muEta,muPhi,evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.1,verbose))
+                      continue;
+                    nIsoPion++;
+                  }
+                  if(nIsoElec==0&&nIsoMu==0&&nIsoPion==0)PassIso2=true; 
+                }
 
-                if(IsoTrkWeight==0)IsoTrkWeight=0.6;
+
+                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+                if(utils2::IsoTrkModel==0){
+                  IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+                  if(IsoTrkWeight==0)IsoTrkWeight=0.6;
+                }
+                else if(utils2::IsoTrkModel==1){
+                  IsoTrkWeight = hIsoEff2->GetBinContent(binNum);
+                  if(IsoTrkWeight==0)IsoTrkWeight=0.95;
+                }
+                else{
+                  cout << "unknown IsoTrkModel \n ";
+                  return 2;
+                }
 
                 searchWeight = totWeight*IsoTrkWeight;
 		weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
 
               }
-              else searchWeight = totWeight; 
+              else{
+                searchWeight = totWeight; 
+                PassIso2=true;
+              }
 
-              // Fill Search bin histogram 
-              searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+              if(PassIso2){
+                // Fill Search bin histogram 
+                searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 
-              // Fill QCD histograms
-              QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                // Fill QCD histograms
+                QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
-              searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
-              searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
-	      // Fill correlation histograms
-              hCorSearch_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
-              hCorHT_evt->Fill(evt->ht(),newHT,searchWeight);
-              hCorMHT_evt->Fill(evt->mht(),newMHT,searchWeight);
-              hCorNJet_evt->Fill(evt->nJets(),newNJet,searchWeight);
-              hCorNBtag_evt->Fill(evt->nBtags(),NewNB,searchWeight);
+                // Fill correlation histograms
+                hCorSearch_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+                hCorHT_evt->Fill(evt->ht(),newHT,searchWeight);
+                hCorMHT_evt->Fill(evt->mht(),newMHT,searchWeight);
+                hCorNJet_evt->Fill(evt->nJets(),newNJet,searchWeight);
+                hCorNBtag_evt->Fill(evt->nBtags(),NewNB,searchWeight);
+
+                hCorSearch_b_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+
+              }
 
               hCorSearch_noW_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
               hCorHT_noW_evt->Fill(evt->ht(),newHT);
               hCorMHT_noW_evt->Fill(evt->mht(),newMHT);
               hCorNJet_noW_evt->Fill(evt->nJets(),newNJet);
               hCorNBtag_noW_evt->Fill(evt->nBtags(),NewNB);
-
-              hCorSearch_b_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+              searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
               hCorSearch_b_noW_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
             }
@@ -1021,19 +1067,16 @@ Ahmad33 */
 
               // applyIsoTrk here 
               if(utils2::applyIsoTrk){
-
-                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-                double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
-
-                if(IsoTrkWeight==0)IsoTrkWeight=0.6;
-
                 searchWeight = totWeight*IsoTrkWeight;
-
               }
               else searchWeight = totWeight;
 
-              // Fill QCD histograms
-              QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+
+              if(PassIso2){
+                // Fill QCD histograms
+                QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+              }
+
             }
 
 
@@ -1058,16 +1101,9 @@ Ahmad33 */
                   for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
                     
                     // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
-                    if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" && utils2::applyIsoTrk){
-                        //int binNum = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
-                        //double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
-
-                        int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-                        double IsoTrkWeight = hIsoEff->GetBinContent(binNum);
-
-                        if(IsoTrkWeight==0)IsoTrkWeight=0.6;
-                        
-                        eveinfvec[0] = totWeight*IsoTrkWeight; 
+                    if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" && utils2::applyIsoTrk){            
+                      if(!PassIso2)continue;
+                      eveinfvec[0] = totWeight*IsoTrkWeight; 
            
                     } 
                     else eveinfvec[0] = totWeight;

@@ -87,6 +87,16 @@
      slimJetEtaVec=new vector<double>();
      slimJetPhiVec=new vector<double>();
 
+     IsolatedElectronTracksVetoPtVec = new vector<double>();
+     IsolatedElectronTracksVetoEtaVec = new vector<double>();
+     IsolatedElectronTracksVetoPhiVec = new vector<double>();
+     IsolatedMuonTracksVetoPtVec = new vector<double>();
+     IsolatedMuonTracksVetoEtaVec = new vector<double>();
+     IsolatedMuonTracksVetoPhiVec = new vector<double>();
+     IsolatedPionTracksVetoPtVec = new vector<double>();
+     IsolatedPionTracksVetoEtaVec = new vector<double>();
+     IsolatedPionTracksVetoPhiVec = new vector<double>();
+
      testVec=new vector<double>();
 
 
@@ -182,7 +192,19 @@
      fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
      fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
      fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-      
+     
+     fChain->SetBranchAddress("IsolatedElectronTracksVetoPtVec", &IsolatedElectronTracksVetoPtVec);
+     fChain->SetBranchAddress("IsolatedElectronTracksVetoEtaVec", &IsolatedElectronTracksVetoEtaVec);
+     fChain->SetBranchAddress("IsolatedElectronTracksVetoPhiVec", &IsolatedElectronTracksVetoPhiVec);
+
+     fChain->SetBranchAddress("IsolatedMuonTracksVetoPtVec", &IsolatedMuonTracksVetoPtVec);
+     fChain->SetBranchAddress("IsolatedMuonTracksVetoEtaVec", &IsolatedMuonTracksVetoEtaVec);
+     fChain->SetBranchAddress("IsolatedMuonTracksVetoPhiVec", &IsolatedMuonTracksVetoPhiVec);
+
+     fChain->SetBranchAddress("IsolatedPionTracksVetoPtVec", &IsolatedPionTracksVetoPtVec);
+     fChain->SetBranchAddress("IsolatedPionTracksVetoEtaVec", &IsolatedPionTracksVetoEtaVec);
+     fChain->SetBranchAddress("IsolatedPionTracksVetoPhiVec", &IsolatedPionTracksVetoPhiVec);
+ 
 fChain->SetBranchAddress("testVec", &testVec);
     // Number of total entries
     template_Entries = fChain->GetEntries();
@@ -439,6 +461,17 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::ElecPtVec_() const{ return *selectedIDIsoElectronsPtVec;}
    vector<double>  Events::ElecEtaVec_() const{ return *selectedIDIsoElectronsEtaVec;}
    vector<double>  Events::ElecPhiVec_() const{return *selectedIDIsoElectronsPhiVec;}
+
+   vector<double>  Events::IsoElecPtVec_() const{ return *IsolatedElectronTracksVetoPtVec;}
+   vector<double>  Events::IsoElecEtaVec_() const{ return *IsolatedElectronTracksVetoEtaVec;}
+   vector<double>  Events::IsoElecPhiVec_() const{ return *IsolatedElectronTracksVetoPhiVec;}
+   vector<double>  Events::IsoMuPtVec_() const{ return *IsolatedMuonTracksVetoPtVec;}
+   vector<double>  Events::IsoMuEtaVec_() const{ return *IsolatedMuonTracksVetoEtaVec;}
+   vector<double>  Events::IsoMuPhiVec_() const{ return *IsolatedMuonTracksVetoPhiVec;}
+   vector<double>  Events::IsoPionPtVec_() const{ return *IsolatedPionTracksVetoPtVec;}
+   vector<double>  Events::IsoPionEtaVec_() const{ return *IsolatedPionTracksVetoEtaVec;}
+   vector<double>  Events::IsoPionPhiVec_() const{ return *IsolatedPionTracksVetoPhiVec;}
+
 
 
    vector<int>     Events::GenMuFromTauVec_() const {
