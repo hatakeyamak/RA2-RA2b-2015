@@ -12,7 +12,7 @@ namespace utils2{
   //    leading muon does not match any of the available trks.
   //    alos, we will apply the efficiency that was calculated
   //    and talked about above as weight.
-  int IsoTrkModel=1;
+  int IsoTrkModel=0;
 
 
   // Determine which model to work with

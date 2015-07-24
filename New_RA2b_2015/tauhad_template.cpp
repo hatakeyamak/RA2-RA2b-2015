@@ -300,7 +300,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>100000)break;
+      //if(eventN>1000000)break;
       //if(eventN>47160)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
@@ -482,11 +482,26 @@ using namespace std;
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() )pass3=true;
       }
 
+
+
+      // Find the visible part of the hadronic tau 
+      TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
+      for(int i=0; i < evt->GenTauNuPtVec_().size(); i++){
+        TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[NuIndex],evt->GenTauNuEtaVec_()[NuIndex],evt->GenTauNuPhiVec_()[NuIndex]);
+      }
+      if(genTauPt>0.)Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
+      else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
+      Visible3Vec=Tau3Vec-TauNu3Vec;
+
+
+
       if(pass3){
 	cutflow_preselection->Fill(4.); // We may ask genTau within muon acceptance
 
         // Apply baseline cuts
-        if(evt->ht() >=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && evt->deltaPhi3()>0.3 && evt->nJets() >= 4   ){
+        if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) 
+          ){
 
           IsoElec_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
@@ -502,9 +517,9 @@ using namespace std;
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
-          utils->findMatchedObject(IsoElecIdx,genTauEta,genTauPhi,evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
-          utils->findMatchedObject(IsoMuIdx,genTauEta,genTauPhi,evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
-          utils->findMatchedObject(IsoPionIdx,genTauEta,genTauPhi,evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
+          utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+          utils->findMatchedObject(IsoMuIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
+          utils->findMatchedObject(IsoPionIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
           if( IsoElecIdx==-1 && IsoMuIdx==-1 && IsoPionIdx==-1)
             Iso_pass2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]); 
 
@@ -582,14 +597,16 @@ using namespace std;
       //we want to consider events that pass the baseline cuts
       if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt);
 
+/*
       // 
       TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
       for(int i=0; i < evt->GenTauNuPtVec_().size(); i++){
         TauNu3Vec.SetPtEtaPhi(evt->GenTauNuPtVec_()[NuIndex],evt->GenTauNuEtaVec_()[NuIndex],evt->GenTauNuPhiVec_()[NuIndex]);
       }
       if(genTauPt>0.)Tau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
-      else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
+      else {Tau3Vec.SetPtEtaPhi(0,0,0);}
       Visible3Vec=Tau3Vec-TauNu3Vec;
+*/
 
       if(verbose!=0){      
         printf("TauNu3Vec: pt: %g eta: %g phi: %g \n Tau3Vec: pt: %g eta: %g phi: %g \n",TauNu3Vec.Pt(),TauNu3Vec.Eta(),TauNu3Vec.Phi(),Tau3Vec.Pt(),Tau3Vec.Eta(),Tau3Vec.Phi());
@@ -735,6 +752,16 @@ using namespace std;
     searchH_b->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
+
+    // A sanity check:
+    // sumofweights for searchH_b and HT
+    // after delphi cut should be the same
+    int w1 = (int) searchH_b->GetSumOfWeights();
+    int w2 = (int) map_map["allEvents"]["delphi"][2].GetSumOfWeights();
+    if(w1!=w2){
+      for(int j=0;j<11;j++)cout << " Warning! delphi cut is not exactly applied to searchH!\n###\n###\n###\n###\n";
+      printf("searchH_b->GetSumOfWeights(): %d ht->GetSumOfWeights(): %d \n ",w1,w2);
+    }
 
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
     for(int iet=0;iet<(int)eventType.size();iet++){
