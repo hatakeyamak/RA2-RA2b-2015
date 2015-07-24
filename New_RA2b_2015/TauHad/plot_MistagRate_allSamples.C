@@ -40,7 +40,7 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
   Float_t legendX1 = .60; //.50;
   Float_t legendX2 = .90; //.70;
   Float_t legendY1 = .60; //.65;
-  Float_t legendY2 = .70;
+  Float_t legendY2 = .80;
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.042);
   catLeg1->SetTextFont(42);
@@ -138,27 +138,37 @@ void plot_MistagRate_allSamples(string sample="TTbar_"){
     tt_tauH->SetLineColor(1);
 //    thist.SetFillColor(0);
 //    thist.SetLineWidth(3);
-    tt_tauH->Draw("same");
+/////////    tt_tauH->Draw("same");
 
 
     wj_muH->SetLineColor(3); 
 //    wj_muH->SetMarkerStyle(20);
-    wj_muH->Draw("same");
+/////////    wj_muH->Draw("same");
 
     tt_muH->SetLineColor(4);   
-    tt_muH->Draw("same");
+/////////    tt_muH->Draw("same");
 
+// sanity plot
 
-    sprintf(tempname,"T#bar{T}");
-    catLeg1->AddEntry(tt_tauH,tempname,"l");
+    TH1 * sanityH = static_cast<TH1D*>(wj_tauH->Clone("sanity"));
+    sanityH->Add(tt_muH);
+    TH1 * tempH = static_cast<TH1D*>(wj_tauH->Clone("sanity"));
+    tempH->Multiply(tt_muH);
+    sanityH->Add(tempH,-1);
+    sanityH->SetLineColor(34); 
+///////////    sanityH->Draw("same");
+
+    sprintf(tempname,"t#bar{t}");
+//////////    catLeg1->AddEntry(tt_tauH,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg1->AddEntry(wj_tauH,tempname,"l");    
-    sprintf(tempname,"mu from T#bar{T}");
-    catLeg1->AddEntry(tt_muH,tempname,"l");
+    sprintf(tempname,"mu from t#bar{t}");
+/////////    catLeg1->AddEntry(tt_muH,tempname,"l");
     sprintf(tempname,"mu from WJet");
-    catLeg1->AddEntry(wj_muH,tempname,"l");
+/////////    catLeg1->AddEntry(wj_muH,tempname,"l");
+    sprintf(tempname,"blue+(1 - blue)*red ");
+/////////    catLeg1->AddEntry(sanityH,tempname,"l");
     catLeg1->Draw();
-  
 
     sprintf(tempname,"TauBtaggedRate_allSamples.png");
     c1->Print(tempname);
