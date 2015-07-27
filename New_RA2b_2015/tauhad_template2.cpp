@@ -138,6 +138,12 @@ using namespace std;
     TH1D RA2MuonPt_hist = TH1D("MuonPt","Pt of muon Distribution",80,0,400);
     RA2MuonPt_hist.Sumw2();
     vec.push_back(RA2MuonPt_hist);
+    TH1D RA2MuonEta_hist = TH1D("MuonEta","Eta of muon Distribution",50,-5,5);
+    RA2MuonEta_hist.Sumw2();
+    vec.push_back(RA2MuonEta_hist);
+    TH1D RA2MuonPhi_hist = TH1D("MuonPhi","Phi of muon Distribution",35,-3.5,3.5);
+    RA2MuonPhi_hist.Sumw2();
+    vec.push_back(RA2MuonPhi_hist);
     TH1D simTauJetPt_hist = TH1D("simTauJetPt","Pt of simulated tau Jet",80,0,400);
     simTauJetPt_hist.Sumw2();
     vec.push_back(simTauJetPt_hist);
@@ -1079,7 +1085,10 @@ Ahmad33 */
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newHT, newMHT,newMHT, newMet,mindpn,newDphi1,newDphi2,newDphi3,(double) newNJet,(double)NewNB,(double) muPt, simTauJetPt_xy};
+            double eveinfvec[] = {totWeight, newHT, newHT, newMHT,newMHT
+                                 ,newMet,mindpn,newDphi1,newDphi2,newDphi3
+                                 ,(double) newNJet,(double)NewNB,muPt
+                                 ,muEta,muPhi,simTauJetPt_xy};
 
             bool pass0=false;
             if(TauHadModel >= 1)pass0=true;
