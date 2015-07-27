@@ -6,7 +6,7 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=true;
+    DataBool=false;
   
     //Initialize some varaibles
      RunNum=-1;
@@ -78,7 +78,6 @@
      selectedIDElectronsEtaVec=new vector<double>();
      selectedIDElectronsPhiVec=new vector<double>();
 
-
      selectedIDIsoElectronsPtVec=new vector<double>();
      selectedIDIsoElectronsEtaVec=new vector<double>();
      selectedIDIsoElectronsPhiVec=new vector<double>();
@@ -99,6 +98,8 @@
 
      testVec=new vector<double>();
 
+     TriggerNames=new vector<string>();
+     PassTrigger=new vector<int>();
 
      fChain = ttree_;
     
@@ -204,12 +205,14 @@
      fChain->SetBranchAddress("IsolatedPionTracksVetoPtVec", &IsolatedPionTracksVetoPtVec);
      fChain->SetBranchAddress("IsolatedPionTracksVetoEtaVec", &IsolatedPionTracksVetoEtaVec);
      fChain->SetBranchAddress("IsolatedPionTracksVetoPhiVec", &IsolatedPionTracksVetoPhiVec);
- 
-fChain->SetBranchAddress("testVec", &testVec);
-    // Number of total entries
-    template_Entries = fChain->GetEntries();
-    
 
+     //
+     fChain->SetBranchAddress("TriggerNames", &TriggerNames);
+     fChain->SetBranchAddress("PassTrigger", &PassTrigger);
+ 
+     fChain->SetBranchAddress("testVec", &testVec);
+     // Number of total entries
+     template_Entries = fChain->GetEntries();
 
   }//end of class constructor Event
 
@@ -476,7 +479,8 @@ fChain->SetBranchAddress("testVec", &testVec);
    vector<double>  Events::IsoPionEtaVec_() const{ return *IsolatedPionTracksVetoEtaVec;}
    vector<double>  Events::IsoPionPhiVec_() const{ return *IsolatedPionTracksVetoPhiVec;}
 
-
+   vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
+   vector<int>     Events::PassTrigger_() const{ return *PassTrigger;}
 
    vector<int>     Events::GenMuFromTauVec_() const {
      vector<int> tempVec;
