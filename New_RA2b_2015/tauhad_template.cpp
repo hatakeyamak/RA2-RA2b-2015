@@ -258,6 +258,13 @@ using namespace std;
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
 
+    // This code is to run only on MC
+    if(evt->DataBool_()==true){
+      cout << "Turn off the DataBool in Events.cpp \n ";
+      return 2;
+    }
+
+
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
 
@@ -517,7 +524,24 @@ using namespace std;
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
+
+          // Match directly to IsoTrk. But this wouldn't capture all 
           utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+          // 
+          int JetIndex=-1;
+          utils->findMatchedObject(JetIndex,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
+
+
+printf("IsoElecIdx: %d \n ",IsoElecIdx);
+
+
+          if(JetIndex!=-1)utils->findMatchedObject(IsoElecIdx,evt->slimJetEtaVec_()[JetIndex],evt->slimJetPhiVec_()[JetIndex],evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+
+printf("IsoElecIdx: %d \n ",IsoElecIdx);
+
+
+
+
           utils->findMatchedObject(IsoMuIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
           utils->findMatchedObject(IsoPionIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
           if( IsoElecIdx==-1 && IsoMuIdx==-1 && IsoPionIdx==-1)
