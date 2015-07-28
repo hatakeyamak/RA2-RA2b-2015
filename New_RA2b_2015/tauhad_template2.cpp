@@ -454,6 +454,22 @@ using namespace std;
 
       nCleanEve++;
 
+      // Trigger check
+      for(int i=0; i< evt->TriggerNames_().size(); i++){ // Ahmad33
+	//std::cout << evt->TriggerNames_().at(i) << std::endl; 
+	string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v";
+	if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v";
+	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	  
+	  if (evt->PassTrigger_().at(i)) {
+	    //std::cout << evt->TriggerNames_().at(i) << std::endl; 
+	    //std::cout << evt->PassTrigger_().at(i) << std::endl; 
+	  } else {
+	    // HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v not passed
+	    continue;
+	  }
+	}
+      }
+
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
       // - select events with exactly one well-reconstructed, isolated muon
