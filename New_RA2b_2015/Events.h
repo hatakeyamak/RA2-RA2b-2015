@@ -134,8 +134,10 @@ using namespace std;
    vector<double>  *IsolatedPionTracksVetoEtaVec;
    vector<double>  *IsolatedPionTracksVetoPhiVec;
 
+   vector<int>     *PassTrigger;
+   vector<string>  *TriggerNames;
 
-   Int_t    *     GenMu_GenMuFromTau;   //[GenMuNum]
+   Int_t    *      GenMu_GenMuFromTau;   //[GenMuNum]
    Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
    Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
    Int_t           slimJet_slimJetID[100];
@@ -245,6 +247,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  IsoPionEtaVec_() const;
    vector<double>  IsoPionPhiVec_() const;
 
+   vector<string>  TriggerNames_() const;
+   vector<int>  PassTrigger_() const;
 
 };//end of class Events
 #endif
