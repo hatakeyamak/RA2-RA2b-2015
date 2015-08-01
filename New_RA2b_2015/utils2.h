@@ -24,7 +24,7 @@ namespace utils2{
     int TauHadModel=4;
 
   // Do the bootstrapping?
-  bool bootstrap = true;
+  bool bootstrap = false;
 
   bool applyMT = true;
   // We calculate MTEff in the same code where it is alos being used. 
@@ -34,6 +34,9 @@ namespace utils2{
   // the two search bin histograms, after and before applyMT. 
   // At the end, turn off CalcMT.
   bool CalcMT =false;
+
+
+  bool applyTrig = false;
 
   bool applyIsoTrk = true;
 

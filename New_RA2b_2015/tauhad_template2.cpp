@@ -378,6 +378,12 @@ using namespace std;
     TH1D * hNonW_mu = new TH1D("hNonW_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hNonW_mu->Sumw2();
 
+    // calculate the trigger efficiency 
+    TH1D * trig_all = new TH1D("trig_all"," trigger all -- search bin",totNbins,1,totNbins+1);
+    trig_all->Sumw2();
+    TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
+    trig_pass->Sumw2();
+
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
@@ -455,20 +461,26 @@ using namespace std;
       nCleanEve++;
 
       // Trigger check
-      for(int i=0; i< evt->TriggerNames_().size(); i++){ // Ahmad33
-	//std::cout << evt->TriggerNames_().at(i) << std::endl; 
-	string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v";
-	if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v";
-	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	  
-	  if (evt->PassTrigger_().at(i)) {
-	    //std::cout << evt->TriggerNames_().at(i) << std::endl; 
-	    //std::cout << evt->PassTrigger_().at(i) << std::endl; 
-	  } else {
-	    // HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v not passed
-	    continue;
-	  }
+      bool trigPass=false;
+      string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1";
+      if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1";
+      bool trigfound=false;
+      if(verbose!=0)
+      cout << "############################\n TrigSize: " << evt->TriggerNames_().size() << "PassTrigSize: " << evt->PassTrigger_().size() << endl ;
+      for(int i=0; i< evt->TriggerNames_().size(); i++){ 
+        if(verbose!=0){
+	  cout << evt->TriggerNames_().at(i) << endl; 
+          cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
+        }
+	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
+          trigfound=true; 
+	  if(evt->PassTrigger_().at(i))trigPass=true;
 	}
       }
+      if(!trigfound){
+        cout << " ####\n ####\n trigger was not found \n ####\n " ;
+      }
+      
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -610,7 +622,7 @@ Ahmad33 */
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
           GenRecMu_fail++;
-          if(eventN < 100){
+          if(evt->DataBool_()==false && eventN < 100){
             printf(" Warning! There is no Gen Muon \n ");
             printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
           }
@@ -976,6 +988,7 @@ Ahmad33 */
 
             double IsoTrkWeight;
             bool PassIso2=false;
+
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
 
@@ -995,6 +1008,9 @@ Ahmad33 */
                   else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
                 }
 
+                // calculate trigger efficiency 
+                trig_all->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                if(trigPass)trig_pass->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]); 
               }
 
 
@@ -1298,6 +1314,17 @@ Ahmad33 */
       hAll_mu->Write();
       hNonW_mu->Write();
       muProbFile.Close();
+
+      // Calculate trigger efficiency 
+      TH1* trigEff = static_cast<TH1*>(trig_pass->Clone("trigEff"));
+      trigEff->Divide(trig_pass,trig_all,1,1,"B");
+      sprintf(tempname,"%s/TriggerEff_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile trigFile(tempname,"RECREATE");
+      trigEff->Write();
+      trig_all->Write();
+      trig_pass->Write();
+      trigFile.Close();
+      
     }
 
     // calculate muon_jet match failure and write the histograms
