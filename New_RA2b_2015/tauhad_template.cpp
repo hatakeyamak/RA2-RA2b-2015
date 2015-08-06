@@ -180,6 +180,12 @@ using namespace std;
     TH1D * hTau_mu = new TH1D("hTau_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hTau_mu->Sumw2();
 
+    // calculate the trigger efficiency 
+    TH1D * trig_all = new TH1D("trig_all"," trigger all -- search bin",totNbins,1,totNbins+1);
+    trig_all->Sumw2();
+    TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
+    trig_pass->Sumw2();
+
     // calculate the acceptance
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
     int totNbins_mht_nj=binMap_mht_nj.size();
@@ -258,6 +264,13 @@ using namespace std;
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
 
+    // This code is to run only on MC
+    if(evt->DataBool_()==true){
+      cout << "Turn off the DataBool in Events.cpp \n ";
+      return 2;
+    }
+
+
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
 
@@ -310,6 +323,29 @@ using namespace std;
       cutflow_preselection->Fill(1.); // events passing JetID event cleaning
 
       nCleanEve++;
+
+
+      // Trigger check
+      bool trigPass=false;
+      string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1";
+      if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1";
+      bool trigfound=false;
+      if(verbose!=0)
+      cout << "############################\n TrigSize: " << evt->TriggerNames_().size() << "PassTrigSize: " << evt->PassTrigger_().size() << endl ;
+      for(int i=0; i< evt->TriggerNames_().size(); i++){
+        if(verbose!=0){
+          cout << evt->TriggerNames_().at(i) << endl;
+          cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
+        }
+        if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){
+          trigfound=true;
+          if(evt->PassTrigger_().at(i))trigPass=true;
+        }
+      }
+      if(!trigfound){
+        cout << " ####\n ####\n trigger was not found \n ####\n " ;
+      }
+
 
       // Here we determine how often the /<<<< W --> tau --> W --> mu >>>>/
       // comparing with /<<<< w--> mu >>>>/
@@ -449,7 +485,7 @@ using namespace std;
       // We don't write the event for nB if the matched tau jet is btaged. 
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
         B_rate_all->Fill(evt->JetsPtVec_()[jet_index]);
-        if(evt->csvVec()[jet_index]>0.814){
+        if(evt->csvVec()[jet_index]>evt->csv_()){
           nB=-1;
           B_rate_tagged->Fill(evt->JetsPtVec_()[jet_index]);
         }
@@ -503,6 +539,10 @@ using namespace std;
            &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) 
           ){
 
+          // calculate trigger efficiency 
+          trig_all->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(trigPass)trig_pass->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+
           IsoElec_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           if(evt->nIsoElec()==0)IsoElec_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           IsoMu_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
@@ -517,7 +557,17 @@ using namespace std;
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
+
+          // Match directly to IsoTrk. But this wouldn't capture all 
           utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+          // 
+          int JetIndex=-1;
+          utils->findMatchedObject(JetIndex,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
+//printf("IsoElecIdx: %d \n ",IsoElecIdx);
+          if(JetIndex!=-1)utils->findMatchedObject(IsoElecIdx,evt->slimJetEtaVec_()[JetIndex],evt->slimJetPhiVec_()[JetIndex],evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
+//printf("IsoElecIdx: %d \n ",IsoElecIdx);
+
+
           utils->findMatchedObject(IsoMuIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
           utils->findMatchedObject(IsoPionIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
           if( IsoElecIdx==-1 && IsoMuIdx==-1 && IsoPionIdx==-1)
@@ -697,6 +747,16 @@ using namespace std;
     } // End of loop over events  
 
     printf("nCleanEve: %d nHadTauEve: %d nNoLepEve: %d \n ",nCleanEve,nHadTauEve,nNoLepEve);
+
+    // Calculate trigger efficiency 
+    TH1* trigEff = static_cast<TH1*>(trig_pass->Clone("trigEff"));
+    trigEff->Divide(trig_pass,trig_all,1,1,"B");
+    sprintf(tempname,"%s/TriggerEff_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+    TFile trigFile(tempname,"RECREATE");
+    trigEff->Write();
+    trig_all->Write();
+    trig_pass->Write();
+    trigFile.Close();
 
     // Compute iso efficiencies
     TH1* IsoElecEff = static_cast<TH1*>(IsoElec_pass->Clone("IsoElecEff"));

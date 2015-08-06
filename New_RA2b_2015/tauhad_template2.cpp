@@ -378,6 +378,32 @@ using namespace std;
     TH1D * hNonW_mu = new TH1D("hNonW_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hNonW_mu->Sumw2();
 
+    // calculate the trigger efficiency 
+    TH1D * trig_all = new TH1D("trig_all"," trigger all -- search bin",totNbins,1,totNbins+1);
+    trig_all->Sumw2();
+    TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
+    trig_pass->Sumw2();
+
+    bool studyTrig=true;
+    // a vector of histograms for trigger efficiency
+    vector<TH1D> trigVec;
+    // some histograms for trigger study
+    TH1D trigHT = TH1D("HT","HT Distribution",500,0,5000);
+    trigHT.Sumw2();
+    trigVec.push_back(trigHT);
+    TH1D trigMHT = TH1D("MHT","MHT Distribution",200,0,2000);
+    trigMHT.Sumw2();
+    trigVec.push_back(trigMHT);
+    TH1D trigMET = TH1D("MET","MET Distribution",200,0,2000);
+    trigMET.Sumw2();
+    trigVec.push_back(trigMET);
+    // Make a map which associates trigger name to a vector of histograms
+    map<string,vector<TH1D>> trigMap;
+    trigMap["NoTrig"]=trigVec;
+    //trigMap["HLT_PFHT350_PFMET100_NoiseCleaned_v1"]=trigVec; //Data
+    trigMap["HLT_PFHT350_PFMET120_NoiseCleaned_v1"]=trigVec; //MC
+    //trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec; //Data
+    trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec; //MC
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
@@ -407,6 +433,7 @@ using namespace std;
     B_rate_all->Sumw2();
     TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_tagged->Sumw2();
+
 
     // see how often gen mu doesn't match reco mu
     int GenRecMu_all=0,GenRecMu_fail=0;
@@ -455,20 +482,26 @@ using namespace std;
       nCleanEve++;
 
       // Trigger check
-      for(int i=0; i< evt->TriggerNames_().size(); i++){ // Ahmad33
-	//std::cout << evt->TriggerNames_().at(i) << std::endl; 
-	string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v";
-	if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v";
-	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	  
-	  if (evt->PassTrigger_().at(i)) {
-	    //std::cout << evt->TriggerNames_().at(i) << std::endl; 
-	    //std::cout << evt->PassTrigger_().at(i) << std::endl; 
-	  } else {
-	    // HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v not passed
-	    continue;
-	  }
+      bool trigPass=false;
+      string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1";
+      if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1";
+      bool trigfound=false;
+      if(verbose!=0)
+      cout << "############################\n TrigSize: " << evt->TriggerNames_().size() << "PassTrigSize: " << evt->PassTrigger_().size() << endl ;
+      for(int i=0; i< evt->TriggerNames_().size(); i++){ 
+        if(verbose!=0){
+	  cout << evt->TriggerNames_().at(i) << endl; 
+          cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
+        }
+	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
+          trigfound=true; 
+	  if(evt->PassTrigger_().at(i))trigPass=true;
 	}
       }
+      if(!trigfound){
+        cout << " ####\n ####\n trigger was not found \n ####\n " ;
+      }
+      
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -610,7 +643,7 @@ Ahmad33 */
         int GenMuIdx=-1;
         if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
           GenRecMu_fail++;
-          if(eventN < 100){
+          if(evt->DataBool_()==false && eventN < 100){
             printf(" Warning! There is no Gen Muon \n ");
             printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
           }
@@ -619,7 +652,6 @@ Ahmad33 */
           }
           
         }
-
 
         // start of bootstrapping ( if is on ) 
         for(int l=1; l<=nLoops;l++){
@@ -725,7 +757,7 @@ Ahmad33 */
             JetIdx=-1;
             utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
             B_rate_all->Fill(NewTauJetPt);
-            if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814){
+            if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_()){
               B_rate_tagged->Fill(NewTauJetPt);
             }
           }
@@ -835,10 +867,10 @@ Ahmad33 */
             JetIdx=-1;
             utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
             if( (int) HT3JetVec.size() < (int) evt->nJets() ){
-              if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags()-1;
+              if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags()-1;
               else NewNB=evt->nBtags(); 
             }
-            else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags();
+            else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
 
 
             // New dphi1, dphi2, and dphi3
@@ -976,6 +1008,7 @@ Ahmad33 */
 
             double IsoTrkWeight;
             bool PassIso2=false;
+
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
 
@@ -995,6 +1028,9 @@ Ahmad33 */
                   else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
                 }
 
+                // calculate trigger efficiency 
+                trig_all->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                if(trigPass)trig_pass->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]); 
               }
 
 
@@ -1097,6 +1133,28 @@ Ahmad33 */
               }
 
             }
+
+            if(!utils2::bootstrap){ 
+              // fill some histograms to study triggers
+              if(studyTrig){
+                if(newMHT>200. && newHT>500){
+                  // note: the weight is intended to use for hadronic tau events
+                  trigMap["NoTrig"][0].Fill(evt->ht(),totWeight); 
+                  trigMap["NoTrig"][1].Fill(evt->mht(),totWeight);
+                  trigMap["NoTrig"][2].Fill(evt->met(),totWeight);
+                  for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
+                    for(int i=0; i< evt->TriggerNames_().size(); i++){
+                      if(evt->TriggerNames_().at(i)==it->first && evt->PassTrigger_().at(i)){
+                        it->second[0].Fill(evt->ht(),totWeight);
+                        it->second[1].Fill(evt->mht(),totWeight);
+                        it->second[2].Fill(evt->met(),totWeight);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
 
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -1298,6 +1356,33 @@ Ahmad33 */
       hAll_mu->Write();
       hNonW_mu->Write();
       muProbFile.Close();
+
+      // write the results of the trigger study
+      if(!utils2::bootstrap){
+        sprintf(tempname,"%s/TriggerStudy_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+        TFile trigStudyFile(tempname,"RECREATE");      
+        TDirectory *cdtoit_trig;      
+        for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
+          cdtoit_trig = trigStudyFile.mkdir((it->first).c_str());
+          cdtoit_trig->cd();
+          for(int i=0; i<trigVec.size();i++){
+            it->second[i].Write();
+          }
+          cdtoit_trig->cd("..");
+        } 
+        trigStudyFile.Close();
+      }
+
+      // Calculate trigger efficiency 
+      TH1* trigEff = static_cast<TH1*>(trig_pass->Clone("trigEff"));
+      trigEff->Divide(trig_pass,trig_all,1,1,"B");
+      sprintf(tempname,"%s/TriggerEff_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile trigFile(tempname,"RECREATE");
+      trigEff->Write();
+      trig_all->Write();
+      trig_pass->Write();
+      trigFile.Close();
+      
     }
 
     // calculate muon_jet match failure and write the histograms
