@@ -757,7 +757,7 @@ Ahmad33 */
             JetIdx=-1;
             utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
             B_rate_all->Fill(NewTauJetPt);
-            if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814){
+            if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_()){
               B_rate_tagged->Fill(NewTauJetPt);
             }
           }
@@ -867,10 +867,10 @@ Ahmad33 */
             JetIdx=-1;
             utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
             if( (int) HT3JetVec.size() < (int) evt->nJets() ){
-              if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags()-1;
+              if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags()-1;
               else NewNB=evt->nBtags(); 
             }
-            else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>0.814)NewNB=evt->nBtags();
+            else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
 
 
             // New dphi1, dphi2, and dphi3

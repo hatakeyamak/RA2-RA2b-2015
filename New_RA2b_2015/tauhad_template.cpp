@@ -485,7 +485,7 @@ using namespace std;
       // We don't write the event for nB if the matched tau jet is btaged. 
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
         B_rate_all->Fill(evt->JetsPtVec_()[jet_index]);
-        if(evt->csvVec()[jet_index]>0.814){
+        if(evt->csvVec()[jet_index]>evt->csv_()){
           nB=-1;
           B_rate_tagged->Fill(evt->JetsPtVec_()[jet_index]);
         }
