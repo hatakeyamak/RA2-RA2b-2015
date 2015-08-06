@@ -40,7 +40,7 @@ void plot_TrigStudy(string histName="MHT"){
   
   Float_t legendX1 = .15; //.50;
   Float_t legendX2 = .50; //.70;
-  Float_t legendY1 = .6; //.65;
+  Float_t legendY1 = .75; //.65;
   Float_t legendY2 = .9;
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.042);
@@ -71,8 +71,7 @@ void plot_TrigStudy(string histName="MHT"){
     map<string,vector<TH1D>> trigMap;
     vector<TH1D> trigVec;
     trigMap["NoTrig"]=trigVec;
-    trigMap["HLT_PFHT350_PFMET100_NoiseCleaned_v1"]=trigVec;
-    trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec;
+    trigMap["HLT_PFHT350_PFMET120_NoiseCleaned_v1"]=trigVec;
     trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec;
     int i=0;
     for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
@@ -88,13 +87,13 @@ void plot_TrigStudy(string histName="MHT"){
       //...........................................................................//
       double XUp = 5000. , maxVal=2500.;
       if(histName=="MHT"){
-        XUp = 1000. , maxVal=8000.;
+        XUp = 1000. , maxVal=1000.;
       }
       else if(histName=="HT"){
-        XUp = 5000. , maxVal=4000.;
+        XUp = 2000. , maxVal=500.;
       }
       else if(histName=="MET"){
-        XUp = 1000. , maxVal=8000.;
+        XUp = 1000. , maxVal=1000.;
       }
 
 
