@@ -388,21 +388,22 @@ using namespace std;
     // a vector of histograms for trigger efficiency
     vector<TH1D> trigVec;
     // some histograms for trigger study
-    TH1D trigHT = TH1D("HT","HT Distribution",50,0,5000);
+    TH1D trigHT = TH1D("HT","HT Distribution",500,0,5000);
     trigHT.Sumw2();
     trigVec.push_back(trigHT);
-    TH1D trigMHT = TH1D("MHT","MHT Distribution",20,0,2000);
+    TH1D trigMHT = TH1D("MHT","MHT Distribution",200,0,2000);
     trigMHT.Sumw2();
     trigVec.push_back(trigMHT);
-    TH1D trigMET = TH1D("MET","MET Distribution",20,0,2000);
+    TH1D trigMET = TH1D("MET","MET Distribution",200,0,2000);
     trigMET.Sumw2();
     trigVec.push_back(trigMET);
     // Make a map which associates trigger name to a vector of histograms
     map<string,vector<TH1D>> trigMap;
     trigMap["NoTrig"]=trigVec;
-    trigMap["HLT_PFHT350_PFMET100_NoiseCleaned_v1"]=trigVec;
-    trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec;
-    trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec;
+    //trigMap["HLT_PFHT350_PFMET100_NoiseCleaned_v1"]=trigVec; //Data
+    trigMap["HLT_PFHT350_PFMET120_NoiseCleaned_v1"]=trigVec; //MC
+    //trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec; //Data
+    trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec; //MC
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
@@ -1137,15 +1138,16 @@ Ahmad33 */
               // fill some histograms to study triggers
               if(studyTrig){
                 if(newMHT>200. && newHT>500){
-                  trigMap["NoTrig"][0].Fill(evt->ht());
-                  trigMap["NoTrig"][1].Fill(evt->mht());
-                  trigMap["NoTrig"][2].Fill(evt->met());
+                  // note: the weight is intended to use for hadronic tau events
+                  trigMap["NoTrig"][0].Fill(evt->ht(),totWeight); 
+                  trigMap["NoTrig"][1].Fill(evt->mht(),totWeight);
+                  trigMap["NoTrig"][2].Fill(evt->met(),totWeight);
                   for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
                     for(int i=0; i< evt->TriggerNames_().size(); i++){
                       if(evt->TriggerNames_().at(i)==it->first && evt->PassTrigger_().at(i)){
-                        it->second[0].Fill(evt->ht());
-                        it->second[1].Fill(evt->mht());
-                        it->second[2].Fill(evt->met());
+                        it->second[0].Fill(evt->ht(),totWeight);
+                        it->second[1].Fill(evt->mht(),totWeight);
+                        it->second[2].Fill(evt->met(),totWeight);
                       }
                     }
                   }
