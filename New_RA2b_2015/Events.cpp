@@ -7,7 +7,7 @@
 
     // Data or MC ?
     DataBool=false;
-  
+ 
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -506,6 +506,8 @@
     }
     return tempVec;
   }
+
+  double Events::csv_() const {return 0.890;} 
 
 
 
