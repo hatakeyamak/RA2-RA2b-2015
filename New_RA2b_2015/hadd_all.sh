@@ -34,7 +34,7 @@ cp HadTauEstimation_TTbar_.root ../TauHad2
 
 cd ..
 
-root -l -b -q Scale_ByLumi.C
+#root -l -b -q Scale_ByLumi.C
 
 echo " hadd done. Stacking... " 
 
