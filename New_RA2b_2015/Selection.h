@@ -9,6 +9,7 @@ using namespace std;
 class Selection {
 
   bool applyIsoTrk;
+  bool addTrig;
   map<int, string> cutname;
   
 public:

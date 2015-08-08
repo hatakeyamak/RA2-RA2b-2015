@@ -249,6 +249,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
    vector<string>  TriggerNames_() const;
    vector<int>  PassTrigger_() const;
+   double csv_() const;
 
 };//end of class Events
 #endif
