@@ -34,8 +34,9 @@ Input arguments:
  */
 
 Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
-		   bool normalize=false, int rebin=0,
-		   string PDname="HTMHT"){
+		   string PDname="HTMHT",
+		   bool normalize=false, int rebin=0
+		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
