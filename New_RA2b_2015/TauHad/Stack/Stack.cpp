@@ -230,7 +230,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     file = new TFile(tempname, "R");
     sprintf(tempname,"cutflow_preselection");
-    tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
+    tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
     WJet_scalevec.push_back(tempvalue);
   }//end of loop over HTbins 
   std::cout << "WJet normalization scale factor determination done \n " << std::endl;

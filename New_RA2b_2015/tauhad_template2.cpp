@@ -330,7 +330,8 @@ using namespace std;
 
     // Rate of bTagged tau jet
 //    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
-    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog269.root","R");
+//    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog269.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     sprintf(histname,"TauBtaggedRate");
@@ -404,6 +405,11 @@ using namespace std;
     trigMap["HLT_PFHT350_PFMET120_NoiseCleaned_v1"]=trigVec; //MC
     //trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec; //Data
     trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec; //MC
+    trigMap["HLT_Mu45_eta2p1_v"]=trigVec;
+    trigMap["HLT_Mu50_eta2p1_v"]=trigVec;
+    trigMap["HLT_Mu50_v"]=trigVec;
+    trigMap["HLT_Mu55_v"]=trigVec;
+
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
