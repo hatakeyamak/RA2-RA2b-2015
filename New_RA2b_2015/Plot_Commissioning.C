@@ -33,7 +33,9 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0, bool normalize=false, int rebin=0){
+Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
+		   bool normalize=false, int rebin=0,
+		   string PDname="HTMHT"){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -71,8 +73,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   char xtitlename[200];
   char ytitlename[200];
 
-
-  TFile * PreData = new TFile("TauHad2/HadTauEstimation_Data_SingleMuon_v11_.root","R");
+  sprintf(tempname,"TauHad2/HadTauEstimation_Data_%s_v11_.root",PDname.c_str());
+  TFile * PreData = new TFile(tempname,"R");
   TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
   TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
   TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
@@ -442,11 +444,11 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   tline->SetLineStyle(2);
   tline->Draw();
 
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.png",histname.c_str(),cutname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
   
 }
