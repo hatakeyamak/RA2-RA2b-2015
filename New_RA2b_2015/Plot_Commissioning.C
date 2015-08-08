@@ -6,12 +6,14 @@ using namespace std;
 
 /*
 
-  Usage:
+Usage:
 
 .x Plot_Commissioning.C("NJet")
 .x Plot_Commissioning.C("NBtag")
 .x Plot_Commissioning.C("HT")
 .x Plot_Commissioning.C("MHT")
+.x Plot_Commissioning.C("HT2")
+.x Plot_Commissioning.C("MHT2")
 
 Please note that the root files for the expectation code is 
 expected to be normalized to 10/fb already. If not, the
@@ -20,15 +22,26 @@ The following two lines should be adjusted.
   hExpTT->Scale(lumi/(10000));
   hExpWJ->Scale(lumi/(10000));
 
+Input arguments:
+ cutname:   the name of the cutflow stage where we want to do data/MC comparisons
+ lumi:      the value of the data luminosity
+ normalize: if true, the MC yields will be normalized to data (false by default)
+ rebin:     if 1, "HT" and "MHT" bins will be rebinned to coarser bins (0 by default)
+            at the root macro level. This is not encouraged because statistical correlation
+            between different bins cannot be treated rigorously. Now, the statistical uncertainties
+            between bins are considered fully correlated. This option is for experimental use only.
+
  */
 
-Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=36, bool normalize=true, int rebin=1){
+Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0, bool normalize=false, int rebin=0){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
   //
   // Set basic style
   //
+  bool skipSingleTop = true;
+  
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
@@ -59,14 +72,15 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
   char ytitlename[200];
 
 
-  TFile * PreData = new TFile("TauHad2/HadTauEstimation_data_HTMHT_06.root","R");
-  TFile * PreTT = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
+  TFile * PreData = new TFile("TauHad2/HadTauEstimation_Data_SingleMuon_v11_.root","R");
+  TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
   TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
   TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
   TFile * PreWJ46 = new TFile("TauHad2/HadTauEstimation_WJet_400_600_.root","R");
   TFile * PreWJ6I = new TFile("TauHad2/HadTauEstimation_WJet_600_inf_.root","R");
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
+  TFile * ExpT  = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_T_stacked.root","R");
 
   //
   // Define legend
@@ -148,23 +162,30 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
   double search_x_max=19.;
   double search_x_min=1.;
 
-  cout << "aaa" << std::endl;
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+  
+  hPreData  =(TH1D*) PreData->Get(tempname)->Clone();
+  //hPreTT  =(TH1D*) PreTT->Get(tempname)->Clone();
+  //hPreWJ12=(TH1D*) PreWJ12->Get(tempname)->Clone();
+  //hPreWJ24=(TH1D*) PreWJ24->Get(tempname)->Clone();
+  //hPreWJ46=(TH1D*) PreWJ46->Get(tempname)->Clone();
+  //hPreWJ6I=(TH1D*) PreWJ6I->Get(tempname)->Clone();
+
   tempstack=(THStack*)ExpTT->Get(tempname)->Clone();
   hExpTT=(TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)ExpWJ->Get(tempname)->Clone();   
   hExpWJ=(TH1D*) tempstack->GetStack()->Last();
-  cout << "aaa" << std::endl;
-  
-  hPreData  =(TH1D*) PreData->Get(tempname)->Clone();
-  hPreTT  =(TH1D*) PreTT->Get(tempname)->Clone();
-  hPreWJ12=(TH1D*) PreWJ12->Get(tempname)->Clone();
-  hPreWJ24=(TH1D*) PreWJ24->Get(tempname)->Clone();
-  hPreWJ46=(TH1D*) PreWJ46->Get(tempname)->Clone();
-  hPreWJ6I=(TH1D*) PreWJ6I->Get(tempname)->Clone();
+  if (!skipSingleTop){
+    tempstack=(THStack*)ExpT->Get(tempname)->Clone();   
+    hExpT=(TH1D*) tempstack->GetStack()->Last();
+  }
   
   //TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
-  TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
+  TH1D * hPre = static_cast<TH1D*>(hPreData.Clone("hPre"));
+
+  TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
+  hExp->Add(hExpWJ);
+  if (!skipSingleTop) hExp->Add(hExpT);
 
   //hPre->Add(hPreWJ46);
   //hPre->Add(hPreWJ24);
@@ -173,32 +194,40 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
 
-  TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
-  hExp->Add(hExpWJ);
-
-  double scale = hPre->GetSum()/hExp->GetSum();
+  double scale = hPre->GetSumOfWeights()/hExp->GetSumOfWeights();
+  printf("data prediction: %8.2f\n",hPre->GetSumOfWeights());
+  printf("MC expectation:  %8.2f\n",hExp->GetSumOfWeights()*lumi/10000.);
+  printf("scale to match exp to pre = %10.5f, and %10.5f from lumi info\n",
+	 scale,lumi/(10000));
   
-  //hExpTT->Scale(1/100.);
   if (normalize) hExpTT->Scale(scale);
   else           hExpTT->Scale(lumi/(10000));
-  hExpTT->SetFillColor(kRed);
+  hExpTT->SetFillColor(kBlue);
 
-  //hExpWJ->Scale(1/100.);
   if (normalize) hExpWJ->Scale(scale);
   else           hExpWJ->Scale(lumi/(10000));
-  hExpWJ->SetFillColor(kBlue);
+  hExpWJ->SetFillColor(kGreen);
+
+  if (!skipSingleTop){
+  if (normalize) hExpT->Scale(scale);
+  else           hExpT->Scale(lumi/(10000));
+  hExpT->SetFillColor(kRed);
+  }
   
   TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
   hExp->Add(hExpWJ);
+  if (!skipSingleTop) hExp->Add(hExpT);
 
   if (rebin==1 && histname=="MHT"){
-    Double_t mht_bins[14] = {
-        0., 50.,100.,150.,200.,250.,300.,350.,400.,450.,
-	500.,600.,1000.,5000.};
-    TH1D *hExpTT_Rebin = hExpTT->Rebin(13,"hExpTT_Rebin",mht_bins);
-    TH1D *hExpWJ_Rebin = hExpWJ->Rebin(13,"hExpWJ_Rebin",mht_bins);
-    TH1D *hPre_Rebin   = hPre->Rebin(13,"hPre_Rebin",mht_bins);
-    TH1D *hExp_Rebin   = hExp->Rebin(13,"hExp_Rebin",mht_bins);
+    Double_t mht_bins[13] = {
+      //        0., 50.,100.,150.,200.,250.,300.,350.,400.,450.,
+      //	500.,600.,1000.,5000.};
+          0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
+	700.,1000.,5000.};
+    TH1D *hExpTT_Rebin = hExpTT->Rebin(12,"hExpTT_Rebin",mht_bins);
+    TH1D *hExpWJ_Rebin = hExpWJ->Rebin(12,"hExpWJ_Rebin",mht_bins);
+    TH1D *hPre_Rebin   = hPre->Rebin(12,"hPre_Rebin",mht_bins);
+    TH1D *hExp_Rebin   = hExp->Rebin(12,"hExp_Rebin",mht_bins);
     hPre_Rebin->Print("all");
     hExp_Rebin->Print("all");
     hExp_Rebin->SetBinContent(11,hExp->GetBinContent(11)+hExp->GetBinContent(12));
@@ -221,8 +250,9 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
     hExpWJ = hExpWJ_Rebin;
   }
   
-  ExpStack->Add(hExpTT);
+  if (!skipSingleTop) ExpStack->Add(hExpT);
   ExpStack->Add(hExpWJ);
+  ExpStack->Add(hExpTT);
 
   if(histname=="MHT"){
     xtext_top = 1800.;
@@ -230,8 +260,49 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
     ymax_top = 300.;
     ymin_top = 0.15;
     xmax = 1000.;
+    if (cutname=="delphi") xmax = 700.;
     xmin = 100;
     sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    sprintf(ytitlename,"Events");
+    gPad->SetLogy();
+  }
+  if(histname=="MHT2"){
+    //xtext_top = 1800.;
+    //xtext_top = 1800.;
+    //y_legend  = 2000.;
+    ymax_top = 200.;
+    ymin_top = 0.1;
+    xmax = 1000.;
+    if (cutname=="delphi") xmax = 700.;
+    //xmax = 700.;
+    //xmax = 500.;
+    xmin = 150;
+    sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    sprintf(ytitlename,"Events");
+    gPad->SetLogy();
+  }
+  if(histname=="HT"){
+    xtext_top = 1800.;
+    //y_legend  = 2000.;
+    ymax_top = 300.;
+    ymin_top = 0.15;
+    xmax = 2000.;
+    if (cutname=="delphi") xmax = 1500.;
+    xmin = 400;
+    sprintf(xtitlename,"H_{T} (GeV)");
+    sprintf(ytitlename,"Events");
+    gPad->SetLogy();
+  }
+  if(histname=="HT2"){
+    xtext_top = 1800.;
+    //y_legend  = 2000.;
+    ymax_top = 300.;
+    ymin_top = 0.15;
+    xmax = 2000.;
+    if (cutname=="delphi") xmax = 1500.;
+    //xmax = 1200.;
+    xmin = 400;
+    sprintf(xtitlename,"H_{T} (GeV)");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
@@ -250,7 +321,7 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
     xtext_top = 1800.;
     //y_legend  = 2000.;
     ymax_top = 1000.;
-    ymin_top = 0.15;
+    ymin_top = 0.10;
     xmax = 10.;
     xmin = 3;
     sprintf(xtitlename,"N_{jets}");
@@ -286,15 +357,22 @@ Plot_Commissioning(string histname="MHT", string cutname="isoPion", double lumi=
 
   hPre->DrawCopy("e same");
 
-  sprintf(tempname,"#tau_{h} MC expectation from W + jets");
-  catLeg1->AddEntry(hExpWJ,tempname,"f");  
-  sprintf(tempname,"#tau_{h} MC expectation from t#bar{t}");
-  catLeg1->AddEntry(hExpTT,tempname,"f");
-  sprintf(tempname,"Prediction from #mu CS");
+  sprintf(tempname,"Data: #tau_{h} BG prediction from #mu CS");
   catLeg1->AddEntry(hPre,tempname);
+  //sprintf(tempname,"#tau_{h} MC expectation from t#bar{t}");
+  sprintf(tempname,"MC: t#bar{t}");
+  catLeg1->AddEntry(hExpTT,tempname,"f");
+  //sprintf(tempname,"#tau_{h} MC expectation from W + jets");
+  sprintf(tempname,"MC: W + jets");
+  catLeg1->AddEntry(hExpWJ,tempname,"f");  
+  if (!skipSingleTop) {
+    //sprintf(tempname,"#tau_{h} MC expectation from single top");
+    sprintf(tempname,"MC: single top");
+    catLeg1->AddEntry(hExpT,tempname,"f");
+  }
   catLeg1->Draw();
 
-  sprintf(tempname,"CMS Preliminary, %d pb^{-1}, #sqrt{s} = 13 TeV",lumi);
+  sprintf(tempname,"CMS Preliminary, %.1f pb^{-1}, #sqrt{s} = 13 TeV",lumi);
   TLatex * ttext = new TLatex(xmin, ymax_top*1.3,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.050);
