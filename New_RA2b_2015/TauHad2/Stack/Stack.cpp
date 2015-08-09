@@ -234,7 +234,7 @@ cout << " flag \n " ;
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     file = new TFile(tempname, "R");
     sprintf(tempname,"cutflow_preselection");
-    tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
+    tempvalue = (luminosity*WJet_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetBinContent(1));
 
     if (luminosity>0)
       printf("Scale: %g, N: %g, Lum: %d, XS: %g \n ",tempvalue,((* (TH1D* ) file->Get(tempname)).GetEntries()),luminosity,WJet_xs_vec[i-1]);
