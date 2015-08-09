@@ -1,4 +1,3 @@
-
 #include <vector>
 #include <cstdio>
 #include <string> 
@@ -34,7 +33,10 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0, bool normalize=false, int rebin=0){
+Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
+		   string PDname="HTMHT",
+		   bool normalize=false, int rebin=0
+		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -72,8 +74,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   char xtitlename[200];
   char ytitlename[200];
 
-
-  TFile * PreData = new TFile("TauHad2/HadTauEstimation_Data_SingleMuon_v11_.root","R");
+  sprintf(tempname,"TauHad2/HadTauEstimation_Data_%s_v11_.root",PDname.c_str());
+  TFile * PreData = new TFile(tempname,"R");
   TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
   TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
   TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
@@ -199,7 +201,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   printf("data prediction: %8.2f\n",hPre->GetSumOfWeights());
   printf("MC expectation:  %8.2f\n",hExp->GetSumOfWeights()*lumi/10000.);
   printf("scale to match exp to pre = %10.5f, and %10.5f from lumi info\n",
-   scale,lumi/(10000));
+	 scale,lumi/(10000));
   
   if (normalize) hExpTT->Scale(scale);
   else           hExpTT->Scale(lumi/(10000));
@@ -222,9 +224,9 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   if (rebin==1 && histname=="MHT"){
     Double_t mht_bins[13] = {
       //        0., 50.,100.,150.,200.,250.,300.,350.,400.,450.,
-      //  500.,600.,1000.,5000.};
+      //	500.,600.,1000.,5000.};
           0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
-  700.,1000.,5000.};
+	700.,1000.,5000.};
     TH1D *hExpTT_Rebin = hExpTT->Rebin(12,"hExpTT_Rebin",mht_bins);
     TH1D *hExpWJ_Rebin = hExpWJ->Rebin(12,"hExpWJ_Rebin",mht_bins);
     TH1D *hPre_Rebin   = hPre->Rebin(12,"hPre_Rebin",mht_bins);
@@ -234,15 +236,15 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     hExp_Rebin->SetBinContent(11,hExp->GetBinContent(11)+hExp->GetBinContent(12));
     hExp_Rebin->SetBinError(11,hExp->GetBinError(11)+hExp->GetBinError(12));
     hExp_Rebin->SetBinContent(12,hExp->GetBinContent(13)+hExp->GetBinContent(14)
-        +hExp->GetBinContent(15)+hExp->GetBinContent(16));
+				+hExp->GetBinContent(15)+hExp->GetBinContent(16));
     hExp_Rebin->SetBinError(12,hExp->GetBinError(13)+hExp->GetBinError(14)
-        +hExp->GetBinError(15)+hExp->GetBinError(16));
+				+hExp->GetBinError(15)+hExp->GetBinError(16));
     hPre_Rebin->SetBinContent(11,hPre->GetBinContent(11)+hPre->GetBinContent(12));
     hPre_Rebin->SetBinError(11,hPre->GetBinError(11)+hPre->GetBinError(12));
     hPre_Rebin->SetBinContent(12,hPre->GetBinContent(13)+hPre->GetBinContent(14)
-        +hPre->GetBinContent(15)+hPre->GetBinContent(16));
+				+hPre->GetBinContent(15)+hPre->GetBinContent(16));
     hPre_Rebin->SetBinError(12,hPre->GetBinError(13)+hPre->GetBinError(14)
-        +hPre->GetBinError(15)+hPre->GetBinError(16));
+				+hPre->GetBinError(15)+hPre->GetBinError(16));
     hPre_Rebin->Print("all");
     hExp_Rebin->Print("all");
     hPre   = hPre_Rebin;
@@ -443,11 +445,11 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   tline->SetLineStyle(2);
   tline->Draw();
 
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.png",histname.c_str(),cutname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str());
+  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
   
 }
