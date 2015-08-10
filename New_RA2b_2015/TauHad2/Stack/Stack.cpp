@@ -49,12 +49,12 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   //build a vector of scale factors
   //first load the cross sections into a vector
   vector<double> T_xs_vec;
-  T_xs_vec.push_back(2.); // T_s
-  T_xs_vec.push_back(103.4);  // T_t 
-  T_xs_vec.push_back(35.);  // T_u 
-  T_xs_vec.push_back(1.); // Tbar_s
-  T_xs_vec.push_back(61.6);  // Tbar_t 
-  T_xs_vec.push_back(35.);  // Tbar_u 
+  T_xs_vec.push_back(44.07); // t_top
+  T_xs_vec.push_back(26.23);  // t_antitop 
+  T_xs_vec.push_back(35.8);  // tW_top 
+  T_xs_vec.push_back(35.8); // tW_antitop
+//  T_xs_vec.push_back(3.34);  // s 
+//  T_xs_vec.push_back(3.34);  // s
 
 
   const int tnHT = (int) T_xs_vec.size();   // Total number of HT bin samples
@@ -72,12 +72,12 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
     sprintf(tempname,"allEvents/PreSel/MHT_PreSel_allEvents");
     tempvalue = (luminosity*T_xs_vec[i-1])/((* (TH1D* ) file->Get(tempname)).GetEntries());
 */
-    if(i==1)sprintf(tempname,"../HadTauEstimation_T_s_.root");
-    else if(i==2)sprintf(tempname,"../HadTauEstimation_T_t_.root");
-    else if(i==3)sprintf(tempname,"../HadTauEstimation_T_u_.root");
-    else if(i==4)sprintf(tempname,"../HadTauEstimation_Tbar_s_.root");
-    else if(i==5)sprintf(tempname,"../HadTauEstimation_Tbar_t_.root");
-    else if(i==6)sprintf(tempname,"../HadTauEstimation_Tbar_u_.root");
+    if(i==1)sprintf(tempname,"../HadTauEstimation_t_top_.root");
+    else if(i==2)sprintf(tempname,"../HadTauEstimation_t_antitop_.root");
+    else if(i==3)sprintf(tempname,"../HadTauEstimation_tW_top_.root");
+    else if(i==4)sprintf(tempname,"../HadTauEstimation_tW_antitop_.root");
+//    else if(i==5)sprintf(tempname,"../HadTauEstimation_Tbar_t_.root");
+//    else if(i==6)sprintf(tempname,"../HadTauEstimation_Tbar_u_.root");
     else{cout << " Error!! There are only 6 single top sample " << endl;}
     file = new TFile(tempname, "R");
     sprintf(tempname,"cutflow_preselection");
@@ -97,12 +97,12 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   // Load the files to a vector 
   // These are the HT, MHT, .. variables
   for(int i=1; i<=tnHT ; i++){
-    if(i==1)sprintf(tempname,"../HadTauEstimation_T_s_.root");
-    else if(i==2)sprintf(tempname,"../HadTauEstimation_T_t_.root");
-    else if(i==3)sprintf(tempname,"../HadTauEstimation_T_u_.root");
-    else if(i==4)sprintf(tempname,"../HadTauEstimation_Tbar_s_.root");
-    else if(i==5)sprintf(tempname,"../HadTauEstimation_Tbar_t_.root");
-    else if(i==6)sprintf(tempname,"../HadTauEstimation_Tbar_u_.root");
+    if(i==1)sprintf(tempname,"../HadTauEstimation_t_top_.root");
+    else if(i==2)sprintf(tempname,"../HadTauEstimation_t_antitop_.root");
+    else if(i==3)sprintf(tempname,"../HadTauEstimation_tW_top_.root");
+    else if(i==4)sprintf(tempname,"../HadTauEstimation_tW_antitop_.root");
+//    else if(i==5)sprintf(tempname,"../HadTauEstimation_Tbar_t_.root");
+//    else if(i==6)sprintf(tempname,"../HadTauEstimation_Tbar_u_.root");
     else{cout << " Error!! There are only 6 T ht binned sample " << endl;}
     T_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
