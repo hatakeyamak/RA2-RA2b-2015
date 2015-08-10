@@ -50,7 +50,8 @@ Input arguments:
 Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
 		   string PDname="SingleMuon",
 		   bool normalize=false, int rebin=0,
-		   double lowPredictionCutOff=0.15
+		   double lowPredictionCutOff=0.15,
+		   double trigEff=0.955
 		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -212,11 +213,13 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
 
-  double scale = hPre->GetSumOfWeights()/hExp->GetSumOfWeights();
-  printf("data prediction: %8.2f\n",hPre->GetSumOfWeights());
+  double scale = hPre->GetSumOfWeights()/trigEff/hExp->GetSumOfWeights();
+  printf("data prediction: %8.2f\n",hPre->GetSumOfWeights()/trigEff);
   printf("MC expectation:  %8.2f\n",hExp->GetSumOfWeights()*lumi/10000.);
   printf("scale to match exp to pre = %10.5f, and %10.5f from lumi info\n",
 	 scale,lumi/(10000));
+
+  if (trigEff!=1.) hPre->Scale(1/trigEff);
   
   if (normalize) hExpTT->Scale(scale);
   else           hExpTT->Scale(lumi/(10000));
@@ -227,9 +230,9 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   hExpWJ->SetFillColor(kGreen);
 
   if (!skipSingleTop){
-  if (normalize) hExpT->Scale(scale);
-  else           hExpT->Scale(lumi/(10000));
-  hExpT->SetFillColor(kRed);
+    if (normalize) hExpT->Scale(scale);
+    else           hExpT->Scale(lumi/(10000));
+    hExpT->SetFillColor(kRed);
   }
   
   TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
