@@ -8,12 +8,26 @@ using namespace std;
 
 Usage:
 
-.x Plot_Commissioning.C("NJet")
-.x Plot_Commissioning.C("NBtag")
-.x Plot_Commissioning.C("HT")
-.x Plot_Commissioning.C("MHT")
-.x Plot_Commissioning.C("HT2")
-.x Plot_Commissioning.C("MHT2")
+root.exe -b -q 'Plot_Commissioning.C("NJet")'
+root.exe -b -q 'Plot_Commissioning.C("NBtag")'
+root.exe -b -q 'Plot_Commissioning.C("HT")'
+root.exe -b -q 'Plot_Commissioning.C("MHT")'
+root.exe -b -q 'Plot_Commissioning.C("HT2")'
+root.exe -b -q 'Plot_Commissioning.C("MHT2")'
+
+root.exe -b -q Plot_Commissioning.C("NJet","isoPion")
+root.exe -b -q Plot_Commissioning.C("NBtag","isoPion")
+root.exe -b -q Plot_Commissioning.C("HT","isoPion")
+root.exe -b -q Plot_Commissioning.C("MHT","isoPion")
+root.exe -b -q Plot_Commissioning.C("HT2","isoPion")
+root.exe -b -q Plot_Commissioning.C("MHT2","isoPion")
+
+root.exe -b -q Plot_Commissioning.C("NJet","mht_200")
+root.exe -b -q Plot_Commissioning.C("NBtag","mht_200")
+root.exe -b -q Plot_Commissioning.C("HT",,"mht_200")
+root.exe -b -q Plot_Commissioning.C("MHT","mht_200")
+root.exe -b -q Plot_Commissioning.C("HT2","mht_200")
+root.exe -b -q Plot_Commissioning.C("MHT2","mht_200")
 
 Please note that the root files for the expectation code is 
 expected to be normalized to 10/fb already. If not, the
@@ -34,8 +48,9 @@ Input arguments:
  */
 
 Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
-		   string PDname="HTMHT",
-		   bool normalize=false, int rebin=0
+		   string PDname="SingleMuon",
+		   bool normalize=false, int rebin=0,
+		   double lowPredictionCutOff=0.15
 		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -74,8 +89,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   char xtitlename[200];
   char ytitlename[200];
 
-//  sprintf(tempname,"TauHad2/HadTauEstimation_Data_%s_v11_.root",PDname.c_str());
-  sprintf(tempname,"TauHad2/HadTauEstimation_data_SingleMuon_v14c_.root");
+  sprintf(tempname,"TauHad2/HadTauEstimation_Data_%s_v14c_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
   TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
   TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
@@ -89,7 +103,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   //
   // Define legend
   //
-  Float_t legendX1 = .38; //.50;
+  Float_t legendX1 = .48; //.50;
   Float_t legendX2 = .85; //.70;
   Float_t legendY1 = .65; //.65;
   Float_t legendY2 = .85;
@@ -179,9 +193,9 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   hExpTT=(TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)ExpWJ->Get(tempname)->Clone();   
   hExpWJ=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)ExpT->Get(tempname)->Clone();   
+  hExpT=(TH1D*) tempstack->GetStack()->Last();
   if (!skipSingleTop){
-    tempstack=(THStack*)ExpT->Get(tempname)->Clone();   
-    hExpT=(TH1D*) tempstack->GetStack()->Last();
   }
   
   //TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
@@ -275,7 +289,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     //xtext_top = 1800.;
     //y_legend  = 2000.;
     ymax_top = 200.;
-    ymin_top = 0.1;
+    ymin_top = 0.15;
     xmax = 1000.;
     if (cutname=="delphi") xmax = 700.;
     //xmax = 700.;
@@ -325,7 +339,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     xtext_top = 1800.;
     //y_legend  = 2000.;
     ymax_top = 1000.;
-    ymin_top = 0.10;
+    ymin_top = 0.15;
     xmax = 10.;
     xmin = 3;
     sprintf(xtitlename,"N_{jets}");
@@ -361,7 +375,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
 
   hPre->DrawCopy("e same");
 
-  sprintf(tempname,"Data: #tau_{h} BG prediction from #mu CS");
+  sprintf(tempname,"Data: #tau_{h} BG prediction");
   catLeg1->AddEntry(hPre,tempname);
   //sprintf(tempname,"#tau_{h} MC expectation from t#bar{t}");
   sprintf(tempname,"MC: t#bar{t}");
@@ -383,6 +397,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   ttext->SetTextAlign(11);
   ttext->Draw();
 
+  gPad->RedrawAxis(); 
+  
   //
   // Bottom ratio plot
   //
@@ -390,6 +406,14 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
 
   //KH -- flip the numerator and denominator
   TH1D * hPreOverExp = (TH1D*) hPre->Clone();
+
+  for (int ibin=0;ibin<hPreOverExp->GetNbinsX();ibin++){
+    if (hPreOverExp->GetBinContent(ibin+1)<lowPredictionCutOff){
+      hPreOverExp->SetBinContent(ibin+1,0.);
+      hPreOverExp->SetBinError(ibin+1,0.);
+    }
+  }
+  
   hPreOverExp->Divide(hExp);
   /*
     hPre->Print("all");
