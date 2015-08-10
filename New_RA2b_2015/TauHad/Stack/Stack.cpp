@@ -119,8 +119,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="DelPhi1";
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
-//  histname[8]="HT2";
-//  histname[9]="MHT2";
+  histname[8]="HT2";
+  histname[9]="MHT2";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -205,10 +205,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   //WJet_xs_vec.push_back(k_w*55.61);  // HT 400-600
   //WJet_xs_vec.push_back(k_w*18.81);  // HT 600-Inf
   // Based on https://twiki.cern.ch/twiki/bin/view/CMS/RA2b13TeVCommissioning#Technical_details
-  WJet_xs_vec.push_back(1566.); // HT 100-200
-  WJet_xs_vec.push_back(469.);  // HT 200-400
-  WJet_xs_vec.push_back(58.1);  // HT 400-600
-  WJet_xs_vec.push_back(24.2);  // HT 600-Inf
+  WJet_xs_vec.push_back(1635.); // HT 100-200
+  WJet_xs_vec.push_back(437.);  // HT 200-400
+  WJet_xs_vec.push_back(59.5);  // HT 400-600
+  WJet_xs_vec.push_back(22.8);  // HT 600-Inf
 
   const int wjnHT = (int) WJet_xs_vec.size();   // Total number of HT bin samples
 
