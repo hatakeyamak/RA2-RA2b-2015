@@ -489,7 +489,7 @@ using namespace std;
       cutflow_preselection->Fill(1.);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(2.);
-      if(evt->HBHENoiseFilter_()==0)
+      //if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(3.);
       
       // Through out an event that contains HTjets with bad id
@@ -1025,6 +1025,56 @@ Ahmad33 */
 
             double IsoTrkWeight;
             bool PassIso2=false;
+            double searchWeight = totWeight;
+            // applyIsoTrk here 
+            if(utils2::applyIsoTrk){
+
+              // Determine which Iso model is chosen
+              // and apply the neccessary cuts 
+              if(utils2::IsoTrkModel==0)PassIso2=true;
+              else if(utils2::IsoTrkModel==1){
+                int nIsoElec=0, nIsoMu=0, nIsoPion=0;
+                int IsoElecIdx=-1,IsoMuIdx=-1,IsoPionIdx=-1;
+                for(int k=0;k<evt->IsoElecPtVec_().size();k++){
+                  if(utils->findMatchedObject(IsoElecIdx,muEta,muPhi,evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.1,verbose))
+                    continue;
+                  nIsoElec++;
+                }
+                for(int k=0;k<evt->IsoMuPtVec_().size();k++){
+                  if(utils->findMatchedObject(IsoMuIdx,muEta,muPhi,evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.1,verbose))
+                    continue;
+                  nIsoMu++;
+                }
+                for(int k=0;k<evt->IsoPionPtVec_().size();k++){
+                  if(utils->findMatchedObject(IsoPionIdx,muEta,muPhi,evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.1,verbose))
+                    continue;
+                  nIsoPion++;
+                }
+                if(nIsoElec==0&&nIsoMu==0&&nIsoPion==0)PassIso2=true; 
+              }
+
+              int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+              if(utils2::IsoTrkModel==0){
+                IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+                if(IsoTrkWeight==0)IsoTrkWeight=0.6;
+              }
+              else if(utils2::IsoTrkModel==1){
+                IsoTrkWeight = hIsoEff2->GetBinContent(binNum);
+                if(IsoTrkWeight==0)IsoTrkWeight=0.95;
+              }
+              else{
+                cout << "unknown IsoTrkModel \n ";
+                return 2;
+              }
+
+              searchWeight = totWeight*IsoTrkWeight;
+              weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
+
+            }
+            else{  // utils2::applyIsoTrk
+              searchWeight = totWeight; 
+              PassIso2=true;
+            }
 
             // Apply baseline cuts
             if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
@@ -1051,56 +1101,6 @@ Ahmad33 */
               }
 
 
-              double searchWeight = totWeight;
-              // applyIsoTrk here 
-              if(utils2::applyIsoTrk){
-
-                // Determine which Iso model is chosen
-                // and apply the neccessary cuts 
-                if(utils2::IsoTrkModel==0)PassIso2=true;
-                else if(utils2::IsoTrkModel==1){
-                  int nIsoElec=0, nIsoMu=0, nIsoPion=0;
-                  int IsoElecIdx=-1,IsoMuIdx=-1,IsoPionIdx=-1;
-                  for(int k=0;k<evt->IsoElecPtVec_().size();k++){
-                    if(utils->findMatchedObject(IsoElecIdx,muEta,muPhi,evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.1,verbose))
-                      continue;
-                    nIsoElec++;
-                  }
-                  for(int k=0;k<evt->IsoMuPtVec_().size();k++){
-                    if(utils->findMatchedObject(IsoMuIdx,muEta,muPhi,evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.1,verbose))
-                      continue;
-                    nIsoMu++;
-                  }
-                  for(int k=0;k<evt->IsoPionPtVec_().size();k++){
-                    if(utils->findMatchedObject(IsoPionIdx,muEta,muPhi,evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.1,verbose))
-                      continue;
-                    nIsoPion++;
-                  }
-                  if(nIsoElec==0&&nIsoMu==0&&nIsoPion==0)PassIso2=true; 
-                }
-
-                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-                if(utils2::IsoTrkModel==0){
-                  IsoTrkWeight = hIsoEff->GetBinContent(binNum);
-                  if(IsoTrkWeight==0)IsoTrkWeight=0.6;
-                }
-                else if(utils2::IsoTrkModel==1){
-                  IsoTrkWeight = hIsoEff2->GetBinContent(binNum);
-                  if(IsoTrkWeight==0)IsoTrkWeight=0.95;
-                }
-                else{
-                  cout << "unknown IsoTrkModel \n ";
-                  return 2;
-                }
-
-                searchWeight = totWeight*IsoTrkWeight;
-		weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
-
-              }
-              else{  // utils2::applyIsoTrk
-                searchWeight = totWeight; 
-                PassIso2=true;
-              }
 
               if(PassIso2){
 
@@ -1120,13 +1120,13 @@ Ahmad33 */
 
                 hCorSearch_b_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
-              hCorSearch_noW_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
-              hCorHT_noW_evt->Fill(evt->ht(),newHT);
-              hCorMHT_noW_evt->Fill(evt->mht(),newMHT);
-              hCorNJet_noW_evt->Fill(evt->nJets(),newNJet);
-              hCorNBtag_noW_evt->Fill(evt->nBtags(),NewNB);
-              searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
-              hCorSearch_b_noW_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
+                hCorSearch_noW_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                hCorHT_noW_evt->Fill(evt->ht(),newHT);
+                hCorMHT_noW_evt->Fill(evt->mht(),newMHT);
+                hCorNJet_noW_evt->Fill(evt->nJets(),newNJet);
+                hCorNBtag_noW_evt->Fill(evt->nBtags(),NewNB);
+                searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
+                hCorSearch_b_noW_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
               } // passIso2
 
@@ -1200,6 +1200,7 @@ Ahmad33 */
                     // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
                     if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" && utils2::applyIsoTrk){            
                       if(!PassIso2)continue;
+
                       eveinfvec[0] = totWeight*IsoTrkWeight; 
            
                     } 
