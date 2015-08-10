@@ -324,7 +324,7 @@ using namespace std;
       cutflow_preselection->Fill(1.);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(2.);
-      if(evt->HBHENoiseFilter_()==0)continue;
+      //if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(3.);
 
       // Through out an event that contains HTjets with bad id
