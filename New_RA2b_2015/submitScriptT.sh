@@ -6,7 +6,7 @@ eval `scramv1 runtime -sh`
 #
 if [ $filenum -lt 10 ]
 then
-./run_tauHad2 "InputFiles_T/filelist_TToLeptons_${TStr}_0$filenum" "T_${TStr}_$filenum" "TauHad2Multiple" "00" "0"
+./run_tauHad2 "InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4b_0$filenum" "${TStr}_$filenum" "TauHad2Multiple" "00" "0"
 else
-./run_tauHad2 "InputFiles_T/filelist_TToLeptons_${TStr}_$filenum" "T_${TStr}_$filenum" "TauHad2Multiple" "00" "0"
+./run_tauHad2 "InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4b_$filenum" "${TStr}_$filenum" "TauHad2Multiple" "00" "0"
 fi

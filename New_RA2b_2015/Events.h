@@ -30,6 +30,11 @@ using namespace std;
    bool DataBool;
 
    // Declaration of leaf types
+   UChar_t         HBHENoiseFilter;
+   Int_t           CSCTightHaloFilter;
+   Int_t           eeBadScFilter;
+   Int_t           EcalDeadCellTriggerPrimitiveFilter;
+
    UInt_t          RunNum;
    UInt_t          LumiBlockNum;
    UInt_t          EvtNum;
@@ -250,6 +255,11 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<string>  TriggerNames_() const;
    vector<int>  PassTrigger_() const;
    double csv_() const;
+
+   int CSCTightHaloFilter_() const;
+   int eeBadScFilter_() const;
+   int HBHENoiseFilter_() const;
+   int EcalDeadCellTriggerPrimitiveFilter_() const;
 
 };//end of class Events
 #endif

@@ -4,9 +4,9 @@
 
   mkdir -p qsub
 
-  for TStr in s t u; do 
+  for TStr in t_top tW_top; do 
 
-    njobs=`ls InputFiles_T/filelist_TToLeptons_${TStr}* | wc -l`
+    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4b_* | wc -l`
     #njobs=$[$njobs+1]
     echo number of jobs: $njobs
     #for i in `seq 1 $njobs`; do
@@ -15,7 +15,7 @@
         export filenum=$i
         export TStr=$TStr
         echo $filenum
-        qsub -N T_$TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
+        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
 
         sleep 1
 
@@ -24,11 +24,11 @@
   done
 
 
-  submitscript=submitScriptTbar.sh
+  submitscript=submitScriptT.sh
 
-  for TStr in s t u; do                          
+  for TStr in t_antitop tW_antitop ; do                          
 
-    njobs=`ls InputFiles_T/filelist_TBarToLeptons_${TStr}* | wc -l`
+    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4b_* | wc -l`
     #njobs=$[$njobs+1]
     echo number of jobs: $njobs
     #for i in `seq 1 $njobs`; do
@@ -37,7 +37,7 @@
         export filenum=$i
         export TStr=$TStr
         echo $filenum
-        qsub -N Tbar_$TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
+        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
 
         sleep 1
 
