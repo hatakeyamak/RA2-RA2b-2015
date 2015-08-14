@@ -115,10 +115,10 @@ if [ $k -eq 1 ]; then
 #  root -l -b -q Plot_Commissioning_Data.C'("DelPhi2",0)'
 #  root -l -b -q Plot_Commissioning_Data.C'("DelPhi3",0)'
 
-   root -l -b -q Plot_Commissioning.C'("HT2","delphi",40.0,"SingleMuon",false,0)'
-   root -l -b -q Plot_Commissioning.C'("MHT2","delphi",40.0,"SingleMuon",false,0)'
-   root -l -b -q Plot_Commissioning.C'("NJet","delphi",40.0,"SingleMuon",false,0)'
-   root -l -b -q Plot_Commissioning.C'("NBtag","delphi",40.0,"SingleMuon",false,0)'
+   root -l -b -q Plot_Commissioning.C'("HT2","delphi",40.0,"SingleMuon",false,0,0.15,0.955)'
+   root -l -b -q Plot_Commissioning.C'("MHT2","delphi",40.0,"SingleMuon",false,0,0.15,0.955)'
+   root -l -b -q Plot_Commissioning.C'("NJet","delphi",40.0,"SingleMuon",false,0,0.15,0.955)'
+   root -l -b -q Plot_Commissioning.C'("NBtag","delphi",40.0,"SingleMuon",false,0,0.15,0.955)'
 
   root -l -b -q Plot_searchBin_full_Data.C'("stacked","searchH_b",1)'
   root -l -b -q Plot_searchBin_Data.C'("stacked","searchH",1)'

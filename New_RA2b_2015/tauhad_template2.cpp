@@ -108,15 +108,24 @@ using namespace std;
     TH1D RA2HT2_hist = TH1D("HT2","HT2 Distribution",14,ht_bins);
     RA2HT2_hist.Sumw2();
     vec.push_back(RA2HT2_hist);
+    TH1D RA2origHT_hist = TH1D("origHT","origHT Distribution",50,0,5000);
+    RA2origHT_hist.Sumw2();
+    vec.push_back(RA2origHT_hist);
     TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
     RA2MHT_hist.Sumw2();    
     vec.push_back(RA2MHT_hist);
     TH1D RA2MHT2_hist = TH1D("MHT2","MHT Distribution",12,mht_bins);
     RA2MHT2_hist.Sumw2();
     vec.push_back(RA2MHT2_hist);
+    TH1D RA2origMHT_hist = TH1D("origMHT","origMHT Distribution",100,0,5000);
+    RA2origMHT_hist.Sumw2();
+    vec.push_back(RA2origMHT_hist);
     TH1D RA2MET_hist = TH1D("MET","MET Distribution",100,0,5000);
     RA2MET_hist.Sumw2();
     vec.push_back(RA2MET_hist);
+    TH1D RA2origMET_hist = TH1D("origMET","origMET Distribution",100,0,5000);
+    RA2origMET_hist.Sumw2();
+    vec.push_back(RA2origMET_hist);
     TH1D RA2DelPhiN_hist = TH1D("DelPhiN","DelPhiN Distribution",20,0,20);
     RA2DelPhiN_hist.Sumw2();
     vec.push_back(RA2DelPhiN_hist);
@@ -388,31 +397,6 @@ using namespace std;
     TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
     trig_pass->Sumw2();
 
-    bool studyTrig=true;
-    // a vector of histograms for trigger efficiency
-    vector<TH1D> trigVec;
-    // some histograms for trigger study
-    TH1D trigHT = TH1D("HT","HT Distribution",500,0,5000);
-    trigHT.Sumw2();
-    trigVec.push_back(trigHT);
-    TH1D trigMHT = TH1D("MHT","MHT Distribution",200,0,2000);
-    trigMHT.Sumw2();
-    trigVec.push_back(trigMHT);
-    TH1D trigMET = TH1D("MET","MET Distribution",200,0,2000);
-    trigMET.Sumw2();
-    trigVec.push_back(trigMET);
-    // Make a map which associates trigger name to a vector of histograms
-    map<string,vector<TH1D>> trigMap;
-    trigMap["NoTrig"]=trigVec;
-    //trigMap["HLT_PFHT350_PFMET100_NoiseCleaned_v1"]=trigVec; //Data
-    trigMap["HLT_PFHT350_PFMET120_NoiseCleaned_v1"]=trigVec; //MC
-    //trigMap["HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v1"]=trigVec; //Data
-    trigMap["HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"]=trigVec; //MC
-    trigMap["HLT_Mu45_eta2p1_v"]=trigVec;
-    trigMap["HLT_Mu50_eta2p1_v"]=trigVec;
-    trigMap["HLT_Mu50_v"]=trigVec;
-    trigMap["HLT_Mu55_v"]=trigVec;
-
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
@@ -510,15 +494,21 @@ using namespace std;
 	  cout << evt->TriggerNames_().at(i) << endl; 
           cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
         }
-	if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
+	//if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
+        //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v") != string::npos ){
+        //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
+        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v") != string::npos || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos){
           trigfound=true; 
 	  if(evt->PassTrigger_().at(i))trigPass=true;
 	}
       }
-      if(!trigfound){
+      if(!trigfound ){
         cout << " ####\n ####\n trigger was not found \n ####\n " ;
       }
       
+
+      if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
+      if(!trigPass)continue;
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -1151,35 +1141,13 @@ Ahmad33 */
 
             }
 
-            if(!utils2::bootstrap){ 
-              // fill some histograms to study triggers
-              if(studyTrig){
-                if(newMHT>200. && newHT>500){
-                  // note: the weight is intended to use for hadronic tau events
-                  trigMap["NoTrig"][0].Fill(evt->ht(),totWeight); 
-                  trigMap["NoTrig"][1].Fill(evt->mht(),totWeight);
-                  trigMap["NoTrig"][2].Fill(evt->met(),totWeight);
-                  for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
-                    for(int i=0; i< evt->TriggerNames_().size(); i++){
-                      if(evt->TriggerNames_().at(i)==it->first && evt->PassTrigger_().at(i)){
-                        it->second[0].Fill(evt->ht(),totWeight);
-                        it->second[1].Fill(evt->mht(),totWeight);
-                        it->second[2].Fill(evt->met(),totWeight);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-
-
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newHT, newMHT,newMHT
-                                 ,newMet,mindpn,newDphi1,newDphi2,newDphi3
-                                 ,(double) newNJet,(double)NewNB,muPt
-                                 ,muEta,muPhi,simTauJetPt_xy};
+            double eveinfvec[] = {totWeight, newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
+                                 ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3
+                                 ,(double) newNJet, (double)NewNB, muPt
+                                 ,muEta, muPhi, simTauJetPt_xy};
 
             bool pass0=false;
             if(TauHadModel >= 1)pass0=true;
@@ -1374,22 +1342,6 @@ Ahmad33 */
       hAll_mu->Write();
       hNonW_mu->Write();
       muProbFile.Close();
-
-      // write the results of the trigger study
-      if(!utils2::bootstrap){
-        sprintf(tempname,"%s/TriggerStudy_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
-        TFile trigStudyFile(tempname,"RECREATE");      
-        TDirectory *cdtoit_trig;      
-        for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
-          cdtoit_trig = trigStudyFile.mkdir((it->first).c_str());
-          cdtoit_trig->cd();
-          for(int i=0; i<trigVec.size();i++){
-            it->second[i].Write();
-          }
-          cdtoit_trig->cd("..");
-        } 
-        trigStudyFile.Close();
-      }
 
       // Calculate trigger efficiency 
       TH1* trigEff = static_cast<TH1*>(trig_pass->Clone("trigEff"));
