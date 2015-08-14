@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void plot_TrigStudy(string histName="MHT"){
+void plot_TrigStudy(string histName="MHT", string trigName="HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1"){
 
   //
   // icomp=0: only show own results
@@ -99,6 +99,18 @@ void plot_TrigStudy(string histName="MHT"){
   }
 */
 
+/*    
+    double XDw=0.0, XUp = 5000. , maxVal=2500.;
+    if(histName=="MHT"){
+      XUp = 500. , maxVal=1200.;
+    }
+    else if(histName=="HT"){
+      XUp = 1000. , maxVal=700.;
+    }
+    else if(histName=="MET"){
+      XUp = 500. , maxVal=1000.;
+    }
+
   
     // From ttbar - predictions
     TFile * file_TTbar_mu = new TFile("TriggerStudy_TTbar_.root","R");
@@ -115,28 +127,41 @@ void plot_TrigStudy(string histName="MHT"){
     sprintf(tempname,"NoTrig/%s",histName.c_str());
     noTrigH = (TH1D*)file_TTbar_mu->Get(tempname)->Clone();
     
+    int new_Nbin = (XUp-XDw)/(noTrigH->GetXaxis()->GetXmax() - noTrigH->GetXaxis()->GetXmin())*noTrigH->GetNbinsX();
+    // A histogram with shorter x range to be used in efficiency calculation
+    TH1D noTrigH2("noTrigH","hist with no trigger applied",new_Nbin,XDw,XUp);
+    for(int ibin=0;ibin<noTrigH2.GetNbinsX();ibin++){
+      double con = (double)noTrigH->GetBinContent(ibin);
+      //double err = (double)noTrigH->GetBinError(ibin);
+      noTrigH2.SetBinContent(ibin,con);
+      //noTrigH2.SetBinError(ibin,err);
+    }
+
+    // font size
+    noTrigH2.GetXaxis()->SetLabelSize(font_size_dw);
+    noTrigH2.GetXaxis()->SetTitleSize(font_size_dw);
+    noTrigH2.GetYaxis()->SetLabelSize(font_size_dw);
+    noTrigH2.GetYaxis()->SetTitleSize(font_size_dw);
+
+
+    for(double x=0.;x<XUp;x+=XUp/new_Nbin){
+      printf(" x: %g bin1: %d bin2: %d \n ",x,noTrigH->FindBin(x),noTrigH2.FindBin(x));
+     
+    }
+
     int i=0;
     for(map<string,vector<TH1D>>::iterator it=trigMap.begin(); it!=trigMap.end();it++){
       i++;
       sprintf(tempname,"%s/%s",it->first.c_str(),histName.c_str());
+*/
+      sprintf(tempname,"%s/%s",trigname.c_str(),histName.c_str());
       temp_tt = (TH1D*)file_TTbar_mu->Get(tempname)->Clone();
-
 
       //  catLeg1->SetHeader("Prob. of #mu from #tau ");
 
       //...........................................................................//
       // TTbar ....................................................................//
       //...........................................................................//
-      double XDw=0.0, XUp = 5000. , maxVal=2500.;
-      if(histName=="MHT"){
-        XUp = 500. , maxVal=1200.;
-      }
-      else if(histName=="HT"){
-        XUp = 1000. , maxVal=700.;
-      }
-      else if(histName=="MET"){
-        XUp = 500. , maxVal=1000.;
-      }
 
 
       temp_tt->GetXaxis()->SetRangeUser(XDw,XUp);
@@ -181,16 +206,35 @@ void plot_TrigStudy(string histName="MHT"){
       denominator->GetYaxis()->SetLabelSize(font_size_dw);
       denominator->GetYaxis()->SetTitleSize(font_size_dw);
 
-//      TEfficiency * pEff = new TEfficiency(*temp_tt,*noTrigH);
+      
+      TH1D temp_tt2("temp_tt2","hist with no trigger applied",new_Nbin,XDw,XUp);
+      for(int ibin=0;ibin<temp_tt2.GetNbinsX();ibin++){
+        double con = (double)temp_tt->GetBinContent(ibin);
+        //double err = (double)temp_tt->GetBinError(ibin);
+        temp_tt2.SetBinContent(ibin,con);
+        //temp_tt2.SetBinError(ibin,err);
+      }
+      
 
+      TEfficiency * pEff = new TEfficiency(temp_tt2,noTrigH2);
 
       denominator->Divide(noTrigH);
       //denominator->GetYaxis()->SetTitle("efficiency");
       denominator->SetMaximum(2.);
       denominator->SetMinimum(-2.);
-      
-      if(it->first!="NoTrig") denominator->Draw("same");
-//      if(it->first!="NoTrig") pEff->Draw("AP,same");
+  
+      TH1D * effH = static_cast<TH1D*>(pEff->Clone("effH"));    
+      effH->SetLineColor(i);      
+/*
+      effH->GetXaxis()->SetLabelSize(font_size_dw);
+      effH->GetXaxis()->SetTitleSize(font_size_dw);
+      effH->GetYaxis()->SetLabelSize(font_size_dw);
+      effH->GetYaxis()->SetTitleSize(font_size_dw);
+*/
+
+//      if(it->first!="NoTrig") denominator->Draw("same");
+//      if(it->first!="NoTrig") pEff->Draw();
+      if(it->first!="NoTrig") effH->Draw("AP,same");
 
       TLine *tline = new TLine(XDw,1.,XUp,1.);
       tline->SetLineStyle(2);
