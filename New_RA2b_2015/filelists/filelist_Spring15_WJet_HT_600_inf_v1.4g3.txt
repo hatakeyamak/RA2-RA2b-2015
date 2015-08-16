@@ -1,4 +1,3 @@
-/data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__1.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__10.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__11.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__12.root
@@ -9,7 +8,7 @@
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__17.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__18.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__19.root
-/data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__2.root
+/data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__1.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__20.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__21.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__22.root
@@ -18,6 +17,7 @@
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__25.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__26.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__27.root
+/data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__2.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__3.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__4.root
 /data3/store/user/hatake/ntuples/RunIISpring15DR74_v1.4g3/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring15DR74_Wlv600/150815_162748/0000/ReducedSelection__5.root
