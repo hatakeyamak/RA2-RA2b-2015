@@ -22,6 +22,8 @@ root.exe -b -q Plot_Commissioning.C("MHT","isoPion")
 root.exe -b -q Plot_Commissioning.C("HT2","isoPion")
 root.exe -b -q Plot_Commissioning.C("MHT2","isoPion")
 
+root.exe -b -q Plot_Commissioning.C("delphi1","isoPion")
+
 root.exe -b -q Plot_Commissioning.C("NJet","mht_200")
 root.exe -b -q Plot_Commissioning.C("NBtag","mht_200")
 root.exe -b -q Plot_Commissioning.C("HT",,"mht_200")
@@ -349,6 +351,19 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
+  if(histname=="DelPhi1" || histname=="DelPhi2" || histname=="DelPhi3" ){
+    xtext_top = 1800.;
+    //y_legend  = 2000.;
+    ymax_top = 10.;
+    ymin_top = 0.0;
+    xmax = 3.2.;
+    xmin = 0.;
+    if (histname=="DelPhi1") sprintf(xtitlename,"#Delta#phi(MHT,jet1) [rad]");
+    if (histname=="DelPhi2") sprintf(xtitlename,"#Delta#phi(MHT,jet2) [rad]");
+    if (histname=="DelPhi3") sprintf(xtitlename,"#Delta#phi(MHT,jet3) [rad]");
+    sprintf(ytitlename,"Events");
+    //gPad->SetLogy();
+  }
 
   // Actually draw plots
   
@@ -473,6 +488,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   tline->SetLineStyle(2);
   tline->Draw();
 
+  hPreOverExp->Print("all");
+  
   if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
