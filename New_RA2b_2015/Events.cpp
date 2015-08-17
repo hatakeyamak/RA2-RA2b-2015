@@ -127,6 +127,7 @@
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      fChain->SetBranchAddress("JetID", &JetID);
+     fChain->SetBranchAddress("GoodVtx", &GoodVtx);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
      fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
      fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
@@ -512,11 +513,12 @@
 
   double Events::csv_() const {return 0.890;} 
 
-   int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}
-   int Events::eeBadScFilter_() const {return eeBadScFilter;}
-   int Events::HBHENoiseFilter_() const {return HBHENoiseFilter;}
-   int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
-
+  int Events::GoodVtx_() const {return GoodVtx;}
+  int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}
+  int Events::eeBadScFilter_() const {return eeBadScFilter;}
+  int Events::HBHENoiseFilter_() const {return HBHENoiseFilter;}
+  int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
+  int Events::NVtx_() const {return NVtx;}
 
   
 //  std::vector<double> Events::Pt_GenMu() const { 

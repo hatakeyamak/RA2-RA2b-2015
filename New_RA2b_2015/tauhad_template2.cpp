@@ -102,6 +102,9 @@ using namespace std;
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
     vec.push_back(weight_hist);
+    TH1D StatError_hist = TH1D("StatError", "#events with stat error", 1,0,2);
+    StatError_hist.Sumw2();
+    vec.push_back(StatError_hist);
     TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
     RA2HT_hist.Sumw2();
     vec.push_back(RA2HT_hist);
@@ -169,12 +172,13 @@ using namespace std;
     cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
     cutflow_preselection->GetXaxis()->SetBinLabel(2,"CSCTightHaloFilter");
     cutflow_preselection->GetXaxis()->SetBinLabel(3,"eeBadScFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(4,"HBHENoiseFilter");    
-    cutflow_preselection->GetXaxis()->SetBinLabel(5,"JetID Cleaning");
-    cutflow_preselection->GetXaxis()->SetBinLabel(6,"1-lepton");
-    cutflow_preselection->GetXaxis()->SetBinLabel(7,"Lepton vetoes");
-    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Preselection");
-    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Presel with weight");
+    cutflow_preselection->GetXaxis()->SetBinLabel(4,"HBHENoiseFilter");   
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"GoodVtx"); 
+    cutflow_preselection->GetXaxis()->SetBinLabel(6,"JetID Cleaning");
+    cutflow_preselection->GetXaxis()->SetBinLabel(7,"1-lepton");
+    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Lepton vetoes");
+    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Preselection");
+    cutflow_preselection->GetXaxis()->SetBinLabel(10,"Presel with weight");
 
     // Introduce search bin histogram
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
@@ -473,12 +477,13 @@ using namespace std;
       cutflow_preselection->Fill(1.);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(2.);
-      //if(evt->HBHENoiseFilter_()==0)continue;
+      if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(3.);
-      
+      if(evt->GoodVtx_()==0)continue;
+      cutflow_preselection->Fill(4.); 
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
-      cutflow_preselection->Fill(4.); // events passing JetID event cleaning
+      cutflow_preselection->Fill(5.); // events passing JetID event cleaning
 
       nCleanEve++;
 
@@ -507,8 +512,8 @@ using namespace std;
       }
       
 
-      if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
-      if(!trigPass)continue;
+//      if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
+//      if(!trigPass)continue;
 
       /////////////////////////////////////////////////////////////////////////////////////
       // Select the control sample:
@@ -620,7 +625,7 @@ Ahmad33 */
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
 
-	cutflow_preselection->Fill(5.); // 1-mu selection
+	cutflow_preselection->Fill(6.); // 1-mu selection
 
 // Ahmad33
       dilepton_all++;
@@ -633,7 +638,7 @@ Ahmad33 */
       dilepton_pass++;
 // Ahmad33
 
-      cutflow_preselection->Fill(6.); // Lepton vetos
+      cutflow_preselection->Fill(7.); // Lepton vetos
 
         // The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And,
         // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
@@ -1009,9 +1014,9 @@ Ahmad33 */
             }
 
 	    if (l==1 && m==0){                 // Fill this only once per event l=[1,nLoops] m=[0,1]
-	      cutflow_preselection->Fill(7.); // All preselection
+	      cutflow_preselection->Fill(8.); // All preselection
 	    }
-	    cutflow_preselection->Fill(8.,totWeight); // All preselection
+	    cutflow_preselection->Fill(9.,totWeight); // All preselection
 
             double IsoTrkWeight;
             bool PassIso2=false;
@@ -1144,7 +1149,7 @@ Ahmad33 */
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
-            double eveinfvec[] = {totWeight, newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
+            double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
                                  ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3
                                  ,(double) newNJet, (double)NewNB, muPt
                                  ,muEta, muPhi, simTauJetPt_xy};

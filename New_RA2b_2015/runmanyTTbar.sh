@@ -1,7 +1,9 @@
 #!/bin/sh
 
 sample=$1
+type=$2
 submitscript=submitScriptTTbar.sh
+submitscript1=submitScriptTTbar_Expectation.sh
 
 if [ $sample -eq 14 ]; then
   njobs=`ls InputFiles_TTbar/filelist_TTJets_PU20bx25_* | wc -l`
@@ -22,7 +24,13 @@ export sample_=$sample
 echo $filenum
 echo $code 
 
-qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript -q moonshot
+if [ $type -eq 0 ]; then
+  qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript -q moonshot
+fi
+
+if [ $type -eq 1 ]; then
+  qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
+fi
 
 sleep 1
 

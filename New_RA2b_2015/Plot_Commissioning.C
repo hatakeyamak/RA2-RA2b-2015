@@ -49,9 +49,9 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=40.0,
+Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi=41.6,
 		   string PDname="SingleMuon",
-		   bool normalize=false, int rebin=0,
+		   bool normalize=true, int rebin=0,
 		   double lowPredictionCutOff=0.15,
 		   double trigEff=0.955
 		   ){
@@ -66,7 +66,24 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+  gROOT->LoadMacro("CMS_lumi.C");
+
+  writeExtraText = true;       // if extra text
+  extraText  = "Preliminary";  // default extra text is "Preliminary"
+  lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
+  lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
+  lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+  int iPeriod = 4;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
+  // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
+  // iPos=11 : top-left, left-aligned
+  // iPos=33 : top-right, right-aligned
+  // iPos=22 : center, centered
+  // mode generally : 
+  //   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
+  int iPos =10;
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
 
   int W = 600;
   int H = 600;
@@ -92,13 +109,13 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v14c_.root",PDname.c_str());
+  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v14g_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
-  TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
-  TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
-  TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
-  TFile * PreWJ46 = new TFile("TauHad2/HadTauEstimation_WJet_400_600_.root","R");
-  TFile * PreWJ6I = new TFile("TauHad2/HadTauEstimation_WJet_600_inf_.root","R");
+//  TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
+//  TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");
+//  TFile * PreWJ24 = new TFile("TauHad2/HadTauEstimation_WJet_200_400_.root","R");
+//  TFile * PreWJ46 = new TFile("TauHad2/HadTauEstimation_WJet_400_600_.root","R");
+//  TFile * PreWJ6I = new TFile("TauHad2/HadTauEstimation_WJet_600_inf_.root","R");
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
   TFile * ExpT  = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_T_stacked.root","R");
@@ -106,8 +123,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   //
   // Define legend
   //
-  Float_t legendX1 = .48; //.50;
-  Float_t legendX2 = .85; //.70;
+  Float_t legendX1 = .55; //.50;
+  Float_t legendX2 = .9; //.70;
   Float_t legendY1 = .65; //.65;
   Float_t legendY2 = .85;
 
@@ -183,8 +200,9 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   double search_x_max=19.;
   double search_x_min=1.;
 
+  sprintf(tempname,"allEvents/%s/StatError_%s_allEvents",cutname.c_str(),cutname.c_str());
+  hPreData_StatError  =(TH1D*) PreData->Get(tempname)->Clone();
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-  
   hPreData  =(TH1D*) PreData->Get(tempname)->Clone();
   //hPreTT  =(TH1D*) PreTT->Get(tempname)->Clone();
   //hPreWJ12=(TH1D*) PreWJ12->Get(tempname)->Clone();
@@ -217,6 +235,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
 
   double scale = hPre->GetSumOfWeights()/trigEff/hExp->GetSumOfWeights();
   printf("data prediction: %8.2f\n",hPre->GetSumOfWeights()/trigEff);
+  printf("Bin content: %g Stat error: %g \n ",hPreData_StatError->GetBinContent(1)/trigEff,hPreData_StatError->GetBinError(1));
   printf("MC expectation:  %8.2f\n",hExp->GetSumOfWeights()*lumi/10000.);
   printf("scale to match exp to pre = %10.5f, and %10.5f from lumi info\n",
 	 scale,lumi/(10000));
@@ -225,7 +244,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   
   if (normalize) hExpTT->Scale(scale);
   else           hExpTT->Scale(lumi/(10000));
-  hExpTT->SetFillColor(kBlue);
+  hExpTT->SetFillColor(kBlue-6);
 
   if (normalize) hExpWJ->Scale(scale);
   else           hExpWJ->Scale(lumi/(10000));
@@ -376,7 +395,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   //hPre->GetYaxis()->SetLabelOffset(0.007);
   //hPre->GetYaxis()->SetLabelSize(0.04);
   hPre->GetYaxis()->SetTitleSize(0.06);
-  hPre->GetYaxis()->SetTitleOffset(1.2);
+  hPre->GetYaxis()->SetTitleOffset(0.8);
   hPre->GetYaxis()->SetTitleFont(42);
   hPre->GetYaxis()->SetLabelSize(0.04);
 
@@ -407,13 +426,21 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     catLeg1->AddEntry(hExpT,tempname,"f");
   }
   catLeg1->Draw();
+  
+ {
+	  CMS_lumi( canvas_up, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+ }
+canvas->Update();
+canvas->RedrawAxis();
+canvas->GetFrame()->Draw();
+  
 
-  sprintf(tempname,"CMS Preliminary, %.1f pb^{-1}, #sqrt{s} = 13 TeV",lumi);
+  sprintf(tempname,"CMS Preliminary, %.0f pb^{-1}, #sqrt{s} = 13 TeV",lumi);
   TLatex * ttext = new TLatex(xmin, ymax_top*1.3,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.050);
   ttext->SetTextAlign(11);
-  ttext->Draw();
+//  ttext->Draw();
 
   gPad->RedrawAxis(); 
   
@@ -455,7 +482,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   //
   // Common to all bottom plots
   //
-  sprintf(ytitlename,"#frac{Prediction}{Expectation}");
+  sprintf(ytitlename,"Data / MC");
   hPreOverExp->GetYaxis()->SetTitle(ytitlename);
   hPreOverExp->SetMaximum(2.65);
   hPreOverExp->SetMinimum(0.0);
@@ -476,10 +503,10 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   hPreOverExp->GetXaxis()->SetTitleOffset(0.80);
   hPreOverExp->GetXaxis()->SetTitleFont(42);
   //hPreOverExp->GetYaxis()->SetLabelFont(42);
-  //hPreOverExp->GetYaxis()->SetLabelOffset(0.007);
+  hPreOverExp->GetYaxis()->SetLabelOffset(0.007);
   hPreOverExp->GetYaxis()->SetLabelSize(0.12);
   hPreOverExp->GetYaxis()->SetTitleSize(0.16);
-  hPreOverExp->GetYaxis()->SetTitleOffset(0.4);
+  hPreOverExp->GetYaxis()->SetTitleOffset(0.3);
   hPreOverExp->GetYaxis()->SetTitleFont(42);
   hPreOverExp->GetXaxis()->SetTickSize(0.08);
 
