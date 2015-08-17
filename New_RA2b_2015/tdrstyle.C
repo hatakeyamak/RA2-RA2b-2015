@@ -1,7 +1,4 @@
 #include "TStyle.h"
-#include "TColor.h"
-
-TStyle *tdrStyle =0;
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
 
@@ -17,8 +14,7 @@ void fixOverlay() {
 }
 
 void setTDRStyle() {
-//  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
-  tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
 // For the canvas:
   tdrStyle->SetCanvasBorderMode(0);
@@ -46,7 +42,7 @@ void setTDRStyle() {
   tdrStyle->SetFrameLineColor(1);
   tdrStyle->SetFrameLineStyle(1);
   tdrStyle->SetFrameLineWidth(1);
-
+  
 // For the histo:
   // tdrStyle->SetHistFillColor(1);
   // tdrStyle->SetHistFillStyle(0);
@@ -57,11 +53,11 @@ void setTDRStyle() {
   // tdrStyle->SetNumberContours(Int_t number = 20);
 
   tdrStyle->SetEndErrorSize(2);
-//  tdrStyle->SetErrorMarker(20);
-//  tdrStyle->SetErrorX(0.);
+  // tdrStyle->SetErrorMarker(20);
+  //tdrStyle->SetErrorX(0.);
   
   tdrStyle->SetMarkerStyle(20);
-
+  
 //For the fit/function:
   tdrStyle->SetOptFit(1);
   tdrStyle->SetFitFormat("5.4g");
@@ -133,7 +129,7 @@ void setTDRStyle() {
   tdrStyle->SetAxisColor(1, "XYZ");
   tdrStyle->SetStripDecimals(kTRUE);
   tdrStyle->SetTickLength(0.03, "XYZ");
-  tdrStyle->SetNdivisions(505, "XYZ");
+  tdrStyle->SetNdivisions(510, "XYZ");
   tdrStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
   tdrStyle->SetPadTickY(1);
 
@@ -156,37 +152,8 @@ void setTDRStyle() {
   // tdrStyle->SetTimeOffset(Double_t toffset);
   // tdrStyle->SetHistMinimumZero(kTRUE);
 
-// From Matthias
-//  Margins
-  tdrStyle->SetPadTopMargin(0.06);
-  tdrStyle->SetPadBottomMargin(0.18);
-  tdrStyle->SetPadLeftMargin(0.2);
-  tdrStyle->SetPadRightMargin(0.04);
-
-//  For the Global title:
-  tdrStyle->SetOptTitle(1);
-  tdrStyle->SetTitleFont(42,"");
-  tdrStyle->SetTitleColor(1);
-  tdrStyle->SetTitleTextColor(1);
-  tdrStyle->SetTitleFillColor(0);
-  tdrStyle->SetTitleFontSize(0.1);
-  tdrStyle->SetTitleAlign(13);
-  tdrStyle->SetTitleX(0.6);
-  tdrStyle->SetTitleH(0.05);
-  tdrStyle->SetTitleBorderSize(0);
-  tdrStyle->SetTitleAlign(13);
-  tdrStyle->SetTitleX(0.19);
-  tdrStyle->SetTitleH(0.038);
-
-// For the color
-  int nColors = 999;
-  Double_t r[]    = {0.0, 0.0, 0.0, 1.0, 1.0};
-  Double_t g[]    = {0.0, 1.0, 1.0, 1.0, 0.0};
-  Double_t b[]    = {1.0, 1.0, 0.0, 0.0, 0.0};
-  Double_t stop[] = {0.000, 0.200, 0.400, 0.600, 0.800, 1.000};
-  TColor::CreateGradientColorTable(5, stop, r, g, b, nColors);
-
-  tdrStyle->SetNumberContours(nColors);
+  tdrStyle->SetHatchesLineWidth(5);
+  tdrStyle->SetHatchesSpacing(0.05);
 
   tdrStyle->cd();
 

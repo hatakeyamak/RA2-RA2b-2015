@@ -147,11 +147,12 @@ using namespace std;
     cutflow_preselection->GetXaxis()->SetBinLabel(2,"CSCTightHaloFilter");
     cutflow_preselection->GetXaxis()->SetBinLabel(3,"eeBadScFilter");
     cutflow_preselection->GetXaxis()->SetBinLabel(4,"HBHENoiseFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(5,"JetID Cleaning");
-    cutflow_preselection->GetXaxis()->SetBinLabel(6,"Hadronic tau");
-    cutflow_preselection->GetXaxis()->SetBinLabel(7,"Lepton vetoes");
-    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Preselection 1");
-    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Preselection 2");
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"GoodVtx");
+    cutflow_preselection->GetXaxis()->SetBinLabel(6,"JetID Cleaning");
+    cutflow_preselection->GetXaxis()->SetBinLabel(7,"Hadronic tau");
+    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Lepton vetoes");
+    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Preselection 1");
+    cutflow_preselection->GetXaxis()->SetBinLabel(10,"Preselection 2");
 
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
@@ -256,6 +257,10 @@ using namespace std;
     TH1D * hFailRate_GenTau_Jet =(TH1D *) FailRateGenTau_Jet_file->Get(histname)->Clone();
 */
 
+    // get pileup for MC
+    TFile * pileupFile = new TFile("TauHad2/pu_weights_7_4_25ns_v2.root","R");
+    TH1D * hPURatio = (TH1D*)pileupFile->Get("ratio");
+
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
     cout<< "\nProcessing " << subSampleKey << " ... " << endl;
@@ -324,13 +329,14 @@ using namespace std;
       cutflow_preselection->Fill(1.);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(2.);
-      //if(evt->HBHENoiseFilter_()==0)continue;
+      if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(3.);
-
+      if(evt->GoodVtx_()==0)continue;
+      cutflow_preselection->Fill(4.);
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
-      cutflow_preselection->Fill(4.); // events passing JetID event cleaning
-
+      cutflow_preselection->Fill(5.); // events passing JetID event cleaning
+      
       nCleanEve++;
 
 
@@ -462,12 +468,12 @@ using namespace std;
       }
 
       if(hadTau==false)continue;
-      cutflow_preselection->Fill(5.); // hadronic tau events
+      cutflow_preselection->Fill(6.); // hadronic tau events
       nHadTauEve++;
  
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || eleN!=0)continue;
-      cutflow_preselection->Fill(6.); // events passing lepton vetos
+      cutflow_preselection->Fill(7.); // events passing lepton vetos
 
       nNoLepEve++;
 
@@ -511,6 +517,12 @@ using namespace std;
       // Total weight
       // double totWeight = evt->weight()*1.;
       double totWeight = 1.;
+    
+      // add pileup as weight for MC 
+      if(!evt->DataBool_()){
+        double pu_weight = hPURatio->GetBinContent( hPURatio->GetBin( evt->NVtx_() ) );
+        totWeight*=pu_weight;
+      }
 
       // Apply IsoTrkVeto
       bool passIso=false;
@@ -541,7 +553,7 @@ using namespace std;
 
 
       if(pass3){
-	cutflow_preselection->Fill(7.); // We may ask genTau within muon acceptance
+	cutflow_preselection->Fill(8.); // We may ask genTau within muon acceptance
 
         // Apply baseline cuts
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -616,7 +628,7 @@ using namespace std;
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
       if(pass3){
 
-	cutflow_preselection->Fill(8.); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
+	cutflow_preselection->Fill(9.); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
