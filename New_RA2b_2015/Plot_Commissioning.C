@@ -304,7 +304,8 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi
     xmax = 1000.;
     if (cutname=="delphi") xmax = 700.;
     xmin = 100;
-    sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    //sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    sprintf(xtitlename,"H_{T}^{miss} (GeV)");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
@@ -319,7 +320,8 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi
     //xmax = 700.;
     //xmax = 500.;
     xmin = 150;
-    sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    //sprintf(xtitlename,"#slash{H}_{T} (GeV)");
+    sprintf(xtitlename,"H_{T}^{miss} (GeV)");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
@@ -355,7 +357,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi
     ymin_top = 0.15;
     xmax = 4.;
     xmin = 0;
-    sprintf(xtitlename,"N_{b-tags}");
+    sprintf(xtitlename,"N_{b}");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
@@ -427,20 +429,19 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi
   }
   catLeg1->Draw();
   
- {
-	  CMS_lumi( canvas_up, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
- }
-canvas->Update();
-canvas->RedrawAxis();
-canvas->GetFrame()->Draw();
-  
+  {
+    CMS_lumi( canvas_up, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+  }
+  canvas->Update();
+  canvas->RedrawAxis();
+  //KH canvas->GetFrame()->Draw(); 
 
   sprintf(tempname,"CMS Preliminary, %.0f pb^{-1}, #sqrt{s} = 13 TeV",lumi);
   TLatex * ttext = new TLatex(xmin, ymax_top*1.3,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.050);
   ttext->SetTextAlign(11);
-//  ttext->Draw();
+  //  ttext->Draw();
 
   gPad->RedrawAxis(); 
   
