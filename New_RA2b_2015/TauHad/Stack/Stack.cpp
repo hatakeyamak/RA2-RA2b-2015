@@ -24,7 +24,7 @@ class mainClass{
   map<int, string> cutname, histname, Hname;
   map<int, string> Ttype, WJettype, TTbartype;
   TFile *file, *file2, *file3;
-  TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII;
+  TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII, *temphistI_lowDphi, *temphistII_lowDphi, *temphistIII_lowDphi;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
 
@@ -1118,6 +1118,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[0]="IsoEff";
   histname[1]="Iso_pass";
   histname[2]="Iso_all";
+  histname[3]="Iso_pass_lowDphi";
+  histname[4]="Iso_all_lowDphi";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -1136,6 +1138,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
+    if(j==3)temphistI_lowDphi=(TH1D*)temphist->Clone();
+    if(j==4)temphistII_lowDphi=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -1146,6 +1150,13 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff");
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
+
+  temphistIII_lowDphi = static_cast<TH1D*>(temphistI_lowDphi->Clone("IsoEff_lowDphi"));
+  temphistIII_lowDphi->Divide(temphistI_lowDphi,temphistII_lowDphi,1,1,"B");
+  temphistIII_lowDphi->SetName("IsoEff_lowDphi");
+  temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
+  temphistIII_lowDphi->Write();
+
 
   histname.clear();
   histname[0]="IsoEff2";

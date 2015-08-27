@@ -49,7 +49,7 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=41.6,
+Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi=41.6,
 		   string PDname="SingleMuon",
 		   bool normalize=true, int rebin=0,
 		   double lowPredictionCutOff=0.15,
@@ -158,6 +158,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   canvas->Divide(1, 2);
   canvas_1->SetTopMargin(0.1);
   canvas_2->SetBottomMargin(1.8);
+  canvas_1->SetRightMargin(0.023);
+  canvas_2->SetRightMargin(0.023);
 
   //
   // Define pads
