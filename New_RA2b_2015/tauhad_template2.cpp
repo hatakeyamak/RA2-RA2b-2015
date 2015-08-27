@@ -190,6 +190,10 @@ using namespace std;
     searchH->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * searchH_evt = static_cast<TH1D*>(searchH->Clone("searchH_evt")); 
+    TH1* searchH_lowDphi = new TH1D("searchH_lowDphi","search bin histogram",totNbins,1,totNbins+1);
+    searchH_lowDphi->Sumw2();
+    // Make another hist to be filled during bootstrapping
+    TH1 * searchH_evt_lowDphi = static_cast<TH1D*>(searchH_lowDphi->Clone("searchH_evt_lowDphi"));
 
     // Introduce QCD histogram
     map<string,int> binMap_QCD = utils2::BinMap_QCD();
@@ -328,6 +332,9 @@ using namespace std;
 
     // Define different event categories
     eventType[0]="allEvents";
+    eventType[1]="BMistagPlus";
+
+    // weights are different for different eventType
 
     //initialize a map between string and maps. copy the map of histvecs into each
     for(int i=0; i< eventType.size();i++){
@@ -358,6 +365,9 @@ using namespace std;
     TFile * Prob_Tau_mu_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_Elog242.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
+    TFile * Prob_Tau_mu_lowDelphi_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_plusLowDphi.root","R");
+    sprintf(histname,"hProb_Tau_mu_lowDelphi");
+    TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_lowDelphi_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
 //    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
@@ -379,6 +389,8 @@ using namespace std;
     TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
 //    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
+    TFile * IsoEffFile_lowDelphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
+    TH1D * hIsoEff_lowDelphi =(TH1D *) IsoEffFile_lowDelphi->Get("IsoEff_lowDelphi")->Clone();
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
@@ -386,6 +398,8 @@ using namespace std;
     TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
 //    TFile * MtFile = new TFile("TauHad2/Stack/MtEff_stacked.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
+    TFile * MtFile_lowDphi = new TFile("TauHad2/MtEff_TTbar_plusLowDphi_.root","R");
+    TH1D * hMT_lowDphi = (TH1D *) MtFile_lowDphi->Get("MtCutEff_lowDphi")->Clone();
 
 
     // Inroduce two histogram to understand the probability of a muon coming from tau.
@@ -394,6 +408,10 @@ using namespace std;
     hAll_mu->Sumw2();
     TH1D * hNonW_mu = new TH1D("hNonW_mu","mu from Tau -- search bin",totNbins,1,totNbins+1);
     hNonW_mu->Sumw2();
+    TH1D * hAll_mu_lowDelphi = new TH1D("hAll_mu_lowDelphi","mu from W -- search bin",totNbins,1,totNbins+1);
+    hAll_mu_lowDelphi->Sumw2();
+    TH1D * hNonW_mu_lowDelphi = new TH1D("hNonW_mu_lowDelphi","mu from Tau -- search bin",totNbins,1,totNbins+1);
+    hNonW_mu_lowDelphi->Sumw2();
 
     // calculate the trigger efficiency 
     TH1D * trig_all = new TH1D("trig_all"," trigger all -- search bin",totNbins,1,totNbins+1);
@@ -460,6 +478,14 @@ using namespace std;
     else {nLoops=1;nBtagsForHadTau=1;}
 
 
+
+// temporary// temporary// temporary// temporary
+vector<int> trigVec(300,0);
+// temporary// temporary// temporary// temporary
+
+
+
+
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
@@ -493,16 +519,27 @@ using namespace std;
       if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v1";
       bool trigfound=false;
       if(verbose!=0)
-      cout << "############################\n TrigSize: " << evt->TriggerNames_().size() << "PassTrigSize: " << evt->PassTrigger_().size() << endl ;
+        cout << "############################\n "; 
       for(int i=0; i< evt->TriggerNames_().size(); i++){ 
+
         if(verbose!=0){
 	  cout << evt->TriggerNames_().at(i) << endl; 
           cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
         }
 	//if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
-        //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v") != string::npos ){
+        //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos ){
         //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
-        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v") != string::npos || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos){
+/*
+        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos
+            || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
+          ){
+*/
+        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos
+            || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
+            || evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos
+          ){
+
+      
           trigfound=true; 
 	  if(evt->PassTrigger_().at(i))trigPass=true;
 	}
@@ -639,6 +676,8 @@ Ahmad33 */
 // Ahmad33
 
       cutflow_preselection->Fill(7.); // Lepton vetos
+
+
 
         // The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And,
         // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
@@ -970,6 +1009,7 @@ Ahmad33 */
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
             double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+            double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
 
     //Ahmad33
             if(TauHadModel<4)Acc=1.; 
@@ -1005,8 +1045,10 @@ Ahmad33 */
 
               int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
               double mtWeight = hMT->GetBinContent(binNum);
+              double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum);
 
               if(mtWeight==0)mtWeight=0.9;
+              if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
 
               if(!utils2::CalcMT){totWeight/= mtWeight;weightEffAcc/= mtWeight;}
               else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
@@ -1018,7 +1060,7 @@ Ahmad33 */
 	    }
 	    cutflow_preselection->Fill(9.,totWeight); // All preselection
 
-            double IsoTrkWeight;
+            double IsoTrkWeight, IsoTrkWeight_lowDelphi;
             bool PassIso2=false;
             double searchWeight = totWeight;
             // applyIsoTrk here 
@@ -1061,6 +1103,9 @@ Ahmad33 */
                 cout << "unknown IsoTrkModel \n ";
                 return 2;
               }
+      
+              IsoTrkWeight_lowDphi = hIsoEff_lowDphi->GetBinContent(binNum);
+              if(IsoTrkWeight_lowDphi==0)IsoTrkWeight_lowDphi=0.6;
 
               searchWeight = totWeight*IsoTrkWeight;
               weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
@@ -1069,6 +1114,18 @@ Ahmad33 */
             else{  // utils2::applyIsoTrk
               searchWeight = totWeight; 
               PassIso2=true;
+            }
+
+            // Apply low delta phi region
+            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
+              if(!utils2::bootstrap){
+                // Non W muons calculation
+                if(!isData){
+                  hAll_mu_lowDelphi->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  if(GenMuIdx<0)hNonW_mu_lowDelphi->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)hNonW_mu_lowDelphi->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                }
+              }
             }
 
             // Apply baseline cuts
@@ -1130,22 +1187,49 @@ Ahmad33 */
             // Fill QCD histogram
             // Fill the histogram in the inverted delta phi region
             if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
-              double searchWeight = totWeight;
+              double searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
               // applyIsoTrk here 
               if(utils2::applyIsoTrk){
-                searchWeight = totWeight*IsoTrkWeight;
+                searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDelphi*mtWeight/mtWeight_lowDphi;
               }
-              else searchWeight = totWeight;
+              else searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
 
               if(PassIso2){
+                // Fill Search bin histogram
+                searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
                 // Fill QCD histograms
                 QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
               }
 
             }
+/*
+// temporary// temporary// temporary// temporary// temporary
+  if( newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4 && 
 
+      ( 
+      //(800< evt->ht()&& evt->ht()<900) ||
+      (50< evt->mht()&& evt->mht()<100)  || (200< evt->mht()&& evt->mht()<250)// || 
+      //(100< evt->met()&& evt->met()<150) 
+      )
+
+    ){
+      cout << "############################\n ";
+      for(int i=0; i< evt->TriggerNames_().size(); i++){
+        if(trigPass){
+          cout << "triggered \n ";
+          break;
+        }
+        if(evt->PassTrigger_().at(i)){
+          cout << "i: " << i << " trigger name: " << evt->TriggerNames_().at(i) << endl;
+          trigVec[i]++;
+          cout << trigVec[i] << endl;
+        }
+      } 
+    }
+// temporary// temporary// temporary// temporary// temporary
+*/
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
 
@@ -1215,6 +1299,7 @@ Ahmad33 */
 
       // Correct the uncertainties
       bootstrapUtils::HistogramFillForEventTH1(searchH, searchH_evt);
+      bootstrapUtils::HistogramFillForEventTH1(searchH_lowDphi, searchH_evt_lowDphi);
       bootstrapUtils::HistogramFillForEventTH1(QCD_Up, QCD_Up_evt);
       bootstrapUtils::HistogramFillForEventTH1(QCD_Low, QCD_Low_evt);
       bootstrapUtils::HistogramFillForEventTH1(searchH_b, searchH_b_noWeight, searchH_b_evt, searchH_b_noWeight_evt);
@@ -1341,11 +1426,16 @@ Ahmad33 */
       // Calculate probability of finding non-W muons
       TH1* hNonWMuProb = static_cast<TH1*>(hNonW_mu->Clone("hProb_Tau_mu"));
       hNonWMuProb->Divide(hNonW_mu,hAll_mu,1,1,"B");
+      TH1* hNonWMuProb_lowDelphi = static_cast<TH1*>(hNonW_mu_lowDelphi->Clone("hProb_Tau_mu_lowDelphi"));
+      hNonWMuProb_lowDelphi->Divide(hNonW_mu_lowDelphi,hAll_mu_lowDelphi,1,1,"B");
       sprintf(tempname,"%s/Probability_Tau_mu_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
       TFile muProbFile(tempname,"RECREATE");     
       hNonWMuProb->Write();
       hAll_mu->Write();
       hNonW_mu->Write();
+      hNonWMuProb_lowDelphi->Write();
+      hAll_mu_lowDelphi->Write();
+      hNonW_mu_lowDelphi->Write();
       muProbFile.Close();
 
       // Calculate trigger efficiency 
@@ -1377,6 +1467,7 @@ Ahmad33 */
     muMtWHist->Write();
     cutflow_preselection->Write();
     searchH->Write();
+    searchH_lowDphi->Write();
     QCD_Up->Write();
     QCD_Low->Write();
     searchH_b->Write();

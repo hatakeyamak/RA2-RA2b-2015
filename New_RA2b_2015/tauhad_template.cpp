@@ -219,6 +219,11 @@ using namespace std;
     TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
     Iso_pass->Sumw2();
 
+    TH1* Iso_all_lowDphi = new TH1D("Iso_all_lowDphi","Isolated Trk efficiency -- all ",totNbins,1,totNbins+1);
+    Iso_all_lowDphi->Sumw2();
+    TH1* Iso_pass_lowDphi = new TH1D("Iso_pass_lowDphi","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
+    Iso_pass_lowDphi->Sumw2();
+
     TH1* Iso_all2 = new TH1D("Iso_all2","Isolated Trk efficiency for leading tau jet -- all ",totNbins,1,totNbins+1);
     Iso_all2->Sumw2();
     TH1* Iso_pass2 = new TH1D("Iso_pass2","Isolated Trk efficiency for leading tau jet -- pass ",totNbins,1,totNbins+1);
@@ -520,7 +525,7 @@ using namespace std;
     
       // add pileup as weight for MC 
       if(!evt->DataBool_()){
-        double pu_weight = hPURatio->GetBinContent( hPURatio->GetBin( evt->NVtx_() ) );
+        double pu_weight = hPURatio->GetBinContent( hPURatio->FindBin( evt->NVtx_() ) );
         totWeight*=pu_weight;
       }
 
@@ -554,6 +559,15 @@ using namespace std;
 
       if(pass3){
 	cutflow_preselection->Fill(8.); // We may ask genTau within muon acceptance
+
+        // Apply low delphi region
+        if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
+           &&sel->mht_200(evt->mht())&&(evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3)
+          ){
+          Iso_all_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
+        }
+
 
         // Apply baseline cuts
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -788,6 +802,8 @@ using namespace std;
     IsoPionEff->Divide(IsoPion_pass,IsoPion_all,1,1,"B");
     TH1* IsoEff = static_cast<TH1*>(Iso_pass->Clone("IsoEff"));
     IsoEff->Divide(Iso_pass,Iso_all,1,1,"B");
+    TH1* IsoEff_lowDphi = static_cast<TH1*>(Iso_pass_lowDphi->Clone("IsoEff_lowDphi"));
+    IsoEff_lowDphi->Divide(Iso_pass_lowDphi,Iso_all_lowDphi,1,1,"B");
     TH1* IsoEff2 = static_cast<TH1*>(Iso_pass2->Clone("IsoEff2"));
     IsoEff2->Divide(Iso_pass2,Iso_all2,1,1,"B");   
  
@@ -805,6 +821,9 @@ using namespace std;
     IsoEff->Write();
     Iso_pass->Write();
     Iso_all->Write();
+    IsoEff_lowDphi->Write();
+    Iso_pass_lowDphi->Write();
+    Iso_all_lowDphi->Write();
     IsoEff2->Write();
     Iso_pass2->Write();
     Iso_all2->Write();

@@ -1,7 +1,8 @@
 #!/bin/sh
 
 sample=$1
-type=$2
+type=$2 # 0 prediction, 1 expectation
+outStr=$3
 submitscript=submitScriptTTbar.sh
 submitscript1=submitScriptTTbar_Expectation.sh
 
@@ -21,6 +22,7 @@ for i in `seq 0 $njobs`; do
 
 export filenum=$i
 export sample_=$sample
+export outStr=$outStr
 echo $filenum
 echo $code 
 

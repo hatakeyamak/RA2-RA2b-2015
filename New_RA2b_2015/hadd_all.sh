@@ -65,4 +65,9 @@ done
 hadd GenInfo_HadTauEstimation_TTbar_.root  `ls GenInfo_HadTauEstimation_TTbar_*00.root `
 cp GenInfo_HadTauEstimation_TTbar_.root ../TauHad
 
+for i in  t_top tW_top t_antitop tW_antitop ; do
+  hadd GenInfo_HadTauEstimation_${i}_.root `ls GenInfo_HadTauEstimation_${i}_*00.root `
+  cp GenInfo_HadTauEstimation_${i}_.root ../TauHad
+done
+
 cd ..

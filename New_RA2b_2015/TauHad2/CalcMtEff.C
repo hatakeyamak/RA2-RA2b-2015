@@ -37,13 +37,13 @@ TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
 catLeg1->SetTextSize(0.032);
 catLeg1->SetTextFont(42);
 
-TFile * before = new TFile("HadTauEstimation_TTbar_Elog227AfterMT.root","R");
-TFile * after = new TFile("HadTauEstimation_TTbar_Elog227BeforeMT.root","R");
+TFile * after = new TFile("HadTauEstimation_TTbar_afterMT_plusLowDphi_.root","R");
+TFile * before = new TFile("HadTauEstimation_TTbar_beforeMT_plusLowDphi_.root","R");
 
 TH1D * thist;
 TH1D * thist2;
-thist = (TH1D *) before->Get("searchH")->Clone("after");
-thist2 = (TH1D *) after->Get("searchH")->Clone("before");
+thist = (TH1D *) after->Get("searchH")->Clone("after");
+thist2 = (TH1D *) before->Get("searchH")->Clone("before");
 
 TH1D * MtCutEff = static_cast<TH1D*>(thist->Clone("MtCutEff"));
 MtCutEff->Divide(thist,thist2,1,1,"B");
@@ -54,6 +54,23 @@ c1->Print(tempname);
 
 TFile * outFile = new TFile("MtEff_TTbar.root","RECREATE");
 MtCutEff->Write();
+
+
+
+
+
+thist = (TH1D *) after->Get("searchH_lowDphi")->Clone("after_lowDphi");
+thist2 = (TH1D *) before->Get("searchH_lowDphi")->Clone("before_lowDphi");
+
+TH1D * MtCutEff_lowDphi = static_cast<TH1D*>(thist->Clone("MtCutEff_lowDphi"));
+MtCutEff_lowDphi->Divide(thist,thist2,1,1,"B");
+
+MtCutEff_lowDphi->Draw();
+sprintf(tempname,"MtEff_lowDphi.png");
+c1->Print(tempname);
+
+MtCutEff_lowDphi->Write();
+
 outFile->Close();
 
 

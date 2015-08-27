@@ -10,9 +10,9 @@ if [ $sample_ -eq 14 ]; then
 
   if [ $filenum -lt 10 ]
   then
-    ./run_tauHad "InputFiles_TTbar/filelist_TTJets_PU20bx25_0$filenum" "TTbar_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_TTbar/filelist_TTJets_PU20bx25_0$filenum" "TTbar_${outStr}_$filenum" "TauHadMultiple" "00" "0"
     else
-    ./run_tauHad "InputFiles_TTbar/filelist_TTJets_PU20bx25_$filenum" "TTbar_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_TTbar/filelist_TTJets_PU20bx25_$filenum" "TTbar_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   fi
 
 fi
@@ -21,9 +21,9 @@ if [ $sample_ -eq 15 ]; then
 
   if [ $filenum -lt 10 ]
   then
-    ./run_tauHad "InputFiles_TTbar/filelist_Spring15_TTJets_PU20bx25_0$filenum" "TTbar_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_TTbar/filelist_Spring15_TTJets_PU20bx25_0$filenum" "TTbar_${outStr}_$filenum" "TauHadMultiple" "00" "0"
     else
-    ./run_tauHad "InputFiles_TTbar/filelist_Spring15_TTJets_PU20bx25_$filenum" "TTbar_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_TTbar/filelist_Spring15_TTJets_PU20bx25_$filenum" "TTbar_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   fi
 
 fi
