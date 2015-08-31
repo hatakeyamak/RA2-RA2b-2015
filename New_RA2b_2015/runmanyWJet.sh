@@ -2,7 +2,7 @@
 
 sample=$1
 type=$2
-
+outStr=$3
 
 submitscript=submitScriptWJet.sh
 submitscript1=submitScriptWJet_Expectation.sh
@@ -21,6 +21,7 @@ if [ $type -eq 0 ]; then
 
           export filenum=$i
           export WJetStr=$WJetStr
+          export outStr=$outStr
           echo $filenum
           qsub -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
 
@@ -39,6 +40,7 @@ if [ $type -eq 0 ]; then
           export filenum=$i
           export WJetStr=$WJetStr
           export sample_=$sample
+          export outStr=$outStr
           echo $filenum
           qsub -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
 
@@ -67,6 +69,7 @@ if [ $type -eq 1 ]; then
           export filenum=$i
           export WJetStr=$WJetStr
           export sample_=$sample
+          export outStr=$outStr
           echo $filenum
           qsub -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
 

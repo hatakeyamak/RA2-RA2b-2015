@@ -7,18 +7,18 @@ eval `scramv1 runtime -sh`
 if [ $sample_ -eq 14 ]; then
   if [ $filenum -lt 10 ]
   then
-    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_WJet_HT_${WJetStr}_0$filenum" "WJet_${WJetStr}_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_WJet_HT_${WJetStr}_0$filenum" "WJet_${WJetStr}_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   else
-    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_WJet_HT_${WJetStr}_$filenum" "WJet_${WJetStr}_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_WJet_HT_${WJetStr}_$filenum" "WJet_${WJetStr}_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   fi
 fi
 
 if [ $sample_ -eq 15 ]; then
   if [ $filenum -lt 10 ]
   then
-    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_Spring15_WJet_HT_${WJetStr}_0$filenum" "WJet_${WJetStr}_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_Spring15_WJet_HT_${WJetStr}_0$filenum" "WJet_${WJetStr}_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   else
-    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_Spring15_WJet_HT_${WJetStr}_$filenum" "WJet_${WJetStr}_$filenum" "TauHadMultiple" "00" "0"
+    ./run_tauHad "InputFiles_WJet_${WJetStr}/filelist_Spring15_WJet_HT_${WJetStr}_$filenum" "WJet_${WJetStr}_${outStr}_$filenum" "TauHadMultiple" "00" "0"
   fi
 fi
 
