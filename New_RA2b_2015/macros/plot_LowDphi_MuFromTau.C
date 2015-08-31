@@ -43,6 +43,10 @@ void plot_LowDphi_MuFromTau(){
   TH1D * hProb_Tau_mu_lowDelphi = (TH1D *) file->Get("hProb_Tau_mu_lowDelphi")->Clone();
   
   hProb_Tau_mu->SetLineColor(4);
+  hProb_Tau_mu->GetXaxis()->SetTitle("search bin");
+  hProb_Tau_mu->GetYaxis()->SetTitle("Probability(#tau -> #mu)");
+  hProb_Tau_mu->GetYaxis()->SetTitleOffset(1.2);
+  hProb_Tau_mu->SetTitle("");
   hProb_Tau_mu_lowDelphi->SetLineColor(1);
   
   hProb_Tau_mu->Draw();

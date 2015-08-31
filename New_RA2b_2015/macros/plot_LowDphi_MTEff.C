@@ -1,7 +1,7 @@
 #include <cstdio>
 using namespace std;
 
-void plot_LowDphi_IsoTrkEff(){
+void plot_LowDphi_MTEff(){
 
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1) ; // for better color output
@@ -38,26 +38,25 @@ void plot_LowDphi_IsoTrkEff(){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  TFile * file = new TFile("InputRootFiles/IsoEfficiencies_TTbar_stacked.root","R");
-  TH1D * IsoEff = (TH1D *) file->Get("IsoEff")->Clone();
-  TH1D * IsoEff_lowDelphi = (TH1D *) file->Get("IsoEff_lowDphi")->Clone();
+  TFile * file = new TFile("InputRootFiles/MtEff_TTbar.root","R");
+  TH1D * MtCutEff = (TH1D *) file->Get("MtCutEff")->Clone();
+  TH1D * MtCutEff_lowDphi = (TH1D *) file->Get("MtCutEff_lowDphi")->Clone();
   
-  IsoEff->SetLineColor(4);
-  IsoEff->SetMaximum(1.5);
-  IsoEff->GetXaxis()->SetTitle("search bin");
-  IsoEff->GetYaxis()->SetTitle("isolated track efficiency");
-  IsoEff->SetTitle("");
-  IsoEff_lowDelphi->SetLineColor(1);
+  MtCutEff->SetLineColor(4);
+  MtCutEff->SetMaximum(2);
+  MtCutEff->SetTitle("");
+  MtCutEff->GetXaxis()->SetTitle("search bin");
+  MtCutEff->GetYaxis()->SetTitle("MT efficiency");
+  MtCutEff_lowDphi->SetLineColor(1);
   
+  MtCutEff->Draw();
+  MtCutEff_lowDphi->Draw("same");
   
-  IsoEff->Draw();
-  IsoEff_lowDelphi->Draw("same");
-  
-  catLeg1->AddEntry(IsoEff,"delphi","l");
-  catLeg1->AddEntry(IsoEff_lowDelphi,"low delphi","l");
+  catLeg1->AddEntry(MtCutEff,"delphi","l");
+  catLeg1->AddEntry(MtCutEff_lowDphi,"low delphi","l");
   catLeg1->Draw();
   
-  canvas->Print("IsoTrkEfficiency_TTbar_plusLowDphi.png");
+  canvas->Print("MtEff_TTbar.png");
   
   
   

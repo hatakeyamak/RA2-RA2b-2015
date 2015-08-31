@@ -71,8 +71,8 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
   
-  string input="data_SingleMuon_v14g";
-  //string input="TTbar";
+  //string input="data_SingleMuon_v14g";
+  string input="TTbar";
   
   sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_NoTrig_.root",input.c_str());
   TFile *file_NoTrig = new TFile(tempname,"R");
@@ -113,21 +113,21 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   NoTrigHist->SetMaximum(10.);
   double MaxX = 1000.;
   if(histname=="MHT"){
-	  if(input=="TTbar")NoTrigHist->SetMaximum(1500.);
+	  if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
 	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
 	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,1000.);
 	  MaxX = 1000.;
   }
    if(histname=="origMHT" || histname=="origMET"){
 	   MaxX = 500.;
-	   if(input=="TTbar")NoTrigHist->SetMaximum(1500.);
+	   if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
 	   if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
 	   NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
   }
   if(histname=="HT" || histname=="origHT"){
 	  MaxX = 1500.;
 	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(1500.);
+	  if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
 	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
   }
   if(histname=="NJet"){
@@ -138,7 +138,7 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   }
   if(histname=="NBtag"){
 	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(15.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(1500.);
+	  if(input=="TTbar")NoTrigHist->SetMaximum(2500.);
 	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,4.);
 	  MaxX = 4.;
   }
@@ -172,7 +172,7 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   nulH->GetYaxis()->SetTitleSize(0.15);
   nulH->GetYaxis()->SetTitleFont(42);
   nulH->GetYaxis()->SetTitleOffset(0.3);
-  nulH->GetYaxis()->SetTitle("Efficiency");
+  nulH->GetYaxis()->SetTitle("WRT 1#mu PD   ");
   // Draw
   nulH->Draw();
   
@@ -199,7 +199,8 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
     catLeg1->SetHeader("Triggers:");
   
     NoTrigHist->Draw("same,hist");	
-	sprintf(tempname,"No Trigger");
+	if(input=="data_SingleMuon_v14g")sprintf(tempname,"Single Muon PD");
+	if(input=="TTbar")sprintf(tempname,"TTbar MC");
     catLeg1->AddEntry(NoTrigHist,tempname,"l");
 
     Hist1_2->Draw("same,hist");
@@ -221,8 +222,7 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   
   catLeg1->Draw();
 
-  
-  sprintf(tempname,"BGEstWithTriggers_%s_%s.png",cutname.c_str(),histname.c_str());
+  sprintf(tempname,"%s_BGEstWithTriggers_%s_%s.png",input.c_str(),cutname.c_str(),histname.c_str());
   canvas->Print(tempname);
 
 

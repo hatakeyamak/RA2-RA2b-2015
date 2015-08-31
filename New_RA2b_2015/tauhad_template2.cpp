@@ -333,8 +333,15 @@ using namespace std;
     // Define different event categories
     eventType[0]="allEvents";
     eventType[1]="BMistagPlus";
+    eventType[2]="BMistagMinus";
 
     // weights are different for different eventType
+    map<string,double> totWeightMap;
+    double dummyWeight=1.;
+    for(int i=0;i < eventType.size();i++){
+      totWeightMap[eventType[i]]=dummyWeight;
+
+    }
 
     //initialize a map between string and maps. copy the map of histvecs into each
     for(int i=0; i< eventType.size();i++){
@@ -389,8 +396,8 @@ using namespace std;
     TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
 //    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
-    TFile * IsoEffFile_lowDelphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
-    TH1D * hIsoEff_lowDelphi =(TH1D *) IsoEffFile_lowDelphi->Get("IsoEff_lowDelphi")->Clone();
+    TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
+    TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile_lowDphi->Get("IsoEff_lowDphi")->Clone();
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
@@ -476,15 +483,13 @@ using namespace std;
     int nBtagsForHadTau;
     if(utils2::bootstrap){nLoops=50;nBtagsForHadTau=2;}
     else {nLoops=1;nBtagsForHadTau=1;}
-
+    
+    if(!utils2::bootstrap)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
 
 
 // temporary// temporary// temporary// temporary
 vector<int> trigVec(300,0);
 // temporary// temporary// temporary// temporary
-
-
-
 
     int eventN=0;
     while( evt->loadNext() ){
@@ -819,14 +824,28 @@ Ahmad33 */
             
             // New #b
             double NewNB=evt->nBtags();
-            // get the rate of tau jet mistaggign as a function of pT.
+            // get the rate of tau jet mistagging as a function of pT.
             double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+            if(bRate==0)bRate=0.0000000000000000001;
 
             //KH20150617
             double Prob_Btag = 1.;
+            double Prob_Btag_Plus = 1.;
+            double Prob_Btag_Minus = 1.;
             if(utils2::bootstrap){
-              if (m==0){ Prob_Btag=(1.-bRate);}          // had tau not b-tagged
-              else if (m==1){ NewNB++; Prob_Btag=bRate;} // had tau b-tagged
+              double bRate_Plus = bRate + bRate * .5;
+              double bRate_Minus = bRate - bRate * .5;
+              if (m==0){
+                 Prob_Btag=(1.-bRate); // had tau not b-tagged
+                 Prob_Btag_Plus=(1. - bRate_Plus);
+                 Prob_Btag_Minus=(1. - bRate_Minus);
+              }
+              else if (m==1){ 
+                NewNB++;
+                Prob_Btag=bRate; // had tau b-tagged
+                Prob_Btag_Plus=bRate_Plus;
+                Prob_Btag_Minus=bRate_Minus;
+              }               
               //std::cout << m << " " << bRate << " " << Prob_Btag << std::endl;
             }
             else {
@@ -1040,12 +1059,12 @@ Ahmad33 */
             }
 
 
+            int binNum_MT = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+            double mtWeight = hMT->GetBinContent(binNum_MT);
+            double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
+
             // Apply MT efficiency
             if(utils2::applyMT){
-
-              int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
-              double mtWeight = hMT->GetBinContent(binNum);
-              double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum);
 
               if(mtWeight==0)mtWeight=0.9;
               if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
@@ -1060,7 +1079,7 @@ Ahmad33 */
 	    }
 	    cutflow_preselection->Fill(9.,totWeight); // All preselection
 
-            double IsoTrkWeight, IsoTrkWeight_lowDelphi;
+            double IsoTrkWeight, IsoTrkWeight_lowDphi;
             bool PassIso2=false;
             double searchWeight = totWeight;
             // applyIsoTrk here 
@@ -1191,7 +1210,7 @@ Ahmad33 */
 
               // applyIsoTrk here 
               if(utils2::applyIsoTrk){
-                searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDelphi*mtWeight/mtWeight_lowDphi;
+                searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi;
               }
               else searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
@@ -1231,8 +1250,23 @@ Ahmad33 */
 // temporary// temporary// temporary// temporary// temporary
 */
 
-            //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
+            //load totWeightMap
+              // no error propagation
+              totWeightMap["allEvents"]=totWeight;
+              // b mistag error propagation
+              totWeightMap["BMistagPlus"]=totWeight;
+              totWeightMap["BMistagMinus"]=totWeight;
+              if(utils2::bootstrap){
 
+                totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
+                totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
+
+              }
+
+
+            //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
             double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
                                  ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3
                                  ,(double) newNJet, (double)NewNB, muPt
@@ -1245,9 +1279,9 @@ Ahmad33 */
 
               //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
               for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map_evt.begin(); itt!=map_map_evt.end();itt++){//this will be terminated after the cuts
-
+                eveinfvec[0] = totWeightMap[itt->first];
                 ////determine what type of background should pass
-                if(itt->first=="allEvents"){//all the cuts are inside this
+                if(true){//we can apply extar selection for each eventType here
 
                   //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
 
@@ -1258,15 +1292,13 @@ Ahmad33 */
                     if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" && utils2::applyIsoTrk){            
                       if(!PassIso2)continue;
 
-                      eveinfvec[0] = totWeight*IsoTrkWeight; 
+                      eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight; 
            
                     } 
-                    else eveinfvec[0] = totWeight;
-
+                    else eveinfvec[0] = totWeightMap[itt->first];
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                       histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-
                     }
 
                   }//end of loop over cut names
