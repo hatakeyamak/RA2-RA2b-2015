@@ -130,7 +130,8 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
-  
+  Hname[5]="searchH_lowDphi";
+ 
   for(int j=0; j< Hname.size(); j++){
 
     for(int i=0; i<tnHT ; i++){                                                  // loop over different HT bins
@@ -285,6 +286,7 @@ cout << " flag \n " ;
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
+  Hname[5]="searchH_lowDphi";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -375,7 +377,7 @@ cout << " flag \n " ;
   histname[0]="hProb_Tau_mu";
   histname[1]="hNonW_mu";
   histname[2]="hAll_mu";
-/*
+
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
@@ -404,12 +406,47 @@ cout << " flag \n " ;
   temphistIII->SetTitle("hProb_Tau_mu");
   temphistIII->Write();
 
+
+  histname.clear();
+  histname[0]="hProb_Tau_mu_lowDelphi";
+  histname[1]="hNonW_mu_lowDelphi";
+  histname[2]="hAll_mu_lowDelphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hProb_Tau_mu_lowDelphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hProb_Tau_mu_lowDelphi");
+  temphistIII->SetTitle("hProb_Tau_mu_lowDelphi");
+  temphistIII->Write();
+
+
   file->Close();
   printf("WJet Mu from nonW calculated. \n ");
 
 
 
-*/
+
 
 
 //..........................................//
@@ -608,6 +645,7 @@ cout << " flag \n " ;
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
+  Hname[5]="searchH_lowDphi";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -721,6 +759,40 @@ cout << " flag \n " ;
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
   temphistIII->SetName("hProb_Tau_mu");
   temphistIII->SetTitle("hProb_Tau_mu");
+  temphistIII->Write();
+
+
+  histname.clear();
+  histname[0]="hProb_Tau_mu_lowDelphi";
+  histname[1]="hNonW_mu_lowDelphi";
+  histname[2]="hAll_mu_lowDelphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hProb_Tau_mu_lowDelphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hProb_Tau_mu_lowDelphi");
+  temphistIII->SetTitle("hProb_Tau_mu_lowDelphi");
   temphistIII->Write();
 
   file->Close();
@@ -892,6 +964,7 @@ cout << " flag \n " ;
   Hname[2]="QCD_Up";  
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
+  Hname[5]="searchH_lowDphi";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -958,6 +1031,89 @@ cout << " flag \n " ;
   printf("All samples main histograms stacked \n ");
 
 
+
+// ........................................... //
+//  Probability mu from nonW sources
+// ........................................... //
+
+  // Open the files to read
+  sprintf(tempname,"Probability_Tau_mu_TTbar_stacked.root");
+  file = new TFile(tempname,"R");
+  sprintf(tempname,"Probability_Tau_mu_WJet_stacked.root");
+  file2 = new TFile(tempname,"R");
+
+  // Open a file to write
+  sprintf(tempname,"Probability_Tau_mu_stacked.root");
+  file3 = new TFile(tempname,"RECREATE");
+
+
+  histname.clear();
+  histname[0]="hNonW_mu";
+  histname[1]="hAll_mu";
+
+
+  for(int j=0; j<histname.size(); j++){
+
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+    temphist->Add(temphist,temphist2,1,1);
+
+  temphist->Write();
+
+  }
+
+
+  histname.clear();
+  histname[0]="hNonW_mu_lowDelphi";
+  histname[1]="hAll_mu_lowDelphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+    temphist->Add(temphist,temphist2,1,1);
+
+  temphist->Write();
+
+  }
+
+
+  file3->Close();
+  file2->Close();
+  file->Close();
+
+  // Open a file to write
+  sprintf(tempname,"Probability_Tau_mu_stacked.root");
+  file2 = new TFile(tempname,"R");
+  file = new TFile(tempname,"UPDATE");
+
+
+  sprintf(tempname,"hNonW_mu");
+  temphist = (TH1D *) file->Get(tempname)->Clone();
+  sprintf(tempname,"hAll_mu");
+  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+  temphist->Divide(temphist,temphist2,1,1,"B");
+  temphist->SetName("hProb_Tau_mu");
+  temphist->SetTitle("hProb_Tau_mu");
+  temphist->Write();
+
+
+  sprintf(tempname,"hNonW_mu_lowDelphi");
+  temphist = (TH1D *) file->Get(tempname)->Clone();
+  sprintf(tempname,"hAll_mu_lowDelphi");
+  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+  temphist->Divide(temphist,temphist2,1,1,"B");
+  temphist->SetName("hProb_Tau_mu_lowDelphi");
+  temphist->SetTitle("hProb_Tau_mu_lowDelphi");
+  temphist->Write();
+
+
+  file->Close();
+  file2->Close();
 
 
 

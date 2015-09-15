@@ -607,14 +607,16 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[0]="IsoEff";
   histname[1]="Iso_pass";
   histname[2]="Iso_all";
+  histname[3]="Iso_pass_lowDphi";
+  histname[4]="Iso_all_lowDphi";
 
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
     sprintf(tempname,"%s",(histname[j]).c_str());
 
-    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
 
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
       temphist->SetFillColor(i+2);
@@ -625,6 +627,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
+    if(j==3)temphistI_lowDphi=(TH1D*)temphist->Clone();
+    if(j==4)temphistII_lowDphi=(TH1D*)temphist->Clone();
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -636,6 +640,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
 
+  temphistIII_lowDphi = static_cast<TH1D*>(temphistI_lowDphi->Clone("IsoEff_lowDphi"));
+  temphistIII_lowDphi->Divide(temphistI_lowDphi,temphistII_lowDphi,1,1,"B");
+  temphistIII_lowDphi->SetName("IsoEff_lowDphi");
+  temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
+  temphistIII_lowDphi->Write();
 
   histname.clear();
   histname[0]="IsoEff2";
@@ -1637,6 +1646,22 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   }
 
+  histname.clear();
+  histname[0]="Iso_pass_lowDphi";
+  histname[1]="Iso_all_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+    temphist->Add(temphist,temphist2,1,1);
+
+  temphist->Write();
+
+  }
+
 
   file3->Close();
   file2->Close();
@@ -1647,26 +1672,37 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file2 = new TFile(tempname,"R");
   file = new TFile(tempname,"UPDATE");
   
+
   sprintf(tempname,"Iso_pass");
   temphist = (TH1D *) file->Get(tempname)->Clone();
   sprintf(tempname,"Iso_all");
   temphist2 = (TH1D *) file2->Get(tempname)->Clone();
-
   temphist->Divide(temphist,temphist2,1,1,"B");
   temphist->SetName("IsoEff");
   temphist->SetTitle("IsoEff");
   temphist->Write();
 
 
+
   sprintf(tempname,"Iso_pass2");
   temphist = (TH1D *) file->Get(tempname)->Clone();
   sprintf(tempname,"Iso_all2");
   temphist2 = (TH1D *) file2->Get(tempname)->Clone();
-
   temphist->Divide(temphist,temphist2,1,1,"B");
   temphist->SetName("IsoEff2");
   temphist->SetTitle("IsoEff2");
   temphist->Write();
+
+
+  sprintf(tempname,"Iso_pass_lowDphi");
+  temphist = (TH1D *) file->Get(tempname)->Clone();
+  sprintf(tempname,"Iso_all_lowDphi");
+  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+  temphist->Divide(temphist,temphist2,1,1,"B");
+  temphist->SetName("IsoEff_lowDphi");
+  temphist->SetTitle("IsoEff_lowDphi");
+  temphist->Write();
+
 
   file->Close();
   file2->Close();

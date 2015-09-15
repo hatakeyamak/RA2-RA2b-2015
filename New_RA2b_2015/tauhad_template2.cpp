@@ -330,11 +330,14 @@ using namespace std;
       cut_histvec_map[sel->cutName()[i]]=vec;
     }
 
+
+    bool StudyErrorPropag =false;
     // Define different event categories
     eventType[0]="allEvents";
-    eventType[1]="BMistagPlus";
-    eventType[2]="BMistagMinus";
-
+    if(StudyErrorPropag){
+      eventType[1]="BMistagPlus";
+      eventType[2]="BMistagMinus";
+    }
     // weights are different for different eventType
     map<string,double> totWeightMap;
     double dummyWeight=1.;
@@ -368,20 +371,20 @@ using namespace std;
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    //TFile * Prob_Tau_mu_file = new TFile("TauHad/Probability_Tau_mu_TTbar_Elog195.root","R");
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_Elog242.root","R");
+    //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_Elog242.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Probability_Tau_mu_stacked_Elog329.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
-    TFile * Prob_Tau_mu_lowDelphi_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_plusLowDphi.root","R");
+    //TFile * Prob_Tau_mu_lowDelphi_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_plusLowDphi.root","R");
+    TFile * Prob_Tau_mu_lowDelphi_file = new TFile("TauHad2/Stack/Probability_Tau_mu_stacked_Elog329.root","R");
     sprintf(histname,"hProb_Tau_mu_lowDelphi");
     TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_lowDelphi_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-//    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog195.root","R");
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
-    TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-//    TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked.root","R");
+//    TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked_Elog323.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
@@ -393,19 +396,21 @@ using namespace std;
 
 
     // Get IsoTrk efficiencies
-    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
-//    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked.root","R");
+//    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
-    TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
+//    TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
+    TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile_lowDphi->Get("IsoEff_lowDphi")->Clone();
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
     TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
-//    TFile * MtFile = new TFile("TauHad2/Stack/MtEff_stacked.root","R");
+    //TFile * MtFile = new TFile("TauHad2/Elog331_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     TFile * MtFile_lowDphi = new TFile("TauHad2/MtEff_TTbar_plusLowDphi_.root","R");
+    //TFile * MtFile_lowDphi = new TFile("TauHad2/Elog331_MtEff.root","R");
     TH1D * hMT_lowDphi = (TH1D *) MtFile_lowDphi->Get("MtCutEff_lowDphi")->Clone();
 
 
@@ -428,8 +433,8 @@ using namespace std;
 
 
     // Use Ahmad's tau template
-    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
-//    TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked.root","R");
+//    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
+    TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -500,7 +505,6 @@ vector<int> trigVec(300,0);
       //      if(eventN>6840.03)break;
       //      if(eventN>2313.63)break;
       //      if(eventN>100000.)break;
-
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
 
@@ -531,15 +535,20 @@ vector<int> trigVec(300,0);
 	  cout << evt->TriggerNames_().at(i) << endl; 
           cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
         }
+        string trigStr;
+        if(!isData)trigStr="PFHT400";
+        if(isData)trigStr="PFHT350";
+        sprintf(tempname,"HLT_Mu15_IsoVVVL_%s_PFMET70_v",trigStr.c_str());
 	//if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
-        //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos ){
+        //if( evt->TriggerNames_().at(i).find(tempname) != string::npos ){
         //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
+        //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos ){
 /*
-        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos
+        if( evt->TriggerNames_().at(i).find(tempname) != string::npos
             || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
           ){
 */
-        if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v") != string::npos
+        if( evt->TriggerNames_().at(i).find(tempname) != string::npos
             || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
             || evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos
           ){
@@ -1028,8 +1037,11 @@ Ahmad33 */
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
             double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+cout << " bin#: " << utils2::findBin_NoB(newNJet,newHT,newMHT) << endl;
             double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
-
+cout << " NJ: " << newNJet << " HT: " << newHT << " MHT: " << newMHT << endl;
+cout << "content: " << binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)] << endl;
+cout << "Prob_Tau_mu: " << Prob_Tau_mu << endl;
     //Ahmad33
             if(TauHadModel<4)Acc=1.; 
     //Ahmad33
@@ -1078,6 +1090,7 @@ Ahmad33 */
 	      cutflow_preselection->Fill(8.); // All preselection
 	    }
 	    cutflow_preselection->Fill(9.,totWeight); // All preselection
+cout << "weight: " << totWeight << endl;
 
             double IsoTrkWeight, IsoTrkWeight_lowDphi;
             bool PassIso2=false;
@@ -1253,18 +1266,18 @@ Ahmad33 */
             //load totWeightMap
               // no error propagation
               totWeightMap["allEvents"]=totWeight;
-              // b mistag error propagation
-              totWeightMap["BMistagPlus"]=totWeight;
-              totWeightMap["BMistagMinus"]=totWeight;
-              if(utils2::bootstrap){
-
-                totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
-                totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
-
+    
+              if(StudyErrorPropag){
+                // b mistag error propagation
+                totWeightMap["BMistagPlus"]=totWeight;
+                totWeightMap["BMistagMinus"]=totWeight;
+                if(utils2::bootstrap){
+                  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
+                  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
+                }
               }
-
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
             double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
