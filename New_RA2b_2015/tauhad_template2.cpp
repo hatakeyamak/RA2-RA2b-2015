@@ -383,8 +383,9 @@ using namespace std;
     // Acceptance and efficiencies
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
-//    TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked_Elog323.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked_Elog323.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog333_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
@@ -1037,11 +1038,7 @@ Ahmad33 */
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
             double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
-cout << " bin#: " << utils2::findBin_NoB(newNJet,newHT,newMHT) << endl;
             double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
-cout << " NJ: " << newNJet << " HT: " << newHT << " MHT: " << newMHT << endl;
-cout << "content: " << binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)] << endl;
-cout << "Prob_Tau_mu: " << Prob_Tau_mu << endl;
     //Ahmad33
             if(TauHadModel<4)Acc=1.; 
     //Ahmad33
@@ -1090,7 +1087,6 @@ cout << "Prob_Tau_mu: " << Prob_Tau_mu << endl;
 	      cutflow_preselection->Fill(8.); // All preselection
 	    }
 	    cutflow_preselection->Fill(9.,totWeight); // All preselection
-cout << "weight: " << totWeight << endl;
 
             double IsoTrkWeight, IsoTrkWeight_lowDphi;
             bool PassIso2=false;

@@ -251,7 +251,6 @@ using namespace std;
     // We would like also to have the pt distribution of the tau Jets
     TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
 
-
     // Because of bad reconstruction or so, sometimes no jet matches a Gen. hadronic tau. 
     // So we need to add into account the fail rate here. 
     // First open the fail rate histogram
@@ -514,10 +513,15 @@ using namespace std;
      
       // Acceptance determination 1: Counter for all events
       // with muons at generator level
-      hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
-      if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
-        hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
-      } 
+      // apply the baseline selection
+      if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3())
+        ){
+        hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+        if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+          hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+        } 
+      }
 
       // Total weight
       // double totWeight = evt->weight()*1.;
