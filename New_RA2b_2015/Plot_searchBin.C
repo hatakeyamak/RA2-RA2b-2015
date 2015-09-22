@@ -303,7 +303,7 @@ Plot_searchBin(string sample="TTbar_",string histname="searchH",int choice=1){
       tline->Draw();
   }
 
-  sprintf(tempname,"%s_SearchBin_Plot.png",sample.c_str());
+  sprintf(tempname,"%s_%s_SearchBin_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
 
 }

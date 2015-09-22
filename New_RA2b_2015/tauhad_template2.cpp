@@ -407,11 +407,11 @@ using namespace std;
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
-    TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
-    //TFile * MtFile = new TFile("TauHad2/Elog331_MtEff.root","R");
+    //TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
+    TFile * MtFile = new TFile("TauHad2/Elog335_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
-    TFile * MtFile_lowDphi = new TFile("TauHad2/MtEff_TTbar_plusLowDphi_.root","R");
-    //TFile * MtFile_lowDphi = new TFile("TauHad2/Elog331_MtEff.root","R");
+    //TFile * MtFile_lowDphi = new TFile("TauHad2/MtEff_TTbar_plusLowDphi_.root","R");
+    TFile * MtFile_lowDphi = new TFile("TauHad2/Elog335_MtEff.root","R");
     TH1D * hMT_lowDphi = (TH1D *) MtFile_lowDphi->Get("MtCutEff_lowDphi")->Clone();
 
 
@@ -467,8 +467,18 @@ using namespace std;
     int GenRecMu_all=0,GenRecMu_fail=0;
 
     // see how often there are two leptons in the the event
-    int dilepton_all=0, dilepton_pass=0;
     int nCleanEve=0;
+    TH1D * dilepton_all = new TH1D("dilepton_all"," dilepton all -- search bin",totNbins,1,totNbins+1);
+    dilepton_all->Sumw2();
+    TH1D * dilepton_pass = new TH1D("dilepton_pass"," dilepton pass -- search bin",totNbins,1,totNbins+1);
+    dilepton_pass->Sumw2();
+
+    TH1D * dilepton_all_lowDphi = new TH1D("dilepton_all_lowDphi"," dilepton all -- search bin",totNbins,1,totNbins+1);
+    dilepton_all_lowDphi->Sumw2();
+    TH1D * dilepton_pass_lowDphi = new TH1D("dilepton_pass_lowDphi"," dilepton pass -- search bin",totNbins,1,totNbins+1);
+    dilepton_pass_lowDphi->Sumw2();
+
+
 
     // how often a muon does not match a jet
     double muBin[]={0,20,40,60,80,100,1000};
@@ -490,7 +500,7 @@ using namespace std;
     if(utils2::bootstrap){nLoops=50;nBtagsForHadTau=2;}
     else {nLoops=1;nBtagsForHadTau=1;}
     
-    if(!utils2::bootstrap)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
+    if(!utils2::bootstrap && StudyErrorPropag)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
 
 
 // temporary// temporary// temporary// temporary
@@ -501,11 +511,7 @@ vector<int> trigVec(300,0);
     while( evt->loadNext() ){
       eventN++;
 
-      //      if(eventN>223491)break;
-      //      if(eventN>58006.8)break;
-      //      if(eventN>6840.03)break;
-      //      if(eventN>2313.63)break;
-      //      if(eventN>100000.)break;
+      //if(eventN>10000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
 
@@ -679,16 +685,14 @@ Ahmad33 */
 
 	cutflow_preselection->Fill(6.); // 1-mu selection
 
-// Ahmad33
-      dilepton_all++;
+ 
       bool pass1_1=false;
       // for veto we have a lepton collection with softer requirements. pT > 10 not 20 and eta < 2.4 not 2.1 and also there is no 
       // mT cut applied. 
       if(TauHadModel>=2){if(evt->MuPtVec_().size()>1 || evt->ElecPtVec_().size()>0)pass1_1=true;}
       else{ if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)pass1_1=true;}
       if(pass1_1)continue;
-      dilepton_pass++;
-// Ahmad33
+
 
       cutflow_preselection->Fill(7.); // Lepton vetos
 
@@ -1051,7 +1055,7 @@ Ahmad33 */
 
             // dilepton contamination
             if(TauHadModel>=3){
-              if(utils2::IsoTrkModel==0)totWeight*=1./1.045;
+              if(utils2::IsoTrkModel==0)totWeight*= 1./1.02;
             }
 
 	    weightEffAcc = totWeight;
@@ -1144,6 +1148,21 @@ Ahmad33 */
               PassIso2=true;
             }
 
+
+
+            //We would like to know whether in low/delPhi region
+            //muon is from non-W sources? This info is especially
+            //needed when working out MT efficiency
+            bool isMuFromNonW = false;
+            if(GenMuIdx<0)isMuFromNonW=true;
+            else if(evt->GenMuFromTauVec_()[GenMuIdx]==1)isMuFromNonW=true; 
+            bool Pass_MuMomForMT = false;
+            if(utils2::CalcMT){
+              if(!isMuFromNonW)Pass_MuMomForMT=true;
+            }
+            else Pass_MuMomForMT=true;
+          
+
             // Apply low delta phi region
             if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
               if(!utils2::bootstrap){
@@ -1184,8 +1203,17 @@ Ahmad33 */
 
               if(PassIso2){
 
+                // to see the dileptonic contamination
+                if(!isData && !utils2::bootstrap){
+                  dilepton_all->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)dilepton_pass->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                }
+
                 // Fill Search bin histogram 
-                searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+                // the if condition will be effective only if 
+                // MTCalc is on and mu is from nonW mom
+                // otherwise it always pass
+                if(Pass_MuMomForMT)searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 		searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 		
 		// Fill QCD histograms
@@ -1225,10 +1253,20 @@ Ahmad33 */
 
 
               if(PassIso2){
+
+                // to see the dileptonic contamination
+                if(!isData && !utils2::bootstrap){
+                  dilepton_all_lowDphi->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                  if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)dilepton_pass_lowDphi->Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()]);
+                }
+
                 // Fill Search bin histogram
-                searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+                // the if condition will be effective only if
+                // MTCalc is on and mu is from nonW mom
+                // otherwise it always pass
+                if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight*0.9);
                 // Fill QCD histograms
-                QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*0.9);
               }
 
             }
@@ -1305,6 +1343,14 @@ Ahmad33 */
            
                     } 
                     else eveinfvec[0] = totWeightMap[itt->first];
+
+                    if(ite->first!="low_Dphi"){
+                      if(utils2::applyIsoTrk){
+                        eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi * 0.9;
+                      }
+                      else eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi * 0.9;
+                    }
+
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                       histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
@@ -1429,7 +1475,7 @@ Ahmad33 */
 
     double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
-    printf("nCleanEve: %d dilepton_all: %d dilepton_pass: %d \n ",nCleanEve,dilepton_all,dilepton_pass);  
+      
 
     if(!utils2::bootstrap){
 
@@ -1463,6 +1509,22 @@ Ahmad33 */
       IsoPion_pass->Write();
       IsoPion_all->Write();
       outFile3.Close();
+
+      // Calculate dilepton contamination
+      TH1* dilepton_rate = static_cast<TH1*>(dilepton_pass->Clone("dilepton_rate"));
+      dilepton_rate->Divide(dilepton_pass,dilepton_all,1,1,"B");
+      TH1* dilepton_rate_lowDphi = static_cast<TH1*>(dilepton_pass_lowDphi->Clone("dilepton_rate_lowDphi"));
+      dilepton_rate_lowDphi->Divide(dilepton_pass_lowDphi,dilepton_all_lowDphi,1,1,"B");
+      sprintf(tempname,"%s/DileptonRate_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
+      TFile DiFile(tempname,"RECREATE");
+      dilepton_rate->Write();
+      dilepton_all->Write();
+      dilepton_pass->Write();
+      dilepton_rate_lowDphi->Write();
+      dilepton_all_lowDphi->Write();
+      dilepton_pass_lowDphi->Write();
+      DiFile.Close();
+    
 
       // Calculate probability of finding non-W muons
       TH1* hNonWMuProb = static_cast<TH1*>(hNonW_mu->Clone("hProb_Tau_mu"));

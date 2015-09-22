@@ -167,6 +167,8 @@ using namespace std;
     QCD_Low->Sumw2();
     TH1* QCD_Up = new TH1D("QCD_Up","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
     QCD_Up->Sumw2();
+    TH1* searchH_lowDphi = new TH1D("searchH_lowDphi","search bin histogram",totNbins,1,totNbins+1);
+    searchH_lowDphi->Sumw2();
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
@@ -326,7 +328,7 @@ using namespace std;
       eventN++;
 
       //if(eventN>1000000)break;
-      //if(eventN>47160)break;
+      //if(eventN>20000)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
       if(evt->CSCTightHaloFilter_()==0)continue;
@@ -633,6 +635,7 @@ using namespace std;
           if(passIso){
 
             QCD_Low->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+            searchH_lowDphi->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
 
           }
         }
@@ -852,6 +855,7 @@ using namespace std;
     cutflow_preselection->Write();
     searchH->Write();
     QCD_Low->Write();
+    searchH_lowDphi->Write();
     QCD_Up->Write();
     searchH_b->Write();
     TDirectory *cdtoitt;

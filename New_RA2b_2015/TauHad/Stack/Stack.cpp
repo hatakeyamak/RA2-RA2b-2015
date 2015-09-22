@@ -128,7 +128,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
-  
+  Hname[5]="searchH_lowDphi"; 
+ 
   // Loop over Hname
   for(int j=0; j< Hname.size(); j++){
 
@@ -276,7 +277,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
-  
+  Hname[5]="searchH_lowDphi"; 
+ 
   for(int j=0; j< Hname.size(); j++){
 
     for(int i=0; i<wjnHT ; i++){                                                  // loop over different HT bins
@@ -814,6 +816,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
+  Hname[5]="searchH_lowDphi";
  
   for(int j=0; j< Hname.size(); j++){
 
@@ -1311,6 +1314,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[2]="QCD_Up";
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
+  Hname[5]="searchH_lowDphi";
 
   for(int j=0; j< Hname.size(); j++){
 

@@ -108,7 +108,15 @@ if [ $l -eq 1 ]; then
   root -l -b -q Plot_closure.C'("delphi","DelPhi2","stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","stacked",1)'
 
-  root -l -b -q Plot_searchBin_full.C'("stacked","searchH_b",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","NJet","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","NBtag","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","HT","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","MHT","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","DelPhi1","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","DelPhi2","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","DelPhi3","stacked",1)'
+
   root -l -b -q Plot_searchBin.C'("stacked","searchH",1)'
+  root -l -b -q Plot_searchBin_full.C'("stacked","searchH_b",1)'
 
 fi
