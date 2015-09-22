@@ -9,7 +9,7 @@
     //initialize a map between string=cutnames and histvecs. copy one histvec into all of them. The histograms, though, will be filled differently.
     cutname[0]="PreSel";cutname[1]="nolep";cutname[2]="Njet_4";cutname[3]="ht_500";
     cutname[4]="mht_200";cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
-    cutname[8]="delphi";
+    cutname[8]="delphi"; cutname[9]="low_Dphi";
 
   }
 
@@ -47,6 +47,7 @@
     if(ss== cutname[6]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_))return true;}
     if(ss== cutname[7]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&PionIsoTrk(nPionIso_))return true;}
     if(ss== cutname[8]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&PionIsoTrk(nPionIso_)&&dphi( dphi0,dphi1,dphi2))return true;}
+    if(ss== cutname[9]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&PionIsoTrk(nPionIso_)&&low_dphi( dphi0,dphi1,dphi2))return true;}
 
   return false;
   }
@@ -62,7 +63,7 @@
     if(ss== cutname[6]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_))return true;}
     if(ss== cutname[7]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_))return true;}
     if(ss== cutname[8]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( dphi0,dphi1,dphi2))return true;}
-
+    if(ss== cutname[9]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&low_dphi( dphi0,dphi1,dphi2))return true;}
   return false;
   }
 
