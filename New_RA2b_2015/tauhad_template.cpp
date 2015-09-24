@@ -200,6 +200,11 @@ using namespace std;
     hAccAll->Sumw2();
     hAccPass->Sumw2();
 
+    TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    hAccAll_lowDphi->Sumw2();
+    hAccPass_lowDphi->Sumw2();
+
     // calculate iso efficiencies
     TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
     IsoElec_all->Sumw2();
@@ -524,6 +529,15 @@ using namespace std;
           hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
         } 
       }
+      // Acceptance for low_Dphi region
+      if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
+           &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()))
+        ){
+        hAccAll_lowDphi->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+        if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+          hAccPass_lowDphi->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
+        }
+      }      
 
       // Total weight
       // double totWeight = evt->weight()*1.;
@@ -840,12 +854,17 @@ using namespace std;
     // Compute acceptance
     TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
     hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
+    TH1* hAcc_lowDphi = static_cast<TH1*>(hAccPass_lowDphi->Clone("hAcc_lowDphi"));
+    hAcc_lowDphi->Divide(hAccPass_lowDphi,hAccAll_lowDphi,1,1,"B");
 
     sprintf(tempname,"%s/LostLepton2_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile2(tempname,"RECREATE");
     hAcc->Write();
     hAccAll->Write();
     hAccPass->Write();
+    hAcc_lowDphi->Write();
+    hAccAll_lowDphi->Write();
+    hAccPass_lowDphi->Write();
     outFile2.Close();
 
 
