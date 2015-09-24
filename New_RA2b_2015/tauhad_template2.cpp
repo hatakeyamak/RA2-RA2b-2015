@@ -511,7 +511,7 @@ vector<int> trigVec(300,0);
     while( evt->loadNext() ){
       eventN++;
 
-      if(eventN>20000)break;
+      //if(eventN>20000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
 
@@ -1037,7 +1037,7 @@ Ahmad33 */
 
             if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT);}
             if(Acc==0)Acc=0.9;
-            if(Acc_lowDphi==0)Acc=0.9;
+            if(Acc_lowDphi==0)Acc_lowDphi=0.9;
             if(Eff==0)Eff=0.75;
             if(Eff_Arne==0)Eff_Arne=0.75;
 
