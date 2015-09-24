@@ -384,11 +384,11 @@ using namespace std;
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
     //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked_Elog323.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog333_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog340_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
+    TH1D * hAcc_lowDphi =(TH1D *) MuAcc_file->Get("hAcc_lowDphi")->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
     TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
@@ -511,7 +511,7 @@ vector<int> trigVec(300,0);
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>10000)break;
+      if(eventN>20000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
 
@@ -1017,18 +1017,19 @@ Ahmad33 */
             }
 
             // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
-            double Acc;
+            double Acc, Acc_lowDphi;
 
             if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
               // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
               // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
               Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
-
+              Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]); 
               // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
               // Or use recomputed ht mht ... when making Acc. 
               //Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht())]);
             }else{
               Acc=0.9;
+              Acc_lowDphi=0.9;
             }
 
             if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
@@ -1036,6 +1037,7 @@ Ahmad33 */
 
             if(Acc==0 || Eff==0){printf("eventN: %d Acc or Eff =0 \n Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g \n ",eventN,Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT);}
             if(Acc==0)Acc=0.9;
+            if(Acc_lowDphi==0)Acc=0.9;
             if(Eff==0)Eff=0.75;
             if(Eff_Arne==0)Eff_Arne=0.75;
 
@@ -1044,7 +1046,7 @@ Ahmad33 */
             double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
             double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
     //Ahmad33
-            if(TauHadModel<4)Acc=1.; 
+            if(TauHadModel<4){Acc=1.;Acc_lowDphi=1.; }
     //Ahmad33
             if(TauHadModel<3)Eff_Arne=1.; 
     //Ahmad33
@@ -1247,9 +1249,9 @@ Ahmad33 */
 
               // applyIsoTrk here 
               if(utils2::applyIsoTrk){
-                searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi;
+                searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi;
               }
-              else searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
+              else searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi;
 
 
               if(PassIso2){
@@ -1264,9 +1266,9 @@ Ahmad33 */
                 // the if condition will be effective only if
                 // MTCalc is on and mu is from nonW mom
                 // otherwise it always pass
-                if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight*0.9);
+                if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
                 // Fill QCD histograms
-                QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*0.9);
+                QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
               }
 
             }
@@ -1344,11 +1346,11 @@ Ahmad33 */
                     } 
                     else eveinfvec[0] = totWeightMap[itt->first];
 
-                    if(ite->first!="low_Dphi"){
+                    if(ite->first=="low_Dphi"){
                       if(utils2::applyIsoTrk){
-                        eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi * 0.9;
+                        eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
                       }
-                      else eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi * 0.9;
+                      else eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
                     }
 
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){

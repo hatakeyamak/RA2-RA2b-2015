@@ -576,6 +576,42 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetTitle("hAcc");
   temphistIII->Write();
 
+
+  histname.clear();
+  histname[0]="hAcc_lowDphi";
+  histname[1]="hAccPass_lowDphi";
+  histname[2]="hAccAll_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(WJet_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc_lowDphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc_lowDphi");
+  temphistIII->SetTitle("hAcc_lowDphi");
+  temphistIII->Write();
+
+
   file->Close();
   printf("WJet acceptance calculated. \n ");
 
@@ -1101,6 +1137,41 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetTitle("hAcc");
   temphistIII->Write();
 
+  histname.clear();
+  histname[0]="hAcc_lowDphi";
+  histname[1]="hAccPass_lowDphi";
+  histname[2]="hAccAll_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0) temphist->Scale(TTbar_scalevec[i]);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc_lowDphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc_lowDphi");
+  temphistIII->SetTitle("hAcc_lowDphi");
+  temphistIII->Write();
+
+
   file->Close();
   printf("TTbar acceptance calculated. \n ");
 
@@ -1577,6 +1648,24 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Write();
 
   }
+
+  histname.clear();
+  histname[0]="hAccPass_lowDphi";
+  histname[1]="hAccAll_lowDphi";
+
+
+  for(int j=0; j<histname.size(); j++){
+
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+    temphist->Add(temphist,temphist2,1,1);
+
+  temphist->Write();
+
+  }
+
   file3->Close();
   file2->Close();
   file->Close();
@@ -1595,6 +1684,18 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->SetName("hAcc");
   temphist->SetTitle("hAcc");
   temphist->Write();
+
+
+  sprintf(tempname,"hAccPass_lowDphi");
+  temphist = (TH1D *) file->Get(tempname)->Clone();
+  sprintf(tempname,"hAccAll_lowDphi");
+  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+
+  temphist->Divide(temphist,temphist2,1,1,"B");
+  temphist->SetName("hAcc_lowDphi");
+  temphist->SetTitle("hAcc_lowDphi");
+  temphist->Write();
+
 
   file->Close();
   file2->Close();
