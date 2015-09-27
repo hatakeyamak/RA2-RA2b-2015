@@ -13,7 +13,6 @@
      LumiBlockNum=-1;
      EvtNum=-1;
      NVtx=-1;
-//     isoTracks=-1;
      isoElectronTracks=-1;
      isoMuonTracks=-1;
      isoPionTracks=-1;
@@ -24,7 +23,6 @@
      HT=0.0;
      MHT=0.0;
      MHT_Phi=0.0; 
-     //MHTPhi=0.0;
      METPt=0.0;
      METPhi=0.0;
      DeltaPhi1=-99.;
@@ -32,83 +30,54 @@
      DeltaPhi3=-99.;
      minDeltaPhiN_=-99.;
 
-     GenMu_GenMuFromTau=new int();
-     GenTau_GenTauHad=new int();
-     GenElec_GenElecFromTau=new int();
+     GenMu_GenMuFromTau=0;
+     GenTau_GenTauHad=0;
+     GenElec_GenElecFromTau=0;
+     slimJet_slimJetID = 0;
+     GenMus = 0;
+     GenEls = 0;
+     GenTauNu = 0;
+     GenTaus = 0;
 
-     GenMuPtVec=new vector<double>();   
-     GenMuEtaVec=new vector<double>();   
-     GenMuPhiVec=new vector<double>();   
-     GenElecPtVec=new vector<double>();
-     GenElecEtaVec=new vector<double>();
-     GenElecPhiVec=new vector<double>();
-     GenTauPtVec=new vector<double>();
-     GenTauEtaVec=new vector<double>();
-     GenTauPhiVec=new vector<double>();
-     GenTauNuPtVec=new vector<double>();
-     GenTauNuEtaVec=new vector<double>();
-     GenTauNuPhiVec=new vector<double>();
-     JetsPtVec=new vector<double>();
-     JetsEtaVec=new vector<double>();
-     JetsPhiVec=new vector<double>();
-//     Jets_bDiscriminator=new Float_t();
-     slimmedMuonsPtVec=new vector<double>();
-     slimmedMuonsEtaVec=new vector<double>();
-     slimmedMuonsPhiVec=new vector<double>();
-     MuonsPtVec=new vector<double>();
-     MuonsEtaVec=new vector<double>();
-     MuonsPhiVec=new vector<double>();
-     selectedIDIsoMuonsPtVec=new vector<double>();
-     selectedIDIsoMuonsEtaVec=new vector<double>();
-     selectedIDIsoMuonsPhiVec=new vector<double>();
-     selectedIDMuonsPtVec=new vector<double>();
-     selectedIDMuonsEtaVec=new vector<double>();
-     selectedIDMuonsPhiVec=new vector<double>();
+     Jets = 0;
+     Jets_bDiscriminatorCSV = 0;
+     Jets_chargedEmEnergyFraction = 0;
+     Jets_chargedHadronEnergyFraction = 0;
+     Jets_chargedHadronMultiplicity = 0;
+     Jets_electronMultiplicity = 0;
+     Jets_jetArea = 0;
+     Jets_muonEnergyFraction = 0;
+     Jets_muonMultiplicity = 0;
+     Jets_neutralEmEnergyFraction = 0;
+     Jets_neutralHadronMultiplicity = 0;
+     Jets_photonEnergyFraction = 0;
+     Jets_photonMultiplicity = 0;
 
-     slimmedElectronsPtVec=new vector<double>();
-     slimmedElectronsEtaVec=new vector<double>();
-     slimmedElectronsPhiVec=new vector<double>();
-     ElectronsPtVec=new vector<double>();
-     ElectronsEtaVec=new vector<double>();
-     ElectronsPhiVec=new vector<double>();
-     selectedIDIsoElectronsPtVec=new vector<double>();
-     selectedIDIsoElectronsEtaVec=new vector<double>();
-     selectedIDIsoElectronsPhiVec=new vector<double>();
-     selectedIDElectronsPtVec=new vector<double>();
-     selectedIDElectronsEtaVec=new vector<double>();
-     selectedIDElectronsPhiVec=new vector<double>();
 
-     selectedIDIsoElectronsPtVec=new vector<double>();
-     selectedIDIsoElectronsEtaVec=new vector<double>();
-     selectedIDIsoElectronsPhiVec=new vector<double>();
+//     slimmedMuonsPtVec=new vector<double>();
+     Muons = 0;
+//     selectedIDIsoMuonsPtVec=new vector<double>();
+     selectedIDMuons = 0;
+//     slimmedElectronsPtVec=new vector<double>();
+     Electrons = 0;
+//     selectedIDIsoElectronsPtVec=new vector<double>();
+     selectedIDElectrons = 0;
+//     selectedIDIsoElectronsPtVec=new vector<double>();
+     slimJet = 0;
+     IsolatedElectronTracksVeto = 0;
+     IsolatedMuonTracksVeto = 0;
+     IsolatedPionTracksVeto = 0;
 
-     slimJetPtVec=new vector<double>();
-     slimJetEtaVec=new vector<double>();
-     slimJetPhiVec=new vector<double>();
-
-     IsolatedElectronTracksVetoPtVec = new vector<double>();
-     IsolatedElectronTracksVetoEtaVec = new vector<double>();
-     IsolatedElectronTracksVetoPhiVec = new vector<double>();
-     IsolatedMuonTracksVetoPtVec = new vector<double>();
-     IsolatedMuonTracksVetoEtaVec = new vector<double>();
-     IsolatedMuonTracksVetoPhiVec = new vector<double>();
-     IsolatedPionTracksVetoPtVec = new vector<double>();
-     IsolatedPionTracksVetoEtaVec = new vector<double>();
-     IsolatedPionTracksVetoPhiVec = new vector<double>();
-
-     testVec=new vector<double>();
-
-     TriggerNames=new vector<string>();
-     PassTrigger=new vector<int>();
+     TriggerNames=0;
+     TriggerPass=0;
 
      fChain = ttree_;
-    
+
     /// the variables
      fChain->SetBranchAddress("RunNum", &RunNum);
      fChain->SetBranchAddress("LumiBlockNum", &LumiBlockNum);
      fChain->SetBranchAddress("EvtNum", &EvtNum);
      fChain->SetBranchAddress("NVtx", &NVtx);
-//     fChain->SetBranchAddress("isoTracks", &isoTracks);
      fChain->SetBranchAddress("isoElectronTracks", &isoElectronTracks);
      fChain->SetBranchAddress("isoMuonTracks", &isoMuonTracks);
      fChain->SetBranchAddress("isoPionTracks", &isoPionTracks);
@@ -119,7 +88,6 @@
      fChain->SetBranchAddress("HT", &HT);
      fChain->SetBranchAddress("MHT", &MHT);
      fChain->SetBranchAddress("MHT_Phi", &MHT_Phi);
-     //fChain->SetBranchAddress("MHTPhi", &MHTPhi);
      fChain->SetBranchAddress("METPt", &METPt);
      fChain->SetBranchAddress("METPhi", &METPhi); 
      fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1);
@@ -127,94 +95,56 @@
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      fChain->SetBranchAddress("JetID", &JetID);
-     fChain->SetBranchAddress("GoodVtx", &GoodVtx);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
      fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
      fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
      fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
      if(!DataBool){
-       fChain->SetBranchAddress("GenMuPtVec", &GenMuPtVec);
-       fChain->SetBranchAddress("GenMuEtaVec", &GenMuEtaVec);
-       fChain->SetBranchAddress("GenMuPhiVec", &GenMuPhiVec);
-       fChain->SetBranchAddress("GenMu_GenMuFromTau", GenMu_GenMuFromTau);
-       fChain->SetBranchAddress("GenElecPtVec", &GenElecPtVec);
-       fChain->SetBranchAddress("GenElecEtaVec", &GenElecEtaVec);
-       fChain->SetBranchAddress("GenElecPhiVec", &GenElecPhiVec);
-       fChain->SetBranchAddress("GenElec_GenElecFromTau", GenElec_GenElecFromTau);
-       fChain->SetBranchAddress("GenTauPtVec", &GenTauPtVec);
-       fChain->SetBranchAddress("GenTauEtaVec", &GenTauEtaVec);
-       fChain->SetBranchAddress("GenTauPhiVec", &GenTauPhiVec);
-       fChain->SetBranchAddress("GenTau_GenTauHad", GenTau_GenTauHad);
-       fChain->SetBranchAddress("GenTauNuPtVec", &GenTauNuPtVec);
-       fChain->SetBranchAddress("GenTauNuEtaVec", &GenTauNuEtaVec);
-       fChain->SetBranchAddress("GenTauNuPhiVec", &GenTauNuPhiVec);
+       fChain->SetBranchAddress("GenMus", &GenMus);
+       fChain->SetBranchAddress("GenMu_GenMuFromTau", &GenMu_GenMuFromTau);
+       fChain->SetBranchAddress("GenEls", &GenEls);
+       fChain->SetBranchAddress("GenElec_GenElecFromTau", &GenElec_GenElecFromTau);
+       fChain->SetBranchAddress("GenTaus", &GenTaus);
+       fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
+       fChain->SetBranchAddress("GenTauNu", &GenTauNu);
      }
 
-     fChain->SetBranchAddress("JetsPtVec", &JetsPtVec);
-     fChain->SetBranchAddress("JetsEtaVec", &JetsEtaVec);
-     fChain->SetBranchAddress("JetsPhiVec", &JetsPhiVec);
-     fChain->SetBranchAddress("Jets_bDiscriminator", Jets_bDiscriminator);
-     fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", Jets_chargedEmEnergyFraction);
-     fChain->SetBranchAddress("Jets_chargedHadronEnergyFraction", Jets_chargedHadronEnergyFraction);
-     fChain->SetBranchAddress("Jets_chargedHadronMultiplicity", Jets_chargedHadronMultiplicity);
-     fChain->SetBranchAddress("Jets_electronMultiplicity", Jets_electronMultiplicity);
-     fChain->SetBranchAddress("Jets_jetArea", Jets_jetArea);
-     fChain->SetBranchAddress("Jets_muonEnergyFraction", Jets_muonEnergyFraction);
-     fChain->SetBranchAddress("Jets_muonMultiplicity", Jets_muonMultiplicity);
-     fChain->SetBranchAddress("Jets_neutralEmEnergyFraction", Jets_neutralEmEnergyFraction);
-     fChain->SetBranchAddress("Jets_neutralHadronMultiplicity", Jets_neutralHadronMultiplicity);
-     fChain->SetBranchAddress("Jets_photonEnergyFraction", Jets_photonEnergyFraction);
-     fChain->SetBranchAddress("Jets_photonMultiplicity", Jets_photonMultiplicity);
+     fChain->SetBranchAddress("Jets", &Jets);
 
 
-     fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
-     fChain->SetBranchAddress("slimmedMuonsEtaVec", &slimmedMuonsEtaVec);
-     fChain->SetBranchAddress("slimmedMuonsPhiVec", &slimmedMuonsPhiVec);
-     fChain->SetBranchAddress("MuonsPtVec", &MuonsPtVec);
-     fChain->SetBranchAddress("MuonsEtaVec", &MuonsEtaVec);
-     fChain->SetBranchAddress("MuonsPhiVec", &MuonsPhiVec);
-     fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
-     fChain->SetBranchAddress("selectedIDIsoMuonsEtaVec", &selectedIDIsoMuonsEtaVec);
-     fChain->SetBranchAddress("selectedIDIsoMuonsPhiVec", &selectedIDIsoMuonsPhiVec);
-     fChain->SetBranchAddress("selectedIDMuonsPtVec", &selectedIDMuonsPtVec);
-     fChain->SetBranchAddress("selectedIDMuonsEtaVec", &selectedIDMuonsEtaVec);
-     fChain->SetBranchAddress("selectedIDMuonsPhiVec", &selectedIDMuonsPhiVec);
+     fChain->SetBranchAddress("Jets_bDiscriminatorCSV", &Jets_bDiscriminatorCSV);
+     fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", &Jets_chargedEmEnergyFraction);
+     fChain->SetBranchAddress("Jets_chargedHadronEnergyFraction", &Jets_chargedHadronEnergyFraction);
+     fChain->SetBranchAddress("Jets_chargedHadronMultiplicity", &Jets_chargedHadronMultiplicity);
+     fChain->SetBranchAddress("Jets_electronMultiplicity", &Jets_electronMultiplicity);
+     fChain->SetBranchAddress("Jets_jetArea", &Jets_jetArea);
+     fChain->SetBranchAddress("Jets_muonEnergyFraction", &Jets_muonEnergyFraction);
+     fChain->SetBranchAddress("Jets_muonMultiplicity", &Jets_muonMultiplicity);
+     fChain->SetBranchAddress("Jets_neutralEmEnergyFraction", &Jets_neutralEmEnergyFraction);
+     fChain->SetBranchAddress("Jets_neutralHadronMultiplicity", &Jets_neutralHadronMultiplicity);
+     fChain->SetBranchAddress("Jets_photonEnergyFraction", &Jets_photonEnergyFraction);
+     fChain->SetBranchAddress("Jets_photonMultiplicity", &Jets_photonMultiplicity);
 
-     fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
-     fChain->SetBranchAddress("slimmedElectronsEtaVec", &slimmedElectronsEtaVec);
-     fChain->SetBranchAddress("slimmedElectronsPhiVec", &slimmedElectronsPhiVec);
-     fChain->SetBranchAddress("ElectronsPtVec", &ElectronsPtVec);
-     fChain->SetBranchAddress("ElectronsEtaVec", &ElectronsEtaVec);
-     fChain->SetBranchAddress("ElectronsPhiVec", &ElectronsPhiVec);
-     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
-     fChain->SetBranchAddress("selectedIDIsoElectronsEtaVec", &selectedIDIsoElectronsEtaVec);
-     fChain->SetBranchAddress("selectedIDIsoElectronsPhiVec", &selectedIDIsoElectronsPhiVec);
-     fChain->SetBranchAddress("selectedIDElectronsPtVec", &selectedIDElectronsPtVec);
-     fChain->SetBranchAddress("selectedIDElectronsEtaVec", &selectedIDElectronsEtaVec);
-     fChain->SetBranchAddress("selectedIDElectronsPhiVec", &selectedIDElectronsPhiVec);
 
-     fChain->SetBranchAddress("slimJetPtVec", &slimJetPtVec);
-     fChain->SetBranchAddress("slimJetEtaVec", &slimJetEtaVec);
-     fChain->SetBranchAddress("slimJetPhiVec", &slimJetPhiVec);
-     fChain->SetBranchAddress("slimJet_slimJetID", slimJet_slimJetID);
-     
-     fChain->SetBranchAddress("IsolatedElectronTracksVetoPtVec", &IsolatedElectronTracksVetoPtVec);
-     fChain->SetBranchAddress("IsolatedElectronTracksVetoEtaVec", &IsolatedElectronTracksVetoEtaVec);
-     fChain->SetBranchAddress("IsolatedElectronTracksVetoPhiVec", &IsolatedElectronTracksVetoPhiVec);
+//     fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
+      fChain->SetBranchAddress("Muons", &Muons);
+//     fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
+     fChain->SetBranchAddress("selectedIDMuons", &selectedIDMuons);
 
-     fChain->SetBranchAddress("IsolatedMuonTracksVetoPtVec", &IsolatedMuonTracksVetoPtVec);
-     fChain->SetBranchAddress("IsolatedMuonTracksVetoEtaVec", &IsolatedMuonTracksVetoEtaVec);
-     fChain->SetBranchAddress("IsolatedMuonTracksVetoPhiVec", &IsolatedMuonTracksVetoPhiVec);
-
-     fChain->SetBranchAddress("IsolatedPionTracksVetoPtVec", &IsolatedPionTracksVetoPtVec);
-     fChain->SetBranchAddress("IsolatedPionTracksVetoEtaVec", &IsolatedPionTracksVetoEtaVec);
-     fChain->SetBranchAddress("IsolatedPionTracksVetoPhiVec", &IsolatedPionTracksVetoPhiVec);
+//     fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
+     fChain->SetBranchAddress("Electrons", &Electrons);
+//     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
+     fChain->SetBranchAddress("selectedIDElectrons", &selectedIDElectrons);
+     fChain->SetBranchAddress("slimJet", &slimJet);
+     fChain->SetBranchAddress("slimJet_slimJetID", &slimJet_slimJetID);
+     fChain->SetBranchAddress("IsolatedElectronTracksVeto", &IsolatedElectronTracksVeto);
+     fChain->SetBranchAddress("IsolatedMuonTracksVeto", &IsolatedMuonTracksVeto);
+     fChain->SetBranchAddress("IsolatedPionTracksVeto", &IsolatedPionTracksVeto);
 
      //
      fChain->SetBranchAddress("TriggerNames", &TriggerNames);
-     fChain->SetBranchAddress("PassTrigger", &PassTrigger);
- 
-     fChain->SetBranchAddress("testVec", &testVec);
+     fChain->SetBranchAddress("TriggerPass", &TriggerPass);
+
      // Number of total entries
      template_Entries = fChain->GetEntries();
 
@@ -249,7 +179,6 @@
 
 
 // Some Functions
-
   // Run number & event number
   int Events::Runnum() const { return RunNum; }
   int Events::Evtnum() const { return EvtNum; }
@@ -260,7 +189,7 @@
   // HT and MHT
   double Events::ht() const { return HT; }
   double Events::mht() const { return MHT; }
-  double Events::mhtphi() const { return /*MHTPhi;*/ MHT_Phi; }
+  double Events::mhtphi() const { return  MHT_Phi; }
 
   // MET 
   double Events::met() const { return METPt; }
@@ -276,7 +205,7 @@
   // Number of Leptons
   int Events::nLeptons() const {
     int tempN;
-    tempN= ( (int)selectedIDIsoMuonsPtVec->size() + (int)selectedIDIsoElectronsPtVec->size() );
+    tempN= ( (int)Muons->size() + (int)Electrons->size() );
     return tempN; 
 //    return Leptons;
   }
@@ -295,225 +224,330 @@
 
   // To see if an event passes the jetId requirement or not.  
   int Events::JetId() const {
-/*
-    int jetid=1;
-    // We only consider HTJets 
-    for(int i=0; i< slimJetPtVec->size(); i++){
-      if(slimJetPtVec->at(i) > 30. && fabs(slimJetEtaVec->at(i)) < 2.4 ){
-        if( (int)*(slimJet_slimJetID+i) == 0 )jetid=0;
-      }
-    }
-    return jetid;
-*/
     return JetID;
   }
 
   bool Events::DataBool_() const { return DataBool; }
 
   // Gen Muon 
-   vector<double>  Events::GenMuPtVec_() const { return *GenMuPtVec ;}
-   vector<double>  Events::GenMuEtaVec_() const { return *GenMuEtaVec ;}
-   vector<double>  Events::GenMuPhiVec_() const { return *GenMuPhiVec ;}
-
-   vector<double>  Events::GenElecPtVec_() const { return *GenElecPtVec ;}
-   vector<double>  Events::GenElecEtaVec_() const { return *GenElecEtaVec ;}
-   vector<double>  Events::GenElecPhiVec_() const { return *GenElecPhiVec ;}
-
-
-   vector<double>  Events::GenTauPtVec_() const { return *GenTauPtVec ;}
-   vector<double>  Events::GenTauEtaVec_() const { return *GenTauEtaVec ;}
-   vector<double>  Events::GenTauPhiVec_() const { return *GenTauPhiVec ;}
-
-   vector<double>  Events::GenTauNuPtVec_() const { return *GenTauNuPtVec ;}
-   vector<double>  Events::GenTauNuEtaVec_() const { return *GenTauNuEtaVec ;}
-   vector<double>  Events::GenTauNuPhiVec_() const { return *GenTauNuPhiVec ;}
-
-   vector<double>  Events::JetsPtVec_() const { return *JetsPtVec ;}
-   vector<double>  Events::JetsEtaVec_() const { return *JetsEtaVec ;}
-   vector<double>  Events::JetsPhiVec_() const { return *JetsPhiVec ;}
-   vector<double>  Events::csvVec() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_bDiscriminator+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_chargedEmEnergyFraction_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_chargedEmEnergyFraction+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_chargedHadronEnergyFraction_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_chargedHadronEnergyFraction+i));
-    }
-    return tempvec;
-   }
-
-   vector<int>  Events::Jets_chargedHadronMultiplicity_() const {
-    vector<int> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((int)*(Jets_chargedHadronMultiplicity+i));
-    }
-    return tempvec;
-   }
-
-   vector<int>  Events::Jets_electronMultiplicity_() const {
-    vector<int> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((int)*(Jets_electronMultiplicity+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_jetArea_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_jetArea+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_muonEnergyFraction_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_muonEnergyFraction+i));
-    }
-    return tempvec;
-   }
-
-   vector<int>  Events::Jets_muonMultiplicity_() const {
-    vector<int> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((int)*(Jets_muonMultiplicity+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_neutralEmEnergyFraction_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_neutralEmEnergyFraction+i));
-    }
-    return tempvec;
-   }
-
-   vector<int>  Events::Jets_neutralHadronMultiplicity_() const {
-    vector<int> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((int)*(Jets_neutralHadronMultiplicity+i));
-    }
-    return tempvec;
-   }
-
-   vector<double>  Events::Jets_photonEnergyFraction_() const {
-    vector<double> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((double)*(Jets_photonEnergyFraction+i));
-    }
-    return tempvec;
-   }
-
-   vector<int>  Events::Jets_photonMultiplicity_() const {
-    vector<int> tempvec;
-    tempvec.clear();
-    for(int i=0; i< JetsPtVec->size();i++){
-      tempvec.push_back((int)*(Jets_photonMultiplicity+i));
-    }
-    return tempvec;
-   }
-
-
-   vector<double>  Events::slimJetPtVec_() const { return *slimJetPtVec ;}
-   vector<double>  Events::slimJetEtaVec_() const { return *slimJetEtaVec ;}
-   vector<double>  Events::slimJetPhiVec_() const { return *slimJetPhiVec ;}
-
-   vector<int>     Events::slimJetID_() const { 
-     vector<int> tempVec;
-     for(int i=0; i< slimJetPtVec->size(); i++){
-        tempVec.push_back((int)*(slimJet_slimJetID+i));
+   vector<double>  Events::GenMuPtVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenMus->size();i++){
+       vec.push_back(GenMus->at(i).Pt());
      }
-     return tempVec;
-   }  
+     return vec;
+   }
+   vector<double>  Events::GenMuEtaVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenMus->size();i++){
+       vec.push_back(GenMus->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenMuPhiVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenMus->size();i++){
+       vec.push_back(GenMus->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::GenElecPtVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenEls->size();i++){
+       vec.push_back(GenEls->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenElecEtaVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenEls->size();i++){
+       vec.push_back(GenEls->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenElecPhiVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenEls->size();i++){
+       vec.push_back(GenEls->at(i).Phi());
+     }
+     return vec;
+   }
+   
+   vector<double>  Events::GenTauPtVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenTaus->size();i++){
+       vec.push_back(GenTaus->at(i).Pt());
+     }
+     return vec;
+   } 
+   vector<double>  Events::GenTauEtaVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenTaus->size();i++){
+       vec.push_back(GenTaus->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenTauPhiVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenTaus->size();i++){
+       vec.push_back(GenTaus->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::GenTauNuPtVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenTauNu->size();i++){
+       vec.push_back(GenTauNu->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenTauNuEtaVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenTauNu->size();i++){
+       vec.push_back(GenTauNu->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenTauNuPhiVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < GenTauNu->size();i++){
+       vec.push_back(GenTauNu->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::JetsPtVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < Jets->size();i++){
+       vec.push_back(Jets->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::JetsEtaVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < Jets->size();i++){
+       vec.push_back(Jets->at(i).Eta());
+     }
+     return vec;   
+   }
+   vector<double>  Events::JetsPhiVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < Jets->size();i++){
+       vec.push_back(Jets->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
+   vector<double>  Events::Jets_chargedEmEnergyFraction_() const { return *Jets_chargedEmEnergyFraction;}
+   vector<double>  Events::Jets_chargedHadronEnergyFraction_() const { return *Jets_chargedHadronEnergyFraction;}
+   vector<int>  Events::Jets_chargedHadronMultiplicity_() const { return *Jets_chargedHadronMultiplicity;}
+   vector<int>  Events::Jets_electronMultiplicity_() const { return *Jets_electronMultiplicity;}
+
+   vector<double>  Events::Jets_jetArea_() const { return *Jets_jetArea;}
+   vector<double>  Events::Jets_muonEnergyFraction_() const {return *Jets_muonEnergyFraction;}
+   vector<int>  Events::Jets_muonMultiplicity_() const {return *Jets_muonMultiplicity;}
+   vector<double>  Events::Jets_neutralEmEnergyFraction_() const {return *Jets_neutralEmEnergyFraction;}
+   vector<int>  Events::Jets_neutralHadronMultiplicity_() const {return *Jets_neutralHadronMultiplicity;}
+   vector<double>  Events::Jets_photonEnergyFraction_() const {return *Jets_photonEnergyFraction;}
+   vector<int>  Events::Jets_photonMultiplicity_() const {return *Jets_photonMultiplicity;}
+
+   vector<double>  Events::slimJetPtVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < slimJet->size();i++){
+       vec.push_back(slimJet->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::slimJetEtaVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < slimJet->size();i++){
+       vec.push_back(slimJet->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::slimJetPhiVec_() const { 
+     vector<double> vec;
+     for(int i=0;i < slimJet->size();i++){
+       vec.push_back(slimJet->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<int>     Events::slimJetID_() const { return *slimJet_slimJetID;} 
+
+//   vector<double>  Events::slimmedMuPtVec_() const{ return  *slimmedMuonsPtVec;}
+   vector<double>  Events::MuNoIsoPtVec_() const{
+     vector<double> vec;
+     for(int i=0;i < selectedIDMuons->size();i++){
+       vec.push_back(selectedIDMuons->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::MuNoIsoEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < selectedIDMuons->size();i++){
+       vec.push_back(selectedIDMuons->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::MuNoIsoPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < selectedIDMuons->size();i++){
+       vec.push_back(selectedIDMuons->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::MuPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Muons->size();i++){
+       vec.push_back(Muons->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::MuEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Muons->size();i++){
+       vec.push_back(Muons->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::MuPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Muons->size();i++){
+       vec.push_back(Muons->at(i).Phi());
+     }
+     return vec;
+   }
+
+//   vector<double>  Events::slimmedElecPtVec_() const{ return  *slimmedElectronsPtVec;}
 
 
-   vector<double>  Events::slimmedMuPtVec_() const{ return  *slimmedMuonsPtVec;}
-   vector<double>  Events::slimmedMuEtaVec_() const{ return *slimmedMuonsEtaVec;}
-   vector<double>  Events::slimmedMuPhiVec_() const{ return *slimmedMuonsPhiVec;}
-   vector<double>  Events::MuNoIsoPtVec_() const{ return  *selectedIDMuonsPtVec;}
-   vector<double>  Events::MuNoIsoEtaVec_() const{ return *selectedIDMuonsEtaVec;}
-   vector<double>  Events::MuNoIsoPhiVec_() const{ return *selectedIDMuonsPhiVec;}
-   vector<double>  Events::MuPtVec_() const{ return  *selectedIDIsoMuonsPtVec;}
-   vector<double>  Events::MuEtaVec_() const{ return *selectedIDIsoMuonsEtaVec;}
-   vector<double>  Events::MuPhiVec_() const{ return *selectedIDIsoMuonsPhiVec;}
+   vector<double>  Events::ElecNoIsoPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < selectedIDElectrons->size();i++){
+       vec.push_back(selectedIDElectrons->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::ElecNoIsoEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < selectedIDElectrons->size();i++){
+       vec.push_back(selectedIDElectrons->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::ElecNoIsoPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < selectedIDElectrons->size();i++){
+       vec.push_back(selectedIDElectrons->at(i).Phi());
+     }
+     return vec;
+   }
 
-   vector<double>  Events::slimmedElecPtVec_() const{ return  *slimmedElectronsPtVec;}
-   vector<double>  Events::slimmedElecEtaVec_() const{ return *slimmedElectronsEtaVec;}
-   vector<double>  Events::slimmedElecPhiVec_() const{ return *slimmedElectronsPhiVec;}
-   vector<double>  Events::ElecNoIsoPtVec_() const{ return  *selectedIDElectronsPtVec;}
-   vector<double>  Events::ElecNoIsoEtaVec_() const{ return *selectedIDElectronsEtaVec;}
-   vector<double>  Events::ElecNoIsoPhiVec_() const{ return *selectedIDElectronsPhiVec;}
-   vector<double>  Events::ElecPtVec_() const{ return *selectedIDIsoElectronsPtVec;}
-   vector<double>  Events::ElecEtaVec_() const{ return *selectedIDIsoElectronsEtaVec;}
-   vector<double>  Events::ElecPhiVec_() const{return *selectedIDIsoElectronsPhiVec;}
+   vector<double>  Events::ElecPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Electrons->size();i++){
+       vec.push_back(Electrons->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::ElecEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Electrons->size();i++){
+       vec.push_back(Electrons->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::ElecPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < Electrons->size();i++){
+       vec.push_back(Electrons->at(i).Phi());
+     }
+     return vec;
+   }
 
-   vector<double>  Events::IsoElecPtVec_() const{ return *IsolatedElectronTracksVetoPtVec;}
-   vector<double>  Events::IsoElecEtaVec_() const{ return *IsolatedElectronTracksVetoEtaVec;}
-   vector<double>  Events::IsoElecPhiVec_() const{ return *IsolatedElectronTracksVetoPhiVec;}
-   vector<double>  Events::IsoMuPtVec_() const{ return *IsolatedMuonTracksVetoPtVec;}
-   vector<double>  Events::IsoMuEtaVec_() const{ return *IsolatedMuonTracksVetoEtaVec;}
-   vector<double>  Events::IsoMuPhiVec_() const{ return *IsolatedMuonTracksVetoPhiVec;}
-   vector<double>  Events::IsoPionPtVec_() const{ return *IsolatedPionTracksVetoPtVec;}
-   vector<double>  Events::IsoPionEtaVec_() const{ return *IsolatedPionTracksVetoEtaVec;}
-   vector<double>  Events::IsoPionPhiVec_() const{ return *IsolatedPionTracksVetoPhiVec;}
+   vector<double>  Events::IsoElecPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedElectronTracksVeto->size();i++){
+       vec.push_back(IsolatedElectronTracksVeto->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoElecEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedElectronTracksVeto->size();i++){
+       vec.push_back(IsolatedElectronTracksVeto->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoElecPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedElectronTracksVeto->size();i++){
+       vec.push_back(IsolatedElectronTracksVeto->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::IsoMuPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedMuonTracksVeto->size();i++){
+       vec.push_back(IsolatedMuonTracksVeto->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoMuEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedMuonTracksVeto->size();i++){
+       vec.push_back(IsolatedMuonTracksVeto->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoMuPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedMuonTracksVeto->size();i++){
+       vec.push_back(IsolatedMuonTracksVeto->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::IsoPionPtVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedPionTracksVeto->size();i++){
+       vec.push_back(IsolatedPionTracksVeto->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoPionEtaVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedPionTracksVeto->size();i++){
+       vec.push_back(IsolatedPionTracksVeto->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::IsoPionPhiVec_() const{ 
+     vector<double> vec;
+     for(int i=0;i < IsolatedPionTracksVeto->size();i++){
+       vec.push_back(IsolatedPionTracksVeto->at(i).Phi());
+     }
+     return vec;
+   }
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
-   vector<int>     Events::PassTrigger_() const{ return *PassTrigger;}
+   vector<bool>     Events::PassTrigger_() const{ return *TriggerPass;}
 
-   vector<int>     Events::GenMuFromTauVec_() const {
-     vector<int> tempVec;
-     for(int i=0; i< GenMuPtVec->size(); i++){
-        tempVec.push_back((int)*(GenMu_GenMuFromTau+i)==1);
-     }
-     return tempVec;
-   }
+   vector<int>     Events::GenMuFromTauVec_() const { return *GenMu_GenMuFromTau;}
 
-   vector<int>     Events::GenElecFromTauVec_() const {
-     vector<int> tempVec;
-     for(int i=0; i< GenElecPtVec->size(); i++){
-        tempVec.push_back((int)*(GenElec_GenElecFromTau+i)==1);
-     }
-     return tempVec;
-   }
+   vector<int>     Events::GenElecFromTauVec_() const { return *GenElec_GenElecFromTau;}
 
-
-  vector<int>     Events::GenTauHadVec_() const { 
-    vector<int> tempVec;
-    for(int i=0; i< GenTauPtVec->size(); i++){
-      tempVec.push_back((int) *(GenTau_GenTauHad+i) ==1);
-    }
-    return tempVec;
-  }
+  vector<int>     Events::GenTauHadVec_() const { return *GenTau_GenTauHad;}
 
   double Events::csv_() const {return 0.890;} 
 
-  int Events::GoodVtx_() const {return GoodVtx;}
+//  int Events::GoodVtx_() const {return GoodVtx;}
   int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}
   int Events::eeBadScFilter_() const {return eeBadScFilter;}
   int Events::HBHENoiseFilter_() const {return HBHENoiseFilter;}
@@ -530,5 +564,4 @@
 
 //  double Events::Eta_GenMu() const { return GenMuEta;}
 //  double Events::Phi_GenMu() const { return GenMuPhi;}
-
 

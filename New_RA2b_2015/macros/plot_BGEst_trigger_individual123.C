@@ -1,7 +1,7 @@
 #include <cstdio>
 using namespace std;
 
-void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
+void plot_BGEst_trigger_individual123(string cutname="delphi", string histname="NJet"){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
@@ -77,29 +77,35 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
  
   sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_NoTrig_.root",input.c_str());
   TFile *file_NoTrig = new TFile(tempname,"R");
-  sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_trig1_2_.root",input.c_str());
-  TFile *file_1_2 = new TFile(tempname,"R"); 
-  sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_trig1_3_.root",input.c_str());
-  TFile *file_1_3   = new TFile(tempname,"R");
+  sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_trig1_.root",input.c_str());
+  TFile *file_trig1 = new TFile(tempname,"R");
+  sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_trig2_.root",input.c_str());
+  TFile *file_trig2 = new TFile(tempname,"R"); 
+  sprintf(tempname,"InputRootFiles/HadTauEstimation_%s_trig3_.root",input.c_str());
+  TFile *file_trig3   = new TFile(tempname,"R");
 
   
   // set colors
-  int Color1_2 =1;
-  int Color1_3 =2;
-  int Color1_5 =4;
+  int Color1 =4;
+  int Color2 =1;
+  int Color3 =2;
+  int Color1_5 =6;
   int Color1_8 =7;
   sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
   TH1D * NoTrigHist = (TH1D*)file_NoTrig->Get(tempname)->Clone();
   NoTrigHist->SetLineColor(41);
   NoTrigHist->SetLineWidth(2);
-  TH1D * Hist1_2 = (TH1D*)file_1_2->Get(tempname)->Clone();
-  Hist1_2->SetLineColor(Color1_2);
-  Hist1_2->SetLineWidth(2);
-  Hist1_2->SetLineStyle(2);
-  TH1D * Hist1_3 = (TH1D*)file_1_3->Get(tempname)->Clone();
-  Hist1_3->SetLineColor(Color1_3);
-  Hist1_3->SetLineWidth(2);
-  Hist1_3->SetLineStyle(3);
+  TH1D * Hist1 = (TH1D*)file_trig1->Get(tempname)->Clone();
+  Hist1->SetLineColor(4);
+  Hist1->SetLineWidth(2);
+  TH1D * Hist2 = (TH1D*)file_trig2->Get(tempname)->Clone();
+  Hist2->SetLineColor(Color2);
+  Hist2->SetLineWidth(2);
+  Hist2->SetLineStyle(2);
+  TH1D * Hist3 = (TH1D*)file_trig3->Get(tempname)->Clone();
+  Hist3->SetLineColor(Color3);
+  Hist3->SetLineWidth(2);
+  Hist3->SetLineStyle(3);
   /*
   TH1D * Hist1_5 = (TH1D*)file_1_5->Get(tempname)->Clone();
   Hist1_5->SetLineColor(Color1_5);
@@ -111,61 +117,54 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   Hist1_8->SetLineStyle(5);
   */
   
-  NoTrigHist->SetMaximum(10.);
+  Hist1->SetMaximum(10.);
   double MaxX = 1000.;
   if(histname=="MHT"){
-	  if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
-	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,1000.);
+	  if(input=="TTbar")Hist1->SetMaximum(2000.);
+	  if(input=="data_SingleMuon_v14g")Hist1->SetMaximum(10.);
+	  Hist1->GetXaxis()->SetRangeUser(0.0,1000.);
 	  MaxX = 1000.;
   }
    if(histname=="origMHT" || histname=="origMET"){
 	   MaxX = 500.;
-	   if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
-	   if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	   NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
+	   if(input=="TTbar")Hist1->SetMaximum(2000.);
+	   if(input=="data_SingleMuon_v14g")Hist1->SetMaximum(10.);
+	   Hist1->GetXaxis()->SetRangeUser(0.0,MaxX);
   }
   if(histname=="HT" || histname=="origHT"){
 	  MaxX = 1500.;
-	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(2000.);
-	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
+	  if(input=="data_SingleMuon_v14g")Hist1->SetMaximum(10.);
+	  if(input=="TTbar")Hist1->SetMaximum(2000.);
+	  Hist1->GetXaxis()->SetRangeUser(0.0,MaxX);
   }
   if(histname=="NJet"){
+	  if(input=="data_SingleMuon_v14g")Hist1->SetMaximum(10.);
+	  if(input=="TTbar")Hist1->SetMaximum(1500.);
+	  Hist1->GetXaxis()->SetRangeUser(3.0,10.);
 	  MaxX = 10.;
-	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(1500.);
-	  NoTrigHist->GetXaxis()->SetRangeUser(3.0,MaxX);
   }
   if(histname=="NBtag"){
-	  MaxX = 4.;	  
-	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(15.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(2500.);
-	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
+	  if(input=="data_SingleMuon_v14g")Hist1->SetMaximum(15.);
+	  if(input=="TTbar")Hist1->SetMaximum(2500.);
+	  Hist1->GetXaxis()->SetRangeUser(0.0,4.);
+	  MaxX = 4.;
   }
-  if(histname=="MuonPt"){
-	  MaxX = 100.;
-	  if(input=="data_SingleMuon_v14g")NoTrigHist->SetMaximum(10.);
-	  if(input=="TTbar")NoTrigHist->SetMaximum(2500.);
-	  NoTrigHist->GetXaxis()->SetRangeUser(0.0,MaxX);
-	  
-  }
-  NoTrigHist->SetTitle("");
-  NoTrigHist->GetXaxis()->SetLabelFont(42);
-  NoTrigHist->GetXaxis()->SetLabelOffset(0.007);
-  NoTrigHist->GetXaxis()->SetLabelSize(0.032);
-  NoTrigHist->GetXaxis()->SetTitleSize(0.036);
-  NoTrigHist->GetXaxis()->SetTitleOffset(0.9);
-  NoTrigHist->GetXaxis()->SetTitleFont(42);
-  NoTrigHist->GetYaxis()->SetLabelFont(42);
-  NoTrigHist->GetYaxis()->SetLabelOffset(0.007);
-  NoTrigHist->GetYaxis()->SetLabelSize(0.032);
-  NoTrigHist->GetYaxis()->SetTitleSize(0.036);
-  NoTrigHist->GetYaxis()->SetTitleOffset(1.25);
-  NoTrigHist->GetYaxis()->SetTitleFont(42);
+  Hist1->SetTitle("");
+  Hist1->GetXaxis()->SetLabelFont(42);
+  Hist1->GetXaxis()->SetLabelOffset(0.007);
+  Hist1->GetXaxis()->SetLabelSize(0.032);
+  Hist1->GetXaxis()->SetTitleSize(0.036);
+  Hist1->GetXaxis()->SetTitleOffset(0.9);
+  Hist1->GetXaxis()->SetTitleFont(42);
+  Hist1->GetYaxis()->SetLabelFont(42);
+  Hist1->GetYaxis()->SetLabelOffset(0.007);
+  Hist1->GetYaxis()->SetLabelSize(0.032);
+  Hist1->GetYaxis()->SetTitleSize(0.036);
+  Hist1->GetYaxis()->SetTitleOffset(1.25);
+  Hist1->GetYaxis()->SetTitleFont(42);
   sprintf(tempname,"%s",histname.c_str());
-  NoTrigHist->GetXaxis()->SetTitle(tempname);
-  NoTrigHist->GetYaxis()->SetTitle("#event");
+  Hist1->GetXaxis()->SetTitle(tempname);
+  Hist1->GetYaxis()->SetTitle("#event");
 
   // draw bottom figure 
   canvas_dw->cd();
@@ -176,29 +175,30 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
   nulH->GetXaxis()->SetLabelSize(0.15);
   // Y axis 
   nulH->GetYaxis()->SetLabelSize(0.15);
-  if(input=="data_HTMHT_v14g")nulH->GetYaxis()->SetRangeUser(0.8,1.02);
-  else nulH->GetYaxis()->SetRangeUser(0.1,1.02);
+  nulH->GetYaxis()->SetRangeUser(0.1,1.05);
   nulH->GetYaxis()->SetTitleSize(0.15);
   nulH->GetYaxis()->SetTitleFont(42);
   nulH->GetYaxis()->SetTitleOffset(0.3);
   nulH->GetYaxis()->SetTitle("WRT PD   ");
   nulH->GetYaxis()->SetNdivisions(5,kTRUE);
-  //nulH->SetTickLength(.2,"Y");
   // Draw
   nulH->Draw();
   
   // Real efficiency plot
-  TEfficiency * eff1_2 = new TEfficiency(*Hist1_2,*NoTrigHist);
-  eff1_2->SetLineColor(Color1_2);
+  TEfficiency * eff1_2 = new TEfficiency(*Hist1,*NoTrigHist);
+  eff1_2->SetLineColor(Color1);
   eff1_2->Draw("same");
-  TEfficiency * eff1_3 = new TEfficiency(*Hist1_3,*NoTrigHist);
-  eff1_3->SetLineColor(Color1_3);
+  TEfficiency * eff1_2 = new TEfficiency(*Hist2,*NoTrigHist);
+  eff1_2->SetLineColor(Color2);
+  eff1_2->Draw("same");
+  TEfficiency * eff1_3 = new TEfficiency(*Hist3,*NoTrigHist);
+  eff1_3->SetLineColor(Color3);
   eff1_3->Draw("same");
   /*
-  TEfficiency * eff1_5 = new TEfficiency(*Hist1_5,*NoTrigHist);
+  TEfficiency * eff1_5 = new TEfficiency(*Hist1_5,*Hist1);
   eff1_5->SetLineColor(Color1_5);
   eff1_5->Draw("same");
-  TEfficiency * eff1_8 = new TEfficiency(*Hist1_8,*NoTrigHist);
+  TEfficiency * eff1_8 = new TEfficiency(*Hist1_8,*Hist1);
   eff1_8->SetLineColor(Color1_8);
   eff1_8->Draw("same");
   */
@@ -209,18 +209,24 @@ void plot_BGEst_trigger1till8(string cutname="delphi", string histname="NJet"){
  
     catLeg1->SetHeader("Triggers:");
   
-    NoTrigHist->Draw("same,hist");	
-	if(input=="data_SingleMuon_v14g")sprintf(tempname,"Single Muon PD");
-	if(input=="TTbar")sprintf(tempname,"TTbar MC");
-    catLeg1->AddEntry(NoTrigHist,tempname,"l");
+    Hist1->Draw("same,hist");	
+	sprintf(tempname,"1");
+    catLeg1->AddEntry(Hist1,tempname,"l");
 
-    Hist1_2->Draw("same,hist");
-    sprintf(tempname,"1_2");
-    catLeg1->AddEntry(Hist1_2,tempname,"l");
+    Hist2->Draw("same,hist");
+    sprintf(tempname,"2");
+    catLeg1->AddEntry(Hist2,tempname,"l");
 	
-	Hist1_3->Draw("same,hist");
-	sprintf(tempname,"1_3");
-	catLeg1->AddEntry(Hist1_3,tempname,"l");
+	Hist3->Draw("same,hist");
+	sprintf(tempname,"3");
+	catLeg1->AddEntry(Hist3,tempname,"l");
+	
+	NoTrigHist->Draw("same,hist");
+	if(input=="data_SingleMuon_v14g")sprintf(tempname,"Single Muon PD");
+	if(input=="data_HTMHT_v14g")sprintf(tempname,"HTMHT PD");
+	if(input=="TTbar")sprintf(tempname,"TTbar MC");
+	catLeg1->AddEntry(NoTrigHist,tempname,"l");
+	
 /*	
     Hist1_5->Draw("same,hist");
 	sprintf(tempname,"1_5");

@@ -30,8 +30,8 @@ using namespace std;
    bool DataBool;
 
    // Declaration of leaf types
-   UChar_t         GoodVtx;
-   UChar_t         HBHENoiseFilter;
+//   UChar_t         GoodVtx;
+   Bool_t         HBHENoiseFilter;
    Int_t           CSCTightHaloFilter;
    Int_t           eeBadScFilter;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
@@ -47,107 +47,62 @@ using namespace std;
    Int_t           Leptons;
    Int_t           NJets;
    Int_t           BTags;
-   Float_t         Weight;
-   Float_t         HT;
-   Float_t         MHT;
-   Float_t         MHT_Phi; 
-//Float_t         MHTPhi;
-   Float_t         METPt;
-   Float_t         METPhi;
-   Float_t         DeltaPhi1;
-   Float_t         DeltaPhi2;
-   Float_t         DeltaPhi3;
-   Float_t         minDeltaPhiN_;
+   Double_t         Weight;
+   Double_t         HT;
+   Double_t         MHT;
+   Double_t         MHT_Phi; 
+//Double_t         MHTPhi;
+   Double_t         METPt;
+   Double_t         METPhi;
+   Double_t         DeltaPhi1;
+   Double_t         DeltaPhi2;
+   Double_t         DeltaPhi3;
+   Double_t         minDeltaPhiN_;
    TTree *         fChain;
    int             currentEntry_;
    int             template_Entries; 
 
+   vector<TLorentzVector> *GenMus;
+   vector<TLorentzVector> *GenEls;
+   vector<TLorentzVector> *GenTaus;
+   vector<TLorentzVector> *GenTauNu;
+   vector<TLorentzVector> *Jets;
 
-   vector<double>  *testVec;
+   vector<double>  *Jets_bDiscriminatorCSV;
+   vector<double>  *Jets_chargedEmEnergyFraction;
+   vector<double>  *Jets_chargedHadronEnergyFraction;
+   vector<int>     *Jets_chargedHadronMultiplicity;
+   vector<int>     *Jets_electronMultiplicity;
 
-   vector<double>  *GenMuPtVec;
-   vector<double>  *GenMuEtaVec;
-   vector<double>  *GenMuPhiVec;
+   vector<double>  *Jets_jetArea;
+   vector<double>  *Jets_muonEnergyFraction;
+   vector<int>     *Jets_muonMultiplicity;
+   vector<double>  *Jets_neutralEmEnergyFraction;
+   vector<int>     *Jets_neutralHadronMultiplicity;
+   vector<double>  *Jets_photonEnergyFraction;
+   vector<int>     *Jets_photonMultiplicity;
 
-   vector<double>  *GenElecPtVec;
-   vector<double>  *GenElecEtaVec;
-   vector<double>  *GenElecPhiVec;
+   vector<TLorentzVector> *slimJet; 
+//   vector<double>  *slimmedMuonsPtVec;
+   vector<TLorentzVector> *Muons;
+   vector<TLorentzVector> *selectedIDMuons;
+//   vector<double>  *selectedIDIsoMuonsPtVec;
+//   vector<double>  *slimmedElectronsPtVec;
+   vector<TLorentzVector> *Electrons;
+   vector<TLorentzVector> *selectedIDElectrons;
+//   vector<double>  *selectedIDIsoElectronsPtVec;
+   vector<TLorentzVector> *IsolatedElectronTracksVeto;
+   vector<TLorentzVector> *IsolatedMuonTracksVeto;
+   vector<TLorentzVector> *IsolatedPionTracksVeto;
 
-
-   vector<double>  *GenTauPtVec;
-   vector<double>  *GenTauEtaVec;
-   vector<double>  *GenTauPhiVec;
-
-   vector<double>  *GenTauNuPtVec;
-   vector<double>  *GenTauNuEtaVec;
-   vector<double>  *GenTauNuPhiVec;
-
-   vector<double>  *JetsPtVec;
-   vector<double>  *JetsEtaVec;
-   vector<double>  *JetsPhiVec;
-   Float_t        Jets_bDiscriminator[50];  
-   Float_t         Jets_chargedEmEnergyFraction[50];   //[JetsNum]        
-   Float_t         Jets_chargedHadronEnergyFraction[50];   //[JetsNum]    
-   Int_t           Jets_chargedHadronMultiplicity[50];   //[JetsNum]      
-   Int_t           Jets_electronMultiplicity[50];   //[JetsNum]           
-   Float_t         Jets_jetArea[50];   //[JetsNum]                        
-   Float_t         Jets_muonEnergyFraction[50];   //[JetsNum]             
-   Int_t           Jets_muonMultiplicity[50];   //[JetsNum]               
-   Float_t         Jets_neutralEmEnergyFraction[50];   //[JetsNum]        
-   Int_t           Jets_neutralHadronMultiplicity[50];   //[JetsNum]      
-   Float_t         Jets_photonEnergyFraction[50];   //[JetsNum]          
-   Int_t           Jets_photonMultiplicity[50];   //[JetsNum]            
-
-   vector<double>  *slimJetPtVec;
-   vector<double>  *slimJetEtaVec;
-   vector<double>  *slimJetPhiVec;
-
-   vector<double>  *slimmedMuonsPtVec;
-   vector<double>  *slimmedMuonsEtaVec;
-   vector<double>  *slimmedMuonsPhiVec;
-   vector<double>  *MuonsPtVec;
-   vector<double>  *MuonsEtaVec;
-   vector<double>  *MuonsPhiVec;
-   vector<double>  *selectedIDMuonsPtVec;
-   vector<double>  *selectedIDMuonsEtaVec;
-   vector<double>  *selectedIDMuonsPhiVec;
-   vector<double>  *selectedIDIsoMuonsPtVec;
-   vector<double>  *selectedIDIsoMuonsEtaVec;
-   vector<double>  *selectedIDIsoMuonsPhiVec;
-
-   vector<double>  *slimmedElectronsPtVec;
-   vector<double>  *slimmedElectronsEtaVec;
-   vector<double>  *slimmedElectronsPhiVec;
-   vector<double>  *ElectronsPtVec;
-   vector<double>  *ElectronsEtaVec;
-   vector<double>  *ElectronsPhiVec;
-   vector<double>  *selectedIDElectronsPtVec;
-   vector<double>  *selectedIDElectronsEtaVec;
-   vector<double>  *selectedIDElectronsPhiVec;
-   vector<double>  *selectedIDIsoElectronsPtVec;
-   vector<double>  *selectedIDIsoElectronsEtaVec;
-   vector<double>  *selectedIDIsoElectronsPhiVec;
-
-   vector<double>  *IsolatedElectronTracksVetoPtVec;
-   vector<double>  *IsolatedElectronTracksVetoEtaVec;
-   vector<double>  *IsolatedElectronTracksVetoPhiVec;
-
-   vector<double>  *IsolatedMuonTracksVetoPtVec;
-   vector<double>  *IsolatedMuonTracksVetoEtaVec;
-   vector<double>  *IsolatedMuonTracksVetoPhiVec;
-
-   vector<double>  *IsolatedPionTracksVetoPtVec;
-   vector<double>  *IsolatedPionTracksVetoEtaVec;
-   vector<double>  *IsolatedPionTracksVetoPhiVec;
-
-   vector<int>     *PassTrigger;
+   vector<bool>     *TriggerPass;
    vector<string>  *TriggerNames;
 
-   Int_t    *      GenMu_GenMuFromTau;   //[GenMuNum]
-   Int_t    *      GenElec_GenElecFromTau;   //[GenElecNum]
-   Int_t    *      GenTau_GenTauHad;   //[GenTauNum]
-   Int_t           slimJet_slimJetID[100];
-   UChar_t         JetID; 
+   vector<int>     *GenMu_GenMuFromTau;
+   vector<int>     *GenElec_GenElecFromTau;
+   vector<int>     *GenTau_GenTauHad;
+   vector<int>     *slimJet_slimJetID;
+   Bool_t         JetID; 
 
 public:
 //constructor
@@ -254,10 +209,10 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  IsoPionPhiVec_() const;
 
    vector<string>  TriggerNames_() const;
-   vector<int>  PassTrigger_() const;
+   vector<bool>  PassTrigger_() const;
    double csv_() const;
    
-   int GoodVtx_() const; 
+//   int GoodVtx_() const; 
    int CSCTightHaloFilter_() const;
    int eeBadScFilter_() const;
    int HBHENoiseFilter_() const;
