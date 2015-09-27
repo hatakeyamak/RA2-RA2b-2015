@@ -49,8 +49,8 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi=41.6,
-		   string PDname="SingleMuon",
+Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=16,
+		   string PDname="SingleMuon_v14g_25ns",
 		   bool normalize=true, int rebin=0,
 		   double lowPredictionCutOff=0.15,
 		   double trigEff=0.955
@@ -109,7 +109,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi", double lumi
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v14g_.root",PDname.c_str());
+  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
 //  TFile * PreTT   = new TFile("TauHad2/HadTauEstimation_TTbar_.root","R");
 //  TFile * PreWJ12 = new TFile("TauHad2/HadTauEstimation_WJet_100_200_.root","R");

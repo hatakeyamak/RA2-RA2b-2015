@@ -237,8 +237,8 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   EstHist_Normalize->DrawCopy("e2same");
   EstHist_Normalize->DrawCopy("esame");
 
-  GenHist->Print("all");
-  EstHist->Print("all");
+  GenHist->Print();
+  EstHist->Print();
   
   //
   // Re-draw to have "expectation" on top of "prediction"
@@ -500,8 +500,8 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
       numerator->DrawCopy("same");
 
-      numerator->Print("all");
-      denominator->Print("all");
+      numerator->Print();
+      denominator->Print();
       
       //
       // Drawing lines
