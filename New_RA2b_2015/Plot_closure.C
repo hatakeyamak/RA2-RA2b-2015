@@ -650,7 +650,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   sprintf(tempname,"%s_%s_%s_Plot.png",sample.c_str(),cutname.c_str(),histname.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"%s_%s_%s_Plot.pdf",sample.c_str(),cutname.c_str(),histname.c_str());
-//  canvas->Print(tempname);
+  canvas->Print(tempname);
 
 }
 

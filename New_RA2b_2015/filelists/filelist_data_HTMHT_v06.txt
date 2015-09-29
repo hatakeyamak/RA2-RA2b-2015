@@ -1,3 +1,0 @@
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v06/ReducedSelection_1_1_NHL.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v06/ReducedSelection_2_1_JWH.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v06/ReducedSelection_3_1_AZw.root
