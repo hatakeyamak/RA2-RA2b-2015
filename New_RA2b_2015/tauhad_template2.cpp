@@ -92,7 +92,6 @@ using namespace std;
     double simTauJetPt,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
-
     Double_t ht_bins[15] = {
       0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
       1000.,1200.,1500.,2000.,5000.};
@@ -159,10 +158,6 @@ using namespace std;
     TH1D simTauJetPt_hist = TH1D("simTauJetPt","Pt of simulated tau Jet",80,0,400);
     simTauJetPt_hist.Sumw2();
     vec.push_back(simTauJetPt_hist);
-    /*
-    TH1D Bjet_mu_hist = TH1D("Bjet_mu_hist","Is Muon from Bjet? ",2,0,2);
-    Bjet_mu_hist.Sumw2();
-    vec.push_back(Bjet_mu_hist);*/
 
     int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
@@ -322,6 +317,7 @@ using namespace std;
       return 2;
     }
 
+
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
 
@@ -444,6 +440,7 @@ using namespace std;
 
     }
 
+
 /*
     // Use Rishi's tau template 
     TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
@@ -452,6 +449,7 @@ using namespace std;
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
     }
 */
+
 
     // muMtW Histogram
     TH1D * muMtWHist = new TH1D("muMtW"," MT distribution of muon",40,0,200);
@@ -507,11 +505,13 @@ using namespace std;
 vector<int> trigVec(300,0);
 // temporary// temporary// temporary// temporary
 
+
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>20000)break;
+
+      //if(eventN>10000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
 
 
@@ -550,6 +550,8 @@ vector<int> trigVec(300,0);
         //if( evt->TriggerNames_().at(i).find(tempname) != string::npos ){
         //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
         //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos ){
+
+
 /*
         if( evt->TriggerNames_().at(i).find(tempname) != string::npos
             || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
@@ -593,12 +595,6 @@ vector<int> MuFromTauVec;//Ahmad33
 MuFromTauVec.clear();//Ahmad33
 
 
-/* Ahmad33
-      for(int i=0; i< evt->MuPtVec_().size(); i++){
-        double pt=evt->MuPtVec_().at(i);
-        double eta=evt->MuEtaVec_().at(i);
-        double phi=evt->MuPhiVec_().at(i);
-Ahmad33 */
 
       // Consistancy check
       if(isData==true && TauHadModel<3){
@@ -645,6 +641,8 @@ Ahmad33 */
 
       ///select electrons with pt>10. eta<2.5 relIso<.2
       vec_recoElec3vec.clear();
+
+
 /* Ahmad33
       for(int i=0; i< evt->ElecPtVec_().size(); i++){
         double pt=evt->ElecPtVec_().at(i);
@@ -654,17 +652,21 @@ Ahmad33 */
 //        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
           // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
 Ahmad33 */
-      for(int i=0; i< evt->GenElecPtVec_().size(); i++){// Ahmad33
-        double pt=evt->GenElecPtVec_().at(i); // Ahmad33
-        double eta=evt->GenElecEtaVec_().at(i); // Ahmad33 
-        double phi=evt->GenElecPhiVec_().at(i); // Ahmad33
 
-          if(verbose==2)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
-          temp3vec.SetPtEtaPhi(pt,eta,phi);
-          vec_recoElec3vec.push_back(temp3vec);
 
-//        }
+      if(TauHadModel < 2){
+        for(int i=0; i< evt->GenElecPtVec_().size(); i++){// Ahmad33
+          double pt=evt->GenElecPtVec_().at(i); // Ahmad33
+          double eta=evt->GenElecEtaVec_().at(i); // Ahmad33 
+          double phi=evt->GenElecPhiVec_().at(i); // Ahmad33
 
+            if(verbose==2)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
+            temp3vec.SetPtEtaPhi(pt,eta,phi);
+            vec_recoElec3vec.push_back(temp3vec);
+
+  //        }
+
+        }
       }
 
       
@@ -679,6 +681,7 @@ Ahmad33 */
       else {if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;} // recoElec is realy GenElec here
 
       if(pass1){
+
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
@@ -711,14 +714,11 @@ Ahmad33 */
         GenRecMu_all++;
         // If muon does not match a GenMuon, drop the event. We do this by applying some corrections 
         int GenMuIdx=-1;
-        if(!utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(), evt->GenMuEtaVec_(), evt->GenMuPhiVec_(),deltaRMax,verbose)){
+        if(!isData && !utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(),evt->GenMuEtaVec_(),evt->GenMuPhiVec_(),deltaRMax,verbose)){
           GenRecMu_fail++;
           if(evt->DataBool_()==false && eventN < 100){
             printf(" Warning! There is no Gen Muon \n ");
             printf("@@@@@@@@@@@@@@@@@@\n eventN: %d \n MuPt: %g MuEta: %g MuPhi: %g \n ",eventN,muPt,muEta,muPhi);
-          }
-          for(int i=0; i<evt->GenMuPtVec_().size(); i++){
-//          if( evt->GenMuPtVec_()[i] >10. && fabs(evt->GenMuEtaVec_()[i])<2.5 )printf("GenMu#: %d \n GenMuPt: %g GenMuEta: %g GenMuPhi: %g \n ", i,evt->GenMuPtVec_()[i],evt->GenMuEtaVec_()[i],evt->GenMuPhiVec_()[i] );
           }
           
         }
@@ -798,14 +798,7 @@ Ahmad33 */
           // Order the HT3JetVec and MHT3JetVec based on their pT
           HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
           MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
-  /*
-          for(int i=0; i<HT3JetVec.size();i++){
-          printf("HT3JetVec[i].Pt(): %g HT3JetVec[i].Eta(): %g HT3JetVec[i].Phi(): %g \n ",HT3JetVec[i].Pt(),HT3JetVec[i].Eta(),HT3JetVec[i].Phi());
-          }
-          for(int i=0; i<MHT3JetVec.size();i++){
-          printf("MHT3JetVec[i].Pt(): %g MHT3JetVec[i].Eta(): %g MHT3JetVec[i].Phi(): %g \n ",MHT3JetVec[i].Pt(),MHT3JetVec[i].Eta(),MHT3JetVec[i].Phi());
-          }
-  */
+
 
           double newHT=0,newMHT=0,newMHTPhi=-1;
           TVector3 newMHT3Vec;
@@ -1054,7 +1047,6 @@ Ahmad33 */
 
     //        double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);
             double totWeight=1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
-
             // dilepton contamination
             if(TauHadModel>=3){
               if(utils2::IsoTrkModel==0)totWeight*= 1./1.02;
@@ -1077,6 +1069,7 @@ Ahmad33 */
             int binNum_MT = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
             double mtWeight = hMT->GetBinContent(binNum_MT);
             double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
+
 
             // Apply MT efficiency
             if(utils2::applyMT){
@@ -1242,6 +1235,7 @@ Ahmad33 */
 
             }   // baseline cut
 
+
             // Fill QCD histogram
             // Fill the histogram in the inverted delta phi region
             if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
@@ -1272,32 +1266,7 @@ Ahmad33 */
               }
 
             }
-/*
-// temporary// temporary// temporary// temporary// temporary
-  if( newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4 && 
 
-      ( 
-      //(800< evt->ht()&& evt->ht()<900) ||
-      (50< evt->mht()&& evt->mht()<100)  || (200< evt->mht()&& evt->mht()<250)// || 
-      //(100< evt->met()&& evt->met()<150) 
-      )
-
-    ){
-      cout << "############################\n ";
-      for(int i=0; i< evt->TriggerNames_().size(); i++){
-        if(trigPass){
-          cout << "triggered \n ";
-          break;
-        }
-        if(evt->PassTrigger_().at(i)){
-          cout << "i: " << i << " trigger name: " << evt->TriggerNames_().at(i) << endl;
-          trigVec[i]++;
-          cout << trigVec[i] << endl;
-        }
-      } 
-    }
-// temporary// temporary// temporary// temporary// temporary
-*/
 
             //load totWeightMap
               // no error propagation
@@ -1632,7 +1601,6 @@ Ahmad33 */
     }
 
     delete resp_file;
-
 
   } // end of main
 

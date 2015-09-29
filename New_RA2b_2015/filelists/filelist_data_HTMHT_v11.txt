@@ -1,8 +1,0 @@
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_1_1_etd.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_2_1_WWS.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_3_1_oIS.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_4_1_qKP.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_5_1_85O.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_6_1_dyc.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_7_1_ner.root
-/data3/store/user/hatake/ntuples_Run2015B_HTMHT_v11/ReducedSelection_8_1_1uX.root
