@@ -6,7 +6,7 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=true;
+    DataBool=false;
  
     //Initialize some varaibles
      RunNum=-1;
@@ -21,6 +21,7 @@
      BTags=-1;
      Weight=1;
      HT=0.0;
+     genHT=0.0;
      MHT=0.0;
      MHT_Phi=0.0; 
      METPt=0.0;
@@ -107,6 +108,7 @@
        fChain->SetBranchAddress("GenTaus", &GenTaus);
        fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
        fChain->SetBranchAddress("GenTauNu", &GenTauNu);
+       fChain->SetBranchAddress("genHT", &genHT);
      }
 
      fChain->SetBranchAddress("Jets", &Jets);
@@ -188,6 +190,7 @@
 
   // HT and MHT
   double Events::ht() const { return HT; }
+  double Events::gen_ht() const { return genHT; }
   double Events::mht() const { return MHT; }
   double Events::mhtphi() const { return  MHT_Phi; }
 

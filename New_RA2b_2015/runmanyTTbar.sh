@@ -1,40 +1,39 @@
 #!/bin/sh
 
-sample=$1
-type=$2 # 0 prediction, 1 expectation
-outStr=$3
+type=$1 # 0 prediction, 1 expectation
+outStr=$2
 submitscript=submitScriptTTbar.sh
 submitscript1=submitScriptTTbar_Expectation.sh
 
-if [ $sample -eq 14 ]; then
-  njobs=`ls InputFiles_TTbar/filelist_TTJets_PU20bx25_* | wc -l`
-fi
 
-if [ $sample -eq 15 ]; then
-  njobs=`ls InputFiles_TTbar/filelist_Spring15_TTJets_PU20bx25_* | wc -l`
-fi
+for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 Inclusive T_SingleLep Tbar_SingleLep; do
 
-#njobs=$[$njobs+1]
-echo number of jobs: $njobs
-mkdir -p qsub
-#for i in `seq 1 $njobs`; do
-for i in `seq 0 $njobs`; do
+  njobs=`ls InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_* | wc -l`
 
-export filenum=$i
-export sample_=$sample
-export outStr=$outStr
-echo $filenum
-echo $code 
+  #njobs=$[$njobs+1]
+  echo number of jobs: $njobs
+  mkdir -p qsub
+  #for i in `seq 1 $njobs`; do
+  for i in `seq 0 $njobs`; do
 
-if [ $type -eq 0 ]; then
-  qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript -q moonshot
-fi
+    export filenum=$i
+    export outStr=$outStr
+    echo $filenum
+    echo $code 
+    export TTbarStr=$TTbarStr
 
-if [ $type -eq 1 ]; then
-  qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
-fi
+    if [ $type -eq 0 ]; then
+      qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript -q moonshot
+    fi
 
-sleep 1
+    if [ $type -eq 1 ]; then
+      qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
+    fi
+
+    sleep 1
+
+  done
+
 
 done
 
