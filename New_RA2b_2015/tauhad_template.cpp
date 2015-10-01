@@ -142,17 +142,18 @@ using namespace std;
 
     // Introduce cutflow histogram to monior event yields for early preselection
     TH1D* cutflow_preselection = new TH1D("cutflow_preselection","cutflow_preselectoion",
-                                         10,0.,10.);
+                                         11,0.,11.);
     cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
-    cutflow_preselection->GetXaxis()->SetBinLabel(2,"CSCTightHaloFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(3,"eeBadScFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(4,"HBHENoiseFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(5,"GoodVtx");
-    cutflow_preselection->GetXaxis()->SetBinLabel(6,"JetID Cleaning");
-    cutflow_preselection->GetXaxis()->SetBinLabel(7,"Hadronic tau");
-    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Lepton vetoes");
-    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Preselection 1");
-    cutflow_preselection->GetXaxis()->SetBinLabel(10,"Preselection 2");
+    cutflow_preselection->GetXaxis()->SetBinLabel(2,"Sample based gen-selection");
+    cutflow_preselection->GetXaxis()->SetBinLabel(3,"CSCTightHaloFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(4,"eeBadScFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"HBHENoiseFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(6,"GoodVtx");
+    cutflow_preselection->GetXaxis()->SetBinLabel(7,"JetID Cleaning");
+    cutflow_preselection->GetXaxis()->SetBinLabel(8,"Hadronic tau");
+    cutflow_preselection->GetXaxis()->SetBinLabel(9,"Lepton vetoes");
+    cutflow_preselection->GetXaxis()->SetBinLabel(10,"Preselection 1");
+    cutflow_preselection->GetXaxis()->SetBinLabel(11,"Preselection 2");
 
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
@@ -327,6 +328,20 @@ using namespace std;
     // Determine which model to work with
     int TauHadModel=utils2::TauHadModel;
 
+
+    int sampletype=-1;
+    if(subSampleKey.find("TTJets_Inclusive")!=string::npos)sampletype=0; //TTJets_Inclusive
+    else if(subSampleKey.find("TTJets_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTJets_T_SingleLep")!=string::npos)sampletype=1;
+    else if(subSampleKey.find("TTJets_DiLept")!=string::npos)sampletype=2;
+    else if(subSampleKey.find("TTJets_HT_600_800")!=string::npos)sampletype=3;
+    else if(subSampleKey.find("TTJets_HT_800_1200")!=string::npos)sampletype=4;
+    else if(subSampleKey.find("TTJets_HT_1200_2500")!=string::npos)sampletype=5;
+    else if(subSampleKey.find("TTJets")!=string::npos){
+      cout << " TT sample is not known. Please check the second input \n " ;
+
+    }
+
+
     // Loop over the events (tree entries)
     int eventN=0;
     while( evt->loadNext() ){
@@ -336,17 +351,36 @@ using namespace std;
       //if(eventN>20000)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
-      if(evt->CSCTightHaloFilter_()==0)continue;
+
+      if(!evt->DataBool_()){
+
+        if(sampletype==0){
+          if(evt->gen_ht()>600||evt->GenElecPtVec_().size()>0||evt->GenMuPtVec_().size()>0||evt->GenTauPtVec_().size()>0)continue;
+        }
+
+        if(sampletype==1){
+          if(evt->gen_ht()>600)continue;
+        }
+
+        if(sampletype==2){
+          if(evt->gen_ht()>600)continue;
+        }
+
+      }
+
+
       cutflow_preselection->Fill(1.);
-      if(evt->eeBadScFilter_()==0)continue;
+      if(evt->CSCTightHaloFilter_()==0)continue;
       cutflow_preselection->Fill(2.);
-      if(evt->HBHENoiseFilter_()==0)continue;
+      if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.);
-      if(!(evt->NVtx_() >0))continue;
+      if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(4.);
+      if(!(evt->NVtx_() >0))continue;
+      cutflow_preselection->Fill(5.);
       // Through out an event that contains HTjets with bad id
       if(evt->JetId()==0)continue;
-      cutflow_preselection->Fill(5.); // events passing JetID event cleaning
+      cutflow_preselection->Fill(6.); // events passing JetID event cleaning
       
       nCleanEve++;
 
@@ -479,12 +513,12 @@ using namespace std;
       }
 
       if(hadTau==false)continue;
-      cutflow_preselection->Fill(6.); // hadronic tau events
+      cutflow_preselection->Fill(7.); // hadronic tau events
       nHadTauEve++;
  
       // We want no muon and electron in the event
       if(evt->GenMuPtVec_().size()!=0 || eleN!=0)continue;
-      cutflow_preselection->Fill(7.); // events passing lepton vetos
+      cutflow_preselection->Fill(8.); // events passing lepton vetos
 
       nNoLepEve++;
 
@@ -540,8 +574,8 @@ using namespace std;
       }      
 
       // Total weight
-      // double totWeight = evt->weight()*1.;
-      double totWeight = 1.;
+       double totWeight = evt->weight()*1.;
+      //double totWeight = 1.;
     
       // add pileup as weight for MC 
       if(!evt->DataBool_()){
@@ -578,7 +612,7 @@ using namespace std;
 
 
       if(pass3){
-	cutflow_preselection->Fill(8.); // We may ask genTau within muon acceptance
+	cutflow_preselection->Fill(9.); // We may ask genTau within muon acceptance
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -663,7 +697,7 @@ using namespace std;
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
       if(pass3){
 
-	cutflow_preselection->Fill(9.); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
+	cutflow_preselection->Fill(10.); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts

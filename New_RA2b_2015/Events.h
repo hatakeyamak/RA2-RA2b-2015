@@ -61,6 +61,8 @@ using namespace std;
    TTree *         fChain;
    int             currentEntry_;
    int             template_Entries; 
+   Double_t        genHT;
+
 
    vector<TLorentzVector> *GenMus;
    vector<TLorentzVector> *GenEls;
@@ -121,6 +123,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   int nIsoPion() const;
   double weight() const ;
   double ht() const ;
+  double gen_ht() const ; 
   double mht() const ;
   double mhtphi() const ;
   double met() const ;

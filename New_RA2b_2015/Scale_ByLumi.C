@@ -10,7 +10,7 @@ using namespace std;
 //         1: project the stat uncertainy to the targetted luminosity
 //            i.e. content is scale by lumi, while scale the error by sqrt(lumi)
 
-Scale_ByLumi(double newLum=10, int imode=1){   // Scale histogram contents and uncertainty to xxx fb^{-1}
+Scale_ByLumi(double newLum=3, int imode=1){   // Scale histogram contents and uncertainty to xxx fb^{-1}
 
   char tempname[200];
   TH1D * temphist;
@@ -18,7 +18,7 @@ Scale_ByLumi(double newLum=10, int imode=1){   // Scale histogram contents and u
   const int sampleSize=11;
   string sample[sampleSize]={"TTbar",
 			     "WJet_100_200","WJet_200_400","WJet_400_600","WJet_600_inf",
-			     "T_s","T_t","T_u","Tbar_s","Tbar_t","Tbar_u"};
+			     "t_top","tW_top","t_antitop","tW_antitop"};
 
   /*
   TTbar:            806.1 (pb), 
