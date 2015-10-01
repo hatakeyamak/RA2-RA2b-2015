@@ -23,11 +23,11 @@ for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 Inclusive T_SingleLep
     export TTbarStr=$TTbarStr
 
     if [ $type -eq 0 ]; then
-      qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript -q moonshot
+      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
     fi
 
     if [ $type -eq 1 ]; then
-      qsub -N TTbar -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
+      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
     fi
 
     sleep 1

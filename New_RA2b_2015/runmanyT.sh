@@ -11,7 +11,7 @@ if [ $type -eq 0 ]; then
 
   for TStr in t_top tW_top; do 
 
-    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4g3_* | wc -l`
+    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_* | wc -l`
     #njobs=$[$njobs+1]
     echo number of jobs: $njobs
     #for i in `seq 1 $njobs`; do
@@ -20,7 +20,7 @@ if [ $type -eq 0 ]; then
         export filenum=$i
         export TStr=$TStr
         echo $filenum
-        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
+        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript 
 
         sleep 1
 
@@ -33,7 +33,7 @@ if [ $type -eq 0 ]; then
 
   for TStr in t_antitop tW_antitop ; do                          
 
-    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4g3_* | wc -l`
+    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_* | wc -l`
     #njobs=$[$njobs+1]
     echo number of jobs: $njobs
     #for i in `seq 1 $njobs`; do
@@ -42,7 +42,7 @@ if [ $type -eq 0 ]; then
         export filenum=$i
         export TStr=$TStr
         echo $filenum
-        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
+        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript 
 
         sleep 1
 
@@ -56,7 +56,7 @@ if [ $type -eq 1 ]; then
 
   for TStr in t_top tW_top t_antitop tW_antitop; do
 
-    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_v1.4g3_* | wc -l`
+    njobs=`ls InputFiles_T/filelist_Spring15_ST_${TStr}_* | wc -l`
     #njobs=$[$njobs+1]
     echo number of jobs: $njobs
     #for i in `seq 1 $njobs`; do
@@ -65,7 +65,7 @@ if [ $type -eq 1 ]; then
         export filenum=$i
         export TStr=$TStr
         echo $filenum
-        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
+        qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript1 
 
         sleep 1
 
