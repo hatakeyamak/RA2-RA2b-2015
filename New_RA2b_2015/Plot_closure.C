@@ -56,7 +56,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   
   //
   // Luminosity information for scaling
-  double lumi = 10.; // normaliza to 3 (fb-1)
+  double lumi = 3.; // normaliza to 3 (fb-1)
 
   double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
   int    nevent_ttbar = 25348009;
@@ -344,8 +344,8 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
     if(histname=="DelPhi2"){
       xtext_top = 2.2;
       //y_legend = 1300.;
-      ymax_top = 3000.;
-      ymin_top = 40.;
+      ymax_top = 1000.;
+      ymin_top = 10.;
       ytext_top = ymax_top*0.2;
       sprintf(xtitlename,"DelPhi2");
       sprintf(ytitlename,"Events");
@@ -357,8 +357,8 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
     if(histname=="DelPhi3"){
       xtext_top = 2.2;
       //y_legend = 1300.;
-      ymax_top = 3000.;
-      ymin_top = 40.;
+      ymax_top = 1000.;
+      ymin_top = 10.;
       ytext_top = ymax_top*0.2;
       sprintf(xtitlename,"DelPhi3");
       sprintf(ytitlename,"Events");
@@ -367,6 +367,19 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
     } 
+    if(histname=="DelPhi4"){
+      xtext_top = 2.2;
+      //y_legend = 1300.;
+      ymax_top = 1000.;
+      ymin_top = 10.;
+      ytext_top = ymax_top*0.2;
+      sprintf(xtitlename,"DelPhi4");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(ymax_top);
+      thist->SetMinimum(ymin_top);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+      gPad->SetLogy();
+    }
 
     //
     // Drawing plots
@@ -409,7 +422,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   GenHist_Clone->DrawCopy("esame");
   catLeg1->Draw();
 
-  TText * ttext = new TLatex(xtext_top, ytext_top, "Normalized to 10 fb^{-1}");
+  TText * ttext = new TLatex(xtext_top, ytext_top, "Normalized to 3 fb^{-1}");
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.045);
   ttext->SetTextAlign(22);
@@ -615,6 +628,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
         TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
       }
+      if(histname=="DelPhi4"){
+        sprintf(xtitlename,"DelPhi4");
+        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
+
 
       // Setting style
       //numerator->SetMaximum(1.4);

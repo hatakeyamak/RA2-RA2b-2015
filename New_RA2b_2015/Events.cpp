@@ -29,6 +29,7 @@
      DeltaPhi1=-99.;
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
+     DeltaPhi4=-99.;
      minDeltaPhiN_=-99.;
 
      GenMu_GenMuFromTau=0;
@@ -53,7 +54,8 @@
      Jets_neutralHadronMultiplicity = 0;
      Jets_photonEnergyFraction = 0;
      Jets_photonMultiplicity = 0;
-
+     selectedIDIsoMuons_MT2Activity = 0;
+     GenMu_MT2Activity = 0;
 
 //     slimmedMuonsPtVec=new vector<double>();
      Muons = 0;
@@ -94,6 +96,7 @@
      fChain->SetBranchAddress("DeltaPhi1", &DeltaPhi1);
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
+     fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4);
      fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      fChain->SetBranchAddress("JetID", &JetID);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
@@ -143,6 +146,8 @@
      fChain->SetBranchAddress("IsolatedMuonTracksVeto", &IsolatedMuonTracksVeto);
      fChain->SetBranchAddress("IsolatedPionTracksVeto", &IsolatedPionTracksVeto);
 
+     fChain->SetBranchAddress("selectedIDIsoMuons_MT2Activity", &selectedIDIsoMuons_MT2Activity);
+     fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
      //
      fChain->SetBranchAddress("TriggerNames", &TriggerNames);
      fChain->SetBranchAddress("TriggerPass", &TriggerPass);
@@ -223,6 +228,7 @@
   double Events::deltaPhi1() const { return DeltaPhi1; }
   double Events::deltaPhi2() const { return DeltaPhi2; }
   double Events::deltaPhi3() const { return DeltaPhi3; }
+  double Events::deltaPhi4() const { return DeltaPhi4; }
   double Events::minDeltaPhiN() const { return minDeltaPhiN_; }
 
   // To see if an event passes the jetId requirement or not.  
@@ -538,6 +544,9 @@
      }
      return vec;
    }
+
+   vector<double>  Events::MTActivityVec_() const{ return *selectedIDIsoMuons_MT2Activity; }
+   vector<double>  Events::GenMTActivityVec_() const{ return *GenMu_MT2Activity; }
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
    vector<bool>     Events::PassTrigger_() const{ return *TriggerPass;}

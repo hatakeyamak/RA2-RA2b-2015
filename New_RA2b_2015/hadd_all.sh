@@ -2,7 +2,7 @@
 
 cd TauHad2Multiple
 
-for i in 100_200 200_400 400_600 600_inf; do 
+for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf ; do 
 
   hadd HadTauEstimation_WJet_${i}_.root  `ls HadTauEstimation_WJet_${i}_*00.root `  
   cp HadTauEstimation_WJet_${i}_.root ../TauHad2
@@ -55,7 +55,7 @@ echo " Making the plots \n\n\n"
 
 cd TauHadMultiple
 
-for i in 100_200 200_400 400_600 600_inf; do
+for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do
 
   hadd GenInfo_HadTauEstimation_WJet_${i}_.root  `ls GenInfo_HadTauEstimation_WJet_${i}_*00.root `
   cp GenInfo_HadTauEstimation_WJet_${i}_.root ../TauHad

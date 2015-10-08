@@ -19,6 +19,7 @@ if [ $type -eq 0 ]; then
 
         export filenum=$i
         export TStr=$TStr
+        export outStr=$outStr
         echo $filenum
         qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript 
 
@@ -41,6 +42,7 @@ if [ $type -eq 0 ]; then
 
         export filenum=$i
         export TStr=$TStr
+        export outStr=$outStr
         echo $filenum
         qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript 
 
@@ -64,6 +66,7 @@ if [ $type -eq 1 ]; then
 
         export filenum=$i
         export TStr=$TStr
+        export outStr=$outStr
         echo $filenum
         qsub -N $TStr -o qsub/ -e qsub/ -V $submitscript1 
 

@@ -124,9 +124,9 @@ EventYield_TauHad(string sample="TTbar_", bool mc=false){
     //printf("cutname: %s ==>> prediction: %g *0.64 = %g expectation: %g Pre*0.64/Exp: %g \n \n ",cutname[i].c_str(),pre,pre*0.64,exp,(pre*0.64/exp));
   
     if (mc)
-    printf("cutname: %-12s ==>> prediction: %12.1f expectation: %10.1f Pre/Exp: %6.3f\n",cutname[i].c_str(),pre,exp,(pre/exp));
+    printf("cutname: %-12s ==>> prediction: %12.3f expectation: %10.3f Pre/Exp: %6.3f\n",cutname[i].c_str(),pre,exp,(pre/exp));
     else 
-    printf("cutname: %-12s ==>> prediction: %12.1f\n\n",cutname[i].c_str(),pre);
+    printf("cutname: %-12s ==>> prediction: %12.3f\n\n",cutname[i].c_str(),pre);
 
   }
 

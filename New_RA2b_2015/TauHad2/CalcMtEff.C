@@ -46,10 +46,10 @@ TH1D * thist_tt, * thist_wj;
 TH1D * thist_tt2, * thist_wj2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog335_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog335_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog335_AfterMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog335_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * after_tt = new TFile("Stack/Elog353_AfterMTBeforeIsoHadTauEstimation_TTbar_stacked.root","R");
+TFile * before_tt = new TFile("Stack/Elog353_BeforeMTandIsoHadTauEstimation_TTbar_stacked.root","R");
+TFile * after_wj = new TFile("Stack/Elog353_AfterMTBeforeIsoHadTauEstimation_WJet_stacked.root","R");
+TFile * before_wj = new TFile("Stack/Elog353_BeforeMTandIsoHadTauEstimation_WJet_stacked.root","R");
 
 TFile * outFile = new TFile("MtEff.root","RECREATE");
 

@@ -6,7 +6,7 @@ submitscript=submitScriptTTbar.sh
 submitscript1=submitScriptTTbar_Expectation.sh
 
 
-for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 Inclusive T_SingleLep Tbar_SingleLep; do
+for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf Inclusive T_SingleLep Tbar_SingleLep; do
 
   njobs=`ls InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_* | wc -l`
 
@@ -23,11 +23,11 @@ for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 Inclusive T_SingleLep
     export TTbarStr=$TTbarStr
 
     if [ $type -eq 0 ]; then
-      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript -q moonshot
+      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript 
     fi
 
     if [ $type -eq 1 ]; then
-      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript1 -q moonshot
+      qsub -N TTbar_$TTbarStr -o qsub/ -e qsub/ -V $submitscript1  
     fi
 
     sleep 1
