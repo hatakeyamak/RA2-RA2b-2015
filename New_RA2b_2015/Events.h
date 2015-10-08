@@ -57,6 +57,7 @@ using namespace std;
    Double_t         DeltaPhi1;
    Double_t         DeltaPhi2;
    Double_t         DeltaPhi3;
+   Double_t         DeltaPhi4;
    Double_t         minDeltaPhiN_;
    TTree *         fChain;
    int             currentEntry_;
@@ -97,6 +98,9 @@ using namespace std;
    vector<TLorentzVector> *IsolatedMuonTracksVeto;
    vector<TLorentzVector> *IsolatedPionTracksVeto;
 
+   vector<double>  *selectedIDIsoMuons_MT2Activity;
+   vector<double>  *GenMu_MT2Activity;
+
    vector<bool>     *TriggerPass;
    vector<string>  *TriggerNames;
 
@@ -131,6 +135,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double deltaPhi1() const ;
   double deltaPhi2() const ;
   double deltaPhi3() const ;
+  double deltaPhi4() const ;
   double minDeltaPhiN() const ;
   int nGenMu() const ;
   int JetId() const ; 
@@ -210,6 +215,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  IsoPionPtVec_() const;
    vector<double>  IsoPionEtaVec_() const;
    vector<double>  IsoPionPhiVec_() const;
+
+   vector<double>  MTActivityVec_() const;
+   vector<double>  GenMTActivityVec_() const;
 
    vector<string>  TriggerNames_() const;
    vector<bool>  PassTrigger_() const;

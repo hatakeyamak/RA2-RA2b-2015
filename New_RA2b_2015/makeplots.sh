@@ -27,6 +27,7 @@ then
   root -l -b -q Plot_closure.C'("delphi","DelPhi1","TTbar_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi2","TTbar_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","TTbar_stacked",1)'
+  root -l -b -q Plot_closure.C'("delphi","DelPhi4","TTbar_stacked",1)'
 
   root -l -b -q Plot_searchBin_full.C'("TTbar_stacked","searchH_b",1)'
   root -l -b -q Plot_searchBin.C'("TTbar_stacked","searchH",1)'
@@ -54,6 +55,8 @@ if [ $j -eq 1 ]; then
   root -l -b -q Plot_closure.C'("delphi","DelPhi1","WJet_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi2","WJet_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","WJet_stacked",1)'
+  root -l -b -q Plot_closure.C'("delphi","DelPhi4","WJet_stacked",1)'
+
   root -l -b -q Plot_searchBin_full.C'("WJet_stacked","searchH_b",1)'
   root -l -b -q Plot_searchBin.C'("WJet_stacked","searchH",1)'
 
@@ -80,6 +83,8 @@ if [ $k -eq 1 ]; then
   root -l -b -q Plot_closure.C'("delphi","DelPhi1","T_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi2","T_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","T_stacked",1)'
+  root -l -b -q Plot_closure.C'("delphi","DelPhi4","T_stacked",1)'
+
   root -l -b -q Plot_searchBin_full.C'("T_stacked","searchH_b",1)'
   root -l -b -q Plot_searchBin.C'("T_stacked","searchH",1)'
 
@@ -107,6 +112,7 @@ if [ $l -eq 1 ]; then
   root -l -b -q Plot_closure.C'("delphi","DelPhi1","stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi2","stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","stacked",1)'
+  root -l -b -q Plot_closure.C'("delphi","DelPhi4","stacked",1)'
 
   root -l -b -q Plot_closure.C'("low_Dphi","NJet","stacked",1)'
   root -l -b -q Plot_closure.C'("low_Dphi","NBtag","stacked",1)'
@@ -115,6 +121,7 @@ if [ $l -eq 1 ]; then
   root -l -b -q Plot_closure.C'("low_Dphi","DelPhi1","stacked",1)'
   root -l -b -q Plot_closure.C'("low_Dphi","DelPhi2","stacked",1)'
   root -l -b -q Plot_closure.C'("low_Dphi","DelPhi3","stacked",1)'
+  root -l -b -q Plot_closure.C'("low_Dphi","DelPhi4","stacked",1)'
 
   root -l -b -q Plot_searchBin.C'("stacked","searchH",1)'
   root -l -b -q Plot_searchBin_full.C'("stacked","searchH_b",1)'

@@ -121,7 +121,10 @@ using namespace std;
     vec.push_back(RA2DelPhi2_hist);
     TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",50,0,5);
     RA2DelPhi3_hist.Sumw2();
-    vec.push_back(RA2DelPhi3_hist);    
+    vec.push_back(RA2DelPhi3_hist);   
+    TH1D RA2DelPhi4_hist = TH1D("DelPhi4","DelPhi4 Distribution",50,0,5);
+    RA2DelPhi4_hist.Sumw2();
+    vec.push_back(RA2DelPhi4_hist); 
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
     RA2NJet_hist.Sumw2();
     vec.push_back(RA2NJet_hist);
@@ -330,15 +333,16 @@ using namespace std;
 
 
     int sampletype=-1;
-    if(subSampleKey.find("TTJets_Inclusive")!=string::npos)sampletype=0; //TTJets_Inclusive
-    else if(subSampleKey.find("TTJets_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTJets_T_SingleLep")!=string::npos)sampletype=1;
-    else if(subSampleKey.find("TTJets_DiLept")!=string::npos)sampletype=2;
-    else if(subSampleKey.find("TTJets_HT_600_800")!=string::npos)sampletype=3;
-    else if(subSampleKey.find("TTJets_HT_800_1200")!=string::npos)sampletype=4;
-    else if(subSampleKey.find("TTJets_HT_1200_2500")!=string::npos)sampletype=5;
-    else if(subSampleKey.find("TTJets")!=string::npos){
+    if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
+    else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
+    else if(subSampleKey.find("TTbar_DiLept")!=string::npos)sampletype=2;
+    else if(subSampleKey.find("TTbar_HT_600_800")!=string::npos)sampletype=3;
+    else if(subSampleKey.find("TTbar_HT_800_1200")!=string::npos)sampletype=4;
+    else if(subSampleKey.find("TTbar_HT_1200_2500")!=string::npos)sampletype=5;
+    else if(subSampleKey.find("TTbar_HT_2500_Inf")!=string::npos)sampletype=6;
+    else if(subSampleKey.find("TTbar")!=string::npos){
       cout << " TT sample is not known. Please check the second input \n " ;
-
+      return 2;
     }
 
 
@@ -347,7 +351,7 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-      //if(eventN>1000000)break;
+      //if(eventN>100000)break;
       //if(eventN>20000)break;
 
       cutflow_preselection->Fill(0.); // keep track of all events processed
@@ -367,7 +371,6 @@ using namespace std;
         }
 
       }
-
 
       cutflow_preselection->Fill(1.);
       if(evt->CSCTightHaloFilter_()==0)continue;
@@ -556,7 +559,7 @@ using namespace std;
       // with muons at generator level
       // apply the baseline selection
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3())
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
         hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
@@ -565,7 +568,7 @@ using namespace std;
       }
       // Acceptance for low_Dphi region
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()))
+           &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
         ){
         hAccAll_lowDphi->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] );
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
@@ -616,7 +619,7 @@ using namespace std;
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&(evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3)
+           &&sel->mht_200(evt->mht())&&(evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3)
           ){
           Iso_all_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()]);
@@ -625,7 +628,7 @@ using namespace std;
 
         // Apply baseline cuts
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3()) 
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()) 
           ){
 
           // calculate trigger efficiency 
@@ -678,7 +681,7 @@ using namespace std;
       // Fill QCD histogram
       if(pass3){
         // Fill the histogram in the inverted delta phi region
-        if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3) && evt->nJets() >= 4){
+        if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3) && evt->nJets() >= 4){
           // Fill QCD histograms
           if(passIso){
 
@@ -691,7 +694,7 @@ using namespace std;
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
-      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3() ,(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
+      double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),(double)evt->minDeltaPhiN(),(double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3(),(double)evt->deltaPhi4(),(double) evt->nJets(),(double) evt->nBtags(),(double)nB }; //the last one gives the RA2 defined number of jets.
 
 
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
@@ -711,7 +714,7 @@ using namespace std;
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
   //            if(sel->checkcut_HadTau(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
               }
             }//end of loop over cut names

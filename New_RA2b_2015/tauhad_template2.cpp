@@ -82,6 +82,7 @@ using namespace std;
     vector<TH1*> vec_resp, vec_resp_x,vec_resp_y;
     vector<TH2*> vec_resp_xy;
     vector<double> vec_recoMuMTW;
+    vector<double> vec_MTActivity;
     vector<TVector3> vec_recoMuon3vec;
     vector<TVector3> vec_recoElec3vec;
     TVector3 temp3vec;
@@ -140,6 +141,9 @@ using namespace std;
     TH1D RA2DelPhi3_hist = TH1D("DelPhi3","DelPhi3 Distribution",50,0,5);
     RA2DelPhi3_hist.Sumw2();
     vec.push_back(RA2DelPhi3_hist);
+    TH1D RA2DelPhi4_hist = TH1D("DelPhi4","DelPhi4 Distribution",50,0,5);
+    RA2DelPhi4_hist.Sumw2();
+    vec.push_back(RA2DelPhi4_hist);
     TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
     RA2NJet_hist.Sumw2();
     vec.push_back(RA2NJet_hist);
@@ -369,7 +373,8 @@ using namespace std;
 
     // Probability of muon coming from Tau
     //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_Elog242.root","R");
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Probability_Tau_mu_stacked_Elog329.root","R");
+    //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Probability_Tau_mu_stacked_Elog329.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog353_Probability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
     //TFile * Prob_Tau_mu_lowDelphi_file = new TFile("TauHad2/Probability_Tau_mu_TTbar_plusLowDphi.root","R");
@@ -381,34 +386,40 @@ using namespace std;
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
     //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog340_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog340_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog351_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     TH1D * hAcc_lowDphi =(TH1D *) MuAcc_file->Get("hAcc_lowDphi")->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
-    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
-    TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoPTActivity");
-    TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoPTActivity");
+//    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
+    TFile * MuIsoEff_Arne = new TFile("TauHad/New_Efficiencies_Arne.root","R");
+    TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoActivityPT/MuRecoActivityPT");
+    TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoActivityPT/MuIsoActivityPT");
 
 
     // Get IsoTrk efficiencies
-//    TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
-    TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
+    //TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
+    //TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog351_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
-//    TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
-    TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
+    //TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
+    //TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
+    TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/Elog351_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile_lowDphi->Get("IsoEff_lowDphi")->Clone();
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
     //TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
-    TFile * MtFile = new TFile("TauHad2/Elog335_MtEff.root","R");
+    //TFile * MtFile = new TFile("TauHad2/Elog335_MtEff.root","R");
+    TFile * MtFile = new TFile("TauHad2/Elog353_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TFile * MtFile_lowDphi = new TFile("TauHad2/MtEff_TTbar_plusLowDphi_.root","R");
-    TFile * MtFile_lowDphi = new TFile("TauHad2/Elog335_MtEff.root","R");
+    //TFile * MtFile_lowDphi = new TFile("TauHad2/Elog335_MtEff.root","R");
+    TFile * MtFile_lowDphi = new TFile("TauHad2/Elog353_MtEff.root","R");
     TH1D * hMT_lowDphi = (TH1D *) MtFile_lowDphi->Get("MtCutEff_lowDphi")->Clone();
 
 
@@ -504,15 +515,16 @@ using namespace std;
 
 
     int sampletype=-1;
-    if(subSampleKey.find("TTJets_Inclusive")!=string::npos)sampletype=0; //TTJets_Inclusive
-    else if(subSampleKey.find("TTJets_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTJets_T_SingleLep")!=string::npos)sampletype=1;
-    else if(subSampleKey.find("TTJets_DiLept")!=string::npos)sampletype=2;  
-    else if(subSampleKey.find("TTJets_HT_600_800")!=string::npos)sampletype=3;
-    else if(subSampleKey.find("TTJets_HT_800_1200")!=string::npos)sampletype=4;
-    else if(subSampleKey.find("TTJets_HT_1200_2500")!=string::npos)sampletype=5;
-    else if(subSampleKey.find("TTJets")!=string::npos){
+    if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
+    else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
+    else if(subSampleKey.find("TTbar_DiLept")!=string::npos)sampletype=2;  
+    else if(subSampleKey.find("TTbar_HT_600_800")!=string::npos)sampletype=3;
+    else if(subSampleKey.find("TTbar_HT_800_1200")!=string::npos)sampletype=4;
+    else if(subSampleKey.find("TTbar_HT_1200_2500")!=string::npos)sampletype=5;
+    else if(subSampleKey.find("TTbar_HT_2500_Inf")!=string::npos)sampletype=6;
+    else if(subSampleKey.find("TTbar")!=string::npos){
       cout << " TT sample is not known. Please check the second input \n " ;
-      
+      return 2;  
     }
 
     int eventN=0;
@@ -520,7 +532,7 @@ using namespace std;
       eventN++;
 
 
-      //if(eventN>10000)break;
+      //if(eventN>50000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -614,7 +626,7 @@ using namespace std;
       // select muons with pt>20. eta<2.1 relIso<.2
       vec_recoMuMTW.clear(); 
       vec_recoMuon3vec.clear();
-        
+      vec_MTActivity.clear();  
 
 vector<int> MuFromTauVec;//Ahmad33
 MuFromTauVec.clear();//Ahmad33
@@ -632,14 +644,15 @@ MuFromTauVec.clear();//Ahmad33
           double pt=evt->MuPtVec_().at(i); // Ahmad33
           double eta=evt->MuEtaVec_().at(i); // Ahmad33
           double phi=evt->MuPhiVec_().at(i); // Ahmad33
+          double activity_ = evt->MTActivityVec_().at(i);
           double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());  
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
             if(utils2::applyMT){
-              if(mu_mt_w < 100. )vec_recoMuon3vec.push_back(temp3vec);
+              if(mu_mt_w < 100. ){vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
             }
-            else vec_recoMuon3vec.push_back(temp3vec);
+            else {vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
             vec_recoMuMTW.push_back(mu_mt_w); 
           }
         }
@@ -650,14 +663,15 @@ MuFromTauVec.clear();//Ahmad33
           double pt=evt->GenMuPtVec_().at(i); // Ahmad33
           double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
           double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
+          double activity_ = evt->GenMTActivityVec_().at(i);
           double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());
           if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
             if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
             temp3vec.SetPtEtaPhi(pt,eta,phi);
             if(utils2::applyMT){
-              if(mu_mt_w < 100. )vec_recoMuon3vec.push_back(temp3vec);
+              if(mu_mt_w < 100. ){vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
             }
-            else vec_recoMuon3vec.push_back(temp3vec);
+            else {vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
             MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
             vec_recoMuMTW.push_back(mu_mt_w); 
           }
@@ -710,6 +724,13 @@ Ahmad33 */
         muPt = vec_recoMuon3vec[0].Pt();
         muEta = vec_recoMuon3vec[0].Eta();
         muPhi = vec_recoMuon3vec[0].Phi();
+
+//        double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
+        double activity=vec_MTActivity[0]; 
+        if(verbose!=0)cout << " activity: " << activity << endl;
+
+
+
 
 	cutflow_preselection->Fill(7.); // 1-mu selection
 
@@ -976,10 +997,10 @@ Ahmad33 */
 
 
             // New dphi1, dphi2, and dphi3
-            double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.;
+            double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.,newDphi4=-99.;
             //first order the jets based on their pT
-            double p1=0,p2=0,p3=0;
-            int i1=-1,i2=-1,i3=-1;
+            double p1=0,p2=0,p3=0,p4=0;
+            int i1=-1,i2=-1,i3=-1,i4=-1;
             for(int i=0; i < HT3JetVec.size(); i++ ){
               if(HT3JetVec[i].Pt()>p1){
                 p1=HT3JetVec[i].Pt();
@@ -1000,14 +1021,22 @@ Ahmad33 */
                 i3=i;
               }
             }
+            for(int i=0; i < HT3JetVec.size(); i++ ){
+              if(i==i1 || i==i2 || i==i3)continue;
+              if(HT3JetVec[i].Pt()>p4){
+                p4=HT3JetVec[i].Pt();
+                i4=i;
+              }
+            }
 
             if(i1!=-1)newDphi1=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i1].Phi() - newMHTPhi ));
             if(i2!=-1)newDphi2=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i2].Phi() - newMHTPhi ));
             if(i3!=-1)newDphi3=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i3].Phi() - newMHTPhi ));
+            if(i4!=-1)newDphi4=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i4].Phi() - newMHTPhi ));
             
             if(verbose!=0){
-              printf("newDphi1: %g newDphi2: %g newDphi3: %g \n ",newDphi1,newDphi2,newDphi3);
-              printf("i1: %d p1: %g i2: %d p2: %g i3: %d p3: %g \n ",i1,p1,i2,p2,i3,p3);
+              printf("newDphi1: %g newDphi2: %g newDphi3: %g newDphi4: %g\n ",newDphi1,newDphi2,newDphi3,newDphi4);
+              printf("i1: %d p1: %g i2: %d p2: %g i3: %d p3: %g i4: %d p4: %g \n ",i1,p1,i2,p2,i3,p3,i4,p4);
               for(int i=0; i < HT3JetVec.size(); i++){
                 printf("i: %d HT3JetVec[i].Pt(): %g \n ",i,HT3JetVec[i].Pt());
               }
@@ -1018,13 +1047,11 @@ Ahmad33 */
             // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
             double Eff,Eff_Arne;
 
-            double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
-            if(verbose!=0)cout << " activity: " << activity << endl;
 
             // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
-            Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+            Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
-            Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(muPt),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(activity));
+            Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
 
             if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
@@ -1058,6 +1085,7 @@ Ahmad33 */
             if(Acc_lowDphi==0)Acc_lowDphi=0.9;
             if(Eff==0)Eff=0.75;
             if(Eff_Arne==0)Eff_Arne=0.75;
+
 
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
@@ -1183,7 +1211,7 @@ Ahmad33 */
           
 
             // Apply low delta phi region
-            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
+            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && newNJet >= 4   ){
               if(!utils2::bootstrap){
                 // Non W muons calculation
                 if(!isData){
@@ -1195,7 +1223,7 @@ Ahmad33 */
             }
 
             // Apply baseline cuts
-            if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newNJet >= 4   ){
+            if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && newNJet >= 4   ){
 
               if(!utils2::bootstrap){
                 // The followings doesn't make sense if bootstrap is on!
@@ -1262,7 +1290,7 @@ Ahmad33 */
 
             // Fill QCD histogram
             // Fill the histogram in the inverted delta phi region
-            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3) && newNJet >= 4   ){
+            if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && newNJet >= 4   ){
               double searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
               // applyIsoTrk here 
@@ -1310,7 +1338,7 @@ Ahmad33 */
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
             double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
-                                 ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3
+                                 ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3, newDphi4
                                  ,(double) newNJet, (double)NewNB, muPt
                                  ,muEta, muPhi, simTauJetPt_xy};
 
@@ -1346,7 +1374,7 @@ Ahmad33 */
                       else eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
                     }
 
-                    if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+                    if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                       histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
                     }

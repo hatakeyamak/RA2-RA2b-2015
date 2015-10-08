@@ -8,8 +8,6 @@ LD            = g++
 
 LIBS          = $(shell root-config --glibs)   
 
-OBJS          = main.o $(DIR)/Events.o Selection.o 
-PROGRAM       = run
 
 OBJS2	      = tauhad_template.o Events.o Selection.o utils.o
 PROGRAM2      = run_tauHad
@@ -39,10 +37,6 @@ clean : *.o $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 
 .PHONY : all 
 
-$(PROGRAM): $(OBJS)
-	@echo "Linking $(PROGRAM) ..."
-	@$(LD) $(OBJS) $(LIBS) -o $(PROGRAM)
-	@echo "done"
 
 $(PROGRAM2): $(OBJS2)
 	@echo "Linking $(PROGRAM2) ..."
