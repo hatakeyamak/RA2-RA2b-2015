@@ -353,13 +353,16 @@ using namespace std;
     if(StudyErrorPropag){
       eventType[1]="BMistagPlus";
       eventType[2]="BMistagMinus";
+      eventType[3]="AccPlus";
+      eventType[4]="AccMinus";
+
     }
     // weights are different for different eventType
-    map<string,double> totWeightMap;
+    map<string,double> totWeightMap, totWeightMap_lowDphi;
     double dummyWeight=1.;
     for(int i=0;i < eventType.size();i++){
       totWeightMap[eventType[i]]=dummyWeight;
-
+      totWeightMap_lowDphi[eventType[i]]=dummyWeight;
     }
 
     //initialize a map between string and maps. copy the map of histvecs into each
@@ -1079,13 +1082,15 @@ Ahmad33 */
             }
 
             // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
-            double Acc, Acc_lowDphi;
+            double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
 
             if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
               // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
               // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
               Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
+              AccError = hAcc->GetBinError(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
               Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]); 
+              Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
               // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
               // Or use recomputed ht mht ... when making Acc. 
               //Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht())]);
@@ -1093,6 +1098,7 @@ Ahmad33 */
               Acc=0.9;
               Acc_lowDphi=0.9;
             }
+
 
             if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
             if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
@@ -1103,6 +1109,10 @@ Ahmad33 */
             if(Eff==0)Eff=0.75;
             if(Eff_Arne==0)Eff_Arne=0.75;
 
+            AccPlus = Acc+AccError;
+            AccMinus = Acc-AccError;
+            AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
+            AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
 
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
@@ -1116,9 +1126,10 @@ Ahmad33 */
             if(TauHadModel < 1)Prob_Tau_mu=0; 
 
             double totWeight=evt->weight()*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+            double totWeight_lowDphi=evt->weight()*1*0.64*(1/(Acc_lowDphi*Eff_Arne))*(1-Prob_Tau_mu_lowDelphi);
             // dilepton contamination
             if(TauHadModel>=3){
-              if(utils2::IsoTrkModel==0)totWeight*= 1./1.02;
+              if(utils2::IsoTrkModel==0){totWeight*= 1./1.02;totWeight_lowDphi*= 1./1.02;}
             }
 
 	    weightEffAcc = totWeight;
@@ -1132,6 +1143,8 @@ Ahmad33 */
               double bootstrapWeight = utils->GetBinContent(muPt,vec_resp,l) * utils->GetBinWidth(muPt,vec_resp,l);
               totWeight*=bootstrapWeight;
               totWeight*=Prob_Btag;
+              totWeight_lowDphi*=bootstrapWeight;
+              totWeight_lowDphi*=Prob_Btag;
             }
 
 
@@ -1146,7 +1159,7 @@ Ahmad33 */
               if(mtWeight==0)mtWeight=0.9;
               if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
 
-              if(!utils2::CalcMT){totWeight/= mtWeight;weightEffAcc/= mtWeight;}
+              if(!utils2::CalcMT){totWeight/= mtWeight;totWeight_lowDphi/= mtWeight_lowDphi;weightEffAcc/= mtWeight;}
               else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
 
             }
@@ -1340,7 +1353,7 @@ Ahmad33 */
             //load totWeightMap
               // no error propagation
               totWeightMap["allEvents"]=totWeight;
-    
+              totWeightMap_lowDphi["allEvents"]=totWeight_lowDphi;
               if(StudyErrorPropag){
                 // b mistag error propagation
                 totWeightMap["BMistagPlus"]=totWeight;
@@ -1351,6 +1364,20 @@ Ahmad33 */
                   totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
                   totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
                 }
+                totWeightMap_lowDphi["BMistagPlus"]=totWeight_lowDphi;
+                totWeightMap_lowDphi["BMistagMinus"]=totWeight_lowDphi;
+                if(utils2::bootstrap){
+                  totWeightMap_lowDphi["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap_lowDphi["BMistagPlus"]*=Prob_Btag_Plus;
+                  totWeightMap_lowDphi["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap_lowDphi["BMistagMinus"]*=Prob_Btag_Minus;
+                }
+                // Acc 
+                totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
+                totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
+                totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
+                totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;          
+
               }
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -1386,9 +1413,9 @@ Ahmad33 */
 
                     if(ite->first=="low_Dphi"){
                       if(utils2::applyIsoTrk){
-                        eveinfvec[0] = totWeightMap[itt->first]/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
+                        eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
                       }
-                      else eveinfvec[0] = totWeightMap[itt->first]/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
+                      else eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                     }
 
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
