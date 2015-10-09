@@ -355,6 +355,12 @@ using namespace std;
       eventType[2]="BMistagMinus";
       eventType[3]="AccPlus";
       eventType[4]="AccMinus";
+      eventType[5]="IsoPlus";
+      eventType[6]="IsoMinus";
+      eventType[7]="MTPlus";
+      eventType[8]="MTMinus";
+      eventType[9]="MuFromTauPlus";
+      eventType[10]="MuFromTauMinus";
 
     }
     // weights are different for different eventType
@@ -1116,8 +1122,15 @@ Ahmad33 */
 
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
+            double Prob_Tau_muError, Prob_Tau_muPlus, Prob_Tau_muMinus, Prob_Tau_muError_lowDelphi, Prob_Tau_muPlus_lowDelphi, Prob_Tau_muMinus_lowDelphi;
             double Prob_Tau_mu = hProb_Tau_mu->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+            Prob_Tau_muError = hProb_Tau_mu->GetBinError(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
             double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+            Prob_Tau_muError_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinError(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
+            Prob_Tau_muPlus=Prob_Tau_mu+Prob_Tau_muError;
+            Prob_Tau_muMinus=Prob_Tau_mu-Prob_Tau_muError;
+            Prob_Tau_muPlus_lowDelphi=Prob_Tau_mu_lowDelphi+Prob_Tau_muError_lowDelphi;
+            Prob_Tau_muMinus_lowDelphi=Prob_Tau_mu_lowDelphi-Prob_Tau_muError_lowDelphi;
     //Ahmad33
             if(TauHadModel<4){Acc=1.;Acc_lowDphi=1.; }
     //Ahmad33
@@ -1149,8 +1162,11 @@ Ahmad33 */
 
 
             int binNum_MT = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+            double mtWeightError, mtWeightPlus, mtWeightMinus, mtWeightError_lowDphi, mtWeightPlus_lowDphi, mtWeightMinus_lowDphi;
             double mtWeight = hMT->GetBinContent(binNum_MT);
+            mtWeightError = hMT->GetBinError(binNum_MT);
             double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
+            mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
 
 
             // Apply MT efficiency
@@ -1158,6 +1174,11 @@ Ahmad33 */
 
               if(mtWeight==0)mtWeight=0.9;
               if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
+
+              mtWeightPlus=mtWeight+mtWeightError;
+              mtWeightMinus=mtWeight-mtWeightError;
+              mtWeightPlus_lowDphi=mtWeight_lowDphi+mtWeightError_lowDphi;
+              mtWeightMinus_lowDphi=mtWeight_lowDphi-mtWeightError_lowDphi;
 
               if(!utils2::CalcMT){totWeight/= mtWeight;totWeight_lowDphi/= mtWeight_lowDphi;weightEffAcc/= mtWeight;}
               else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
@@ -1169,7 +1190,7 @@ Ahmad33 */
 	    }
 	    cutflow_preselection->Fill(10.,totWeight); // All preselection
 
-            double IsoTrkWeight, IsoTrkWeight_lowDphi;
+            double IsoTrkWeight,IsoTrkWeightError,IsoTrkWeightPlus,IsoTrkWeightMinus, IsoTrkWeight_lowDphi,IsoTrkWeightError_lowDphi,IsoTrkWeightPlus_lowDphi,IsoTrkWeightMinus_lowDphi;
             bool PassIso2=false;
             double searchWeight = totWeight;
             // applyIsoTrk here 
@@ -1202,6 +1223,7 @@ Ahmad33 */
               int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
               if(utils2::IsoTrkModel==0){
                 IsoTrkWeight = hIsoEff->GetBinContent(binNum);
+                IsoTrkWeightError= hIsoEff->GetBinError(binNum);
                 if(IsoTrkWeight==0)IsoTrkWeight=0.6;
               }
               else if(utils2::IsoTrkModel==1){
@@ -1212,9 +1234,14 @@ Ahmad33 */
                 cout << "unknown IsoTrkModel \n ";
                 return 2;
               }
-      
+              IsoTrkWeightPlus = IsoTrkWeight + IsoTrkWeightError;
+              IsoTrkWeightMinus = IsoTrkWeight - IsoTrkWeightError;
+
               IsoTrkWeight_lowDphi = hIsoEff_lowDphi->GetBinContent(binNum);
+              IsoTrkWeightError_lowDphi = hIsoEff_lowDphi->GetBinError(binNum);
               if(IsoTrkWeight_lowDphi==0)IsoTrkWeight_lowDphi=0.6;
+              IsoTrkWeightPlus_lowDphi = IsoTrkWeight_lowDphi + IsoTrkWeightError_lowDphi;
+              IsoTrkWeightMinus_lowDphi = IsoTrkWeight_lowDphi - IsoTrkWeightError_lowDphi;
 
               searchWeight = totWeight*IsoTrkWeight;
               weightEffAccForEvt = weightEffAcc*IsoTrkWeight;
@@ -1377,7 +1404,22 @@ Ahmad33 */
                 totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
                 totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
                 totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;          
-
+                // Iso
+                totWeightMap["IsoPlus"]=totWeight;  
+                totWeightMap["IsoMinus"]=totWeight;
+                totWeightMap_lowDphi["IsoPlus"]=totWeight_lowDphi;
+                totWeightMap_lowDphi["IsoMinus"]=totWeight_lowDphi;
+                // MT
+                totWeightMap["MTPlus"]=totWeight*mtWeight/mtWeightPlus;
+                totWeightMap["MTMinus"]=totWeight*mtWeight/mtWeightMinus;
+                totWeightMap_lowDphi["MTPlus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightPlus_lowDphi;
+                totWeightMap_lowDphi["MTMinus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightMinus_lowDphi;
+                // MuFromTau
+                totWeightMap["MuFromTauPlus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muPlus);
+                totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
+                totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
+                totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
+ 
               }
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -1401,19 +1443,28 @@ Ahmad33 */
 
                   //////loop over cut names and fill the histograms
                   for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
-                    
+                   
+                    //To save cpu we neglect some of early selections
+                    if(ite->first=="PreSel" || ite->first=="nolep" || ite->first=="ht_500" || ite->first=="mht_200"
+                        || ite->first=="Njet_4" || ite->first=="isoElec" || ite->first=="isoMu" || ite->first=="nolep"
+                      )continue;
+
                     // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
                     if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" && utils2::applyIsoTrk){            
                       if(!PassIso2)continue;
 
-                      eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight; 
+                      if(itt->first=="IsoPlus") eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeightPlus;
+                      else if(itt->first=="IsoMinus") eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeightMinus;
+                      else eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight; 
            
                     } 
                     else eveinfvec[0] = totWeightMap[itt->first];
 
                     if(ite->first=="low_Dphi"){
                       if(utils2::applyIsoTrk){
-                        eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
+                        if(itt->first=="IsoPlus")eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeightPlus_lowDphi;
+                        else if(itt->first=="IsoMinus")eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeightMinus_lowDphi;
+                        else eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
                       }
                       else eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                     }
@@ -1692,6 +1743,11 @@ Ahmad33 */
           cdtoitt->cd();
           for(int i=0; i< (int)sel->cutName().size();i++){
             for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+//To save cpu we neglect some of early selections
+                    if(it->first=="PreSel" || it->first=="nolep" || it->first=="ht_500" || it->first=="mht_200"
+                        || it->first=="Njet_4" || it->first=="isoElec" || it->first=="isoMu" || it->first=="nolep"
+                      )continue;
+
               if (sel->cutName()[i]==it->first){
                 cdtoit = cdtoitt->mkdir((it->first).c_str());
                 cdtoit->cd();
