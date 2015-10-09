@@ -72,10 +72,10 @@ using namespace std;
 
     char tempname[200];
     char histname[200];
-    vector<TH1D > vec;
+    vector<TH1D > vec, vec_search;
     map<int, string> eventType;
-    map<string , vector<TH1D> > cut_histvec_map;
-    map<string, map<string , vector<TH1D> > > map_map , map_map_evt;
+    map<string , vector<TH1D> > cut_histvec_map, cut_histvec_map_search;
+    map<string, map<string , vector<TH1D> > > map_map , map_map_evt, map_map_search , map_map_evt_search;
     map<string, histClass> histobjmap;
     histClass histObj;
     int TauResponse_nBins=4;
@@ -219,6 +219,20 @@ using namespace std;
     searchH_b_noWeight->Sumw2();
     TH1 * searchH_b_noWeight_evt = static_cast<TH1D*>(searchH_b_noWeight->Clone("searchH_b_noWeight_evt"));
 
+
+    // vector of search and QCD histograms
+    TH1D searchH_ = TH1D("searchH_","search bin histogram",totNbins,1,totNbins+1); 
+    searchH_.Sumw2();
+    vec_search.push_back(searchH_);
+    TH1D searchH_b_ = TH1D("searchH_b_","search bin histogram",totNbins_b,1,totNbins_b+1);
+    searchH_b_.Sumw2();
+    vec_search.push_back(searchH_b_);
+    TH1D QCD_ = TH1D("QCD_","QCD bin histogram",totNbins_QCD,1,totNbins_QCD+1);
+    QCD_.Sumw2();
+    vec_search.push_back(QCD_);
+
+    
+
     // Introduce the bins for IsoTrk
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso(); 
 
@@ -329,10 +343,11 @@ using namespace std;
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
+      cut_histvec_map_search[sel->cutName()[i]]=vec_search;
     }
 
 
-    bool StudyErrorPropag =false;
+    bool StudyErrorPropag =true;
     // Define different event categories
     eventType[0]="allEvents";
     if(StudyErrorPropag){
@@ -350,9 +365,11 @@ using namespace std;
     //initialize a map between string and maps. copy the map of histvecs into each
     for(int i=0; i< eventType.size();i++){
       map_map[eventType[i]]=cut_histvec_map;
+      map_map_search[eventType[i]]=cut_histvec_map_search;
     }
     // Make another hist to be filled during bootstrapping
     map_map_evt=map_map;
+    map_map_evt_search=map_map_search;
 
     //initialize histobjmap
     for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
@@ -532,7 +549,7 @@ using namespace std;
       eventN++;
 
 
-      //if(eventN>50000)break;
+      if(eventN>5000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1369,14 +1386,20 @@ Ahmad33 */
 
                     if(ite->first=="low_Dphi"){
                       if(utils2::applyIsoTrk){
-                        eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
+                        eveinfvec[0] = totWeightMap[itt->first]/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*IsoTrkWeight_lowDphi*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
                       }
-                      else eveinfvec[0] = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
+                      else eveinfvec[0] = totWeightMap[itt->first]/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi*Acc/Acc_lowDphi ;
                     }
 
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                       histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+
+                      map_map_evt_search[itt->first][ite->first][0].Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],eveinfvec[0]);//searchH_
+                      map_map_evt_search[itt->first][ite->first][1].Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],eveinfvec[0]);//searchH_b_
+                      map_map_evt_search[itt->first][ite->first][2].Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],eveinfvec[0]);  // QCD_
+                      
+                      
                     }
 
                   }//end of loop over cut names
@@ -1426,9 +1449,15 @@ Ahmad33 */
       for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
         // Loop over different cuts
         for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
+          //correct search hists first
+          int nHist_search = map_map_search[itt->first][it->first].size();
+          // Loop over different search histograms
+          for(int ii=0; ii<nHist_search; ii++){
+            bootstrapUtils::HistogramFillForEventTH1(&map_map_search[itt->first][it->first][ii],&map_map_evt_search[itt->first][it->first][ii]);
+          }
           int nHist = it->second.size();
           // Loop over different histograms
-          for(int ii=0; ii<nHist; ii++){//since we only have 4 type of histograms
+          for(int ii=0; ii<nHist; ii++){
 
 	    //KH--- for MaxWeight hisotgrams --- can be improved... starts
 	    //std::cout << it->first << " " << itt->first << std::endl;
@@ -1643,6 +1672,11 @@ Ahmad33 */
                 for(int ii=0; ii<nHist; ii++){//since we only have 4 type of histograms
                   sprintf(tempname,"%s_%s_%s",it->second[ii].GetName(),(it->first).c_str(),(itt->first).c_str());
                   it->second[ii].Write(tempname);
+                }
+                int nHist_search = map_map_search[itt->first][it->first].size();
+                for(int ii=0; ii<nHist_search; ii++){
+                  sprintf(tempname,"%s_%s_%s",map_map_search[itt->first][it->first][ii].GetName(),(it->first).c_str(),(itt->first).c_str());
+                  map_map_search[itt->first][it->first][ii].Write();
                 }
                 cdtoitt->cd();
               }
