@@ -32,6 +32,7 @@ public:
 mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   bool doScale = false;
+  double scalefactor=225.;
   Selection * sel = new Selection();
   cutname = sel->cutName();
 
@@ -140,7 +141,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -173,7 +174,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
           if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
-          else if (luminosity>0&&!doScale) temphist->Scale(3000);
+          else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -300,7 +301,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -335,7 +336,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
           if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-          else if (luminosity>0&&!doScale) temphist->Scale(3000);
+          else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -401,7 +402,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
   
@@ -457,7 +458,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -512,7 +513,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -578,7 +579,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -614,7 +615,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -684,7 +685,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -726,7 +727,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -787,7 +788,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -892,7 +893,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
       sprintf(tempname,"%s",(Hname[j]).c_str());
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -926,7 +927,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
           if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-          else if (luminosity>0&&!doScale) temphist->Scale(3000);
+          else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
           tempstack->Add(temphist);
 
@@ -988,7 +989,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
   
@@ -1040,7 +1041,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1092,7 +1093,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1153,7 +1154,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1187,7 +1188,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1250,7 +1251,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1293,7 +1294,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
@@ -1353,7 +1354,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
 
