@@ -361,6 +361,16 @@ using namespace std;
       eventType[8]="MTMinus";
       eventType[9]="MuFromTauPlus";
       eventType[10]="MuFromTauMinus";
+      eventType[11]="MuRecoIsoPlus";
+      eventType[12]="MuRecoIsoMinus";
+      eventType[13]="BMistag_statPlus";
+      eventType[14]="BMistag_statMinus";  
+      eventType[15]="Tau_BrRatio_Plus";
+      eventType[16]="Tau_BrRatio_Minus";
+      eventType[17]="DileptonPlus";
+      eventType[18]="DileptonMinus";
+      eventType[19]="RecoIsoSysPlus";
+      eventType[20]="RecoIsoSysMinus";
 
     }
     // weights are different for different eventType
@@ -558,7 +568,7 @@ using namespace std;
       eventN++;
 
 
-      //if(eventN>5000)break;
+      if(eventN>5000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -904,13 +914,17 @@ Ahmad33 */
             // New #b
             double NewNB=evt->nBtags();
             // get the rate of tau jet mistagging as a function of pT.
+            double bRateError_stat, bRatePlus_stat, bRateMinus_stat;
             double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+            bRateError_stat = bRateHist->GetBinError(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
             if(bRate==0)bRate=0.0000000000000000001;
+            bRatePlus_stat=bRate+bRateError_stat;
+            bRateMinus_stat=bRate-bRateError_stat;
 
             //KH20150617
             double Prob_Btag = 1.;
-            double Prob_Btag_Plus = 1.;
-            double Prob_Btag_Minus = 1.;
+            double Prob_Btag_Plus = 1., Prob_Btag_Plus_stat = 1.;
+            double Prob_Btag_Minus = 1., Prob_Btag_Minus_stat = 1.;
             if(utils2::bootstrap){
               double bRate_Plus = bRate + bRate * .5;
               double bRate_Minus = bRate - bRate * .5;
@@ -918,12 +932,18 @@ Ahmad33 */
                  Prob_Btag=(1.-bRate); // had tau not b-tagged
                  Prob_Btag_Plus=(1. - bRate_Plus);
                  Prob_Btag_Minus=(1. - bRate_Minus);
+
+                 Prob_Btag_Plus_stat=(1. - bRatePlus_stat);
+                 Prob_Btag_Minus_stat=(1. - bRateMinus_stat);
               }
               else if (m==1){ 
                 NewNB++;
                 Prob_Btag=bRate; // had tau b-tagged
                 Prob_Btag_Plus=bRate_Plus;
                 Prob_Btag_Minus=bRate_Minus;
+
+                Prob_Btag_Plus_stat=bRatePlus_stat;
+                Prob_Btag_Minus_stat=bRateMinus_stat;
               }               
               //std::cout << m << " " << bRate << " " << Prob_Btag << std::endl;
             }
@@ -1071,13 +1091,14 @@ Ahmad33 */
 
             // get the effieciencies and acceptance
             // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
-            double Eff,Eff_Arne;
+            double Eff,Eff_Arne,Reco_error_Arne, Iso_error_Arne, Eff_ArnePlus, Eff_ArneMinus;
 
 
             // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
             Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
-
+            Reco_error_Arne = hMuRecoPTActivity_Arne->GetBinError(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
             Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
+            Iso_error_Arne = hMuIsoPTActivity_Arne->GetBinError(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
 
             if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
@@ -1120,6 +1141,8 @@ Ahmad33 */
             AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
             AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
 
+            Eff_ArnePlus = Eff_Arne + Reco_error_Arne + Iso_error_Arne;
+            Eff_ArneMinus = Eff_Arne - Reco_error_Arne - Iso_error_Arne;
 
             // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
             double Prob_Tau_muError, Prob_Tau_muPlus, Prob_Tau_muMinus, Prob_Tau_muError_lowDelphi, Prob_Tau_muPlus_lowDelphi, Prob_Tau_muMinus_lowDelphi;
@@ -1419,7 +1442,52 @@ Ahmad33 */
                 totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
                 totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
                 totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
- 
+                // Iso & Reco effieciency (From Arne)
+                totWeightMap["MuRecoIsoPlus"]=totWeight*Eff_Arne/Eff_ArnePlus;
+                totWeightMap["MuRecoIsoMinus"]=totWeight*Eff_Arne/Eff_ArneMinus;
+                totWeightMap_lowDphi["MuRecoIsoPlus"]=totWeight_lowDphi*Eff_Arne/Eff_ArnePlus;
+                totWeightMap_lowDphi["MuRecoIsoMinus"]=totWeight_lowDphi*Eff_Arne/Eff_ArneMinus;
+                // Mistag Rate
+                totWeightMap["BMistag_statPlus"]=totWeight;
+                totWeightMap["BMistag_statMinus"]=totWeight;
+                if(utils2::bootstrap){
+                  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus_stat;
+                  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus_stat;
+                }
+                totWeightMap_lowDphi["BMistag_statPlus"]=totWeight_lowDphi;
+                totWeightMap_lowDphi["BMistag_statMinus"]=totWeight_lowDphi;
+                if(utils2::bootstrap){
+                  totWeightMap_lowDphi["BMistag_statPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap_lowDphi["BMistag_statPlus"]*=Prob_Btag_Plus_stat;
+                  totWeightMap_lowDphi["BMistag_statMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+                  totWeightMap_lowDphi["BMistag_statMinus"]*=Prob_Btag_Minus_stat;
+                }
+                // Tau branching ratio
+                totWeightMap["Tau_BrRatio_Plus"]=totWeight/0.64*0.65;
+                totWeightMap["Tau_BrRatio_Minus"]=totWeight/0.64*0.63;   
+                totWeightMap_lowDphi["Tau_BrRatio_Plus"]=totWeight_lowDphi/0.64*0.65;
+                totWeightMap_lowDphi["Tau_BrRatio_Minus"]=totWeight_lowDphi/0.64*0.63;
+                // Dileptonic
+                if(utils2::IsoTrkModel==0){
+                  totWeightMap["DileptonPlus"]=  totWeight* 1.02/1.04;
+                  totWeightMap["DileptonMinus"]=  totWeight* 1.02/1.0;
+                  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi* 1.02/1.04;
+                  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi* 1.02/1.0;
+                }
+                else{
+                  totWeightMap["DileptonPlus"]=totWeight;
+                  totWeightMap["DileptonMinus"]=totWeight;
+                  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi;
+                  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
+                }
+                // Reco & Iso systetmatics
+                totWeightMap["RecoIsoSysPlus"]=totWeight/1.1;// this is Eff_Arne/1.1*Eff_Arne
+                totWeightMap["RecoIsoSysMinus"]=totWeight/0.9;
+                totWeightMap_lowDphi["RecoIsoSysPlus"]=totWeight_lowDphi/1.1;
+                totWeightMap_lowDphi["RecoIsoSysMinus"]=totWeight_lowDphi/0.9;
+
               }
 
             //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
