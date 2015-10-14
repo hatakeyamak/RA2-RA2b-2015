@@ -372,7 +372,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag =false;
+    bool StudyErrorPropag =true;
     // Define different event categories
     eventType[0]="allEvents";
     if(StudyErrorPropag){

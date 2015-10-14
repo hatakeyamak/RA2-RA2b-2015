@@ -32,7 +32,8 @@ public:
 mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   bool doScale = false;
-  double scalefactor=3000.;
+  //double scalefactor=3000.;
+  double scalefactor=225;
   Selection * sel = new Selection();
   cutname = sel->cutName();
 
@@ -132,6 +133,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi"; 
+  Hname[6]="hPredHTMHT0b";
+  Hname[7]="hPredHTMHTwb";
+  Hname[8]="hPredNJetBins";
+  Hname[9]="hPredNbBins";
+
  
   // Loop over Hname
   for(int j=0; j< Hname.size(); j++){
@@ -293,6 +299,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi"; 
+  Hname[6]="hPredHTMHT0b";
+  Hname[7]="hPredHTMHTwb";
+  Hname[8]="hPredNJetBins";
+  Hname[9]="hPredNbBins";
+
  
   for(int j=0; j< Hname.size(); j++){
 
@@ -889,6 +900,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
+  Hname[6]="hPredHTMHT0b";
+  Hname[7]="hPredHTMHTwb";
+  Hname[8]="hPredNJetBins";
+  Hname[9]="hPredNbBins";
  
   for(int j=0; j< Hname.size(); j++){
 
@@ -1433,6 +1448,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
+  Hname[6]="hPredHTMHT0b";
+  Hname[7]="hPredHTMHTwb";
+  Hname[8]="hPredNJetBins";
+  Hname[9]="hPredNbBins";
 
   for(int j=0; j< Hname.size(); j++){
 

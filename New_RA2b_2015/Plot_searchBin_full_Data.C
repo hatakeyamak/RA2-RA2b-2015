@@ -9,10 +9,14 @@ using namespace std;
 Plot_searchBin_full("stacked","searchH_b");
 Plot_searchBin_full("stacked","QCD_Low");
 Plot_searchBin_full("stacked","QCD_Up");
+Plot_searchBin_full("stacked","hPredHTMHT0b");
+Plot_searchBin_full("stacked","hPredHTMHTwb");
+Plot_searchBin_full("stacked","hPredNJetBins");
+Plot_searchBin_full("stacked","hPredNbBins");
 
 */
 
-Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int choice=1){
+Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -22,7 +26,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+//  gROOT->LoadMacro("CMS_lumi_v2.C");
 
   //
   // Canvas size
@@ -65,17 +69,20 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
 
   gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
   char tempname[200];
+  char tempname2[200];
   char xtitlename[200];
   char ytitlename[200];
+  
+  //data file
+  TFile * EstFile = new TFile("TauHad2/Elog360_HadTauEstimation_data_SingleMuon_v15cd_.root","R");
+  
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  sprintf(tempname,"TauHad/Stack/Elog360_GenInfo_HadTauEstimation_%s.root",sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
-  sprintf(tempname,"TauHad2/HadTauEstimation_Data_.root");
-  TFile * EstFile = new TFile(tempname,"R");
-  printf("Opened %s\n",tempname);
+ 
+ 
 
   //
   // Define legend
@@ -155,25 +162,46 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
   double search_x_max=73.;
-  if(histname.find("QCD")!=string::npos)search_x_max=224.;
   double search_x_min=1.;
+  if(histname.find("QCD")!=string::npos)search_x_max=224.;
+  if(histname.find("hPredHTMHT")!=string::npos )search_x_max=7.;
+  if(histname.find("hPredNJetBins")!=string::npos ){search_x_max=11.5;search_x_min=3.5;}
+  if(histname.find("hPredHTMHT")!=string::npos )search_x_max=7.;
+  
 
+  
+  if(histname=="searchH_b")sprintf(tempname2,"allEvents/delphi/searchH_b_");
+  else if(histname=="QCD_Up")sprintf(tempname2,"allEvents/delphi/QCD_");
+  else if(histname=="QCD_Low")sprintf(tempname2,"allEvents/low_Dphi/QCD_");
+  else sprintf(tempname2,"%s",histname.c_str());
+  EstHist=(TH1D*) EstFile->Get(tempname2)->Clone();
+  EstHistD=(TH1D*) EstFile->Get(tempname2)->Clone();
+  EstHist->SetName("h");
+  EstHistD->SetName("h");
+  
+  
+  
+   
   sprintf(tempname,"%s",histname.c_str());
   if(sample.find("stacked")!=string::npos){
-    EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
-    tempstack=(THStack*)GenFile->Get(tempname)->Clone();   
+    tempstack=(THStack*)GenFile->Get(tempname)->Clone(); 
     GenHist=(TH1D*) tempstack->GetStack()->Last();
-    EstHistD=(TH1D*) EstFile->Get(tempname)->Clone();
     tempstack=(THStack*)GenFile->Get(tempname)->Clone();
     GenHistD=(TH1D*) tempstack->GetStack()->Last();
     
   }
   else{
-    EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
     GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
-    EstHistD=(TH1D*) EstFile->Get(tempname)->Clone();
     GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
   }
+   
+  double trigEff=0.955; 
+  double scale = EstHist->GetSumOfWeights()/trigEff/GenHist->GetSumOfWeights(); 
+  GenHist->Scale(scale);
+  GenHistD->Scale(scale);
+   
+  
+   
   GenHist->SetLineColor(2);
   EstHist->SetLineColor(4);
   //GenHist->GetXaxis()->SetLabelFont(42);
@@ -207,7 +235,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
   GenHist->SetMaximum(ymax_top);
   GenHist->SetMinimum(ymin_top);
   GenHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
-
+  
   //gPad->SetGridx(1);
   GenHist->SetTitle("");
   GenHist->SetMarkerStyle(20);
@@ -234,8 +262,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
   EstHist_Normalize->DrawCopy("e2same");
   EstHist_Normalize->DrawCopy("esame");
 
-  GenHist->Print("all");
-  EstHist->Print("all");
+  GenHist->Print();
+  EstHist->Print();
   
   //
   // Re-draw to have "expectation" on top of "prediction"
@@ -244,12 +272,14 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
     // Legend & texts
     sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
     catLeg1->AddEntry(GenHist,tempname,"p");
-    sprintf(tempname,"Data");
+    sprintf(tempname,"prediction from data");
     catLeg1->AddEntry(EstHist,tempname);
     catLeg1->Draw();
 
   //
-  if(histname.find("QCD")==string::npos ){
+  
+  if(histname.find("searchH_b")!=string::npos ){
+	
     
     //-----------------------------------------------------------
     // Putting lines and labels explaining search region definitions
@@ -294,14 +324,14 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
     ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
     ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
     
-    TText * ttext = new TLatex(60. , ymax_top/50. , "");
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 225 pb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
     ttext->Draw();
 
     //
-  } else {
+  } else if(histname.find("QCD")!=string::npos ){
     
     //-----------------------------------------------------------
     // Putting lines and labels explaining search region definitions
@@ -361,14 +391,40 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
     ttext_nb->DrawLatex(28. , ymax_top/50. , "N_{b} = 2");
     ttext_nb->DrawLatex(39. , ymax_top/50. , "N_{b} #geq 3");
     
-    TText * ttext = new TLatex(160. , ymax_top/50. , "");
+    TText * ttext = new TLatex(160. , ymax_top/50. , "Normalized to 225 pb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
     ttext->Draw();
 
-  }
-
+  } else if(histname.find("hPredHTMHT")!=string::npos ){
+	  cout << "hello\n";
+	TText * ttext = new TLatex(5.3 , 620.6 , "Normalized to 225 pb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();  
+	  
+  }	
+  else if(histname.find("hPredNJetBins")!=string::npos ){
+	  cout << "hello\n";
+	TText * ttext = new TLatex(9.3 , 620.6 , "Normalized to 225 pb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();  
+	  
+  }	
+  else if(histname.find("hPredNbBins")!=string::npos ){
+	  cout << "hello\n";
+	TText * ttext = new TLatex(3.4 , 620.6 , "Normalized to 225 pb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();  
+	  
+  }	
+  
 
   //
   // Bottom ratio plot
@@ -497,8 +553,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
 
       numerator->DrawCopy("same");
 
-      numerator->Print("all");
-      denominator->Print("all");
+      numerator->Print();
+      denominator->Print();
       
       //
       // Drawing lines
@@ -529,7 +585,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
       tl_nb->DrawLine(61.,ymin_bottom,61.,ymax2_bottom); 
       tl_nb->DrawLine(67.,ymin_bottom,67.,ymax2_bottom); 
 
-      } else {
+      } else if(histname.find("searchH_b")==string::npos ) {
 	
       // Njet separation lines
       TLine *tl_njet = new TLine();
@@ -563,13 +619,23 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",int
       tl_nb->DrawLine(199.,ymin_bottom,199.,ymax2_bottom); 
       tl_nb->DrawLine(210.,ymin_bottom,210.,ymax2_bottom); 
     
-  }
+    }
+	
+	
+	
 
   }
 
   sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
-  //canvas->Print(tempname);
+  canvas->Print(tempname);
+
+
+
+
+
+
+
 
   }
