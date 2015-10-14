@@ -4,6 +4,7 @@
   submitscript1=submitScriptT_Expectation.sh
 
 type=$1
+outStr=$2
 
   mkdir -p qsub
 

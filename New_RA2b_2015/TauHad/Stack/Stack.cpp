@@ -32,7 +32,7 @@ public:
 mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   bool doScale = false;
-  double scalefactor=225.;
+  double scalefactor=3000.;
   Selection * sel = new Selection();
   cutname = sel->cutName();
 
@@ -373,7 +373,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(i==1)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../HadTau_TauResponseTemplates_WJet_2500_Inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
@@ -392,6 +395,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="hTauResp_1_xy";
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
+  histname[8]="tau_GenJetPhi";
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -979,6 +983,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="hTauResp_1_xy";
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
+  histname[8]="tau_GenJetPhi";
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -1511,6 +1516,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[5]="hTauResp_1_xy";
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
+  histname[8]="tau_GenJetPhi";
 
   // Open the files to read
   sprintf(tempname,"HadTau_TauResponseTemplates_TTbar_stacked.root");
@@ -1524,21 +1530,21 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   for(int j=0; j<histname.size(); j++){ 
   
-  sprintf(tempname,"%s",(histname[j]).c_str());
-  temphist = (TH1D *) file->Get(tempname)->Clone();
-  temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    temphist = (TH1D *) file->Get(tempname)->Clone();
+    temphist2 = (TH1D *) file2->Get(tempname)->Clone();
 
-  temphist->Add(temphist,temphist2,1,1);
-  
+    temphist->Add(temphist,temphist2,1,1);
+    
 
-  // Normalize the response distributions to get the probability density
-  if( temphist->Integral("width") > 0. ){
-    temphist->Scale(1./temphist->Integral("width"));
-  }
+    // Normalize the response distributions to get the probability density
+    if( temphist->Integral("width") > 0. && histname[j]!="tau_GenJetPhi" ){
+      temphist->Scale(1./temphist->Integral("width"));
+    }
 
-  temphist->Write();
+    temphist->Write();
 
-  
+    
   }
   file3->Close();
   file2->Close();

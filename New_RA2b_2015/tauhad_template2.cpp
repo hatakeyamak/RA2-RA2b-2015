@@ -93,6 +93,8 @@ using namespace std;
     double simTauJetPt,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
+
+
     Double_t ht_bins[15] = {
       0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
       1000.,1200.,1500.,2000.,5000.};
@@ -231,6 +233,29 @@ using namespace std;
     QCD_.Sumw2();
     vec_search.push_back(QCD_);
 
+
+    // some histograms for our presentations
+    map<string,int> binMap_HTMHT = utils2::BinMap_HTMHT();
+    int totNbins_HTMHT=binMap_HTMHT.size();
+    TH1D* hPredHTMHT0b = new TH1D("hPredHTMHT0b", ";HTMHT Box;Events / Bin", totNbins_HTMHT, 1, totNbins_HTMHT+1);
+    hPredHTMHT0b->Sumw2();
+    TH1D* hPredHTMHT0b_evt = static_cast<TH1D*>(hPredHTMHT0b->Clone("hPredHTMHT0b_evt"));
+    //
+    TH1D* hPredHTMHTwb = new TH1D("hPredHTMHTwb", ";HTMHT Box;Events / Bin", totNbins_HTMHT, 1, totNbins_HTMHT+1);
+    hPredHTMHTwb->Sumw2();
+    TH1D* hPredHTMHTwb_evt = static_cast<TH1D*>(hPredHTMHTwb->Clone("hPredHTMHTwb_evt"));
+    //
+    Double_t njetbins[4] = {3.5, 6.5, 8.5, 11.5};
+    TH1D* hPredNJetBins = new TH1D("hPredNJetBins", ";N_{jets} (p_{T} > 30 GeV);Events / Bin", 3, njetbins);
+    hPredNJetBins->Sumw2();
+    TH1D* hPredNJetBins_evt = static_cast<TH1D*>(hPredNJetBins->Clone("hPredNJetBins_evt"));
+    //
+    TH1D* hPredNbBins = new TH1D("hPredNbBins", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBins->Sumw2();
+    TH1D* hPredNbBins_evt = static_cast<TH1D*>(hPredNbBins->Clone("hPredNbBins_evt"));
+    //
+
+
     
 
     // Introduce the bins for IsoTrk
@@ -347,7 +372,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag =true;
+    bool StudyErrorPropag =false;
     // Define different event categories
     eventType[0]="allEvents";
     if(StudyErrorPropag){
@@ -478,8 +503,8 @@ using namespace std;
 
 
     // Use Ahmad's tau template
-//    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_TTbar_Elog195WithDirectionalTemplates.root","R");
     TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
+//444    TFile * resp_file_temp = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -487,7 +512,7 @@ using namespace std;
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
 
     }
-
+//444    TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
 
 /*
     // Use Rishi's tau template 
@@ -568,7 +593,7 @@ using namespace std;
       eventN++;
 
 
-      if(eventN>5000)break;
+      //if(eventN>5000)break;
       cutflow_preselection->Fill(0.); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -826,7 +851,10 @@ Ahmad33 */
           double simTauJetPt_y = scale_y * muPt;
           simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
           simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
-
+//444  cout << " ##################\n";
+//444          int binx = utils->tau_phi_GetBinX(scale);
+//444 cout << "binx: " << binx << " scale: " << scale << endl;
+//444          if(binx!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
           // when bootstapping we work with 1D template. 
           // It was good if we could use 2D ( we are short in time now ) 
           if(utils2::bootstrap){
@@ -1342,7 +1370,11 @@ Ahmad33 */
                 // otherwise it always pass
                 if(Pass_MuMomForMT)searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
 		searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
-		
+	        if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);	
+                if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
+                hPredNJetBins_evt->Fill(newNJet,searchWeight);
+                hPredNbBins_evt->Fill( NewNB,searchWeight);
+
 		// Fill QCD histograms
 		QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 		
@@ -1505,7 +1537,7 @@ Ahmad33 */
               for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map_evt.begin(); itt!=map_map_evt.end();itt++){//this will be terminated after the cuts
                 eveinfvec[0] = totWeightMap[itt->first];
                 ////determine what type of background should pass
-                if(true){//we can apply extar selection for each eventType here
+                if(true){//we can apply extra selection for each eventType here
 
                   //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
 
@@ -1582,6 +1614,11 @@ Ahmad33 */
       bootstrapUtils::HistogramFillForEventTH1(QCD_Up, QCD_Up_evt);
       bootstrapUtils::HistogramFillForEventTH1(QCD_Low, QCD_Low_evt);
       bootstrapUtils::HistogramFillForEventTH1(searchH_b, searchH_b_noWeight, searchH_b_evt, searchH_b_noWeight_evt);
+      bootstrapUtils::HistogramFillForEventTH1(hPredHTMHT0b, hPredHTMHT0b_evt);
+      bootstrapUtils::HistogramFillForEventTH1(hPredHTMHTwb, hPredHTMHTwb_evt);
+      bootstrapUtils::HistogramFillForEventTH1(hPredNJetBins, hPredNJetBins_evt);
+      bootstrapUtils::HistogramFillForEventTH1(hPredNbBins, hPredNbBins_evt);
+
             
       // for correlation studies
       bootstrapUtils::HistogramFillForEventTH2(hCorSearch_b, hCorSearch_b_noW, hCorSearch_b_evt, hCorSearch_b_noW_evt);
@@ -1773,6 +1810,10 @@ Ahmad33 */
     QCD_Low->Write();
     searchH_b->Write();
     searchH_b_noWeight->Write();
+    hPredHTMHT0b->Write();
+    hPredHTMHTwb->Write();
+    hPredNJetBins->Write();
+    hPredNbBins->Write();
     hCorSearch->Write();
     hCorSearch_b->Write();
     hCorHT->Write();

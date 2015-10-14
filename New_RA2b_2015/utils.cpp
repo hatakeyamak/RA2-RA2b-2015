@@ -142,3 +142,19 @@ using namespace std;
 
     int Utils::MaxMuPt(){return 100*10;}
     int Utils::NMuPtBins(){return MaxMuPt()/10;}
+
+    double Utils::tau_Phi_lowX(){return 0.;}
+    double Utils::tau_Phi_upX(){return 2.5;}
+    double Utils::tau_Phi_nbinX(){return 50;}
+
+    double Utils::tau_Phi_lowY(){return -0.4;}
+    double Utils::tau_Phi_upY(){return 0.4;}
+    double Utils::tau_Phi_nbinY(){return 40;}
+
+    int Utils::tau_phi_GetBinX(double x){
+      double binWidth = ( tau_Phi_upX() - tau_Phi_lowX() )/tau_Phi_nbinX();
+
+      int bin = (int)( x/binWidth );
+      return bin;
+    };
+

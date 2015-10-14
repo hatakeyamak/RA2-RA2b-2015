@@ -53,8 +53,16 @@ public:
     double calcMT(const double objPt, const double objPhi, const double met, const double metphi ) ;
 
     int MaxMuPt();
-    int NMuPtBins();    
+    int NMuPtBins();   
+ 
+    double tau_Phi_lowX();
+    double tau_Phi_lowY();
+    double tau_Phi_upX();
+    double tau_Phi_upY();
+    double tau_Phi_nbinX();
+    double tau_Phi_nbinY();
 
+    int tau_phi_GetBinX(double x);
 
 };
 
