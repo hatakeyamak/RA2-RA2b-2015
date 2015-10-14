@@ -35,7 +35,8 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
   bool doScale = false;
   Selection * sel = new Selection();
-  cutname = sel->cutName();
+  //cutname = sel->cutName();
+  cutname[0]="isoPion";cutname[1]="delphi"; cutname[2]="low_Dphi";
 
 
 
@@ -153,7 +154,6 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
     tempstack = new THStack("stack","Binned Sample Stack");
 
   }
-
 
 
 

@@ -180,6 +180,28 @@ using namespace std;
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
     searchH_b->Sumw2();
 
+    // some histograms for our presentations
+    map<string,int> binMap_HTMHT = utils2::BinMap_HTMHT();
+    int totNbins_HTMHT=binMap_HTMHT.size();
+    TH1D* hPredHTMHT0b = new TH1D("hPredHTMHT0b", ";HTMHT Box;Events / Bin", totNbins_HTMHT, 1, totNbins_HTMHT+1);
+    hPredHTMHT0b->Sumw2();
+    TH1D* hPredHTMHT0b_evt = static_cast<TH1D*>(hPredHTMHT0b->Clone("hPredHTMHT0b_evt"));
+    //
+    TH1D* hPredHTMHTwb = new TH1D("hPredHTMHTwb", ";HTMHT Box;Events / Bin", totNbins_HTMHT, 1, totNbins_HTMHT+1);
+    hPredHTMHTwb->Sumw2();
+    TH1D* hPredHTMHTwb_evt = static_cast<TH1D*>(hPredHTMHTwb->Clone("hPredHTMHTwb_evt"));
+    //
+    Double_t njetbins[4] = {3.5, 6.5, 8.5, 11.5};
+    TH1D* hPredNJetBins = new TH1D("hPredNJetBins", ";N_{jets} (p_{T} > 30 GeV);Events / Bin", 3, njetbins);
+    hPredNJetBins->Sumw2();
+    TH1D* hPredNJetBins_evt = static_cast<TH1D*>(hPredNJetBins->Clone("hPredNJetBins_evt"));
+    //
+    TH1D* hPredNbBins = new TH1D("hPredNbBins", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBins->Sumw2();
+    TH1D* hPredNbBins_evt = static_cast<TH1D*>(hPredNbBins->Clone("hPredNbBins_evt"));
+    //
+
+
     // Introduce a binning for IsoTrks
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso();
     int totNbins_ForIso=binMap_ForIso.size();
@@ -258,6 +280,9 @@ using namespace std;
       hTauResp_xy.at(i)->Sumw2();
     }
 
+    // a template for phi of the tau jets
+    TH2D * tau_GenJetPhi = new TH2D("tau_GenJetPhi","DPhi between gen and jet tau vs. their energy ratio",utils->tau_Phi_nbinX(),utils->tau_Phi_lowX(),utils->tau_Phi_upX(),
+                                                                                                          utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
       
     // We would like also to have the pt distribution of the tau Jets
     TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
@@ -673,6 +698,10 @@ using namespace std;
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
               QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
               searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+              if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
+              if(evt->nBtags() >0)hPredHTMHTwb->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
+              hPredNJetBins->Fill(evt->nJets(),totWeight);
+              hPredNbBins->Fill( evt->nBtags(),totWeight);
           }
         }
 
@@ -830,6 +859,7 @@ using namespace std;
           hTauResp_xy.at(ptBin)->Fill(tauJetPt_x / genTauPt , tauJetPt_y / genTauPt );
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
+          tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
 
           break; // End the jet loop once the tau jet has been found
         }
@@ -914,6 +944,10 @@ using namespace std;
     searchH_lowDphi->Write();
     QCD_Up->Write();
     searchH_b->Write();
+    hPredHTMHT0b->Write();
+    hPredHTMHTwb->Write();
+    hPredNJetBins->Write();
+    hPredNbBins->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
 
@@ -1026,5 +1060,6 @@ using namespace std;
     }
 
     tauJetPtHist->Write();
+    tau_GenJetPhi->Write();
 
   }// end of main
