@@ -32,8 +32,8 @@ public:
 mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   bool doScale = false;
-  //double scalefactor=3000.;
-  double scalefactor=225;
+  double scalefactor=3000.;
+  //double scalefactor=225;
   Selection * sel = new Selection();
   cutname = sel->cutName();
 

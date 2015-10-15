@@ -372,7 +372,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag =true;
+    bool StudyErrorPropag =false;
     // Define different event categories
     eventType[0]="allEvents";
     if(StudyErrorPropag){
@@ -504,7 +504,7 @@ using namespace std;
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
-//444    TFile * resp_file_temp = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog360_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -512,7 +512,7 @@ using namespace std;
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
 
     }
-//444    TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
+    TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
 
 /*
     // Use Rishi's tau template 
@@ -851,14 +851,16 @@ Ahmad33 */
           double simTauJetPt_y = scale_y * muPt;
           simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
           simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
-//444  cout << " ##################\n";
-//444          int binx = utils->tau_phi_GetBinX(scale);
-//444 cout << "binx: " << binx << " scale: " << scale << endl;
-//444          if(binx!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
+          int binx = utils->tau_phi_GetBinX(scale);
           // when bootstapping we work with 1D template. 
           // It was good if we could use 2D ( we are short in time now ) 
           if(utils2::bootstrap){
-            simTauJetPhi_xy=simTauJetPhi;
+            double phi_genTau_tauJet=0.;
+            if(binx!=0){
+              if(verbose!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
+              phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();    
+            }
+            simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
             simTauJetPt_xy=simTauJetPt; 
           } 
 
@@ -1567,6 +1569,17 @@ Ahmad33 */
                         else eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
                       }
                       else eveinfvec[0] = totWeightMap_lowDphi[itt->first];
+                    }
+
+                    if(ite->first=="isoPion"){
+                      if(utils2::applyIsoTrk){
+                        eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
+                        if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight;
+                      }
+                      else{
+                        eveinfvec[0] = totWeightMap[itt->first];
+                        if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first];
+                      }
                     }
 
                     if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
