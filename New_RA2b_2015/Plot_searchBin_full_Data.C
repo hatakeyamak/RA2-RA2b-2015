@@ -5,14 +5,11 @@ using namespace std;
 
 /*
 
-.L Plot_searchBin_full.C
-Plot_searchBin_full("stacked","searchH_b");
-Plot_searchBin_full("stacked","QCD_Low");
-Plot_searchBin_full("stacked","QCD_Up");
-Plot_searchBin_full("stacked","hPredHTMHT0b");
-Plot_searchBin_full("stacked","hPredHTMHTwb");
-Plot_searchBin_full("stacked","hPredNJetBins");
-Plot_searchBin_full("stacked","hPredNbBins");
+.L Plot_searchBin_full_Data.C
+Plot_searchBin_full_Data("stacked","hPredHTMHT0b",1)
+Plot_searchBin_full_Data("stacked","hPredHTMHTwb",1)
+Plot_searchBin_full_Data("stacked","hPredNJetBins",1)
+Plot_searchBin_full_Data("stacked","hPredNbBins",1)
 
 */
 
@@ -26,7 +23,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
-//  gROOT->LoadMacro("CMS_lumi_v2.C");
+  //gROOT->LoadMacro("CMS_lumi_v2.C");
 
   //
   // Canvas size
@@ -42,7 +39,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   //
   // Various vertical line coordinates
   float ymax_top = 40000.;
-  float ymin_top = 0.01;
+  float ymin_top = 0.11;
 
   float ymax2_top = 1000.;
   float ymax3_top = 200.;
@@ -153,7 +150,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   // draw top figure
   canvas_up->cd();
 
-  TH1D * GenHist, * EstHist,* thist;
+  TH1D * GenHist, * EstHist, * EstHistD, * EstHist_Rectangle, * thist;
   TH1D * histTemplate;
 
   double HT_x_max=2500.;
@@ -166,9 +163,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   if(histname.find("QCD")!=string::npos)search_x_max=224.;
   if(histname.find("hPredHTMHT")!=string::npos )search_x_max=7.;
   if(histname.find("hPredNJetBins")!=string::npos ){search_x_max=11.5;search_x_min=3.5;}
-  if(histname.find("hPredHTMHT")!=string::npos )search_x_max=7.;
-  
-
+  if(histname.find("hPredNbBins")!=string::npos ){ search_x_max=3.5;search_x_min=-0.5;}
   
   if(histname=="searchH_b")sprintf(tempname2,"allEvents/delphi/searchH_b_");
   else if(histname=="QCD_Up")sprintf(tempname2,"allEvents/delphi/QCD_");
@@ -178,10 +173,29 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   EstHistD=(TH1D*) EstFile->Get(tempname2)->Clone();
   EstHist->SetName("h");
   EstHistD->SetName("h");
+  EstHistD->SetName("h");
   
-  
-  
-   
+  // Adding extra poisson 0 error term
+  for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
+    EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+    EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+    cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
+    cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
+  }
+
+  EstHist_Rectangle=(TH1D*) EstHist->Clone("EstHist_Rectangle");  // This is for rectangle drawing, but the central value is not correct,
+                                               // so use it with great care
+  for (int ibin=0; ibin<EstHist_Rectangle->GetNbinsX(); ibin++){
+    if (EstHist->GetBinContent(ibin+1)<EstHist->GetBinError(ibin+1)){
+      EstHist_Rectangle->SetBinContent(ibin+1,(EstHist->GetBinContent(ibin+1)+EstHist->GetBinError(ibin+1))/2.);
+      EstHist_Rectangle->SetBinError(ibin+1,(EstHist->GetBinContent(ibin+1)+EstHist->GetBinError(ibin+1))/2.);
+    }
+  }
+  EstHist->Print("all");
+  EstHistD->Print("all");
+  EstHist_Rectangle->Print("all");
+
+
   sprintf(tempname,"%s",histname.c_str());
   if(sample.find("stacked")!=string::npos){
     tempstack=(THStack*)GenFile->Get(tempname)->Clone(); 
@@ -229,7 +243,12 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   EstHist->GetYaxis()->SetTitleSize(0.05);
   EstHist->GetYaxis()->SetTitleOffset(1.25);
   EstHist->GetYaxis()->SetTitleFont(42);
-  sprintf(xtitlename,"search bins");
+
+  sprintf(xtitlename,"Search bins");
+  if(histname.find("hPredHTMHT")!=string::npos ) sprintf(xtitlename,"HTMHT bins");
+  if(histname.find("hPredNJetBins")!=string::npos ) sprintf(xtitlename,"N_{jet}");
+  if(histname.find("hPredNbBins")!=string::npos ) sprintf(xtitlename,"N_{b}");
+
   sprintf(ytitlename,"Events");
   gPad->SetLogy();
   GenHist->SetMaximum(ymax_top);
@@ -258,9 +277,13 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   //EstHist->Draw("e2same");
   //EstHist->Draw("esame");
   TH1D * EstHist_Normalize = static_cast<TH1D*>(EstHist->Clone("EstHist_Normalize"));
-  //  EstHist_Normalize->Scale(lumi/lumi_ttbar);
-  EstHist_Normalize->DrawCopy("e2same");
-  EstHist_Normalize->DrawCopy("esame");
+  //EstHist_Normalize->Scale(lumi/lumi_ttbar);
+  //EstHist_Normalize->DrawCopy("e2 same");
+  EstHist_Rectangle->SetFillStyle(3144);
+  EstHist_Rectangle->SetFillColor(kGreen-3);
+  EstHist_Rectangle->DrawCopy("e2 same");
+  EstHist_Normalize->DrawCopy("e0 same");
+  //EstHist_Normalize->DrawCopy("esame");
 
   GenHist->Print();
   EstHist->Print();
@@ -269,12 +292,14 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   // Re-draw to have "expectation" on top of "prediction"
   GenHist_Normalize->DrawCopy("esame");
   //
-    // Legend & texts
-    sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
-    catLeg1->AddEntry(GenHist,tempname,"p");
-    sprintf(tempname,"prediction from data");
-    catLeg1->AddEntry(EstHist,tempname);
-    catLeg1->Draw();
+  // Legend & texts
+  sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
+  catLeg1->AddEntry(GenHist,tempname,"p");
+  sprintf(tempname,"prediction from data");
+  catLeg1->AddEntry(EstHist,tempname);
+  catLeg1->Draw();
+
+  gPad->RedrawAxis();
 
   //
   
@@ -417,7 +442,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   }	
   else if(histname.find("hPredNbBins")!=string::npos ){
 	  cout << "hello\n";
-	TText * ttext = new TLatex(3.4 , 620.6 , "Normalized to 225 pb^{-1}");
+	TText * ttext = new TLatex(2.4 , 620.6 , "Normalized to 225 pb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
@@ -480,6 +505,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
       EstHistD->Draw();
       tline->SetLineStyle(2);
       tline->Draw();
+
   }
 
   if(choice==1){
@@ -499,6 +525,23 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
       //EstHistD->Add(GenHistD,-1);
       numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
       denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
+
+      std::cout << "aaa" << std::endl;
+      for (int ibin=0;ibin<GenHist_Clone->GetNbinsX();ibin++){
+	if (GenHist_Clone->GetBinContent(ibin+1)<ymin_top && EstHist_Clone->GetBinContent(ibin+1)<ymin_top){
+	  numerator->SetBinContent(ibin+1,-1.);
+	  denominator->SetBinContent(ibin+1,-1.);
+	} 
+	else if (GenHist_Clone->GetBinContent(ibin+1)>ymin_top && EstHist_Clone->GetBinContent(ibin+1)==0.){
+	  denominator->SetBinContent(ibin+1,1.);
+	  denominator->SetBinError(ibin+1,100.);
+	}
+      }
+      /*
+      for (int ibin=0;ibin<EstHist_Clone->GetNbinsX();ibin++){
+	if (EstHist_Clone->GetBinContent(ibin+1)<ymin_top) denominator->SetBinContent(ibin+1,-1.);
+      }
+      */
 
       // draw bottom figure
       canvas_dw->cd();
@@ -553,8 +596,9 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
 
       numerator->DrawCopy("same");
 
-      numerator->Print();
-      denominator->Print();
+      numerator->Print("all");
+      denominator->Print("all");
+
       
       //
       // Drawing lines
@@ -562,7 +606,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
       tline->Draw();
 
       //
-      if(histname.find("QCD")==string::npos ){
+      if(histname.find("searchH_b")!=string::npos ){
 	
       // Njet separation lines
       TLine *tl_njet = new TLine();
@@ -585,7 +629,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
       tl_nb->DrawLine(61.,ymin_bottom,61.,ymax2_bottom); 
       tl_nb->DrawLine(67.,ymin_bottom,67.,ymax2_bottom); 
 
-      } else if(histname.find("searchH_b")==string::npos ) {
+      } else if(histname.find("QCD")!=string::npos ) {
 	
       // Njet separation lines
       TLine *tl_njet = new TLine();
@@ -594,7 +638,6 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
       tl_njet->DrawLine( 89.,ymin_bottom, 89.,ymax_bottom); 
       tl_njet->DrawLine(133.,ymin_bottom,133.,ymax_bottom); 
       tl_njet->DrawLine(177.,ymin_bottom,177.,ymax_bottom); 
-
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
@@ -625,10 +668,11 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
 	
 
   }
+  gPad->RedrawAxis();
 
-  sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
+  sprintf(tempname,"%s_dataPrediction_vs_MCexp_%s_Full_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
+  sprintf(tempname,"%s_dataPrediction_vs_MCexp_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
   canvas->Print(tempname);
 
 
