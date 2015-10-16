@@ -77,7 +77,7 @@ void plot_MuFromNonW_allSamples(string sample="TTbar_"){
   thist3->GetYaxis()->SetTitleSize(0.05);
   thist3->GetYaxis()->SetTitleOffset(1.0);
   thist3->GetYaxis()->SetTitleFont(42);
-  //thist3->GetXaxis()->SetTitle("Search bin");
+  //thist3->GetXaxis()->SetTitle("search bins");
   //thist3->GetYaxis()->SetTitle("rate(#tau -> #mu)");
   thist3->GetXaxis()->SetTitle("Search bin");
   thist3->GetYaxis()->SetTitle("Fraction of muons from #tau decays");

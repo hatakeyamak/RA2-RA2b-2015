@@ -1,18 +1,13 @@
 void plot_MuFromNonW_allSamples_lowDphi(string sample="TTbar_"){
 
   //
-  // icomp=0: only show own results
-  //       1: show also Koushik's results
-  //
-  
-  //
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
   gStyle->SetOptStat(0);   ///to avoid the stat. on the plots 
   gStyle->SetLineWidth(2); // Default:1 --- Line width of axis.
   gROOT->LoadMacro("tdrstyle.C");
-//  setTDRStyle();
-//  gROOT->LoadMacro("CMS_lumi_v2.C");
+  //setTDRStyle();
+  //gROOT->LoadMacro("CMS_lumi_v2.C");
 
   char tempname[200];
   char tempname2[200];
