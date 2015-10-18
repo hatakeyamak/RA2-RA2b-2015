@@ -36,7 +36,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   bool doScale = false;
   Selection * sel = new Selection();
   //cutname = sel->cutName();
-  cutname[0]="isoPion";cutname[1]="delphi"; cutname[2]="low_Dphi";
+  cutname[0]="mht_200";cutname[1]="isoPion";cutname[2]="delphi"; cutname[3]="low_Dphi";
 
 
 
@@ -607,7 +607,10 @@ cout << " flag \n " ;
     if(i==1)sprintf(tempname,"../DileptonRate_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../DileptonRate_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../DileptonRate_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../DileptonRate_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../DileptonRate_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../DileptonRate_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../DileptonRate_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../DileptonRate_WJet_2500_Inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins

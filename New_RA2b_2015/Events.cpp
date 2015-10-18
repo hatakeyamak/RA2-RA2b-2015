@@ -173,7 +173,7 @@
 
     } else {
 
-      if( currentEntry_ > 0 && currentEntry_%100000 == 0 ) {
+      if( currentEntry_ > 0 && currentEntry_%10000 == 0 ) {
         std::cout << " Processed " << currentEntry_ << " events" << std::endl;
       }
 

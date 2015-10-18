@@ -81,7 +81,7 @@ EventYield_TauHad(string sample="TTbar_", bool mc=false){
 
   printf("\n");
   for(int i=0; i<cutname.size();i++){
-    sprintf(tempname,"allEvents/%s/HT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
+    sprintf(tempname,"allEvents/%s/MHT_%s_allEvents",cutname[i].c_str(),cutname[i].c_str());
 
     if(sample.find("stack")!=string::npos){
       if (mc) {
@@ -113,6 +113,7 @@ EventYield_TauHad(string sample="TTbar_", bool mc=false){
     printf("cutname: %-12s ==>> prediction: %12.3f expectation: %10.3f Pre/Exp: %6.3f\n",cutname[i].c_str(),pre,exp,(pre/exp));
     else 
     printf("cutname: %-12s ==>> prediction: %12.3f\n\n",cutname[i].c_str(),pre);
+
 
   }
 
