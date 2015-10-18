@@ -38,7 +38,7 @@ namespace utils2{
 
   bool applyTrig = false;
 
-  bool applyIsoTrk = true;
+  bool applyIsoTrk =true;
 
 
 //###############################################################################################################

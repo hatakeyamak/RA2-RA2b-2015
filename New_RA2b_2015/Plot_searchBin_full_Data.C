@@ -179,6 +179,13 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   EstHist->SetName("h");
   EstHistD->SetName("h");
   
+  for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
+    EstHist->SetBinError(ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+	EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+	cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
+	cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
+	}
+	
   
   
    
@@ -260,6 +267,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
   TH1D * EstHist_Normalize = static_cast<TH1D*>(EstHist->Clone("EstHist_Normalize"));
   //  EstHist_Normalize->Scale(lumi/lumi_ttbar);
   EstHist_Normalize->DrawCopy("e2same");
+  EstHist_Normalize->DrawCopy("e0same");
   EstHist_Normalize->DrawCopy("esame");
 
   GenHist->Print();
@@ -625,6 +633,7 @@ Plot_searchBin_full_Data(string sample="TTbar_",string histname="searchH_b",int 
 	
 
   }
+  gPad->RedrawAxis();
 
   sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
   canvas->Print(tempname);

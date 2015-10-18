@@ -439,7 +439,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 //..........................................//
 // Muon From Tau 
 //..........................................//
-
+/*
   // Load the files to a vector 
   // These are tau template files
 
@@ -449,7 +449,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(i==1)sprintf(tempname,"../Probability_Tau_mu_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../Probability_Tau_mu_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../Probability_Tau_mu_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../Probability_Tau_mu_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../Probability_Tau_mu_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../Probability_Tau_mu_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../Probability_Tau_mu_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../Probability_Tau_mu_WJet_2500_Inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
@@ -489,7 +492,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   file->Close();
   printf("WJet muon from tau probability calculated. \n ");
-
+*/
 
 //..........................................//
 // Mistag rate 
@@ -504,7 +507,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(i==1)sprintf(tempname,"../TauBtaggedRate_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../TauBtaggedRate_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../TauBtaggedRate_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../TauBtaggedRate_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../TauBtaggedRate_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../TauBtaggedRate_WJet_2500_Inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
@@ -769,7 +775,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 //..........................................//
 // Trigger Efficiency 
 //..........................................//
-
+/*
   // Load the files to a vector
   // These are tau template files
 
@@ -779,7 +785,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(i==1)sprintf(tempname,"../TriggerEff_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../TriggerEff_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../TriggerEff_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../TriggerEff_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../TriggerEff_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../TriggerEff_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../TriggerEff_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../TriggerEff_WJet_2500_Inf_.root");
+
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
@@ -827,7 +837,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file->Close();
   printf("WJet trigger efficiency calculated. \n ");
 
-
+*/
 
 
 // .....................................................................................................................................................//
@@ -1030,7 +1040,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 //..........................................//
 // Muon From Tau 
 //..........................................//
-
+/*
   // Load the files to a vector 
   // These are tau template files
 
@@ -1078,7 +1088,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file->Close();
   printf("TTbar muon from tau probability calculated. \n ");
 
-
+*/
 //..........................................//
 // Mistag rate 
 //..........................................//
@@ -1343,7 +1353,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 //..........................................//
 // Trigger Efficiency 
 //..........................................//
-
+/*
   // Load the files to a vector
   // These are tau template files
 
@@ -1399,7 +1409,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   printf("TTbar trigger efficiency calculated. \n ");
 
 
-
+*/
 
 
 
@@ -1577,7 +1587,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 // ..................................................................................................................................................... //
 // Calcualte the rate of muons coming from tau
 // ..................................................................................................................................................... //
-
+/*
   // Open the files to read
   sprintf(tempname,"Probability_Tau_mu_TTbar_stacked.root");
   file = new TFile(tempname,"R");
@@ -1626,7 +1636,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file->Close();
   file2->Close();
 
-
+*/
 
 // ........................................... //
 // Calcualte TauBtaggedRate
