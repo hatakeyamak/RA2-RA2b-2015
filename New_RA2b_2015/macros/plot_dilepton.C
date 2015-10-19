@@ -1,10 +1,11 @@
 
 void plot_dilepton(int IsoModel=0){
 
-  //
-  // icomp=0: only show own results
-  //       1: show also Koushik's results
-  //
+  /* usage:
+  .x macros/plot_IsoTrkEff_allSamples.C()
+  .x macros/plot_IsoTrkEff_allSamples.C("Elog365_")
+  .x macros/plot_IsoTrkEff_allSamples.C("Elog365_","Elog351_")  
+  */
   
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
