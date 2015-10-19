@@ -22,7 +22,7 @@ if [ $type -eq 0 ]; then
           export WJetStr=$WJetStr
           export outStr=$outStr
           echo $filenum
-          qsub -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript 
+          qsub -l walltime=12:00:00 -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript 
 
           sleep 1
 
@@ -48,7 +48,7 @@ if [ $type -eq 1 ]; then
           export WJetStr=$WJetStr
           export outStr=$outStr
           echo $filenum
-          qsub -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript1 
+          qsub -l walltime=12:00:00 -N WJet_$WJetStr -o qsub/ -e qsub/ -V $submitscript1 
 
           sleep 1
 
