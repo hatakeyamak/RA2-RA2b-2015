@@ -94,7 +94,10 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-
+//444
+TH2 * tempMHT_Dphi4Hist = new TH2D("tempMHT_Dphi4Hist","MHT vs delphi4",100,0,5000,5,0.15,0.3);
+TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,0,5000,5,0.15,0.3);
+//444
     Double_t ht_bins[15] = {
       0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
       1000.,1200.,1500.,2000.,5000.};
@@ -598,7 +601,7 @@ using namespace std;
       eventN++;
 
 
-      //if(eventN>20000)break;
+      //if(eventN>2000)break;
       cutflow_preselection->Fill(0.,evt->weight()); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -921,6 +924,12 @@ using namespace std;
             HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
             MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
 
+//444
+bool tempBool=false;
+for(int iii=0; iii< HT3JetVec.size(); iii++){
+if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
+}
+//444
 
             double newHT=0,newMHT=0,newMHTPhi=-1;
             TVector3 newMHT3Vec;
@@ -1411,6 +1420,15 @@ using namespace std;
               }   // baseline cut
 
 
+//444
+if(newNJet==4 && tempBool && newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.15 && newDphi4 < 0.3 ){
+  tempMHT_Dphi4Hist->Fill(newMHT,newDphi4,evt->weight());
+  tempMHT_Dphi4Hist_w->Fill(newMHT,newDphi4,totWeight*IsoTrkWeight);
+
+}
+//444
+
+
               // Fill QCD histogram
               // Fill the histogram in the inverted delta phi region
               if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && newNJet >= 4   ){
@@ -1583,12 +1601,16 @@ using namespace std;
                       if(ite->first=="isoPion"){
                         if(utils2::applyIsoTrk){
                           eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
-                          if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight;
+                          if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
                         }
                         else{
                           eveinfvec[0] = totWeightMap[itt->first];
                           if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                         }
+                      }
+                      if(ite->first=="mht_200"){
+                        eveinfvec[0] = totWeightMap[itt->first];
+                        if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
 
                       if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
@@ -1827,6 +1849,10 @@ using namespace std;
     TFile *resFile = new TFile(tempname, "RECREATE");
     muMtWHist->Write();
     cutflow_preselection->Write();
+//444
+tempMHT_Dphi4Hist->Write();
+tempMHT_Dphi4Hist_w->Write();
+//444
     searchH->Write();
     searchH_lowDphi->Write();
     QCD_Up->Write();
