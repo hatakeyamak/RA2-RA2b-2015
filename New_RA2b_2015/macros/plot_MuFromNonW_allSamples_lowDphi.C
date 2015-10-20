@@ -80,7 +80,7 @@ void plot_MuFromNonW_allSamples_lowDphi(string sample="TTbar_"){
   //thist3->GetXaxis()->SetTitle("search bins");
   //thist3->GetYaxis()->SetTitle("rate(#tau -> #mu)");
   thist3->GetXaxis()->SetTitle("Search bin");
-  thist3->GetYaxis()->SetTitle("Fraction of muons from #tau decays");
+  thist3->GetYaxis()->SetTitle("Fraction of muons from #tau decays (low #Delta#phi)");
   thist3->GetXaxis()->SetRangeUser(1.,XUp);
   thist3->SetMaximum(maxVal);
   thist3->SetLineColor(3);

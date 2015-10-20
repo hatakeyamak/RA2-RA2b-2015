@@ -86,7 +86,7 @@ void plot_Acceptance_lowDphi_allSamples(){
   thist3->GetYaxis()->SetTitleOffset(1.0);
   thist3->GetYaxis()->SetTitleFont(40);
   thist3->GetXaxis()->SetTitle("bins(H_{T}^{miss},N_{jet})");
-  thist3->GetYaxis()->SetTitle("Acceptance");
+  thist3->GetYaxis()->SetTitle("Acceptance (low #Delta#phi)");
   thist3->GetXaxis()->SetRangeUser(1.,XUp);
   thist3->SetMaximum(maxVal);
   thist3->SetLineWidth(3);
