@@ -147,9 +147,9 @@ using namespace std;
     double Utils::tau_Phi_upX(){return 2.5;}
     double Utils::tau_Phi_nbinX(){return 50;}
 
-    double Utils::tau_Phi_lowY(){return -0.4;}
-    double Utils::tau_Phi_upY(){return 0.4;}
-    double Utils::tau_Phi_nbinY(){return 40;}
+    double Utils::tau_Phi_lowY(){return -1.0;}
+    double Utils::tau_Phi_upY(){return 1.0;}
+    double Utils::tau_Phi_nbinY(){return 100;}
 
     int Utils::tau_phi_GetBinX(double x){
       double binWidth = ( tau_Phi_upX() - tau_Phi_lowX() )/tau_Phi_nbinX();
