@@ -57,6 +57,8 @@ if [ $j -eq 1 ]; then
   root -l -b -q Plot_closure.C'("delphi","DelPhi3","WJet_stacked",1)'
   root -l -b -q Plot_closure.C'("delphi","DelPhi4","WJet_stacked",1)'
 
+  root -l -b -q Plot_closure.C'("low_Dphi","MHT","WJet_stacked",1)'
+
   root -l -b -q Plot_searchBin_full.C'("WJet_stacked","searchH_b",1)'
   root -l -b -q Plot_searchBin.C'("WJet_stacked","searchH",1)'
 

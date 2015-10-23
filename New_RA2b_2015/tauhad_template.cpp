@@ -859,7 +859,10 @@ using namespace std;
           hTauResp_xy.at(ptBin)->Fill(tauJetPt_x / genTauPt , tauJetPt_y / genTauPt ,evt->weight());
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
-          tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,evt->weight());
+
+          if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) < -1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt ,-1.0 ,evt->weight());
+          else if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,evt->weight());
+          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,evt->weight());
 
           break; // End the jet loop once the tau jet has been found
         }
