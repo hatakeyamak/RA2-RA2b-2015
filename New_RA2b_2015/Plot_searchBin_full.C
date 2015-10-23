@@ -6,13 +6,13 @@ using namespace std;
 /*
 
 .L Plot_searchBin_full.C
-Plot_searchBin_full("stacked","searchH_b");
-Plot_searchBin_full("stacked","QCD_Low");
-Plot_searchBin_full("stacked","QCD_Up");
+Plot_searchBin_full("stacked","searchH_b","Elog365_");
+Plot_searchBin_full("stacked","QCD_Low","Elog365_");
+Plot_searchBin_full("stacked","QCD_Up","Elog365_");
 
 */
 
-Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choice=1){
+Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string elogForPlot="",int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -68,13 +68,13 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   char xtitlename[200];
   char ytitlename[200];
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -297,7 +297,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
     ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
     
-    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 10 fb^{-1}");
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
@@ -570,9 +570,9 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
   }
 
-  sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
+  sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
+  sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
 
   }
