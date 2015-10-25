@@ -25,8 +25,8 @@ class mainClass{
   vector<TFile *> T_inputfilevec,WJet_inputfilevec, TTbar_inputfilevec;
   map<int, string> cutname, histname,Hname;
   map<int, string> Ttype, WJettype, TTbartype;
-  TFile *file, *file2, *file3;
-  TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII;
+  TFile *file, *file2, *file3, *file30;
+  TH1D *temphist, *temphist2, *temphist30, *temphistI, *temphistII, *temphistIII;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
 
@@ -37,7 +37,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   Selection * sel = new Selection();
   //cutname = sel->cutName();
   cutname[0]="mht_200";cutname[1]="isoPion";cutname[2]="delphi"; cutname[3]="low_Dphi";
-
+  cutname[4]="mht_500";cutname[5]="J46_HT5001200_MHT500750";cutname[6]="delphi_NoIso";
 
 
   WJettype[0]="allEvents";
@@ -126,6 +126,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -198,6 +199,203 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
   file->Close();
   printf("T main histograms stacked \n ");
+
+
+//..........................................//
+// Probability mu from nonW sources
+//..........................................//
+
+  // Load the files to a vector
+  // These are tau template files
+
+  T_inputfilevec.clear();
+
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../Probability_Tau_mu_t_top_.root");
+    else if(i==2)sprintf(tempname,"../Probability_Tau_mu_t_antitop_.root");
+    else if(i==3)sprintf(tempname,"../Probability_Tau_mu_tW_top_.root");
+    else if(i==4)sprintf(tempname,"../Probability_Tau_mu_tW_antitop_.root");
+    else{cout << " Error!! There are only 4 T ht binned sample " << endl;}
+    T_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins 
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"Probability_Tau_mu_T_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="hProb_Tau_mu";
+  histname[1]="hNonW_mu";
+  histname[2]="hAll_mu";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hProb_Tau_mu"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hProb_Tau_mu");
+  temphistIII->SetTitle("hProb_Tau_mu");
+  temphistIII->Write();
+
+
+  histname.clear();
+  histname[0]="hProb_Tau_mu_lowDelphi";
+  histname[1]="hNonW_mu_lowDelphi";
+  histname[2]="hAll_mu_lowDelphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hProb_Tau_mu_lowDelphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hProb_Tau_mu_lowDelphi");
+  temphistIII->SetTitle("hProb_Tau_mu_lowDelphi");
+  temphistIII->Write();
+
+
+  file->Close();
+  printf("T Mu from nonW calculated. \n ");
+
+
+//..........................................//
+// dilepton rate
+//..........................................//
+
+  // Load the files to a vector
+  // These are tau template files
+
+  T_inputfilevec.clear();
+
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../DileptonRate_WJet_100_200_.root");
+    else if(i==2)sprintf(tempname,"../DileptonRate_WJet_200_400_.root");
+    else if(i==3)sprintf(tempname,"../DileptonRate_WJet_400_600_.root");
+    else if(i==4)sprintf(tempname,"../DileptonRate_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../DileptonRate_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../DileptonRate_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../DileptonRate_WJet_2500_Inf_.root");
+    else{cout << " Error!! There are only 4 T ht binned sample " << endl;}
+    T_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"DileptonRate_T_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="dilepton_rate";
+  histname[1]="dilepton_pass";
+  histname[2]="dilepton_all";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("dilepton_rate"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("dilepton_rate");
+  temphistIII->SetTitle("dilepton_rate");
+  temphistIII->Write();
+
+  histname.clear();
+  histname[0]="dilepton_rate_lowDphi";
+  histname[1]="dilepton_pass_lowDphi";
+  histname[2]="dilepton_all_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("dilepton_rate_lowDphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("dilepton_rate_lowDphi");
+  temphistIII->SetTitle("dilepton_rate_lowDphi");
+  temphistIII->Write();
+
+
+
+  file->Close();
+  printf("T dilepton rate calculated. \n ");
 
 
 
@@ -295,6 +493,7 @@ cout << " flag \n " ;
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -765,6 +964,7 @@ cout << " flag \n " ;
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -1188,6 +1388,7 @@ cout << " flag \n " ;
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
   histname[8]="DelPhi4";
+  histname[9]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -1274,6 +1475,8 @@ cout << " flag \n " ;
   file = new TFile(tempname,"R");
   sprintf(tempname,"Probability_Tau_mu_WJet_stacked.root");
   file2 = new TFile(tempname,"R");
+  sprintf(tempname,"Probability_Tau_mu_T_stacked.root");
+  file30 = new TFile(tempname,"R");
 
   // Open a file to write
   sprintf(tempname,"Probability_Tau_mu_stacked.root");
@@ -1290,8 +1493,10 @@ cout << " flag \n " ;
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1307,14 +1512,16 @@ cout << " flag \n " ;
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
   }
 
-
+  file30->Close();
   file3->Close();
   file2->Close();
   file->Close();
@@ -1360,6 +1567,8 @@ cout << " flag \n " ;
   file = new TFile(tempname,"R");
   sprintf(tempname,"DileptonRate_WJet_stacked.root");
   file2 = new TFile(tempname,"R");
+  sprintf(tempname,"DileptonRate_T_stacked.root");
+  file30 = new TFile(tempname,"R");
 
   // Open a file to write
   sprintf(tempname,"DileptonRate_stacked.root");
@@ -1376,8 +1585,10 @@ cout << " flag \n " ;
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1393,8 +1604,10 @@ cout << " flag \n " ;
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
