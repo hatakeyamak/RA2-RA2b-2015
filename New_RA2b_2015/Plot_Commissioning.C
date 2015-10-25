@@ -198,7 +198,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   hExpT=(TH1D*) stackT->GetStack()->Last();
 
   /////TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
-  TH1D * hPre = static_cast<TH1D*>(hPreData.Clone("hPre"));
+  TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
 
   TH1D * hExp_forScale = static_cast<TH1D*>(hExpTT->Clone("hExp_forScale"));
   hExp_forScale->Add(hExpWJ);
@@ -278,7 +278,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     xmin = 100;
     //sprintf(xtitlename,"#slash{H}_{T} [GeV]");
     sprintf(xtitlename,"H_{T}^{miss} [GeV]");
-    sprintf(ytitlename,"Events / bin");
+    sprintf(ytitlename,"Events / 50 GeV");
     gPad->SetLogy();
   }
   if(histname=="MHT2"){
@@ -306,7 +306,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
     //if (cutname=="delphi") xmax = 1500.;
     xmin = 400;
     sprintf(xtitlename,"H_{T} [GeV]");
-    sprintf(ytitlename,"Events / bin");
+    sprintf(ytitlename,"Events / 100 GeV");
     gPad->SetLogy();
   }
   if(histname=="HT2"){
@@ -490,11 +490,11 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
 
   hPreOverExp->Print("all");
   
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
+  if (normalize) sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
-  if (normalize) sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
-  else           sprintf(tempname,"Commissioning_hadtau_%s_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
+  if (normalize) sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_normalize_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
+  else           sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_Plot.pdf",histname.c_str(),cutname.c_str(),PDname.c_str());
   canvas->Print(tempname);
   
 }
