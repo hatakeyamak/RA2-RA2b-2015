@@ -1,4 +1,11 @@
-void plot_Acceptance_lowDphi_allSamples(){
+
+void plot_Acceptance_lowDphi_allSamples(std::string elogForPlot="",std::string elogForRef=""){
+
+  /* usage:
+  .x macros/plot_Acceptance_lowDphi_allSamples.C()  
+  .x macros/plot_Acceptance_lowDphi_allSamples.C("Elog365_")
+  .x macros/plot_Acceptance_lowDphi_allSamples.C("Elog365_","Elog351_")  
+  */
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -32,10 +39,10 @@ void plot_Acceptance_lowDphi_allSamples(){
   c1->SetTickx(1);
   c1->SetTicky(1);
   
-  Float_t legendX1 = .60; //.50;
+  Float_t legendX1 = .55; //.50;
   Float_t legendX2 = .90; //.70;
   Float_t legendY1 = .70; //.65;
-  Float_t legendY2 = .82;
+  Float_t legendY2 = .87;
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.042);
   catLeg1->SetTextFont(42);
@@ -43,16 +50,17 @@ void plot_Acceptance_lowDphi_allSamples(){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  sprintf(tempname,"TauHad/Stack/LostLepton2_MuonEfficienciesFromTTbar_stacked.root");
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromTTbar_stacked.root",elogForPlot.c_str());
   TFile *file_TTbar   = new TFile(tempname,"R");
-  sprintf(tempname,"TauHad/Stack/LostLepton2_MuonEfficienciesFromWJet_stacked.root");
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromWJet_stacked.root",elogForPlot.c_str());
   TFile *file_WJet   = new TFile(tempname,"R");
-  sprintf(tempname,"TauHad/Stack/LostLepton2_MuonEfficienciesFromstacked.root");
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
   TFile *file_total   = new TFile(tempname,"R");
   
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForRef.c_str());
+  TFile *file_reference   = new TFile(tempname,"R");
 
-
-  TH1D * thist, * thist2 , *thist3;
+  TH1D * thist, * thist2 , *thist3, *thistRef;
   THStack * tempstack;
   //  catLeg1->SetHeader("Prob. of #mu from #tau ");
 
@@ -64,7 +72,7 @@ void plot_Acceptance_lowDphi_allSamples(){
 
   sprintf(tempname,"hAcc_lowDphi");
   
-  thist3 = (TH1D*)file_total->Get(tempname)->Clone();
+  thist3 = (TH1D*)file_total->Get(tempname)->Clone("thist_total");
   thist3->SetLineColor(3);
   //    thist3->SetFillColor(0);
   thist3->SetLineStyle(2);
@@ -92,13 +100,13 @@ void plot_Acceptance_lowDphi_allSamples(){
   thist3->SetLineWidth(3);
   thist3->Draw();
 	
-  thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
+  thist2 = (TH1D*)file_WJet->Get(tempname)->Clone("thist_WJet");
 	
   thist2->SetLineColor(2);
   thist2->SetLineWidth(3);
   thist2->Draw("same");
 	
-  thist = (TH1D*)file_TTbar->Get(tempname)->Clone();
+  thist = (TH1D*)file_TTbar->Get(tempname)->Clone("thist_TTbar");
   thist->SetLineColor(1);
   //    thist->SetFillColor(0);
   thist->SetLineWidth(3);
@@ -106,11 +114,21 @@ void plot_Acceptance_lowDphi_allSamples(){
 
   thist3->Draw("same");
 	
+  // ----- Reference -----
+  if (elogForRef!=""){
+    thistRef = (TH1D*)file_reference->Get(tempname)->Clone("thistRef");
+    thistRef->SetLineColor(6);
+    thistRef->SetLineWidth(3);
+    thistRef->Draw("same");
+    //thistRef->Print("all");
+  }		
+
   sprintf(tempname,"t#bar{t}");
   catLeg1->AddEntry(thist,tempname,"l");
   sprintf(tempname,"W+jets");
   catLeg1->AddEntry(thist2,tempname,"l");  
   catLeg1->AddEntry(thist3,"t#bar{t} & W+jets","l");
+  if (elogForRef!="") catLeg1->AddEntry(thistRef,"t#bar{t} & W+jets (reference)","l");
   catLeg1->Draw();
   
   //
@@ -150,9 +168,11 @@ void plot_Acceptance_lowDphi_allSamples(){
   //
   // Save output
   //
-  sprintf(tempname,"Acceptance_lowDphi_allSamples.png");
+  sprintf(tempname,"Acceptance_lowDphi_%s_allSamples.png",elogForPlot.c_str());
+  if (elogForRef!="") sprintf(tempname,"Acceptance_lowDphi_%s_Ref%s_allSamples.png",elogForPlot.c_str(),elogForRef.c_str());
   c1->Print(tempname);
-  sprintf(tempname,"Acceptance_lowDphi_allSamples.pdf");
+  sprintf(tempname,"Acceptance_lowDphi_%s_allSamples.pdf",elogForPlot.c_str());
+  if (elogForRef!="") sprintf(tempname,"Acceptance_lowDphi_%s_Ref%s_allSamples.pdf",elogForPlot.c_str(),elogForRef.c_str());
   c1->Print(tempname);
 
 }
