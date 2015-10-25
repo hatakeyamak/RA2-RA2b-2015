@@ -12,19 +12,20 @@ using namespace std;
 
   Usage:
 
-.x Plot_closure.C("delphi","NJet","TTbar_",1)
-.x Plot_closure.C("delphi","NBtag","TTbar_",1)
-.x Plot_closure.C("delphi","HT","TTbar_",1)
-.x Plot_closure.C("delphi","MHT","TTbar_",1)
-.x Plot_closure.C("delphi","MET","TTbar_",1)
-.x Plot_closure.C("delphi","DelPhiN","TTbar_",1)
-.x Plot_closure.C("delphi","DelPhi1","TTbar_",1)
-.x Plot_closure.C("delphi","DelPhi2","TTbar_",1)
-.x Plot_closure.C("delphi","DelPhi3","TTbar_",1)
+.x Plot_closure.C("delphi","NJet","stacked","Elog365_")
+.x Plot_closure.C("delphi","NBtag","stacked","Elog365_")
+.x Plot_closure.C("delphi","HT","stacked","Elog365_")
+.x Plot_closure.C("delphi","MHT","stacked","Elog365_")
+.x Plot_closure.C("delphi","MET","stacked","Elog365_")
+
+.x Plot_closure.C("delphi","DelPhiN","stacked","Elog365_")
+.x Plot_closure.C("delphi","DelPhi1","stacked","Elog365_")
+.x Plot_closure.C("delphi","DelPhi2","stacked","Elog365_")
+.x Plot_closure.C("delphi","DelPhi3","stacked","Elog365_")
 
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_",int choice=0){
+Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_",string elogForPlot="",int choice=1){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +50,8 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   // Various vertical line coordinates
   float ymax_top = 100000.;
   float ymin_top = 0.04.;
+  float ymax_bottom = 2.65;
+  float ymin_bottom = 0.0;
   float ytext_top = 3200.;
   float x_legend = 10.;
   float y_legend = 4000.;
@@ -74,11 +77,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   
   vector<TFile *> filevec;
   
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
   // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
   filevec.push_back(TFile::Open(tempname,"R"));
 
@@ -290,8 +294,8 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       ytext_top = 0.65*ymax_top;
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(ymax_top);
-      thist->SetMinimum(ymin_top);
+      thist->SetMaximum(ymax_top/2.);
+      thist->SetMinimum(0.);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
     
@@ -380,6 +384,19 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
     }
+    if(histname=="DelPhi4"){
+      xtext_top = 2.2;
+      //y_legend = 1300.;
+      ymax_top = 1000.;
+      ymin_top = 10.;
+      ytext_top = ymax_top*0.2;
+      sprintf(xtitlename,"DelPhi4");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(ymax_top);
+      thist->SetMinimum(ymin_top);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+      gPad->SetLogy();
+    }
 
     //
     // Drawing plots
@@ -450,13 +467,6 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
     EstHist->GetYaxis()->SetTitleSize(font_size_dw);
     
     //
-    // Common to all bottom plots
-    //
-    //sprintf(ytitlename,"Estimate / #tau_{had} BG");
-    EstHist->SetMaximum(2.65);
-    EstHist->SetMinimum(0.0);
-
-    //
     // Specific to each bottom plot
     //
     if(histname=="search"){
@@ -478,11 +488,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       sprintf(xtitlename,"Number of b-tags");
       EstHist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
       TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
+      ymax_bottom=1.5;
+      ymin_bottom=0.7;
     }    
     if(histname=="NJet"){
       sprintf(xtitlename,"Number of jets");
       EstHist->GetXaxis()->SetRangeUser(3.,NJet_x_max);
       TLine *tline = new TLine(3.,1.,NJet_x_max,1.);
+      //ymax_bottom=1.5;
+      //ymin_bottom=0.5;
     }
     if(histname=="MET"){
       sprintf(xtitlename,"MET (GeV)");
@@ -510,7 +524,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
     }
 
-    
+    //
+    // Common to all bottom plots
+    //
+    //sprintf(ytitlename,"Estimate / #tau_{had} BG");
+    EstHist->SetMaximum(ymax_bottom);
+    EstHist->SetMinimum(ymin_bottom);
 
     // Setting style
     //EstHist->SetMaximum(1.4);
@@ -573,14 +592,6 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       numerator->GetYaxis()->SetTitleSize(font_size_dw);
       
       //
-      // Common to all bottom plots
-      //
-      //      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
-      sprintf(ytitlename,"#frac{Expectation}{Prediction} ");
-      numerator->SetMaximum(2.65);
-      numerator->SetMinimum(0.);
-
-      //
       // Specific to each bottom plot
       //
       if(histname=="HT"){
@@ -597,11 +608,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         sprintf(xtitlename,"Number of b-tags");
         numerator->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
         TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
+	ymax_bottom=1.5;
+	ymin_bottom=0.7;
       }    
       if(histname=="NJet"){
         sprintf(xtitlename,"Number of jets");
         numerator->GetXaxis()->SetRangeUser(3.,NJet_x_max);
         TLine *tline = new TLine(3.,1.,NJet_x_max,1.);
+	ymax_bottom=1.5;
+	ymin_bottom=0.5;
       }
       if(histname=="MET"){
         sprintf(xtitlename,"MET (GeV)");
@@ -617,7 +632,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         sprintf(xtitlename,"DelPhi1");
         numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
         TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      }
+      } 
       if(histname=="DelPhi2"){
         sprintf(xtitlename,"DelPhi2");
         numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
@@ -634,6 +649,13 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
         TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
       }
 
+      //
+      // Common to all bottom plots
+      //
+      //      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
+      sprintf(ytitlename,"#frac{Expectation}{Prediction} ");
+      numerator->SetMaximum(ymax_bottom);
+      numerator->SetMinimum(ymin_bottom);
 
       // Setting style
       //numerator->SetMaximum(1.4);
@@ -666,9 +688,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       tline->Draw();
   }
 
-  sprintf(tempname,"%s_%s_%s_Plot.png",sample.c_str(),cutname.c_str(),histname.c_str());
+  sprintf(tempname,"%s_%s_%s_%sPlot.png",sample.c_str(),cutname.c_str(),histname.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_%s_%s_Plot.pdf",sample.c_str(),cutname.c_str(),histname.c_str());
+  sprintf(tempname,"%s_%s_%s_%sPlot.pdf",sample.c_str(),cutname.c_str(),histname.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
 
 }
