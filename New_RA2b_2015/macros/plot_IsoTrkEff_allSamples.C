@@ -1,5 +1,11 @@
 
-void plot_IsoTrkEff_allSamples(int IsoModel=0){
+void plot_IsoTrkEff_allSamples(std::string elogForPlot="",std::string elogForRef="",int IsoModel=0){
+
+  /* usage:
+  .x macros/plot_IsoTrkEff_allSamples.C()
+  .x macros/plot_IsoTrkEff_allSamples.C("Elog365_")
+  .x macros/plot_IsoTrkEff_allSamples.C("Elog365_","Elog351_")  
+  */
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -34,10 +40,10 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
   c1->SetTickx(1);
   c1->SetTicky(1);
   
-  Float_t legendX1 = .65; //.50;
+  Float_t legendX1 = .55; //.50;
   Float_t legendX2 = .90; //.70;
   Float_t legendY1 = .70; //.65;
-  Float_t legendY2 = .85;
+  Float_t legendY2 = .87;
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   catLeg1->SetTextSize(0.038);
   catLeg1->SetTextFont(42);
@@ -45,18 +51,19 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
   catLeg1->SetLineColor(0);
   catLeg1->SetBorderSize(0);
 
-  sprintf(tempname,"TauHad/Stack/IsoEfficiencies_TTbar_stacked.root");
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_TTbar_stacked.root",elogForPlot.c_str());
   TFile *file_TTbar   = new TFile(tempname,"R");
-  sprintf(tempname,"TauHad/Stack/IsoEfficiencies_WJet_stacked.root");
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_WJet_stacked.root",elogForPlot.c_str());
   TFile *file_WJet   = new TFile(tempname,"R");
-  sprintf(tempname,"TauHad/Stack/IsoEfficiencies_stacked.root");
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked.root",elogForPlot.c_str());
   TFile *file_Total   = new TFile(tempname,"R");
-  
 
-  TH1D * thist, * thist2, * thist3;
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked.root",elogForRef.c_str());
+  TFile *file_reference   = new TFile(tempname,"R");
+
+  TH1D * thist, * thist2, * thist3, * thistRef;
   THStack * tempstack;
   //  catLeg1->SetHeader("Prob. of #mu from #tau ");
-
 
   //...........................................................................//
   // TTbar ....................................................................//
@@ -70,7 +77,7 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
     return 2;
   }
 	
-  thist3 = (TH1D*)file_Total->Get(tempname)->Clone();
+  thist3 = (TH1D*)file_Total->Get(tempname)->Clone("thist_Total");
   thist3->GetXaxis()->SetRangeUser(1.,XUp);
   thist3->SetMaximum(maxVal);
   thist3->SetMinimum(minVal);
@@ -98,12 +105,12 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
   thist3->Draw("same");
 
 	
-  thist2 = (TH1D*)file_WJet->Get(tempname)->Clone();
+  thist2 = (TH1D*)file_WJet->Get(tempname)->Clone("thist_WJet");
   thist2->SetLineColor(2);
   thist2->SetLineWidth(3);
   thist2->Draw("same");
 
-  thist = (TH1D*)file_TTbar->Get(tempname)->Clone();
+  thist = (TH1D*)file_TTbar->Get(tempname)->Clone("thist_TTbar");
   thist->SetLineColor(1);
   //    thist->SetFillColor(0);
   thist->SetLineWidth(3);
@@ -111,11 +118,21 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
 
   thist3->Draw("same");
 	       
+  // ----- Reference -----
+  if (elogForRef!=""){
+    thistRef = (TH1D*)file_reference->Get(tempname)->Clone("thistRef");
+    thistRef->SetLineColor(6);
+    thistRef->SetLineWidth(3);
+    thistRef->Draw("same");
+    //thistRef->Print("all");
+  }		
+
   sprintf(tempname,"t#bar{t}");
   catLeg1->AddEntry(thist,tempname,"l");
   sprintf(tempname,"W+jets");
   catLeg1->AddEntry(thist2,tempname,"l"); 
   catLeg1->AddEntry(thist3,"t#bar{t} & W+jets","l");
+  if (elogForRef!="") catLeg1->AddEntry(thistRef,"t#bar{t} & W+jets (reference)","l");
   catLeg1->Draw();
   
   //
@@ -156,9 +173,11 @@ void plot_IsoTrkEff_allSamples(int IsoModel=0){
   // Save output
   //
 
-  sprintf(tempname,"IsoEfficiencies_allSamples.png");
+  sprintf(tempname,"IsoTrkEff_%s_allSamples.png",elogForPlot.c_str());
+  if (elogForRef!="") sprintf(tempname,"IsoTrkEff_%s_Ref%s_allSamples.png",elogForPlot.c_str(),elogForRef.c_str());
   c1->Print(tempname);
-  sprintf(tempname,"IsoEfficiencies_allSamples.pdf");
+  sprintf(tempname,"IsoTrkEff_%s_allSamples.pdf",elogForPlot.c_str());
+  if (elogForRef!="") sprintf(tempname,"IsoTrkEff_%s_Ref%s_allSamples.pdf",elogForPlot.c_str(),elogForRef.c_str());
   c1->Print(tempname);
 
 }

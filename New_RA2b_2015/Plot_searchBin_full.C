@@ -6,13 +6,17 @@ using namespace std;
 /*
 
 .L Plot_searchBin_full.C
-Plot_searchBin_full("stacked","searchH_b");
-Plot_searchBin_full("stacked","QCD_Low");
-Plot_searchBin_full("stacked","QCD_Up");
+Plot_searchBin_full("stacked","searchH_b","Elog365_");
+Plot_searchBin_full("stacked","QCD_Low","Elog365_");
+Plot_searchBin_full("stacked","QCD_Up","Elog365_");
+
+root.exe -b -q 'Plot_searchBin_full.C("stacked","searchH_b","Elog365_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Low","Elog365_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up","Elog365_")'
 
 */
 
-Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choice=1){
+Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="",int pull=0,int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -38,14 +42,16 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   //
   // Various vertical line coordinates
   float ymax_top = 40000.;
-  float ymin_top = 0.01;
+  float ymin_top = 0.015;
 
   float ymax2_top = 1000.;
   float ymax3_top = 200.;
   float ymax4_top = 30.;
 
   float ymax_bottom = 2.65;
-  float ymin_bottom = 0.;
+  float ymin_bottom = 0.0;
+  //float ymax_bottom = 1.50;
+  //float ymin_bottom = 0.5;
 
   float ymax2_bottom = 2.15;
   float ymax3_bottom = 2.15;
@@ -68,13 +74,13 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
   char xtitlename[200];
   char ytitlename[200];
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/GenInfo_HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/HadTauEstimation_%s.root",sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/HadTauEstimation_%s.root",sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elog.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elog.c_str(),sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -149,6 +155,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
   TH1D * GenHist, * EstHist,* thist;
   TH1D * histTemplate;
+  THStack *tempstack;
 
   double HT_x_max=2500.;
   double HT_x_min=400.;
@@ -168,8 +175,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     tempstack=(THStack*)EstFile->Get(tempname)->Clone();
     EstHistD=(TH1D*) tempstack->GetStack()->Last();
     tempstack=(THStack*)GenFile->Get(tempname)->Clone();
-    GenHistD=(TH1D*) tempstack->GetStack()->Last();
-    
+    GenHistD=(TH1D*) tempstack->GetStack()->Last();    
   }
   else{
     EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
@@ -297,7 +303,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
     ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
     
-    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 10 fb^{-1}");
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
     ttext->SetTextFont(42);
     ttext->SetTextSize(0.045);
     ttext->SetTextAlign(22);
@@ -434,18 +440,25 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
     //
     // Preparing ratio histograms
       TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
+      TH1D * numerator_fullstaterr   = static_cast<TH1D*>(GenHist->Clone("numerator_fullstaterr"));
       TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
 
       TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
       TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
       TH1D * EstHist_NoError = static_cast<TH1D*>(EstHist->Clone("EstHist_NoError"));
+      TH1D * One_NoError = static_cast<TH1D*>(EstHist->Clone("EstHist_NoError"));
       for (int ibin=0; ibin<EstHist_NoError->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
 	EstHist_NoError->SetBinError(ibin,0.);
+	One_NoError->SetBinContent(ibin,1.);
+	One_NoError->SetBinError(ibin,0.);
       }
 
       //EstHistD->Add(GenHistD,-1);
       numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
       denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
+
+      numerator_fullstaterr->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction
+      numerator_fullstaterr->Add(One_NoError,-1.);                        // Expectation/Prediction-1
 
       // draw bottom figure
       canvas_dw->cd();
@@ -457,7 +470,8 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
       //
       // Horizontal Lines
-      TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
+      TLine *tline  = new TLine(search_x_min,1.,search_x_max,1.);
+      TLine *tline0 = new TLine(search_x_min,0.,search_x_max,0.);
 
       //
       // Common to all bottom plots
@@ -490,6 +504,48 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
       //gPad->SetGridx(1);
 
+
+      if (pull==1){
+
+	sprintf(ytitlename,"#frac{Exp - Pre}{Stat Error} ");
+	numerator->SetMaximum(8.);
+	numerator->SetMinimum(-8.);
+	
+	//
+	// Specific to each bottom plot
+	//
+	// Setting style
+
+	for (int ibin=0; ibin<numerator_fullstaterr->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
+	  numerator_fullstaterr->SetBinContent(ibin,numerator_fullstaterr->GetBinContent(ibin)/numerator_fullstaterr->GetBinError(ibin));
+	  numerator_fullstaterr->SetBinError(ibin,0.);
+	}
+
+	numerator_fullstaterr->GetXaxis()->SetLabelSize(font_size_dw);
+	numerator_fullstaterr->GetXaxis()->SetTitleSize(font_size_dw);
+	numerator_fullstaterr->GetYaxis()->SetLabelSize(font_size_dw);
+	numerator_fullstaterr->GetYaxis()->SetTitleSize(font_size_dw);
+
+	numerator_fullstaterr->GetXaxis()->SetTitleSize(0.12);
+	numerator_fullstaterr->GetXaxis()->SetTitleOffset(0.9);
+	numerator_fullstaterr->GetXaxis()->SetTitleFont(42);
+	numerator_fullstaterr->GetYaxis()->SetTitleSize(0.13);
+	numerator_fullstaterr->GetYaxis()->SetTitleOffset(0.5);
+	numerator_fullstaterr->GetYaxis()->SetTitleFont(42);
+	
+	numerator_fullstaterr->GetXaxis()->SetTitle(xtitlename);
+	numerator_fullstaterr->GetYaxis()->SetTitle(ytitlename);
+	numerator_fullstaterr->SetFillColor(kGreen-3);
+	numerator_fullstaterr->DrawCopy();
+
+	//
+	// Drawing lines
+	tline0->SetLineStyle(2);
+	tline0->Draw();
+
+      }
+      else {
+
       //
       // Plotting
       numerator->SetTitle("");
@@ -502,11 +558,15 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
       numerator->Print("all");
       denominator->Print("all");
-      
+      numerator_fullstaterr->Print("all");
+
       //
       // Drawing lines
       tline->SetLineStyle(2);
       tline->Draw();
+
+      }
+      
 
       //
       if(histname.find("QCD")==string::npos ){
@@ -570,9 +630,14 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",int choic
 
   }
 
-  sprintf(tempname,"%s_Closure_%s_Plot.png",sample.c_str(),histname.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
+  if (pull==1) 
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_Closure_%s_Full_Plot.pdf",sample.c_str(),histname.c_str());
+
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
+  if (pull==1)
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
   canvas->Print(tempname);
 
   }
