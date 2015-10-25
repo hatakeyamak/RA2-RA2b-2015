@@ -10,6 +10,10 @@ Plot_searchBin_full("stacked","searchH_b","Elog365_");
 Plot_searchBin_full("stacked","QCD_Low","Elog365_");
 Plot_searchBin_full("stacked","QCD_Up","Elog365_");
 
+root.exe -b -q 'Plot_searchBin_full.C("stacked","searchH_b","Elog365_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Low","Elog365_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up","Elog365_")'
+
 */
 
 Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string elogForPlot="",int pull=0,int choice=1){
@@ -626,14 +630,14 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string el
 
   }
 
-  sprintf(tempname,"%s_Closure_%s_Full_%sPlot.png",sample.c_str(),histname.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elogForPlot.c_str());
   if (pull==1) 
-    sprintf(tempname,"%s_ClosurePull_%s_Full_%sPlot.png",sample.c_str(),histname.c_str(),elogForPlot.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
 
-  sprintf(tempname,"%s_Closure_%s_Full_%sPlot.pdf",sample.c_str(),histname.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elogForPlot.c_str());
   if (pull==1)
-    sprintf(tempname,"%s_ClosurePull_%s_Full_%sPlot.pdf",sample.c_str(),histname.c_str(),elogForPlot.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
 
   }
