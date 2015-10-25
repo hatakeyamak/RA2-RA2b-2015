@@ -1,25 +1,42 @@
-void HadTauEstimation_output_format(int isys==1){
-
-  TFile *_file0 = TFile::Open("TauHad2/Elog378_HadTauEstimation_data_SingleMuon_v15cd_.root");
+void HadTauEstimation_output_format(string elogForData="Elog378_",string elogForMC="Elog377_",int isys==0){
 
   char tempname[200];
+
+  //
+  // Open data files
+  //
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15cd_.root",elogForData.c_str());
+  TFile *DataEstFile = TFile::Open(tempname,"R");
+
+  //
+  // Open MC expectation and prediction code for closure systematics
+  // 
+  string sample="stacked";
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
+  TFile * MCGenFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
+  TFile * MCEstFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
   
   //
   // ----- Normal 72 bin predicitons -----
   //
 
   // Nominal
-  TH1D* searchBin_nominal = (TH1D*)_file0->Get("searchH_b")->Clone("searchBin_nominal");
-  TH2D* hWeightForSearchBin = (TH2D*)_file0->Get("hWeight4ForSearchBin")->Clone("hWeightForSearchBin");
+  TH1D* searchBin_nominal = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_nominal");
+  TH2D* hWeightForSearchBin = (TH2D*)DataEstFile->Get("hWeight4ForSearchBin")->Clone("hWeightForSearchBin");
   for (int ibin=0; ibin<searchBin_nominal->GetNbinsX(); ibin++){
     searchBin_nominal->SetBinError(ibin+1,pow(pow(searchBin_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
   // Jack's inclusive binning
-  TH1D* hPredHTMHT0b_nominal_ABbins = (TH1D*)_file0->Get("hPredHTMHT0b")->Clone("hPredHTMHT0b_nominal_ABbins");
-  TH1D* hPredHTMHTwb_nominal_ABbins = (TH1D*)_file0->Get("hPredHTMHTwb")->Clone("hPredHTMHTwb_nominal_ABbins");
-  TH1D* hPredNJetBins_nominal = (TH1D*)_file0->Get("hPredNJetBins")->Clone("hPredNJetBins_nominal");
-  TH1D* hPredNbBins_nominal = (TH1D*)_file0->Get("hPredNbBins")->Clone("hPredNbBins_nominal");
+  TH1D* hPredHTMHT0b_nominal_ABbins = (TH1D*)DataEstFile->Get("hPredHTMHT0b")->Clone("hPredHTMHT0b_nominal_ABbins");
+  TH1D* hPredHTMHTwb_nominal_ABbins = (TH1D*)DataEstFile->Get("hPredHTMHTwb")->Clone("hPredHTMHTwb_nominal_ABbins");
+  TH1D* hPredNJetBins_nominal = (TH1D*)DataEstFile->Get("hPredNJetBins")->Clone("hPredNJetBins_nominal");
+  TH1D* hPredNbBins_nominal = (TH1D*)DataEstFile->Get("hPredNbBins")->Clone("hPredNbBins_nominal");
   
   TH1D* hPredHTMHT0b_nominal = new TH1D("hPredHTMHT0b_nominal", ";HTMHT Box;Events / Bin", 6, 0.5, 6.5);
   TH1D* hPredHTMHTwb_nominal = new TH1D("hPredHTMHTwb_nominal", ";HTMHT Box;Events / Bin", 6, 0.5, 6.5);
@@ -36,16 +53,61 @@ void HadTauEstimation_output_format(int isys==1){
     hPredNbBins_nominal->SetBinError(ibin+1,pow(pow(hPredNbBins_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
+  // From MC file
+  TH1D * GenHist, * EstHist,* thist;
+  TH1D * histTemplate;
+  THStack *tempstack;
+  
+  // For closure systematics
+  string histname="searchH_b";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
+  EstHist=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
+  GenHist=(TH1D*) tempstack->GetStack()->Last();
+  
+  //
+  // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
+  //
+  TH1D * searchBin_closureUncertainty = static_cast<TH1D*>(GenHist->Clone("searchBin_closureUncertainty"));
+  searchBin_closureUncertainty->Reset();
+
+  TH1D * closureRatio= static_cast<TH1D*>(GenHist->Clone("closureRatio"));
+  TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
+
+  TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
+  TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
+  closureRatio->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction-1 - Non closure
+
+  double searchBin_closure_stat_uncertainty_fractional[73];
+  for (int ibin=1;ibin<=72;ibin++){
+    // Stat uncertainty
+    searchBin_closure_stat_uncertainty_fractional[ibin]=0.;
+    if (numerator->GetBinContent(ibin)!=0.){
+      searchBin_closure_stat_uncertainty_fractional[ibin] = closureRatio->GetBinError(ibin)/closureRatio->GetBinContent(ibin);
+    }
+    /*
+    std::cout << ibin << " "
+	      << closureRatio->GetBinContent(ibin)-1. << " "
+	      << searchBin_closure_stat_uncertainty_fractional[ibin] << std::endl;
+    */
+    double Unc;
+    Unc = TMath::Max(fabs(closureRatio->GetBinContent(ibin)-1.),searchBin_closure_stat_uncertainty_fractional[ibin]);
+    if (Unc>1.) Unc=1.;
+    searchBin_closureUncertainty->SetBinContent(ibin,Unc);    
+  }
+  searchBin_closureUncertainty->Print("all");
+  
   if (isys==1){
   // Stat uncertainty of search-bin-based correction factors
-  TH1D* searchBin_AccUp = (TH1D*)_file0->Get("AccMinus/delphi/searchH_b_")->Clone("searchBin_AccUp");
-  TH1D* searchBin_AccDn = (TH1D*)_file0->Get("AccPlus/delphi/searchH_b_")->Clone("searchBin_AccDn");
-  TH1D* searchBin_IsoUp = (TH1D*)_file0->Get("IsoPlus/delphi/searchH_b_")->Clone("searchBin_IsoUp");
-  TH1D* searchBin_IsoDn = (TH1D*)_file0->Get("IsoMinus/delphi/searchH_b_")->Clone("searchBin_IsoDn");
-  TH1D* searchBin_MTUp = (TH1D*)_file0->Get("MTMinus/delphi/searchH_b_")->Clone("searchBin_MTUp");
-  TH1D* searchBin_MTDn = (TH1D*)_file0->Get("MTPlus/delphi/searchH_b_")->Clone("searchBin_MTDn");
-  TH1D* searchBin_MuFromTauUp = (TH1D*)_file0->Get("MuFromTauMinus/delphi/searchH_b_")->Clone("searchBin_MuFromTauUp");
-  TH1D* searchBin_MuFromTauDn = (TH1D*)_file0->Get("MuFromTauPlus/delphi/searchH_b_")->Clone("searchBin_MuFromTauDn");
+  TH1D* searchBin_AccUp = (TH1D*)DataEstFile->Get("AccMinus/delphi/searchH_b_")->Clone("searchBin_AccUp");
+  TH1D* searchBin_AccDn = (TH1D*)DataEstFile->Get("AccPlus/delphi/searchH_b_")->Clone("searchBin_AccDn");
+  TH1D* searchBin_IsoUp = (TH1D*)DataEstFile->Get("IsoPlus/delphi/searchH_b_")->Clone("searchBin_IsoUp");
+  TH1D* searchBin_IsoDn = (TH1D*)DataEstFile->Get("IsoMinus/delphi/searchH_b_")->Clone("searchBin_IsoDn");
+  TH1D* searchBin_MTUp = (TH1D*)DataEstFile->Get("MTMinus/delphi/searchH_b_")->Clone("searchBin_MTUp");
+  TH1D* searchBin_MTDn = (TH1D*)DataEstFile->Get("MTPlus/delphi/searchH_b_")->Clone("searchBin_MTDn");
+  TH1D* searchBin_MuFromTauUp = (TH1D*)DataEstFile->Get("MuFromTauMinus/delphi/searchH_b_")->Clone("searchBin_MuFromTauUp");
+  TH1D* searchBin_MuFromTauDn = (TH1D*)DataEstFile->Get("MuFromTauPlus/delphi/searchH_b_")->Clone("searchBin_MuFromTauDn");
   
   searchBin_AccUp->Add(searchBin_nominal,-1.); searchBin_AccUp->Divide(searchBin_nominal);
   searchBin_AccDn->Add(searchBin_nominal,-1.); searchBin_AccDn->Divide(searchBin_nominal);
@@ -57,8 +119,8 @@ void HadTauEstimation_output_format(int isys==1){
   searchBin_MuFromTauDn->Add(searchBin_nominal,-1.); searchBin_MuFromTauDn->Divide(searchBin_nominal);
 
   // BMistag
-  TH1D* searchBin_BMistagUp = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_BMistagUp");
-  TH1D* searchBin_BMistagDn = (TH1D*)_file0->Get("BMistagMinus/delphi/searchH_b_")->Clone("searchBin_BMistagDn");
+  TH1D* searchBin_BMistagUp = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_BMistagUp");
+  TH1D* searchBin_BMistagDn = (TH1D*)DataEstFile->Get("BMistagMinus/delphi/searchH_b_")->Clone("searchBin_BMistagDn");
   searchBin_BMistagUp->Add(searchBin_nominal,-1.); searchBin_BMistagUp->Divide(searchBin_nominal);
   searchBin_BMistagDn->Add(searchBin_nominal,-1.); searchBin_BMistagDn->Divide(searchBin_nominal);
 
@@ -129,14 +191,14 @@ void HadTauEstimation_output_format(int isys==1){
   };
 
   //
-  TH1D* searchBin_ClosureNj46 = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj46");
-  TH1D* searchBin_ClosureNj78 = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj78");
-  TH1D* searchBin_ClosureNj9  = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj9");
-  TH1D* searchBin_ClosureMHT2Wjets = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT2Wjets");
-  TH1D* searchBin_ClosureMHT3Wjets = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT3Wjets");
-  TH1D* searchBin_ClosureMHT2TTbar = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT2TTbar");
-  TH1D* searchBin_ClosureMHT3TTbar = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT3TTbar");
-  TH1D* searchBin_ClosureTotal = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureTotal");
+  TH1D* searchBin_ClosureNj46 = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj46");
+  TH1D* searchBin_ClosureNj78 = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj78");
+  TH1D* searchBin_ClosureNj9  = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureNj9");
+  TH1D* searchBin_ClosureMHT2Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT2Wjets");
+  TH1D* searchBin_ClosureMHT3Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT3Wjets");
+  TH1D* searchBin_ClosureMHT2TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT2TTbar");
+  TH1D* searchBin_ClosureMHT3TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureMHT3TTbar");
+  TH1D* searchBin_ClosureTotal = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_ClosureTotal");
   searchBin_ClosureNj46->Reset();
   for (int ibin=1;  ibin<=72; ibin++) searchBin_ClosureNj46->SetBinContent(ibin,-999.); // -999. for non-applicable bins
   for (int ibin=1;  ibin<=24; ibin++) searchBin_ClosureNj46->SetBinContent(ibin,0.20);
@@ -183,7 +245,7 @@ void HadTauEstimation_output_format(int isys==1){
   }
 
   // Creating template for uncertainty due to correction statistics
-  TH1D* searchBin_UncertaintyCorrectionStats = (TH1D*)_file0->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_UncertaintyCorrectionStats");
+  TH1D* searchBin_UncertaintyCorrectionStats = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/searchH_b_")->Clone("searchBin_UncertaintyCorrectionStats");
   searchBin_UncertaintyCorrectionStats->Reset();
 
   } // isys
@@ -194,28 +256,70 @@ void HadTauEstimation_output_format(int isys==1){
   double searchBin_uncertainty_correction_stats_dn[73];
   double searchBin_uncertainty_correction_stats[73];
 
-  TH1D* searchBin_StatUncertainties = (TH1D*)_file0->Get("searchH_b")->Clone("searchBin_StatUncertainties");
+  TH1D* searchBin_StatUncertainties = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_StatUncertainties");
   searchBin_StatUncertainties->Reset();
 
   //
   // ----- QCD bin predicitons -----
   //
-  TH1D* QCDBin_HiDphi_nominal  = (TH1D*)_file0->Get("QCD_Up")->Clone("QCDBin_HiDphi_nominal");
-  //TH1D* QCDBin_LowDphi_nominal = (TH1D*)_file0->Get("QCD_Low")->Clone("QCDBin_LowDPhi_nominal");
+  TH1D* QCDBin_HiDphi_nominal  = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_HiDphi_nominal");
+  //TH1D* QCDBin_LowDphi_nominal = (TH1D*)DataEstFile->Get("QCD_Low")->Clone("QCDBin_LowDPhi_nominal");
   for (int ibin=0; ibin<QCDBin_HiDphi_nominal->GetNbinsX(); ibin++){
     QCDBin_HiDphi_nominal->SetBinError(ibin+1,pow(pow(QCDBin_HiDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
+  searchBin_closureUncertainty->Print("all");
+
+  // For closure systematics
+  histname="QCD_Up";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
+  EstHist=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
+  GenHist=(TH1D*) tempstack->GetStack()->Last();
+
+  //
+  // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
+  //
+  TH1D * QCDBin_HiDphi_closureUncertainty = static_cast<TH1D*>(GenHist->Clone("QCDBin_HiDphi_closureUncertainty"));
+  QCDBin_HiDphi_closureUncertainty->Reset();
+
+  TH1D * QCDBin_HiDphi_closureRatio= static_cast<TH1D*>(GenHist->Clone("QCDBin_HiDphi_closureRatio"));
+  TH1D * QCDBin_HiDphi_numerator   = static_cast<TH1D*>(GenHist->Clone("QCDBin_HiDphi_numerator"));
+
+  TH1D * QCDBin_HiDphi_GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("QCDBin_HiDphi_GenHist_Clone"));
+  TH1D * QCDBin_HiDphi_EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("QCDBin_HiDphi_EstHist_Clone"));
+  QCDBin_HiDphi_closureRatio->Divide(QCDBin_HiDphi_GenHist_Clone,QCDBin_HiDphi_EstHist_Clone,1,1,"");  
+  // Expectation/Prediction-1 - Non closure
+
+  double QCDBin_HiDphi_closure_stat_uncertainty_fractional[221];
+  for (int ibin=1;ibin<=220;ibin++){
+    // Stat uncertainty
+    QCDBin_HiDphi_closure_stat_uncertainty_fractional[ibin]=0.;
+    if (QCDBin_HiDphi_closureRatio->GetBinContent(ibin)!=0.){
+      QCDBin_HiDphi_closure_stat_uncertainty_fractional[ibin] = QCDBin_HiDphi_closureRatio->GetBinError(ibin)/QCDBin_HiDphi_closureRatio->GetBinContent(ibin);
+    }
+    std::cout << ibin << " "
+	      << QCDBin_HiDphi_closureRatio->GetBinContent(ibin)-1. << " "
+	      << QCDBin_HiDphi_closure_stat_uncertainty_fractional[ibin] << std::endl;
+    double Unc;
+    Unc = TMath::Max(fabs(QCDBin_HiDphi_closureRatio->GetBinContent(ibin)-1.),QCDBin_HiDphi_closure_stat_uncertainty_fractional[ibin]);
+    if (Unc>1.) Unc=1.;
+    QCDBin_HiDphi_closureUncertainty->SetBinContent(ibin,Unc);    
+  }
+  QCDBin_HiDphi_closureUncertainty->Print("all");
+
+
   if (isys==1) {
   // Stat uncertainty of search-bin-based correction factors
-  TH1D* QCDBin_HiDphi_AccUp = (TH1D*)_file0->Get("AccMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_AccUp");
-  TH1D* QCDBin_HiDphi_AccDn = (TH1D*)_file0->Get("AccPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_AccDn");
-  TH1D* QCDBin_HiDphi_IsoUp = (TH1D*)_file0->Get("IsoPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_IsoUp");
-  TH1D* QCDBin_HiDphi_IsoDn = (TH1D*)_file0->Get("IsoMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_IsoDn");
-  TH1D* QCDBin_HiDphi_MTUp = (TH1D*)_file0->Get("MTMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_MTUp");
-  TH1D* QCDBin_HiDphi_MTDn = (TH1D*)_file0->Get("MTPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_MTDn");
-  TH1D* QCDBin_HiDphi_MuFromTauUp = (TH1D*)_file0->Get("MuFromTauMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_MuFromTauUp");
-  TH1D* QCDBin_HiDphi_MuFromTauDn = (TH1D*)_file0->Get("MuFromTauPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_MuFromTauDn");
+  TH1D* QCDBin_HiDphi_AccUp = (TH1D*)DataEstFile->Get("AccMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_AccUp");
+  TH1D* QCDBin_HiDphi_AccDn = (TH1D*)DataEstFile->Get("AccPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_AccDn");
+  TH1D* QCDBin_HiDphi_IsoUp = (TH1D*)DataEstFile->Get("IsoPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_IsoUp");
+  TH1D* QCDBin_HiDphi_IsoDn = (TH1D*)DataEstFile->Get("IsoMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_IsoDn");
+  TH1D* QCDBin_HiDphi_MTUp = (TH1D*)DataEstFile->Get("MTMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_MTUp");
+  TH1D* QCDBin_HiDphi_MTDn = (TH1D*)DataEstFile->Get("MTPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_MTDn");
+  TH1D* QCDBin_HiDphi_MuFromTauUp = (TH1D*)DataEstFile->Get("MuFromTauMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_MuFromTauUp");
+  TH1D* QCDBin_HiDphi_MuFromTauDn = (TH1D*)DataEstFile->Get("MuFromTauPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_MuFromTauDn");
   
   QCDBin_HiDphi_AccUp->Add(QCDBin_HiDphi_nominal,-1.); QCDBin_HiDphi_AccUp->Divide(QCDBin_HiDphi_nominal);
   QCDBin_HiDphi_AccDn->Add(QCDBin_HiDphi_nominal,-1.); QCDBin_HiDphi_AccDn->Divide(QCDBin_HiDphi_nominal);
@@ -227,8 +331,8 @@ void HadTauEstimation_output_format(int isys==1){
   QCDBin_HiDphi_MuFromTauDn->Add(QCDBin_HiDphi_nominal,-1.); QCDBin_HiDphi_MuFromTauDn->Divide(QCDBin_HiDphi_nominal);
 
   // BMistag
-  TH1D* QCDBin_HiDphi_BMistagUp = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_BMistagUp");
-  TH1D* QCDBin_HiDphi_BMistagDn = (TH1D*)_file0->Get("BMistagMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_BMistagDn");
+  TH1D* QCDBin_HiDphi_BMistagUp = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_BMistagUp");
+  TH1D* QCDBin_HiDphi_BMistagDn = (TH1D*)DataEstFile->Get("BMistagMinus/delphi/QCD_")->Clone("QCDBin_HiDphi_BMistagDn");
   QCDBin_HiDphi_BMistagUp->Add(QCDBin_HiDphi_nominal,-1.); QCDBin_HiDphi_BMistagUp->Divide(QCDBin_HiDphi_nominal);
   QCDBin_HiDphi_BMistagDn->Add(QCDBin_HiDphi_nominal,-1.); QCDBin_HiDphi_BMistagDn->Divide(QCDBin_HiDphi_nominal);
 
@@ -379,17 +483,17 @@ void HadTauEstimation_output_format(int isys==1){
   };
 
   //
-  TH1D* QCDBin_HiDphi_ClosureNj4  = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
-  TH1D* QCDBin_HiDphi_ClosureNj5  = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
-  TH1D* QCDBin_HiDphi_ClosureNj6  = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
-  TH1D* QCDBin_HiDphi_ClosureNj78 = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj78");
-  TH1D* QCDBin_HiDphi_ClosureNj9  = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj9");
-  TH1D* QCDBin_HiDphi_ClosureMHT2Wjets = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT2Wjets");
-  TH1D* QCDBin_HiDphi_ClosureMHT3Wjets = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT3Wjets");
-  TH1D* QCDBin_HiDphi_ClosureMHT4Wjets = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT4Wjets");
-  TH1D* QCDBin_HiDphi_ClosureMHT2TTbar = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT2TTbar");
-  TH1D* QCDBin_HiDphi_ClosureMHT3TTbar = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT3TTbar");
-  TH1D* QCDBin_HiDphi_ClosureMHT4TTbar = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT4TTbar");
+  TH1D* QCDBin_HiDphi_ClosureNj4  = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
+  TH1D* QCDBin_HiDphi_ClosureNj5  = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
+  TH1D* QCDBin_HiDphi_ClosureNj6  = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj4");
+  TH1D* QCDBin_HiDphi_ClosureNj78 = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj78");
+  TH1D* QCDBin_HiDphi_ClosureNj9  = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureNj9");
+  TH1D* QCDBin_HiDphi_ClosureMHT2Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT2Wjets");
+  TH1D* QCDBin_HiDphi_ClosureMHT3Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT3Wjets");
+  TH1D* QCDBin_HiDphi_ClosureMHT4Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT4Wjets");
+  TH1D* QCDBin_HiDphi_ClosureMHT2TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT2TTbar");
+  TH1D* QCDBin_HiDphi_ClosureMHT3TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT3TTbar");
+  TH1D* QCDBin_HiDphi_ClosureMHT4TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBin_HiDphi_ClosureMHT4TTbar");
   QCDBin_HiDphi_ClosureNj4->Reset();
   for (int ibin=1;  ibin<=220; ibin++) QCDBin_HiDphi_ClosureNj4->SetBinContent(ibin,-999.); // -999. for non-applicable bins
   for (int ibin=1;  ibin<=44; ibin++)  QCDBin_HiDphi_ClosureNj4->SetBinContent(ibin,0.30);
@@ -420,7 +524,7 @@ void HadTauEstimation_output_format(int isys==1){
   for (int ibin=1;  ibin<=220; ibin++) QCDBin_HiDphi_ClosureMHT4TTbar->SetBinContent(ibin,QCDBinHiDphi_ClosureMHT4TTbar[ibin-1]); // -999. for non-applicable bins
   
   // Creating template for uncertainty due to correction statistics
-  TH1D* QCDBin_HiDphi_UncertaintyCorrectionStats = (TH1D*)_file0->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBinHiDphi_UncertaintyCorrectionStats");
+  TH1D* QCDBin_HiDphi_UncertaintyCorrectionStats = (TH1D*)DataEstFile->Get("BMistagPlus/delphi/QCD_")->Clone("QCDBinHiDphi_UncertaintyCorrectionStats");
   QCDBin_HiDphi_UncertaintyCorrectionStats->Reset();
 
   } // isys==1
@@ -434,21 +538,60 @@ void HadTauEstimation_output_format(int isys==1){
   //
   // ----- QCD bin predicitons -----
   //
-  TH1D* QCDBin_LowDphi_nominal = (TH1D*)_file0->Get("QCD_Low")->Clone("QCDBin_LowDPhi_nominal");
+  TH1D* QCDBin_LowDphi_nominal = (TH1D*)DataEstFile->Get("QCD_Low")->Clone("QCDBin_LowDPhi_nominal");
   for (int ibin=0; ibin<QCDBin_LowDphi_nominal->GetNbinsX(); ibin++){
     QCDBin_LowDphi_nominal->SetBinError(ibin+1,pow(pow(QCDBin_LowDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
+  // For closure systematics
+  histname="QCD_Low";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
+  EstHist=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
+  GenHist=(TH1D*) tempstack->GetStack()->Last();
+
+  //
+  // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
+  //
+  TH1D * QCDBin_LowDphi_closureUncertainty = static_cast<TH1D*>(GenHist->Clone("QCDBin_LowDphi_closureUncertainty"));
+  QCDBin_LowDphi_closureUncertainty->Reset();
+
+  TH1D * QCDBin_LowDphi_closureRatio= static_cast<TH1D*>(GenHist->Clone("QCDBin_LowDphi_closureRatio"));
+  TH1D * QCDBin_LowDphi_numerator   = static_cast<TH1D*>(GenHist->Clone("QCDBin_LowDphi_numerator"));
+
+  TH1D * QCDBin_LowDphi_GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("QCDBin_LowDphi_GenHist_Clone"));
+  TH1D * QCDBin_LowDphi_EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("QCDBin_LowDphi_EstHist_Clone"));
+  QCDBin_LowDphi_closureRatio->Divide(QCDBin_LowDphi_GenHist_Clone,QCDBin_LowDphi_EstHist_Clone,1,1,"");  
+  // Expectation/Prediction-1 - Non closure
+
+  double QCDBin_LowDphi_closure_stat_uncertainty_fractional[221];
+  for (int ibin=1;ibin<=220;ibin++){
+    // Stat uncertainty
+    QCDBin_LowDphi_closure_stat_uncertainty_fractional[ibin]=0.;
+    if (QCDBin_LowDphi_closureRatio->GetBinContent(ibin)!=0.){
+      QCDBin_LowDphi_closure_stat_uncertainty_fractional[ibin] = QCDBin_LowDphi_closureRatio->GetBinError(ibin)/QCDBin_LowDphi_closureRatio->GetBinContent(ibin);
+    }
+    std::cout << ibin << " "
+	      << QCDBin_LowDphi_closureRatio->GetBinContent(ibin)-1. << " "
+	      << QCDBin_LowDphi_closure_stat_uncertainty_fractional[ibin] << std::endl;
+    double Unc;
+    Unc = TMath::Max(fabs(QCDBin_LowDphi_closureRatio->GetBinContent(ibin)-1.),QCDBin_LowDphi_closure_stat_uncertainty_fractional[ibin]);
+    if (Unc>1.) Unc=1.;
+    QCDBin_LowDphi_closureUncertainty->SetBinContent(ibin,Unc);    
+  }
+  QCDBin_LowDphi_closureUncertainty->Print("all");
+
   if (isys==1){
   // Stat uncertainty of search-bin-based correction factors
-  TH1D* QCDBin_LowDphi_AccUp = (TH1D*)_file0->Get("AccMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_AccUp");
-  TH1D* QCDBin_LowDphi_AccDn = (TH1D*)_file0->Get("AccPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_AccDn");
-  TH1D* QCDBin_LowDphi_IsoUp = (TH1D*)_file0->Get("IsoPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_IsoUp");
-  TH1D* QCDBin_LowDphi_IsoDn = (TH1D*)_file0->Get("IsoMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_IsoDn");
-  TH1D* QCDBin_LowDphi_MTUp = (TH1D*)_file0->Get("MTMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MTUp");
-  TH1D* QCDBin_LowDphi_MTDn = (TH1D*)_file0->Get("MTPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MTDn");
-  TH1D* QCDBin_LowDphi_MuFromTauUp = (TH1D*)_file0->Get("MuFromTauMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MuFromTauUp");
-  TH1D* QCDBin_LowDphi_MuFromTauDn = (TH1D*)_file0->Get("MuFromTauPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MuFromTauDn");
+  TH1D* QCDBin_LowDphi_AccUp = (TH1D*)DataEstFile->Get("AccMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_AccUp");
+  TH1D* QCDBin_LowDphi_AccDn = (TH1D*)DataEstFile->Get("AccPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_AccDn");
+  TH1D* QCDBin_LowDphi_IsoUp = (TH1D*)DataEstFile->Get("IsoPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_IsoUp");
+  TH1D* QCDBin_LowDphi_IsoDn = (TH1D*)DataEstFile->Get("IsoMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_IsoDn");
+  TH1D* QCDBin_LowDphi_MTUp = (TH1D*)DataEstFile->Get("MTMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MTUp");
+  TH1D* QCDBin_LowDphi_MTDn = (TH1D*)DataEstFile->Get("MTPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MTDn");
+  TH1D* QCDBin_LowDphi_MuFromTauUp = (TH1D*)DataEstFile->Get("MuFromTauMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MuFromTauUp");
+  TH1D* QCDBin_LowDphi_MuFromTauDn = (TH1D*)DataEstFile->Get("MuFromTauPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_MuFromTauDn");
   
   QCDBin_LowDphi_AccUp->Add(QCDBin_LowDphi_nominal,-1.); QCDBin_LowDphi_AccUp->Divide(QCDBin_LowDphi_nominal);
   QCDBin_LowDphi_AccDn->Add(QCDBin_LowDphi_nominal,-1.); QCDBin_LowDphi_AccDn->Divide(QCDBin_LowDphi_nominal);
@@ -460,8 +603,8 @@ void HadTauEstimation_output_format(int isys==1){
   QCDBin_LowDphi_MuFromTauDn->Add(QCDBin_LowDphi_nominal,-1.); QCDBin_LowDphi_MuFromTauDn->Divide(QCDBin_LowDphi_nominal);
 
   // BMistag
-  TH1D* QCDBin_LowDphi_BMistagUp = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_BMistagUp");
-  TH1D* QCDBin_LowDphi_BMistagDn = (TH1D*)_file0->Get("BMistagMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_BMistagDn");
+  TH1D* QCDBin_LowDphi_BMistagUp = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_BMistagUp");
+  TH1D* QCDBin_LowDphi_BMistagDn = (TH1D*)DataEstFile->Get("BMistagMinus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_BMistagDn");
   QCDBin_LowDphi_BMistagUp->Add(QCDBin_LowDphi_nominal,-1.); QCDBin_LowDphi_BMistagUp->Divide(QCDBin_LowDphi_nominal);
   QCDBin_LowDphi_BMistagDn->Add(QCDBin_LowDphi_nominal,-1.); QCDBin_LowDphi_BMistagDn->Divide(QCDBin_LowDphi_nominal);
 
@@ -612,17 +755,17 @@ void HadTauEstimation_output_format(int isys==1){
   };
 
   //
-  TH1D* QCDBin_LowDphi_ClosureNj4  = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
-  TH1D* QCDBin_LowDphi_ClosureNj5  = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
-  TH1D* QCDBin_LowDphi_ClosureNj6  = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
-  TH1D* QCDBin_LowDphi_ClosureNj78 = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj78");
-  TH1D* QCDBin_LowDphi_ClosureNj9  = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj9");
-  TH1D* QCDBin_LowDphi_ClosureMHT2Wjets = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT2Wjets");
-  TH1D* QCDBin_LowDphi_ClosureMHT3Wjets = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT3Wjets");
-  TH1D* QCDBin_LowDphi_ClosureMHT4Wjets = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT4Wjets");
-  TH1D* QCDBin_LowDphi_ClosureMHT2TTbar = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT2TTbar");
-  TH1D* QCDBin_LowDphi_ClosureMHT3TTbar = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT3TTbar");
-  TH1D* QCDBin_LowDphi_ClosureMHT4TTbar = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT4TTbar");
+  TH1D* QCDBin_LowDphi_ClosureNj4  = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
+  TH1D* QCDBin_LowDphi_ClosureNj5  = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
+  TH1D* QCDBin_LowDphi_ClosureNj6  = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj4");
+  TH1D* QCDBin_LowDphi_ClosureNj78 = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj78");
+  TH1D* QCDBin_LowDphi_ClosureNj9  = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureNj9");
+  TH1D* QCDBin_LowDphi_ClosureMHT2Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT2Wjets");
+  TH1D* QCDBin_LowDphi_ClosureMHT3Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT3Wjets");
+  TH1D* QCDBin_LowDphi_ClosureMHT4Wjets = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT4Wjets");
+  TH1D* QCDBin_LowDphi_ClosureMHT2TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT2TTbar");
+  TH1D* QCDBin_LowDphi_ClosureMHT3TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT3TTbar");
+  TH1D* QCDBin_LowDphi_ClosureMHT4TTbar = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBin_LowDphi_ClosureMHT4TTbar");
   QCDBin_LowDphi_ClosureNj4->Reset();
   for (int ibin=1;  ibin<=220; ibin++) QCDBin_LowDphi_ClosureNj4->SetBinContent(ibin,-999.); // -999. for non-applicable bins
   for (int ibin=1;  ibin<=44; ibin++)  QCDBin_LowDphi_ClosureNj4->SetBinContent(ibin,0.30);
@@ -653,7 +796,7 @@ void HadTauEstimation_output_format(int isys==1){
   for (int ibin=1;  ibin<=220; ibin++) QCDBin_LowDphi_ClosureMHT4TTbar->SetBinContent(ibin,QCDBinLowDphi_ClosureMHT4TTbar[ibin-1]); // -999. for non-applicable bins
 
   // Creating template for uncertainty due to correction statistics
-  TH1D* QCDBin_LowDphi_UncertaintyCorrectionStats = (TH1D*)_file0->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBinLowDphi_UncertaintyCorrectionStats");
+  TH1D* QCDBin_LowDphi_UncertaintyCorrectionStats = (TH1D*)DataEstFile->Get("BMistagPlus/low_Dphi/QCD_")->Clone("QCDBinLowDphi_UncertaintyCorrectionStats");
   QCDBin_LowDphi_UncertaintyCorrectionStats->Reset();
 
   } // isys==1
@@ -1070,6 +1213,7 @@ void HadTauEstimation_output_format(int isys==1){
   TFile HadTauEstimation_OutputFile(tempname,"RECREATE");
 
   searchBin_nominal->Write();
+  searchBin_closureUncertainty->Write();
   if (isys==1){
   searchBin_UncertaintyCorrectionStats->Write();
   searchBin_BMistagUp->Write();
@@ -1090,6 +1234,7 @@ void HadTauEstimation_output_format(int isys==1){
   hPredNbBins_nominal->Write();
 
   QCDBin_HiDphi_nominal->Write();
+  QCDBin_HiDphi_closureUncertainty->Write();
   if (isys==1){
   QCDBin_HiDphi_UncertaintyCorrectionStats->Write();
   QCDBin_HiDphi_BMistagUp->Write();
@@ -1108,6 +1253,7 @@ void HadTauEstimation_output_format(int isys==1){
   }
 
   QCDBin_LowDphi_nominal->Write();
+  QCDBin_LowDphi_closureUncertainty->Write();
   if (isys==1){
   QCDBin_LowDphi_UncertaintyCorrectionStats->Write();
   QCDBin_LowDphi_BMistagUp->Write();

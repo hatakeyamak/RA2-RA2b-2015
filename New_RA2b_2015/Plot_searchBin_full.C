@@ -16,7 +16,7 @@ root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up","Elog365_")'
 
 */
 
-Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string elogForPlot="",int pull=0,int choice=1){
+Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="",int pull=0,int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -74,13 +74,13 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string el
   char xtitlename[200];
   char ytitlename[200];
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elog.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elog.c_str(),sample.c_str());
   TFile * EstFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -155,6 +155,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string el
 
   TH1D * GenHist, * EstHist,* thist;
   TH1D * histTemplate;
+  THStack *tempstack;
 
   double HT_x_max=2500.;
   double HT_x_min=400.;
@@ -174,8 +175,7 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string el
     tempstack=(THStack*)EstFile->Get(tempname)->Clone();
     EstHistD=(TH1D*) tempstack->GetStack()->Last();
     tempstack=(THStack*)GenFile->Get(tempname)->Clone();
-    GenHistD=(TH1D*) tempstack->GetStack()->Last();
-    
+    GenHistD=(TH1D*) tempstack->GetStack()->Last();    
   }
   else{
     EstHist=(TH1D*) EstFile->Get(tempname)->Clone();
@@ -630,14 +630,14 @@ Plot_searchBin_full(string sample="TTbar_",string histname="searchH_b",string el
 
   }
 
-  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
   if (pull==1) 
-    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elogForPlot.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
   canvas->Print(tempname);
 
-  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
   if (pull==1)
-    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elogForPlot.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
   canvas->Print(tempname);
 
   }
