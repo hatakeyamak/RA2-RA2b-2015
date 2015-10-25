@@ -381,6 +381,20 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       gPad->SetLogy();
     }
 
+    if(histname=="TauJet_MHT_delPhi"){
+      xtext_top = 2.2;
+      //y_legend = 1300.;
+      ymax_top = 100.;
+      ymin_top = 0.01;
+      ytext_top = ymax_top*0.2;
+      sprintf(xtitlename,"#{Phi}(tau,mht)");
+      sprintf(ytitlename,"Events");
+      thist->SetMaximum(ymax_top);
+      thist->SetMinimum(ymin_top);
+      thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+      gPad->SetLogy();
+    }
+
     //
     // Drawing plots
     //
@@ -630,6 +644,11 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       }
       if(histname=="DelPhi4"){
         sprintf(xtitlename,"DelPhi4");
+        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
+      if(histname=="TauJet_MHT_delPhi"){
+        sprintf(xtitlename,"#Phi(tau,MHT)");
         numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
         TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
       }

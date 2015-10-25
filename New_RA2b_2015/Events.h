@@ -31,7 +31,8 @@ using namespace std;
 
    // Declaration of leaf types
 //   UChar_t         GoodVtx;
-   Bool_t         HBHENoiseFilter;
+   Bool_t          HBHENoiseFilter;
+   Bool_t          HBHEIsoNoiseFilter;
    Int_t           CSCTightHaloFilter;
    Int_t           eeBadScFilter;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
@@ -48,6 +49,7 @@ using namespace std;
    Int_t           NJets;
    Int_t           BTags;
    Double_t         Weight;
+   Double_t        puWeight;
    Double_t         HT;
    Double_t         MHT;
    Double_t         MHT_Phi; 
@@ -58,7 +60,6 @@ using namespace std;
    Double_t         DeltaPhi2;
    Double_t         DeltaPhi3;
    Double_t         DeltaPhi4;
-   Double_t         minDeltaPhiN_;
    TTree *         fChain;
    int             currentEntry_;
    int             template_Entries; 
@@ -108,7 +109,8 @@ using namespace std;
    vector<int>     *GenElec_GenElecFromTau;
    vector<int>     *GenTau_GenTauHad;
    vector<int>     *slimJet_slimJetID;
-   Bool_t         JetID; 
+   Bool_t         JetID;
+   Bool_t          JetIDloose; 
 
 public:
 //constructor
@@ -126,6 +128,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   int nIsoMu() const ;
   int nIsoPion() const;
   double weight() const ;
+  double puweight() const ;
   double ht() const ;
   double gen_ht() const ; 
   double mht() const ;
@@ -136,7 +139,6 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   double deltaPhi2() const ;
   double deltaPhi3() const ;
   double deltaPhi4() const ;
-  double minDeltaPhiN() const ;
   int nGenMu() const ;
   int JetId() const ; 
 
@@ -227,6 +229,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    int CSCTightHaloFilter_() const;
    int eeBadScFilter_() const;
    int HBHENoiseFilter_() const;
+   int HBHEIsoNoiseFilter_() const;
    int EcalDeadCellTriggerPrimitiveFilter_() const;
    int NVtx_() const;
 

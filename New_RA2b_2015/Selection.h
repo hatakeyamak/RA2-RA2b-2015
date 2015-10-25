@@ -28,6 +28,7 @@ public:
   bool ht_800(double ht_){if(ht_>=800)return true; return false;}
   bool ht_1200(double ht_){if(ht_>=1200)return true; return false;}
   bool mht_200(double mht_){if(mht_>=200)return true; return false;}
+  bool mht_500(double mht_){if(mht_>=500)return true; return false;}
   bool mht_200_500(double mht_){if(mht_>=200 && mht_<500)return true; return false;}
   bool mht_500_750(double mht_){if(mht_>=500 && mht_<750)return true; return false;}
   bool mht_750(double mht_){if(mht_>=750)return true; return false;}
