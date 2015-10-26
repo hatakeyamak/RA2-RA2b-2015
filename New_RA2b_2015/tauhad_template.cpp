@@ -498,6 +498,7 @@ using namespace std;
       double genTauPt=-1.;
       double genTauEta=-99.;
       double genTauPhi=-99.;
+      TVector3 genTau3Vec, tauJet3Vec;
       int NuIndex = -1;
       HadTauPtVec.clear();
       HadTauEtaVec.clear();
@@ -517,6 +518,7 @@ using namespace std;
               NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
+              genTau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
             }
           }
         }
@@ -535,6 +537,7 @@ using namespace std;
               NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
+              genTau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
             }
           }
         }
@@ -875,6 +878,8 @@ using namespace std;
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
+          tauJet3Vec.SetPtEtaPhi(tauJetPt,evt->slimJetEtaVec_().at(jetIdx),evt->slimJetPhiVec_().at(jetIdx));
+          double gen_tau_jet_angle = tauJet3Vec.Angle(genTau3Vec);
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
@@ -889,9 +894,8 @@ using namespace std;
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
 
-          if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) < -1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt ,-1.0 ,eventWeight);
-          else if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
-          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,eventWeight);
+          if( gen_tau_jet_angle > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
+          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , gen_tau_jet_angle ,eventWeight);
 
           break; // End the jet loop once the tau jet has been found
         }
