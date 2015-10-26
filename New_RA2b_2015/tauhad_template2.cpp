@@ -381,7 +381,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     }
 
 
-    bool StudyErrorPropag =true;
+    bool StudyErrorPropag =false;
     map<int,string> UncerLoop;
     // Define different event categories
     UncerLoop[0]="main";
@@ -392,25 +392,24 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       //////////////////////////
       eventType[1]="BMistagPlus";
       eventType[2]="BMistagMinus";
-      eventType[3]="AccPlus";
-      eventType[4]="AccMinus";
-      eventType[5]="IsoPlus";
-      eventType[6]="IsoMinus";
-      eventType[7]="MTPlus";
-      eventType[8]="MTMinus";
-      eventType[9]="MuFromTauPlus";
-      eventType[10]="MuFromTauMinus";
-      eventType[11]="MuRecoIsoPlus";
-      eventType[12]="MuRecoIsoMinus";
-      eventType[13]="BMistag_statPlus";
-      eventType[14]="BMistag_statMinus";  
-      eventType[15]="Tau_BrRatio_Plus";
-      eventType[16]="Tau_BrRatio_Minus";
-      eventType[17]="DileptonPlus";
-      eventType[18]="DileptonMinus";
-      eventType[19]="RecoIsoSysPlus";
-      eventType[20]="RecoIsoSysMinus";
-
+      eventType[3]="RecoIsoSysPlus";
+      eventType[4]="RecoIsoSysMinus";
+      //eventType[5]="IsoPlus";
+      //eventType[6]="IsoMinus";
+      //eventType[7]="MTPlus";
+      //eventType[8]="MTMinus";
+      //eventType[9]="MuFromTauPlus";
+      //eventType[10]="MuFromTauMinus";
+      //eventType[11]="MuRecoIsoPlus";
+      //eventType[12]="MuRecoIsoMinus";
+      //eventType[13]="BMistag_statPlus";
+      //eventType[14]="BMistag_statMinus";  
+      //eventType[15]="Tau_BrRatio_Plus";
+      //eventType[16]="Tau_BrRatio_Minus";
+      //eventType[17]="DileptonPlus";
+      //eventType[18]="DileptonMinus";
+      //eventType[19]="AccPlus";
+      //eventType[20]="AccMinus";
     }
     // weights are different for different eventType
     map<string,double> totWeightMap, totWeightMap_lowDphi;
@@ -518,7 +517,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
-    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog381_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -872,7 +871,23 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             Double_t scale_x=0,scale_y=0;
             utils->getRandom2(muPt,vec_resp_xy,scale_x,scale_y );
 
-      
+            TVector3 muDir;
+            // a unit vector in the muon direction
+            muDir.SetPtEtaPhi(muPt,muEta,muPhi);
+            // a unit vector orthogonal to the muon direction
+            TVector3 muOrth = muDir.Orthogonal();
+            // get a random number between 0 and 1
+            TRandom3 * random = new TRandom3(0);
+            // Rotate the muOrth by a random number between 0 and 2pi
+            // around the muon direction
+            muOrth.Rotate( 2*3.14*random->Rndm() , muDir); 
+            muDir.SetMag(1.0);
+            muOrth.SetMag(1.0);
+            printf("muDir==> Mag: %g theta: %g phi: %g \n muOrth==> Mag: %g theta: %g phi: %g \n ",
+                  muDir.Mag(),muDir.Theta(),muDir.Phi(),muOrth.Mag(),muOrth.Theta(),muOrth.Phi());
+            //a vector in the direction of tau Jet
+            TVector3 tauJetDir;
+
             simTauJetPt = scale * muPt;
             simTauJetEta = muEta;
             simTauJetPhi = muPhi;
@@ -890,7 +905,14 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
                 if(verbose!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
                 phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();    
               }
-              simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
+              tauJetDir=cos(phi_genTau_tauJet)*muDir + sin(phi_genTau_tauJet)*muOrth;
+              printf(" tauJetDir==> mag: %g eta: %g phi: %g \n ",tauJetDir.Pt(),tauJetDir.Eta(),tauJetDir.Phi());
+              printf("muPhi: %g \n ############## \n ",muPhi);
+              if(fabs(1.0-tauJetDir.Pt())>0.3){
+                cout << " Something is wrong with phi modeling \n " ; 
+              }
+              //simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
+              simTauJetPhi_xy=tauJetDir.Phi();
               simTauJetPt_xy=simTauJetPt; 
             }
 
@@ -1150,7 +1172,7 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
               if(simTauJetPt_xy>30.){
                 simTauJetPhi_ForPlotting = simTauJetPhi_xy; 
                 tauJet_mht_dlePhi_forPlotting = fabs(TVector2::Phi_mpi_pi( simTauJetPhi_ForPlotting - newMHTPhi ));
-                printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tauJet_mht_dlePhi_forPlotting,simTauJetPt_xy,muPt);
+                //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tauJet_mht_dlePhi_forPlotting,simTauJetPt_xy,muPt);
 
               }
 
