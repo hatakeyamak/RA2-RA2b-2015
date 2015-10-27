@@ -1,4 +1,13 @@
-void HadTauEstimation_output_format(string elogForData="Elog378_",string elogForMC="Elog377_",int isys==0){
+/*
+
+  
+
+ */
+
+void HadTauEstimation_output_format(string elogForData="Elog378_",
+				    string elogForMC="Elog377_",
+				    string elogForSys="",
+				    int isys==0){
 
   char tempname[200];
 
@@ -12,15 +21,24 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",string elogFor
   // Open MC expectation and prediction code for closure systematics
   // 
   string sample="stacked";
+
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
   TFile * MCGenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
+
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMC.c_str(),sample.c_str());
   TFile * MCEstFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
-  
+
+  //
+  // Open MC file including systematics.
+  //
+  sprintf(tempname,"TauHad2/Elog381_HadTauEstimation_haddedToContainSysErrorFolders_.root",elogForSys.c_str());
+  TFile * MCSysFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
   //
   // ----- Normal 72 bin predicitons -----
   //
@@ -53,7 +71,37 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",string elogFor
     hPredNbBins_nominal->SetBinError(ibin+1,pow(pow(hPredNbBins_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
+  // 
+  // From MC sys file
+  //
+  string histname="searchH_b_";
+  string cutname="delphi";
+  sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D * searchBin_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
+
+  sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagUp");
+  sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagDn");
+  searchBin_BMistagUp->Add(searchBin_default,-1.); searchBin_BMistagUp->Divide(searchBin_default);
+  searchBin_BMistagDn->Add(searchBin_default,-1.); searchBin_BMistagDn->Divide(searchBin_default);
+  
+  searchBin_BMistagUp->Print("all");
+  searchBin_BMistagDn->Print("all");
+
+  sprintf(tempname,"RecoIsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_MuRecoIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoSysUp");
+  sprintf(tempname,"RecoIsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_MuRecoIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoSysDn");
+  searchBin_MuRecoIsoSysUp->Add(searchBin_default,-1.); searchBin_MuRecoIsoSysUp->Divide(searchBin_default);
+  searchBin_MuRecoIsoSysDn->Add(searchBin_default,-1.); searchBin_MuRecoIsoSysDn->Divide(searchBin_default);
+
+  searchBin_MuRecoIsoSysUp->Print("all");
+  searchBin_MuRecoIsoSysDn->Print("all");
+  
+  //
   // From MC file
+  //
   TH1D * GenHist, * EstHist,* thist;
   TH1D * histTemplate;
   THStack *tempstack;
@@ -80,23 +128,43 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",string elogFor
   closureRatio->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction-1 - Non closure
 
   double searchBin_closure_stat_uncertainty_fractional[73];
+  int n10percent=0;
+  int n30percent=0;
+  double avenj1;
+  double avenj1nb01;
+  double avenj1nb23;
+  double avenj2;
+  double avenj3;
   for (int ibin=1;ibin<=72;ibin++){
     // Stat uncertainty
     searchBin_closure_stat_uncertainty_fractional[ibin]=0.;
     if (numerator->GetBinContent(ibin)!=0.){
       searchBin_closure_stat_uncertainty_fractional[ibin] = closureRatio->GetBinError(ibin)/closureRatio->GetBinContent(ibin);
     }
-    /*
-    std::cout << ibin << " "
-	      << closureRatio->GetBinContent(ibin)-1. << " "
-	      << searchBin_closure_stat_uncertainty_fractional[ibin] << std::endl;
-    */
     double Unc;
     Unc = TMath::Max(fabs(closureRatio->GetBinContent(ibin)-1.),searchBin_closure_stat_uncertainty_fractional[ibin]);
     if (Unc>1.) Unc=1.;
     searchBin_closureUncertainty->SetBinContent(ibin,Unc);    
+    printf("%5d, %8.2f\n",ibin,Unc);
+    if (Unc<0.1) n10percent++;
+    if (Unc<0.3) n30percent++;
+    if (ibin>=1 &&ibin<=24) avenj1+=Unc/24.;
+    if (ibin>=1 &&ibin<=12) avenj1nb01+=Unc/12.;
+    if (ibin>=13&&ibin<=24) avenj1nb23+=Unc/12.;
+    if (ibin>=25&&ibin<=48) avenj2+=Unc/24.;
+    if (ibin>=49&&ibin<=72) avenj3+=Unc/24.;
   }
+  printf("10percent %5d\n",n10percent);
+  printf("30precent %5d\n",n30percent);
+  printf("nj1 average=%8.2f\n",avenj1);
+  printf("nj1nb01 average=%8.2f\n",avenj1nb01);
+  printf("nj1nb23 average=%8.2f\n",avenj1nb23);
+  printf("nj2 average=%8.2f\n",avenj2);
+  printf("nj3 average=%8.2f\n",avenj3);
   searchBin_closureUncertainty->Print("all");
+
+
+
   
   if (isys==1){
   // Stat uncertainty of search-bin-based correction factors
