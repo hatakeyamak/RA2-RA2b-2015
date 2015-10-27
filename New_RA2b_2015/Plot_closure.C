@@ -36,9 +36,25 @@ root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","NJet","stacked","Elog3
 .x Plot_closure.C("delphi","DelPhi2","stacked","Elog365_")
 .x Plot_closure.C("delphi","DelPhi3","stacked","Elog365_")
 
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi1","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi2","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi3","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi4","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","TauJet_MHT_delPhi","stacked","Elog377_",true,true)'
+
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi1","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi2","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi3","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi4","stacked","Elog377_",true,true)'
+
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi1","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi2","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi3","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","Elog377_",true)'
+
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",string elogForPlot="",bool zoom=false){
+Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",string elogForPlot="",bool zoom=true, bool debug=false){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -405,14 +421,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
     }
-    if(histname=="DelPhi4"){
+    if(histname=="TauJet_MHT_delPhi"){
       xtext_top = 2.2;
       //y_legend = 1300.;
       ymax_top = 1000.;
-      ymin_top = 10.;
+      ymin_top = 1.;
       ytext_top = ymax_top*0.2;
-      sprintf(xtitlename,"DelPhi4");
+      sprintf(xtitlename,"DelPhi-TauJet");
       sprintf(ytitlename,"Events");
+      thist->Rebin(5);
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
@@ -435,7 +452,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       thist->DrawCopy("e");      
       GenHist_Clone   = static_cast<TH1D*>(thist->Clone("GenHist_Clone"));
       std::cout << "thist print starts" << std::endl;
-      thist->Print("all");
+      if (debug) thist->Print("all");
       std::cout << "thist print ends" << std::endl;
     }
     else{
@@ -446,7 +463,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       thist->DrawCopy("e2same ");
       thist->DrawCopy("esame ");
       std::cout << "thist print starts" << std::endl;
-      thist->Print("all");
+      if (debug) thist->Print("all");
       std::cout << "thist print ends" << std::endl;
     }
 
@@ -502,6 +519,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       EstHist->Add(GenHist,-1);
       denominator->Divide(EstHist,GenHist,1,1,"");
       */
+
+      if(histname=="TauJet_MHT_delPhi"){
+	numerator->Rebin(5);
+	denominator->Rebin(5);
+	GenHist_Clone->Rebin(5);
+	EstHist_Clone->Rebin(5);
+	EstHist_NoError->Rebin(5);
+      }
+
       numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
       denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
 
@@ -570,6 +596,11 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
         numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
         TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
       }
+      if(histname=="TauJet_MHT_delPhi"){
+        sprintf(xtitlename,"TauJet_MHT_delPhi");
+        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+      }
 
       //
       // Common to all bottom plots
@@ -601,7 +632,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       numerator->SetTitle("");
       if (zoom) numerator->GetYaxis()->SetNdivisions(510);
       numerator->Draw();
-      numerator->Print("all");
+      if (debug) numerator->Print("all");
 
       denominator->DrawCopy("e2same");
       denominator->DrawCopy("same");

@@ -106,6 +106,7 @@ void plot_AllBinBasedCorrections(std::string elogForPlot="",std::string elogForR
 		    9
   };
   double effMT[19],MuFromNonW[19],IsoTrackVeto[19],Acc[19],weight[19];
+  double effMTe[19],MuFromNonWe[19],IsoTrackVetoe[19],Acce[19],weighte[19];
   printf("                  1/effMT,   (1-MuFormNonW),     IsoTrackVeto,     1/Acceptance,    weight\n");
   
   for (int ibin=1; ibin<=18; ibin++){
@@ -113,17 +114,24 @@ void plot_AllBinBasedCorrections(std::string elogForPlot="",std::string elogForR
     MuFromNonW[ibin] = thist_MuFromNonW->GetBinContent(ibin);
     IsoTrackVeto[ibin] =  thist_IsoTrackVeto->GetBinContent(ibin);
     Acc[ibin] = thist_Acc->GetBinContent(AccBin[ibin]);
+
+    effMTe[ibin] = thist_MtCutEff->GetBinError(ibin);
+    MuFromNonWe[ibin] = thist_MuFromNonW->GetBinError(ibin);
+    IsoTrackVetoe[ibin] =  thist_IsoTrackVeto->GetBinError(ibin);
+    Acce[ibin] = thist_Acc->GetBinError(AccBin[ibin]);
+
     weight[ibin] = 1./effMT[ibin]/Acc[ibin]*IsoTrackVeto[ibin]*(1.-MuFromNonW[ibin]);
     if (ibin<=6)
       printf("%7d, %8.3f        , %8.3f        , %8.3f        , %8.3f        , %8.3f\n",
 	     ibin,1./effMT[ibin],1.-MuFromNonW[ibin],IsoTrackVeto[ibin],1/Acc[ibin],weight[ibin]);   
     else
-      printf("%7d, %8.3f(%6.2f), %8.3f(%6.2f), %8.3f(%6.2f), %8.3f(%6.2f), %8.3f(%6.2f)\n",
+      printf("%7d, %8.3f(%6.2f), %8.3f(%6.2f %6.3f), %8.3f(%6.2f), %8.3f(%6.2f), %8.3f(%6.2f)\n",
 	     ibin,
 	     effMT[ibin],(1./effMT[ibin])/(1./effMT[ibin-6]),
-	     MuFromNonW[ibin],(1.-MuFromNonW[ibin])/(1.-MuFromNonW[ibin-6]),
+	     1.-MuFromNonW[ibin],(1.-MuFromNonW[ibin])/(1.-MuFromNonW[ibin-6]),
+	     (1.-MuFromNonW[ibin]+MuFromNonWe[ibin])/(1.-MuFromNonW[ibin]),
 	     IsoTrackVeto[ibin],IsoTrackVeto[ibin]/IsoTrackVeto[ibin-6],
-	     Acc[ibin],(1./Acc[ibin])/(1./Acc[ibin-6]),
+	     1./Acc[ibin],(1./Acc[ibin])/(1./Acc[ibin-6]),
 	     weight[ibin],weight[ibin]/weight[ibin-6]);       
   }
 
