@@ -23,8 +23,8 @@ class mainClass{
   vector<TFile *> T_inputfilevec,WJet_inputfilevec, TTbar_inputfilevec;
   map<int, string> cutname, histname, Hname;
   map<int, string> Ttype, WJettype, TTbartype;
-  TFile *file, *file2, *file3;
-  TH1D *temphist, *temphist2, *temphistI, *temphistII, *temphistIII, *temphistI_lowDphi, *temphistII_lowDphi, *temphistIII_lowDphi;
+  TFile *file, *file2, *file30, *file3;
+  TH1D *temphist, *temphist2, * temphist30, *temphistI, *temphistII, *temphistIII, *temphistI_lowDphi, *temphistII_lowDphi, *temphistIII_lowDphi;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
 
@@ -125,6 +125,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -200,6 +201,212 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   file->Close();
   printf("T main histograms stacked \n ");
+
+
+//..........................................//
+// IsoTrk  
+//..........................................//
+
+
+  // Load the files to a vector
+  // These are tau template files
+
+  T_inputfilevec.clear();
+
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../IsoEfficiencies_t_top_.root");
+    else if(i==2)sprintf(tempname,"../IsoEfficiencies_t_antitop_.root");
+    else if(i==3)sprintf(tempname,"../IsoEfficiencies_tW_top_.root");
+    else if(i==4)sprintf(tempname,"../IsoEfficiencies_tW_antitop_.root");
+    else{cout << " Error!! There are only 4 single top ht binned sample " << endl;}
+    T_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"IsoEfficiencies_T_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="IsoEff";
+  histname[1]="Iso_pass";
+  histname[2]="Iso_all";
+  histname[3]="Iso_pass_lowDphi";
+  histname[4]="Iso_all_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    if(j==3)temphistI_lowDphi=(TH1D*)temphist->Clone();
+    if(j==4)temphistII_lowDphi=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff");
+  temphistIII->SetTitle("IsoEff");
+  temphistIII->Write();
+
+  temphistIII_lowDphi = static_cast<TH1D*>(temphistI_lowDphi->Clone("IsoEff_lowDphi"));
+  temphistIII_lowDphi->Divide(temphistI_lowDphi,temphistII_lowDphi,1,1,"B");
+  temphistIII_lowDphi->SetName("IsoEff_lowDphi");
+  temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
+  temphistIII_lowDphi->Write();
+
+  histname.clear();
+  histname[0]="IsoEff2";
+  histname[1]="Iso_pass2";
+  histname[2]="Iso_all2";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("IsoEff2");
+  temphistIII->SetTitle("IsoEff2");
+  temphistIII->Write();
+
+  file->Close();
+  printf("T IsoTrks calculated. \n ");
+
+
+
+//..........................................//
+// Acceptance  
+//..........................................//
+
+  // Load the files to a vector
+  // These are tau template files
+
+  T_inputfilevec.clear();
+
+  for(int i=1; i<=tnHT ; i++){
+    if(i==1)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromt_top_.root");
+    else if(i==2)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromt_antitop_.root");
+    else if(i==3)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_top_.root");
+    else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_antitop_.root");
+    else{cout << " Error!! There are only 4 T ht binned sample " << endl;}
+    T_inputfilevec.push_back(TFile::Open(tempname,"R"));
+  }//end of loop over HTbins
+
+  // Stack
+  tempstack = new THStack("stack","Binned Sample Stack");
+  sprintf(tempname,"LostLepton2_MuonEfficienciesFromT_stacked.root");
+  file = new TFile(tempname,"RECREATE");
+
+  histname.clear();
+  histname[0]="hAcc";
+  histname[1]="hAccPass";
+  histname[2]="hAccAll";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc");
+  temphistIII->SetTitle("hAcc");
+  temphistIII->Write();
+
+
+  histname.clear();
+  histname[0]="hAcc_lowDphi";
+  histname[1]="hAccPass_lowDphi";
+  histname[2]="hAccAll_lowDphi";
+
+  for(int j=0; j<histname.size(); j++){
+
+    if(j==0)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<tnHT ; i++){ // loop over different HT bins
+
+      temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    if(j==1)temphistI=(TH1D*)temphist->Clone();
+    if(j==2)temphistII=(TH1D*)temphist->Clone();
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  }
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("hAcc_lowDphi"));
+  temphistIII->Divide(temphistI,temphistII,1,1,"B");
+  temphistIII->SetName("hAcc_lowDphi");
+  temphistIII->SetTitle("hAcc_lowDphi");
+  temphistIII->Write();
+
+
+  file->Close();
+  printf("T acceptance calculated. \n ");
 
 
 
@@ -291,6 +498,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -902,6 +1110,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[8]="HT2";
   histname[9]="MHT2";
   histname[10]="DelPhi4";
+  histname[11]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -1450,6 +1659,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[6]="DelPhi2";
   histname[7]="DelPhi3";
   histname[8]="DelPhi4";
+  histname[9]="TauJet_MHT_delPhi";
 
   Hname.clear();
   Hname[0]="searchH";
@@ -1703,6 +1913,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file = new TFile(tempname,"R");
   sprintf(tempname,"LostLepton2_MuonEfficienciesFromWJet_stacked.root");
   file2 = new TFile(tempname,"R");
+  sprintf(tempname,"LostLepton2_MuonEfficienciesFromT_stacked.root");
+  file30 = new TFile(tempname,"R");
 
   // Open a file to write
   sprintf(tempname,"LostLepton2_MuonEfficienciesFromstacked.root");
@@ -1719,8 +1931,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1736,8 +1950,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1788,6 +2004,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file = new TFile(tempname,"R");
   sprintf(tempname,"IsoEfficiencies_WJet_stacked.root");
   file2 = new TFile(tempname,"R");
+  sprintf(tempname,"IsoEfficiencies_T_stacked.root");
+  file30 = new TFile(tempname,"R");
 
   // Open a file to write
   sprintf(tempname,"IsoEfficiencies_stacked.root");
@@ -1804,8 +2022,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1821,8 +2041,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
@@ -1837,8 +2059,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
+    temphist30 = (TH1D *) file30->Get(tempname)->Clone();
 
     temphist->Add(temphist,temphist2,1,1);
+    temphist->Add(temphist,temphist30,1,1);
 
   temphist->Write();
 
