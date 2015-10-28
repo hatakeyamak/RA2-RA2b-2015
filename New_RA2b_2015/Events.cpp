@@ -20,6 +20,7 @@
      NJets=-1;
      BTags=-1;
      Weight=1;
+     puWeight=1.;
      HT=0.0;
      genHT=0.0;
      MHT=0.0;
@@ -30,7 +31,6 @@
      DeltaPhi2=-99.;
      DeltaPhi3=-99.;
      DeltaPhi4=-99.;
-     minDeltaPhiN_=-99.;
 
      GenMu_GenMuFromTau=0;
      GenTau_GenTauHad=0;
@@ -88,6 +88,7 @@
      fChain->SetBranchAddress("NJets", &NJets);
      fChain->SetBranchAddress("BTags", &BTags);
      fChain->SetBranchAddress("Weight", &Weight);
+     fChain->SetBranchAddress("puWeight", &puWeight);
      fChain->SetBranchAddress("HT", &HT);
      fChain->SetBranchAddress("MHT", &MHT);
      fChain->SetBranchAddress("MHT_Phi", &MHT_Phi);
@@ -97,9 +98,10 @@
      fChain->SetBranchAddress("DeltaPhi2", &DeltaPhi2);
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4);
-     fChain->SetBranchAddress("minDeltaPhiN", &minDeltaPhiN_);
      fChain->SetBranchAddress("JetID", &JetID);
+     fChain->SetBranchAddress("JetIDloose", &JetIDloose);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
+     fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter);
      fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
      fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
      fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
@@ -192,6 +194,7 @@
 
   // Event weight (for luminosity and PU profile)
   double Events::weight() const { return Weight; }
+  double Events::puweight() const { return puWeight; }
 
   // HT and MHT
   double Events::ht() const { return HT; }
@@ -229,11 +232,10 @@
   double Events::deltaPhi2() const { return DeltaPhi2; }
   double Events::deltaPhi3() const { return DeltaPhi3; }
   double Events::deltaPhi4() const { return DeltaPhi4; }
-  double Events::minDeltaPhiN() const { return minDeltaPhiN_; }
 
   // To see if an event passes the jetId requirement or not.  
   int Events::JetId() const {
-    return JetID;
+    return JetIDloose;
   }
 
   bool Events::DataBool_() const { return DataBool; }
@@ -563,6 +565,7 @@
   int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}
   int Events::eeBadScFilter_() const {return eeBadScFilter;}
   int Events::HBHENoiseFilter_() const {return HBHENoiseFilter;}
+  int Events::HBHEIsoNoiseFilter_() const {return HBHEIsoNoiseFilter;}
   int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
   int Events::NVtx_() const {return NVtx;}
 

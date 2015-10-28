@@ -44,12 +44,15 @@ catLeg1->SetTextSize(0.04);
 
 TH1D * thist_tt, * thist_wj;
 TH1D * thist_tt2, * thist_wj2;
+TH1D * thist_t, * thist_t2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog365_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog365_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog365_AfterMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog365_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * after_tt = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
+TFile * before_tt = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
+TFile * after_wj = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * before_wj = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * after_t = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_T_stacked.root","R");
+TFile * before_t = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_T_stacked.root","R");
 
 TFile * outFile = new TFile("MtEff.root","RECREATE");
 
@@ -107,13 +110,31 @@ MtCutEff_wj->SetLineColor(2);
 MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
 
+
+////////
+// single top
+////////
+stack = (THStack *) after_t->Get("searchH")->Clone("after");
+thist_t = (TH1D *) stack->GetStack()->Last();
+stack = (THStack *) before_t->Get("searchH")->Clone("before");
+thist_t2 = (TH1D *) stack->GetStack()->Last();
+
+TH1D * MtCutEff_t = static_cast<TH1D*>(thist_t->Clone("MtCutEff_t"));
+MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
+MtCutEff_t->SetLineColor(2);
+MtCutEff_t->Draw("same");
+MtCutEff_t->Write();
+
+
 ////////
 // tt+wj
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot"));
 thist_tot->Add(thist_wj);
+thist_tot->Add(thist_t);
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2"));
 thist_tot2->Add(thist_wj2);
+thist_tot2->Add(thist_t2);
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -127,7 +148,7 @@ MtCutEff_tot->Write();
     catLeg1->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg1->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet","l");
+    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
     catLeg1->Draw();
 
 sprintf(tempname,"MtEff.png");
@@ -212,12 +233,28 @@ MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
 
 ////////
+// top
+////////
+stack = (THStack *) after_t->Get("searchH_lowDphi")->Clone("after");
+thist_t = (TH1D *) stack->GetStack()->Last();
+stack = (THStack *) before_t->Get("searchH_lowDphi")->Clone("before");
+thist_t2 = (TH1D *) stack->GetStack()->Last();
+
+TH1D * MtCutEff_t = static_cast<TH1D*>(thist_t->Clone("MtCutEff_t_lowDphi"));
+MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
+MtCutEff_t->SetLineColor(2);
+MtCutEff_t->Draw("same");
+MtCutEff_t->Write();
+
+////////
 // tt+wj
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot_lowDphi"));
 thist_tot->Add(thist_wj);
+thist_tot->Add(thist_t);
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2_lowDphi"));
 thist_tot2->Add(thist_wj2);
+thist_tot2->Add(thist_t2);
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff_lowDphi"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -231,7 +268,7 @@ MtCutEff_tot->Write();
     catLeg2->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg2->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet","l");
+    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
     catLeg2->Draw();
 
 sprintf(tempname,"MtEff_lowDphi.png");

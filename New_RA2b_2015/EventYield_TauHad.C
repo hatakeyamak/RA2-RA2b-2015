@@ -71,7 +71,7 @@ EventYield_TauHad(string sample="TTbar_", bool mc=false){
 /*    cutname[0]="PreSel";cutname[1]="nolep";cutname[2]="Njet_4";cutname[3]="ht_500";
     cutname[4]="mht_200";cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="isoPion";
     cutname[8]="delphi";*/
-    cutname[0]="isoPion";cutname[1]="delphi";cutname[2]="low_Dphi";
+    cutname[0]="mht_200";cutname[1]="isoPion";cutname[2]="delphi";cutname[3]="low_Dphi";cutname[4]="mht_500";cutname[5]="J46_HT5001200_MHT500750";
 
 
   double exp=0,pre=0;
