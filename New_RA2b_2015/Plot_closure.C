@@ -12,20 +12,49 @@ using namespace std;
 
   Usage:
 
-.x Plot_closure.C("delphi","NJet","stacked","Elog365_")
-.x Plot_closure.C("delphi","NBtag","stacked","Elog365_")
-.x Plot_closure.C("delphi","HT","stacked","Elog365_")
-.x Plot_closure.C("delphi","MHT","stacked","Elog365_")
-.x Plot_closure.C("delphi","MET","stacked","Elog365_")
+.x Plot_closure.C("delphi","NJet","stacked","Elog377_")
+.x Plot_closure.C("delphi","NBtag","stacked","Elog377_")
+.x Plot_closure.C("delphi","HT","stacked","Elog377_")
+.x Plot_closure.C("delphi","MHT","stacked","Elog377_")
+.x Plot_closure.C("delphi","MET","stacked","Elog377_")
+
+root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog377_",true)'
+
+root.exe -b -q 'Plot_closure.C("mht_200","NJet","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("isoPion","NJet","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("delphi_NoIso","NJet","stacked","",true)'
+root.exe -b -q 'Plot_closure.C("met_500","NJet","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","NJet","stacked","Elog377_",true)'
+
 
 .x Plot_closure.C("delphi","DelPhiN","stacked","Elog365_")
 .x Plot_closure.C("delphi","DelPhi1","stacked","Elog365_")
 .x Plot_closure.C("delphi","DelPhi2","stacked","Elog365_")
 .x Plot_closure.C("delphi","DelPhi3","stacked","Elog365_")
 
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi1","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi2","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi3","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","DelPhi4","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_200","TauJet_MHT_delPhi","stacked","Elog377_",true,true)'
+
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi1","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi2","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi3","stacked","Elog377_",true,true)'
+root.exe -b -q 'Plot_closure.C("mht_500","DelPhi4","stacked","Elog377_",true,true)'
+
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi1","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi2","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi3","stacked","Elog377_",true)'
+root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","Elog377_",true)'
+
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_",string elogForPlot="",int choice=1){
+Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",string elogForPlot="",bool zoom=true, bool debug=false){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +86,11 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   float y_legend = 4000.;
   float xtext_top;
   
+  if (zoom){
+    ymax_bottom = 1.7;
+    ymin_bottom = 0.45;
+  }
+
   //
   // Luminosity information for scaling
   double lumi = 3.; // normaliza to 3 (fb-1)
@@ -89,7 +123,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   //
   // Define legend
   //
-  Float_t legendX1 = .50; //.50;
+  Float_t legendX1 = .35; //.50;
   Float_t legendX2 = .90; //.70;
   Float_t legendY1 = .76; //.65;
   Float_t legendY2 = .88;
@@ -198,7 +232,10 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist=(TH1D*) tempstack->GetStack()->Last();
       thist->SetLineColor(2*i+2);
       thist->SetFillColor(0);
-      
+      std::cout << "tempstack print starts" << std::endl;
+      tempstack->Print();
+      std::cout << "tempstack ends" << std::endl;
+
     }
     else{
       
@@ -384,14 +421,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
     }
-    if(histname=="DelPhi4"){
+    if(histname=="TauJet_MHT_delPhi"){
       xtext_top = 2.2;
       //y_legend = 1300.;
       ymax_top = 1000.;
-      ymin_top = 10.;
+      ymin_top = 1.;
       ytext_top = ymax_top*0.2;
-      sprintf(xtitlename,"DelPhi4");
+      sprintf(xtitlename,"DelPhi-TauJet");
       sprintf(ytitlename,"Events");
+      thist->Rebin(5);
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
@@ -427,6 +465,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist->SetLineColor(1);
       thist->DrawCopy("e");      
       GenHist_Clone   = static_cast<TH1D*>(thist->Clone("GenHist_Clone"));
+      std::cout << "thist print starts" << std::endl;
+      if (debug) thist->Print("all");
+      std::cout << "thist print ends" << std::endl;
     }
     else{
       thist->SetFillStyle(3144);
@@ -435,17 +476,20 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       thist->SetMarkerSize(0.0001);
       thist->DrawCopy("e2same ");
       thist->DrawCopy("esame ");
+      std::cout << "thist print starts" << std::endl;
+      if (debug) thist->Print("all");
+      std::cout << "thist print ends" << std::endl;
     }
 
     //
     // Set up canvas
     //
     if(i==0){
-      sprintf(tempname,"#tau_{hadronic} BG expectation");
+      sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
       catLeg1->AddEntry(thist,tempname,"p");
     }
     else if(i==1){
-      sprintf(tempname,"Data driven prediction");
+      sprintf(tempname,"Prediction from MC");
       catLeg1->AddEntry(thist,tempname);
     }
   }
@@ -464,112 +508,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
   //
   // ----------
 
-  if(choice==0){
-
-    std::cout << choice << std::endl;
-
-    //KH -- flip the numerator and denominator
-    EstHist->Divide(GenHist);
-    //GenHist->Divide(EstHist);
-
-    // draw bottom figure
-    canvas_dw->cd();
-    // font size
-    EstHist->GetXaxis()->SetLabelSize(font_size_dw);
-    EstHist->GetXaxis()->SetTitleSize(font_size_dw);
-    EstHist->GetYaxis()->SetLabelSize(font_size_dw);
-    EstHist->GetYaxis()->SetTitleSize(font_size_dw);
-    
-    //
-    // Specific to each bottom plot
-    //
-    if(histname=="search"){
-      sprintf(xtitlename,"search bin");
-      EstHist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
-      TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
-    }
-    if(histname=="HT"){
-      sprintf(xtitlename,"H_{T} (GeV)");
-      EstHist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
-      TLine *tline = new TLine(HT_x_min,1.,HT_x_max,1.);
-    }
-    if(histname=="MHT"){
-      sprintf(xtitlename,"#slash{H}_{T} (GeV)");
-      EstHist->GetXaxis()->SetRangeUser(100.,MHT_x_max);
-      TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
-    }   
-    if(histname=="NBtag"){
-      sprintf(xtitlename,"Number of b-tags");
-      EstHist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
-      TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
-      ymax_bottom=1.5;
-      ymin_bottom=0.7;
-    }    
-    if(histname=="NJet"){
-      sprintf(xtitlename,"Number of jets");
-      EstHist->GetXaxis()->SetRangeUser(3.,NJet_x_max);
-      TLine *tline = new TLine(3.,1.,NJet_x_max,1.);
-      //ymax_bottom=1.5;
-      //ymin_bottom=0.5;
-    }
-    if(histname=="MET"){
-      sprintf(xtitlename,"MET (GeV)");
-      EstHist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
-      TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
-    }
-    if(histname=="DelPhiN"){
-      sprintf(xtitlename,"DelPhiN");
-      EstHist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
-      TLine *tline = new TLine(0.,1.,DelPhiN_x_max,1.);
-    }
-    if(histname=="DelPhi1"){
-      sprintf(xtitlename,"DelPhi1");
-      EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-      TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-    }
-    if(histname=="DelPhi2"){
-      sprintf(xtitlename,"DelPhi2");
-      EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-      TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-    }
-    if(histname=="DelPhi3"){
-      sprintf(xtitlename,"DelPhi3");
-      EstHist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-      TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-    }
-
-    //
-    // Common to all bottom plots
-    //
-    //sprintf(ytitlename,"Estimate / #tau_{had} BG");
-    EstHist->SetMaximum(ymax_bottom);
-    EstHist->SetMinimum(ymin_bottom);
-
-    // Setting style
-    //EstHist->SetMaximum(1.4);
-    //EstHist->GetXaxis()->SetLabelFont(42);
-    //EstHist->GetXaxis()->SetLabelOffset(0.007);
-    //EstHist->GetXaxis()->SetLabelSize(0.04);
-    EstHist->GetXaxis()->SetTitleSize(0.12);
-    EstHist->GetXaxis()->SetTitleOffset(0.9);
-    EstHist->GetXaxis()->SetTitleFont(42);
-    //EstHist->GetYaxis()->SetLabelFont(42);
-    //EstHist->GetYaxis()->SetLabelOffset(0.007);
-    //EstHist->GetYaxis()->SetLabelSize(0.04);
-    EstHist->GetYaxis()->SetTitleSize(0.13);
-    EstHist->GetYaxis()->SetTitleOffset(0.5);
-    EstHist->GetYaxis()->SetTitleFont(42);
-
-    EstHist->GetXaxis()->SetTitle(xtitlename);
-    EstHist->GetYaxis()->SetTitle(ytitlename);
-
-    EstHist->SetTitle("");
-    EstHist->Draw();
-    tline->SetLineStyle(2);
-    tline->Draw();
-  }
-
-  if(choice==1){
+  //if(choice==1){
     
       GenHist->SetMarkerStyle(20);
       GenHist->SetLineColor(1);
@@ -586,7 +525,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
       TH1D * EstHist_NoError = static_cast<TH1D*>(EstHist->Clone("EstHist_NoError"));
       for (int ibin=0; ibin<EstHist_NoError->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
-  EstHist_NoError->SetBinError(ibin,0.);
+	EstHist_NoError->SetBinError(ibin,0.);
       }
 
       /*
@@ -594,6 +533,15 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       EstHist->Add(GenHist,-1);
       denominator->Divide(EstHist,GenHist,1,1,"");
       */
+
+      if(histname=="TauJet_MHT_delPhi"){
+	numerator->Rebin(5);
+	denominator->Rebin(5);
+	GenHist_Clone->Rebin(5);
+	EstHist_Clone->Rebin(5);
+	EstHist_NoError->Rebin(5);
+      }
+
       numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
       denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
 
@@ -616,21 +564,21 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
       if(histname=="MHT"){
         sprintf(xtitlename,"#slash{H}_{T} (GeV)");
         numerator->GetXaxis()->SetRangeUser(100.,MHT_x_max);
-        TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
+        TLine *tline = new TLine(100.,1.,MHT_x_max,1.);
       }   
       if(histname=="NBtag"){
         sprintf(xtitlename,"Number of b-tags");
         numerator->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
         TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
-	ymax_bottom=1.5;
-	ymin_bottom=0.7;
+	//ymax_bottom=1.5;
+	//ymin_bottom=0.7;
       }    
       if(histname=="NJet"){
         sprintf(xtitlename,"Number of jets");
         numerator->GetXaxis()->SetRangeUser(3.,NJet_x_max);
         TLine *tline = new TLine(3.,1.,NJet_x_max,1.);
-	ymax_bottom=1.5;
-	ymin_bottom=0.5;
+	//ymax_bottom=1.5;
+	//ymin_bottom=0.5;
       }
       if(histname=="MET"){
         sprintf(xtitlename,"MET (GeV)");
@@ -696,7 +644,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
 
       numerator->GetXaxis()->SetTickSize(0.08);
       numerator->SetTitle("");
+      if (zoom) numerator->GetYaxis()->SetNdivisions(510);
       numerator->Draw();
+      if (debug) numerator->Print("all");
 
       denominator->DrawCopy("e2same");
       denominator->DrawCopy("same");
@@ -705,11 +655,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="TTbar_
 
       tline->SetLineStyle(2);
       tline->Draw();
-  }
 
-  sprintf(tempname,"%s_%s_%s_%sPlot.png",sample.c_str(),cutname.c_str(),histname.c_str(),elogForPlot.c_str());
+  //}
+
+  sprintf(tempname,"Closure_%s_%s_%s_%sPlot.png",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"%s_%s_%s_%sPlot.pdf",sample.c_str(),cutname.c_str(),histname.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_%s_%sPlot.pdf",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPlot.c_str());
   canvas->Print(tempname);
 
 }

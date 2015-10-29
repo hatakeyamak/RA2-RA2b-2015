@@ -253,7 +253,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     // Legend & texts
     sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
     catLeg1->AddEntry(GenHist,tempname,"p");
-    sprintf(tempname,"Data driven prediction");
+    sprintf(tempname,"Prediction from MC");
     catLeg1->AddEntry(EstHist,tempname);
     catLeg1->Draw();
 
