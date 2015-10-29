@@ -106,9 +106,9 @@ void plot_MistagRate_allSamples(string sample="TTbar_", int wjets_hadtau_only=0)
   //...........................................................................//
   // TTbar ....................................................................//
   //...........................................................................//
-  double XUp = 500. , maxVal=1.;
+  double XUp = 350. , maxVal=1.;
 
-    wj_tauH->GetXaxis()->SetRangeUser(0.,XUp);
+    wj_tauH->GetXaxis()->SetRangeUser(30.,XUp);
     wj_tauH->SetMaximum(maxVal);
     wj_tauH->SetTitle("");
     
@@ -126,7 +126,7 @@ void plot_MistagRate_allSamples(string sample="TTbar_", int wjets_hadtau_only=0)
     wj_tauH->GetYaxis()->SetTitleFont(42);
     wj_tauH->GetXaxis()->SetTitle("p_{T}(#tau jet)");
     wj_tauH->GetYaxis()->SetTitle("b-tagging mistag rate");
-    wj_tauH->GetXaxis()->SetRangeUser(0.,XUp);
+    wj_tauH->GetXaxis()->SetRangeUser(30.,XUp);
     wj_tauH->SetMaximum(maxVal);
     wj_tauH->SetLineColor(1);
     wj_tauH->Draw();
