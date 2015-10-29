@@ -204,6 +204,9 @@ using namespace std;
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso();
     int totNbins_ForIso=binMap_ForIso.size();
 
+    map<string,int> binMap_ForIso_temp = utils2::BinMap_ForIso_temp();
+    int totNbins_ForIso_temp=binMap_ForIso_temp.size();
+
     // Inroduce two histogram to understand the probability of a muon coming from tau.
     TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins+1);
     hW_mu->Sumw2();
@@ -219,13 +222,13 @@ using namespace std;
     // calculate the acceptance
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
     int totNbins_mht_nj=binMap_mht_nj.size();
-    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj+1);
-    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_ForIso,1,totNbins_ForIso+1);
     hAccAll->Sumw2();
     hAccPass->Sumw2();
 
-    TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_mht_nj,1,totNbins_mht_nj+1);
-    TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_mht_nj,1,totNbins_mht_nj+1);
+    TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_ForIso,1,totNbins_ForIso+1);
     hAccAll_lowDphi->Sumw2();
     hAccPass_lowDphi->Sumw2();
 
@@ -245,14 +248,19 @@ using namespace std;
     TH1* IsoPion_pass = new TH1D("IsoPion_pass","Isolated pion efficiency -- pass ",totNbins,1,totNbins+1);
     IsoPion_pass->Sumw2();
 
-    TH1* Iso_all = new TH1D("Iso_all","Isolated Trk efficiency -- all ",totNbins,1,totNbins+1);
+    TH1* Iso_all = new TH1D("Iso_all","Isolated Trk efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_all->Sumw2();
-    TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
+    TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_pass->Sumw2();
 
-    TH1* Iso_all_lowDphi = new TH1D("Iso_all_lowDphi","Isolated Trk efficiency -- all ",totNbins,1,totNbins+1);
+    TH1* Iso_all_temp = new TH1D("Iso_all_temp","Isolated Trk efficiency -- all ",totNbins_ForIso_temp,1,totNbins_ForIso_temp+1);
+    Iso_all_temp->Sumw2();
+    TH1* Iso_pass_temp = new TH1D("Iso_pass_temp","Isolated Trk efficiency -- pass ",totNbins_ForIso_temp,1,totNbins_ForIso_temp+1);
+    Iso_pass_temp->Sumw2();
+
+    TH1* Iso_all_lowDphi = new TH1D("Iso_all_lowDphi","Isolated Trk efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_all_lowDphi->Sumw2();
-    TH1* Iso_pass_lowDphi = new TH1D("Iso_pass_lowDphi","Isolated Trk efficiency -- pass ",totNbins,1,totNbins+1);
+    TH1* Iso_pass_lowDphi = new TH1D("Iso_pass_lowDphi","Isolated Trk efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_pass_lowDphi->Sumw2();
 
     TH1* Iso_all2 = new TH1D("Iso_all2","Isolated Trk efficiency for leading tau jet -- all ",totNbins,1,totNbins+1);
@@ -384,8 +392,6 @@ using namespace std;
 
 
 
-
-
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
 
       if(!evt->DataBool_()){
@@ -498,7 +504,6 @@ using namespace std;
       double genTauPt=-1.;
       double genTauEta=-99.;
       double genTauPhi=-99.;
-      TVector3 genTau3Vec, tauJet3Vec;
       int NuIndex = -1;
       HadTauPtVec.clear();
       HadTauEtaVec.clear();
@@ -518,7 +523,6 @@ using namespace std;
               NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
-              genTau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
             }
           }
         }
@@ -537,7 +541,6 @@ using namespace std;
               NuIndex = i;
               genTauEta = eta;
               genTauPhi = phi;
-              genTau3Vec.SetPtEtaPhi(genTauPt,genTauEta,genTauPhi);
             }
           }
         }
@@ -597,23 +600,23 @@ using namespace std;
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
            &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
-        hAccAll->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
+        hAccAll->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
-          hAccPass->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] ,eventWeight);
+          hAccPass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         } 
       }
       // Acceptance for low_Dphi region
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
            &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
         ){
-        hAccAll_lowDphi->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] ,eventWeight);
+        hAccAll_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
-          hAccPass_lowDphi->Fill( binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht()).c_str()] ,eventWeight);
+          hAccPass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         }
       }      
 
       // Total weight
-       double totWeight = ( eventWeight )*1.;
+      double totWeight = ( eventWeight )*1.;
       //double totWeight = 1.;
     
       // add pileup as weight for MC 
@@ -657,8 +660,8 @@ using namespace std;
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
            &&sel->mht_200(evt->mht())&&(evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3)
           ){
-          Iso_all_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
-          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_lowDphi->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+          Iso_all_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
+          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
         }
 
 
@@ -677,11 +680,11 @@ using namespace std;
           if(evt->nIsoMu()==0)IsoMu_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           IsoPion_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          Iso_all->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+          Iso_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+          Iso_all_temp->Fill( binMap_ForIso_temp[utils2::findBin_ForIso_temp(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_temp->Fill( binMap_ForIso_temp[utils2::findBin_ForIso_temp(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           
-
-
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
@@ -745,7 +748,7 @@ using namespace std;
           tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
           tau_mht_dlephi_forPlotting = fabs(TVector2::Phi_mpi_pi( tauPhi_forPlotting - evt->mhtphi()  ));
 
-          printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_dlephi_forPlotting,tauPt_forPlotting,genTauPt);
+          //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_dlephi_forPlotting,tauPt_forPlotting,genTauPt);
         }
         //printf("tauPt: %g tauPhi: %g \n ",tauPt_forPlotting,tauPhi_forPlotting);
       }
@@ -878,8 +881,6 @@ using namespace std;
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
-          tauJet3Vec.SetPtEtaPhi(tauJetPt,evt->slimJetEtaVec_().at(jetIdx),evt->slimJetPhiVec_().at(jetIdx));
-          double gen_tau_jet_angle = tauJet3Vec.Angle(genTau3Vec);
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
@@ -894,8 +895,9 @@ using namespace std;
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
 
-          if( gen_tau_jet_angle > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
-          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , gen_tau_jet_angle ,eventWeight);
+          if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) < -1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt ,-1.0 ,eventWeight);
+          else if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
+          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,eventWeight);
 
           break; // End the jet loop once the tau jet has been found
         }
@@ -930,6 +932,10 @@ using namespace std;
     IsoEff_lowDphi->Divide(Iso_pass_lowDphi,Iso_all_lowDphi,1,1,"B");
     TH1* IsoEff2 = static_cast<TH1*>(Iso_pass2->Clone("IsoEff2"));
     IsoEff2->Divide(Iso_pass2,Iso_all2,1,1,"B");   
+
+    TH1* IsoEff_temp = static_cast<TH1*>(Iso_pass_temp->Clone("IsoEff_temp"));
+    IsoEff_temp->Divide(Iso_pass_temp,Iso_all_temp,1,1,"B");
+
  
     sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile3(tempname,"RECREATE");
@@ -952,6 +958,11 @@ using namespace std;
     Iso_pass2->Write();
     Iso_all2->Write();
     
+
+    IsoEff_temp->Write();
+    Iso_pass_temp->Write();
+    Iso_all_temp->Write();
+
     outFile3.Close();
 
     // Compute acceptance

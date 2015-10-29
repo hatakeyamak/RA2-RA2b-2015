@@ -272,9 +272,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->Write();
 
   histname.clear();
-  histname[0]="IsoEff2";
-  histname[1]="Iso_pass2";
-  histname[2]="Iso_all2";
+  histname[0]="IsoEff_temp";
+  histname[1]="Iso_pass_temp";
+  histname[2]="Iso_all_temp";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -299,10 +299,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     tempstack = new THStack("stack","Binned Sample Stack");
 
   }
-  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff_temp"));
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
-  temphistIII->SetName("IsoEff2");
-  temphistIII->SetTitle("IsoEff2");
+  temphistIII->SetName("IsoEff_temp");
+  temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
 
   file->Close();
@@ -943,9 +943,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->Write();
 
   histname.clear();
-  histname[0]="IsoEff2";
-  histname[1]="Iso_pass2";
-  histname[2]="Iso_all2";
+  histname[0]="IsoEff_temp";
+  histname[1]="Iso_pass_temp";
+  histname[2]="Iso_all_temp";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -970,10 +970,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     tempstack = new THStack("stack","Binned Sample Stack");
 
   }
-  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff_temp"));
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
-  temphistIII->SetName("IsoEff2");
-  temphistIII->SetTitle("IsoEff2");
+  temphistIII->SetName("IsoEff_temp");
+  temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
 
   file->Close();
@@ -1520,9 +1520,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
 
   histname.clear();
-  histname[0]="IsoEff2";
-  histname[1]="Iso_pass2";
-  histname[2]="Iso_all2";
+  histname[0]="IsoEff_temp";
+  histname[1]="Iso_pass_temp";
+  histname[2]="Iso_all_temp";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -1547,10 +1547,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     tempstack = new THStack("stack","Binned Sample Stack");
 
   }
-  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff2"));
+  temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff_temp"));
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
-  temphistIII->SetName("IsoEff2");
-  temphistIII->SetTitle("IsoEff2");
+  temphistIII->SetName("IsoEff_temp");
+  temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
 
 
@@ -2032,8 +2032,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   }
 
   histname.clear();
-  histname[0]="Iso_pass2";
-  histname[1]="Iso_all2";
+  histname[0]="Iso_pass_temp";
+  histname[1]="Iso_all_temp";
 
 
   for(int j=0; j<histname.size(); j++){
@@ -2090,13 +2090,13 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
 
 
-  sprintf(tempname,"Iso_pass2");
+  sprintf(tempname,"Iso_pass_temp");
   temphist = (TH1D *) file->Get(tempname)->Clone();
-  sprintf(tempname,"Iso_all2");
+  sprintf(tempname,"Iso_all_temp");
   temphist2 = (TH1D *) file2->Get(tempname)->Clone();
   temphist->Divide(temphist,temphist2,1,1,"B");
-  temphist->SetName("IsoEff2");
-  temphist->SetTitle("IsoEff2");
+  temphist->SetName("IsoEff_temp");
+  temphist->SetTitle("IsoEff_temp");
   temphist->Write();
 
 

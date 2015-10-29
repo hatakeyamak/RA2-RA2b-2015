@@ -124,7 +124,8 @@ namespace utils2{
       std::string findBin_mht_nj(int njet,double mht){
         std::ostringstream binS;
         int bNjet, bMht;
-        if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;else bNjet=9;
+        if(njet == 4)bNjet=1;else if(njet == 5)bNjet=2;else if(njet == 6)bNjet=3;
+        else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5;else bNjet=9;
         if(mht>=200 && mht<500)bMht=1;else if(mht>=500 && mht<750)bMht=2;else if(mht>=750)bMht=3; else bMht=9;
         binS << 10*bNjet+bMht;
 
@@ -137,7 +138,7 @@ namespace utils2{
   std::map <std::string,int> BinMap_mht_nj(){
       int binN=0;
       std::map <std::string , int> binMap_mht_nj;
-      for(int bNjet=1; bNjet<=3;  bNjet++){
+      for(int bNjet=1; bNjet<=5;  bNjet++){
           for(int bMht=1; bMht<=3; bMht++){
               std::ostringstream binS;
               binS << 10*bNjet+bMht;
@@ -160,9 +161,10 @@ namespace utils2{
       std::string findBin_ForIso(int njet,double ht,double mht){
         std::ostringstream binS;
         int bNjet, bHtMht;
-        if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7)bNjet=2;else bNjet=9;
+        if(njet == 4)bNjet=1;else if(njet == 5)bNjet=2;else if(njet == 6)bNjet=3;
+        else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5;else bNjet=9;
         if(ht >= 500 && ht <800 && mht>=200 && mht<500)bHtMht=1;else if(ht >= 800 && ht <1200 && mht>=200 && mht<500)bHtMht=2;else if(ht >= 1200 && mht>=200 && mht<500)bHtMht=3;
-        else if(ht >= 500 && mht>=500 )bHtMht=4; else bHtMht=9;
+        else if(ht >= 500 && ht <1200 && mht>=500 && mht<750)bHtMht=4;else if(ht >=1200 && mht>=500 && mht<750)bHtMht=5;else if(ht >=800 && mht>=750)bHtMht=6; else bHtMht=9;
         binS << 10*bNjet+bHtMht;
 
         return binS.str();
@@ -174,8 +176,8 @@ namespace utils2{
   std::map <std::string,int> BinMap_ForIso(){
       int binN=0;
       std::map <std::string , int> binMap_NoB;
-      for(int bNjet=1; bNjet<=2;  bNjet++){
-          for(int bHtMht=1; bHtMht<=4; bHtMht++){
+      for(int bNjet=1; bNjet<=5;  bNjet++){
+          for(int bHtMht=1; bHtMht<=6; bHtMht++){
               std::ostringstream binS;
               binS << 10*bNjet+bHtMht;
               binN++;
@@ -185,6 +187,80 @@ namespace utils2{
       }
     return binMap_NoB;
   }
+
+
+//############################################################################################
+// Bins defined by Njet, HT, MHT (no b-tag) used for Iso-track veto parametrization
+//
+
+  // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
+
+      std::string findBin_ForIso_temp(int njet,double ht,double mht){
+        std::ostringstream binS;
+        int bNjet, bHtMht;
+        if(njet == 4)bNjet=1;else if(njet == 5)bNjet=2;else if(njet == 6)bNjet=3;
+        else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5;else bNjet=9;
+        if(ht >= 500 && ht <800 && mht>=200 && mht<250)bHtMht=1;
+        else if(ht >= 500 && ht <800 && mht>=250 && mht<300)bHtMht=2;
+        else if(ht >= 500 && ht <800 && mht>=300 && mht<350)bHtMht=3;
+        else if(ht >= 500 && ht <800 && mht>=350 && mht<400)bHtMht=4;
+        else if(ht >= 500 && ht <800 && mht>=400 && mht<450)bHtMht=5;
+        else if(ht >= 500 && ht <800 && mht>=450 && mht<500)bHtMht=6;
+
+        else if(ht >= 800 && ht <1200 && mht>=200 && mht<250)bHtMht=7;
+        else if(ht >= 800 && ht <1200 && mht>=250 && mht<300)bHtMht=8;
+        else if(ht >= 800 && ht <1200 && mht>=300 && mht<350)bHtMht=9;
+        else if(ht >= 800 && ht <1200 && mht>=350 && mht<400)bHtMht=10;
+        else if(ht >= 800 && ht <1200 && mht>=400 && mht<450)bHtMht=11;
+        else if(ht >= 800 && ht <1200 && mht>=450 && mht<500)bHtMht=12;
+
+        else if( ht >=1200 && mht>=200 && mht<250)bHtMht=13;
+        else if( ht >=1200 && mht>=250 && mht<300)bHtMht=14;
+        else if( ht >=1200 && mht>=300 && mht<350)bHtMht=15;
+        else if( ht >=1200 && mht>=350 && mht<400)bHtMht=16;
+        else if( ht >=1200 && mht>=400 && mht<450)bHtMht=17;
+        else if( ht >=1200 && mht>=450 && mht<500)bHtMht=18;
+
+        else if(ht >= 500 && ht <1200 && mht>=500 && mht<550)bHtMht=19;
+        else if(ht >= 500 && ht <1200 && mht>=550 && mht<600)bHtMht=20;
+        else if(ht >= 500 && ht <1200 && mht>=600 && mht<650)bHtMht=21;  
+        else if(ht >= 500 && ht <1200 && mht>=650 && mht<700)bHtMht=22;
+        else if(ht >= 500 && ht <1200 && mht>=700 && mht<750)bHtMht=23;
+
+        else if(ht >=1200 && mht>=500 && mht<550)bHtMht=24;
+        else if(ht >=1200 && mht>=550 && mht<600)bHtMht=25;
+        else if(ht >=1200 && mht>=600 && mht<650)bHtMht=26;
+        else if(ht >=1200 && mht>=650 && mht<700)bHtMht=27;
+        else if(ht >=1200 && mht>=700 && mht<750)bHtMht=28;
+        
+        else if(ht >=800 && mht>=750 && mht<800)bHtMht=29;
+        else if(ht >=800 && mht>=800)bHtMht=30;        
+ 
+        else bHtMht=99;
+
+        binS << 100*bNjet+bHtMht;
+
+        return binS.str();
+      }
+
+
+  // A map is needed between strings like "15" or "24" that specify the search bins ( without Btag)
+  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
+  std::map <std::string,int> BinMap_ForIso_temp(){
+      int binN=0;
+      std::map <std::string , int> binMap_NoB;
+      for(int bNjet=1; bNjet<=5;  bNjet++){
+          for(int bHtMht=1; bHtMht<=30; bHtMht++){
+              std::ostringstream binS;
+              binS << 100*bNjet+bHtMht;
+              binN++;
+              binMap_NoB[binS.str()]=binN;
+              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+          }
+      }
+    return binMap_NoB;
+  }
+
 
 
 //############################################################################################
