@@ -381,7 +381,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     }
 
 
-    bool StudyErrorPropag =false;
+    bool StudyErrorPropag = false;
     map<int,string> UncerLoop;
     // Define different event categories
     UncerLoop[0]="main";
@@ -410,6 +410,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       //eventType[18]="DileptonMinus";
       //eventType[19]="AccPlus";
       //eventType[20]="AccMinus";
+
     }
     // weights are different for different eventType
     map<string,double> totWeightMap, totWeightMap_lowDphi;
@@ -461,7 +462,9 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
     //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
     //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog340_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog377_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog377_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog381_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog387_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
@@ -475,14 +478,12 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
 
     // Get IsoTrk efficiencies
-    //TFile * IsoEffFile = new TFile("TauHad/IsoEfficiencies_TTbar_Elog218.root","R");
     //TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
-    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog377_IsoEfficiencies_stacked.root","R");
+    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog377_IsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog381_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
-    //TFile * IsoEffFile_lowDphi = new TFile("TauHad/IsoEfficiencies_TTbar_plusLowDphi_.root","R");
-    //TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
-    TFile * IsoEffFile_lowDphi = new TFile("TauHad/Stack/Elog377_IsoEfficiencies_stacked.root","R");
-    TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile_lowDphi->Get("IsoEff_lowDphi")->Clone();
+    TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
+
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
@@ -517,7 +518,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
-    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog381_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -871,23 +872,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             Double_t scale_x=0,scale_y=0;
             utils->getRandom2(muPt,vec_resp_xy,scale_x,scale_y );
 
-            TVector3 muDir;
-            // a unit vector in the muon direction
-            muDir.SetPtEtaPhi(muPt,muEta,muPhi);
-            // a unit vector orthogonal to the muon direction
-            TVector3 muOrth = muDir.Orthogonal();
-            // get a random number between 0 and 1
-            TRandom3 * random = new TRandom3(0);
-            // Rotate the muOrth by a random number between 0 and 2pi
-            // around the muon direction
-            muOrth.Rotate( 2*3.14*random->Rndm() , muDir); 
-            muDir.SetMag(1.0);
-            muOrth.SetMag(1.0);
-            printf("muDir==> Mag: %g theta: %g phi: %g \n muOrth==> Mag: %g theta: %g phi: %g \n ",
-                  muDir.Mag(),muDir.Theta(),muDir.Phi(),muOrth.Mag(),muOrth.Theta(),muOrth.Phi());
-            //a vector in the direction of tau Jet
-            TVector3 tauJetDir;
-
+      
             simTauJetPt = scale * muPt;
             simTauJetEta = muEta;
             simTauJetPhi = muPhi;
@@ -905,14 +890,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
                 if(verbose!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
                 phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();    
               }
-              tauJetDir=cos(phi_genTau_tauJet)*muDir + sin(phi_genTau_tauJet)*muOrth;
-              printf(" tauJetDir==> mag: %g eta: %g phi: %g \n ",tauJetDir.Pt(),tauJetDir.Eta(),tauJetDir.Phi());
-              printf("muPhi: %g \n ############## \n ",muPhi);
-              if(fabs(1.0-tauJetDir.Pt())>0.3){
-                cout << " Something is wrong with phi modeling \n " ; 
-              }
-              //simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
-              simTauJetPhi_xy=tauJetDir.Phi();
+              simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
               simTauJetPt_xy=simTauJetPt; 
             }
 
@@ -1211,20 +1189,20 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
               if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
                 // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
-                Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
-                AccError = hAcc->GetBinError(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
-                Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]); 
-                Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
+                Acc = hAcc->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccError = hAcc->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]); 
+                Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
                 // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
                 // Or use recomputed ht mht ... when making Acc. 
-                //Acc = hAcc->GetBinContent(binMap_mht_nj[utils2::findBin_mht_nj(evt->nJets(),evt->mht())]);
+                //Acc = hAcc->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht())]);
               }else{
                 Acc=0.9;
                 Acc_lowDphi=0.9;
               }
 
 
-              if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_mht_nj[utils2::findBin_mht_nj(newNJet,newMHT)]);
+              if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
               if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
 
               if(Acc==0){Acc=0.9;cout << " Warning! Acc==0 \n ";}
@@ -1339,7 +1317,7 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
                   if(nIsoElec==0&&nIsoMu==0&&nIsoPion==0)PassIso2=true; 
                 }
 
-                int binNum = binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()];
+                int binNum = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
                 if(utils2::IsoTrkModel==0){
                   IsoTrkWeight = hIsoEff->GetBinContent(binNum);
                   IsoTrkWeightError= hIsoEff->GetBinError(binNum);
