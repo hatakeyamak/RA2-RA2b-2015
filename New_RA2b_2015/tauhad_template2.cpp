@@ -80,6 +80,7 @@ using namespace std;
     map<string, histClass> histobjmap;
     histClass histObj;
     int TauResponse_nBins=4;
+    int binx = -1;
     vector<TH1*> vec_resp, vec_resp_x,vec_resp_y;
     vector<TH2*> vec_resp_xy;
     vector<double> vec_recoMuMTW;
@@ -385,7 +386,12 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     bool StudyErrorPropag = false;
     map<int,string> UncerLoop;
     // Define different event categories
-    UncerLoop[0]="main";
+    if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
+    else if(subSampleKey.find("templateMinus")!=string::npos)UncerLoop[0]="templateMinus";
+    else UncerLoop[0]="main";
+    
+   
+
     eventType[0]="allEvents";
     if(StudyErrorPropag){
 
@@ -520,23 +526,25 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     // Use Ahmad's tau template
     TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
+
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
-      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+//      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
       sprintf(histname,"hTauResp_%d_xy",i);
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
 
     }
+
     TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
 
-/*
+
     // Use Rishi's tau template 
-    TFile * resp_file = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
+    TFile * resp_file_Rishi = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
-      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      vec_resp.push_back( (TH1D*) resp_file_Rishi->Get( histname )->Clone() );
     }
-*/
+
 
 
     // muMtW Histogram
@@ -616,7 +624,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
 
 
-      //if(eventN>20000)break;
+      //if(eventN>2000)break;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -697,6 +705,8 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
  
       // to study some of the uncertainties we need to make some changes from
       // the very beginning and observe how that propagates
+      
+      if(subSampleKey.find("template")!=string::npos  && (eventN < 10 || eventN % 100000 ==0))cout << " calculating templatePlus/Minus \n ";
       for(int iuncer=0; iuncer<UncerLoop.size() ;iuncer++){
 
 
@@ -868,7 +878,11 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             // or if bootstrap is on read the whole template
             // The template is chosen according to the muon pt
             double scale;
-            if(utils2::bootstrap) scale = utils->GetBinValue(muPt,vec_resp,l );
+            if(utils2::bootstrap){
+              scale = utils->GetBinValue(muPt,vec_resp,l );
+              if(UncerLoop[iuncer]=="templatePlus")scale=scale*1.1;       
+              else if(UncerLoop[iuncer]=="templateMinus")scale=scale*0.9;
+            }
             else scale = utils->getRandom(muPt,vec_resp );
             Double_t scale_x=0,scale_y=0;
             utils->getRandom2(muPt,vec_resp_xy,scale_x,scale_y );
@@ -882,7 +896,8 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             double simTauJetPt_y = scale_y * muPt;
             simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
             simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
-            int binx = utils->tau_phi_GetBinX(scale);
+            if(subSampleKey.find("templatePlus")!=string::npos && scale > 2.5)binx = utils->tau_phi_GetBinX(2.49); 
+            else binx = utils->tau_phi_GetBinX(scale);
             // when bootstapping we work with 1D template. 
             // It was good if we could use 2D ( we are short in time now ) 
             if(utils2::bootstrap){
@@ -915,8 +930,27 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             int slimJetIdx=-1;
             MuJet_all->Fill(muPt,eventWeight);
             utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+/*
+            printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
+            printf(" pT: %g eta: %g phi: %g delR: %g \n "
+                  ,evt->JetsPtVec_()[slimJetIdx],evt->JetsEtaVec_()[slimJetIdx],evt->JetsPhiVec_()[slimJetIdx]
+                  ,sqrt( pow((muEta - evt->slimJetEtaVec_()[slimJetIdx]),2.) + pow((utils->deltaPhi(muPhi,evt->slimJetPhiVec_()[slimJetIdx])),2.) ));
+            if()
+*/
             // If there is no match, add the tau jet as a new one
             if(slimJetIdx==-1){
+
+              printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
+              for(int ij=0; ij< evt->JetsPtVec_().size(); ij++){
+                double dphi = utils->deltaPhi(muPhi,evt->JetsPhiVec_()[ij]);
+                double deta = muEta - evt->JetsEtaVec_()[ij];
+                int mumult = evt->Jets_muonMultiplicity_()[ij];
+                if(ij+1 <= evt->JetsPtVec_().size())
+                printf(" indx: %d pT: %g eta: %g phi: %g delR: %g muMultiplicity: %d \n "
+                        ,ij,evt->JetsPtVec_()[ij],evt->JetsEtaVec_()[ij],evt->JetsPhiVec_()[ij],sqrt( deta*deta + dphi*dphi ), mumult);
+                
+              }
+
               MuJet_fail->Fill(muPt,eventWeight);
               NewTauJet3Vec=SimTauJet3Vec;
               NewTauJetPt = NewTauJet3Vec.Pt();
@@ -1148,7 +1182,7 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
              
               double simTauJetPhi_ForPlotting=-99.0;
               double tauJet_mht_dlePhi_forPlotting=-99.0;
-              if(simTauJetPt_xy>30.){
+              if( NewTauJetPt > 30.){
                 simTauJetPhi_ForPlotting = simTauJetPhi_xy; 
                 tauJet_mht_dlePhi_forPlotting = fabs(TVector2::Phi_mpi_pi( simTauJetPhi_ForPlotting - newMHTPhi ));
                 //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tauJet_mht_dlePhi_forPlotting,simTauJetPt_xy,muPt);
@@ -1601,7 +1635,10 @@ if(newNJet==4 && tempBool && newHT>=500. && newMHT >= 200. && newDphi1>0.5 && ne
 
                     //////loop over cut names and fill the histograms
                     for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
-                     
+                
+                      //To save time we only write few directories when calcing not main events
+                      //if(subSampleKey.find("template")!=string::npos && (ite->first!="delphi" && ite->first!="low_Dphi" ))continue; 
+
                       //To save cpu we neglect some of early selections
                       if(ite->first=="PreSel" || ite->first=="nolep" || ite->first=="ht_500" 
                           || ite->first=="Njet_4" || ite->first=="isoElec" || ite->first=="isoMu" || ite->first=="nolep"
@@ -1931,10 +1968,13 @@ tempMHT_Dphi4Hist_w->Write();
           cdtoitt->cd();
           for(int i=0; i< (int)sel->cutName().size();i++){
             for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
-//To save cpu we neglect some of early selections
-                    if(it->first=="PreSel" || it->first=="nolep" || it->first=="ht_500" 
-                        || it->first=="Njet_4" || it->first=="isoElec" || it->first=="isoMu" || it->first=="nolep"
-                      )continue;
+              //To save time we only write few directories when calcing not main events
+              //if(subSampleKey.find("template")!=string::npos && (it->first!="delphi" && it->first!="low_Dphi" ))continue;
+
+              //To save cpu we neglect some of early selections
+              if(it->first=="PreSel" || it->first=="nolep" || it->first=="ht_500" 
+                 || it->first=="Njet_4" || it->first=="isoElec" || it->first=="isoMu" || it->first=="nolep"
+                )continue;
 
               if (sel->cutName()[i]==it->first){
                 cdtoit = cdtoitt->mkdir((it->first).c_str());
