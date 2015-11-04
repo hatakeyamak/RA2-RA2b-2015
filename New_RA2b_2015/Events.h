@@ -147,6 +147,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenMuPtVec_() const;
    vector<double>  GenMuEtaVec_() const;
    vector<double>  GenMuPhiVec_() const;
+   vector<double>  GenMuEVec_() const;
 
    vector<double>  GenElecPtVec_() const;
    vector<double>  GenElecEtaVec_() const;
@@ -164,6 +165,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
+   vector<double>  JetsEVec_() const;
    vector<double>  csvVec() const;
    vector<double>  Jets_chargedEmEnergyFraction_() const;
    vector<double>  Jets_chargedHadronEnergyFraction_() const;
@@ -193,6 +195,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  MuPtVec_() const;
    vector<double>  MuEtaVec_() const;
    vector<double>  MuPhiVec_() const;
+   vector<double>  MuEVec_() const;
 
    vector<double>  slimmedElecPtVec_() const;
    vector<double>  slimmedElecEtaVec_() const;

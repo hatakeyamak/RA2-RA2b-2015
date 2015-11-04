@@ -262,6 +262,13 @@
      }
      return vec;
    }
+   vector<double>  Events::GenMuEVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenMus->size();i++){
+       vec.push_back(GenMus->at(i).E());
+     }
+     return vec;
+   }
 
    vector<double>  Events::GenElecPtVec_() const { 
      vector<double> vec;
@@ -350,6 +357,14 @@
      }
      return vec;
    }
+   vector<double>  Events::JetsEVec_() const {
+     vector<double> vec;
+     for(int i=0;i < Jets->size();i++){
+       vec.push_back(Jets->at(i).E());
+     }
+     return vec;
+   }
+
 
    vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
    vector<double>  Events::Jets_chargedEmEnergyFraction_() const { return *Jets_chargedEmEnergyFraction;}
@@ -433,6 +448,14 @@
      }
      return vec;
    }
+   vector<double>  Events::MuEVec_() const{
+     vector<double> vec;
+     for(int i=0;i < Muons->size();i++){
+       vec.push_back(Muons->at(i).E());
+     }
+     return vec;
+   }
+
 
 //   vector<double>  Events::slimmedElecPtVec_() const{ return  *slimmedElectronsPtVec;}
 

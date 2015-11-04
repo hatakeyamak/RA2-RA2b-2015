@@ -161,11 +161,36 @@ namespace utils2{
       std::string findBin_ForIso(int njet,double ht,double mht){
         std::ostringstream binS;
         int bNjet, bHtMht;
-        if(njet == 4)bNjet=1;else if(njet == 5)bNjet=2;else if(njet == 6)bNjet=3;
-        else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5;else bNjet=9;
-        if(ht >= 500 && ht <800 && mht>=200 && mht<500)bHtMht=1;else if(ht >= 800 && ht <1200 && mht>=200 && mht<500)bHtMht=2;else if(ht >= 1200 && mht>=200 && mht<500)bHtMht=3;
-        else if(ht >= 500 && ht <1200 && mht>=500 && mht<750)bHtMht=4;else if(ht >=1200 && mht>=500 && mht<750)bHtMht=5;else if(ht >=800 && mht>=750)bHtMht=6; else bHtMht=9;
+        if(njet == 4)bNjet=1;
+        else if(njet == 5)bNjet=2;
+        else if(njet == 6)bNjet=3;
+        else if(njet >= 7 && njet <=8)bNjet=4;
+        else if(njet >= 9)bNjet=5;else bNjet=9;
+/*
+        if(ht >= 500 && ht <800 && mht>=200 && mht<500)bHtMht=1;
+        else if(ht >= 800 && ht <1200 && mht>=200 && mht<500)bHtMht=2;
+        else if(ht >= 1200 && mht>=200 && mht<500)bHtMht=3;
+        else if(ht >= 500 && ht <1200 && mht>=500 && mht<750)bHtMht=4;
+        else if(ht >=1200 && mht>=500 && mht<750)bHtMht=5;
+        else if(ht >=800 && mht>=750)bHtMht=6; else bHtMht=9;
+
         binS << 10*bNjet+bHtMht;
+*/
+
+        if(ht >=  500 && ht < 800 && mht>=200 && mht<300) bHtMht=1;
+        else if(ht >=  800 && ht <1200 && mht>=200 && mht<300) bHtMht=2;
+        else if(ht >= 1200             && mht>=200 && mht<300) bHtMht=3;
+        else if(ht >=  500 && ht < 800 && mht>=300 && mht<500) bHtMht=4;
+        else if(ht >=  800 && ht <1200 && mht>=300 && mht<500) bHtMht=5;
+        else if(ht >= 1200             && mht>=300 && mht<500) bHtMht=6;
+        else if(ht >=  500 && ht <800  && mht>=500 && mht<750) bHtMht=7;
+        else if(ht >=  800 && ht <1200 && mht>=500 && mht<750) bHtMht=8;
+        else if(ht >= 1200             && mht>=500 && mht<750) bHtMht=9;
+        else if(ht >=  800 && ht<1200  && mht>=750)            bHtMht=10;
+        else if(ht >= 1200             && mht>=750)            bHtMht=11;
+        else bHtMht=19;
+
+        binS << 100*bNjet+bHtMht;
 
         return binS.str();
       }
@@ -177,9 +202,9 @@ namespace utils2{
       int binN=0;
       std::map <std::string , int> binMap_NoB;
       for(int bNjet=1; bNjet<=5;  bNjet++){
-          for(int bHtMht=1; bHtMht<=6; bHtMht++){
+          for(int bHtMht=1; bHtMht<=11; bHtMht++){
               std::ostringstream binS;
-              binS << 10*bNjet+bHtMht;
+              binS << 100*bNjet+bHtMht;
               binN++;
               binMap_NoB[binS.str()]=binN;
               std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
