@@ -85,12 +85,14 @@ using namespace std;
     vector<TH2*> vec_resp_xy;
     vector<double> vec_recoMuMTW;
     vector<double> vec_MTActivity;
-    vector<TVector3> vec_recoMuon3vec;
+    vector<TLorentzVector> vec_recoMuon4vec;
     vector<TVector3> vec_recoElec3vec;
     TVector3 temp3vec;
+    TLorentzVector temp4vec;
     double muPt;
     double muEta;
     double muPhi;
+    double muE;
     double muMtW=-1.;
     double simTauJetPt,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy;
     double simTauJetEta;
@@ -388,6 +390,8 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
     else if(subSampleKey.find("templateMinus")!=string::npos)UncerLoop[0]="templateMinus";
+    else if(subSampleKey.find("MTSelPlus")!=string::npos)UncerLoop[0]="MTSelPlus";
+    else if(subSampleKey.find("MTSelMinus")!=string::npos)UncerLoop[0]="MTSelMinus";
     else UncerLoop[0]="main";
     
    
@@ -468,10 +472,8 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
     //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog340_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog377_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog381_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog387_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog387_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog398_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
@@ -486,8 +488,8 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
     // Get IsoTrk efficiencies
     //TFile * IsoEffFile = new TFile("TauHad/Stack/IsoEfficiencies_stacked_Elog325.root","R");
-    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog377_IsoEfficiencies_stacked.root","R");
-    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog381_IsoEfficiencies_stacked.root","R");
+    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog381_IsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog398_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
 
@@ -707,6 +709,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       // the very beginning and observe how that propagates
       
       if(subSampleKey.find("template")!=string::npos  && (eventN < 10 || eventN % 100000 ==0))cout << " calculating templatePlus/Minus \n ";
+      if(subSampleKey.find("MTSel")!=string::npos  && (eventN < 10 || eventN % 100000 ==0))cout << " calculating MTSelPlus/Minus \n ";
       for(int iuncer=0; iuncer<UncerLoop.size() ;iuncer++){
 
 
@@ -727,7 +730,7 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
         // select muons with pt>20. eta<2.1 relIso<.2
         vec_recoMuMTW.clear(); 
-        vec_recoMuon3vec.clear();
+        vec_recoMuon4vec.clear();
         vec_MTActivity.clear();  
 
   vector<int> MuFromTauVec;//Ahmad33
@@ -746,15 +749,18 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             double pt=evt->MuPtVec_().at(i); // Ahmad33
             double eta=evt->MuEtaVec_().at(i); // Ahmad33
             double phi=evt->MuPhiVec_().at(i); // Ahmad33
+            double energy=evt->MuEVec_().at(i); // Ahmad33
             double activity_ = evt->MTActivityVec_().at(i);
             double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());  
+            if(UncerLoop[iuncer]=="MTSelPlus")mu_mt_w =utils->calcMT(pt,phi,evt->met()*1.3,evt->metphi());
+            if(UncerLoop[iuncer]=="MTSelMinus")mu_mt_w =utils->calcMT(pt,phi,evt->met()*0.7,evt->metphi());
             if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
               if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
-              temp3vec.SetPtEtaPhi(pt,eta,phi);
+              temp4vec.SetPtEtaPhiE(pt,eta,phi,energy);
               if(utils2::applyMT){
-                if(mu_mt_w < 100. ){vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
+                if(mu_mt_w < 100. ){vec_recoMuon4vec.push_back(temp4vec);vec_MTActivity.push_back(activity_);}
               }
-              else {vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
+              else {vec_recoMuon4vec.push_back(temp4vec);vec_MTActivity.push_back(activity_);}
               vec_recoMuMTW.push_back(mu_mt_w); 
             }
           }
@@ -765,15 +771,16 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             double pt=evt->GenMuPtVec_().at(i); // Ahmad33
             double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
             double phi=evt->GenMuPhiVec_().at(i); // Ahmad33
+            double energy=evt->GenMuEVec_().at(i); // Ahmad33
             double activity_ = evt->GenMTActivityVec_().at(i);
             double mu_mt_w =utils->calcMT(pt,phi,evt->met(),evt->metphi());
             if( pt> LeptonAcceptance::muonPtMin()  && fabs(eta)< LeptonAcceptance::muonEtaMax()  ){
               if(verbose==2)printf(" \n Muons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
-              temp3vec.SetPtEtaPhi(pt,eta,phi);
+              temp4vec.SetPtEtaPhiE(pt,eta,phi,energy);
               if(utils2::applyMT){
-                if(mu_mt_w < 100. ){vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
+                if(mu_mt_w < 100. ){vec_recoMuon4vec.push_back(temp4vec);vec_MTActivity.push_back(activity_);}
               }
-              else {vec_recoMuon3vec.push_back(temp3vec);vec_MTActivity.push_back(activity_);}
+              else {vec_recoMuon4vec.push_back(temp4vec);vec_MTActivity.push_back(activity_);}
               MuFromTauVec.push_back(evt->GenMuFromTauVec_()[i]);//Ahmad33
               vec_recoMuMTW.push_back(mu_mt_w); 
             }
@@ -814,18 +821,19 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
         if(vec_recoMuMTW.size()>0)muMtW = vec_recoMuMTW[0]; 
         muMtWHist->Fill(muMtW,eventWeight);
 
-        if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon3vec.size(),vec_recoElec3vec.size());
+        if(verbose==1)printf(" \n **************************************** \n #Muons: %d #Electrons: %d \n ****************************** \n ",vec_recoMuon4vec.size(),vec_recoElec3vec.size());
 
         //if( template_nMuons == 1 && template_nElectrons == 0 ) {
         bool pass1=false;
-        if(TauHadModel>=2){if( vec_recoMuon3vec.size() == 1)pass1=true;}
-        else {if( vec_recoMuon3vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;} // recoElec is realy GenElec here
+        if(TauHadModel>=2){if( vec_recoMuon4vec.size() == 1)pass1=true;}
+        else {if( vec_recoMuon4vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;} // recoElec is realy GenElec here
 
         if(pass1){
 
-          muPt = vec_recoMuon3vec[0].Pt();
-          muEta = vec_recoMuon3vec[0].Eta();
-          muPhi = vec_recoMuon3vec[0].Phi();
+          muPt = vec_recoMuon4vec[0].Pt();
+          muEta = vec_recoMuon4vec[0].Eta();
+          muPhi = vec_recoMuon4vec[0].Phi();
+          muE  = vec_recoMuon4vec[0].E();
 
   //        double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
           double activity=vec_MTActivity[0]; 
@@ -937,6 +945,18 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
                   ,sqrt( pow((muEta - evt->slimJetEtaVec_()[slimJetIdx]),2.) + pow((utils->deltaPhi(muPhi,evt->slimJetPhiVec_()[slimJetIdx])),2.) ));
             if()
 */
+            int jetIdx=-1;
+            if(slimJetIdx!=-1 && utils->findMatchedObject(jetIdx,evt->slimJetEtaVec_()[slimJetIdx],evt->slimJetPhiVec_()[slimJetIdx],
+            evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),0.1,verbose) &&
+            evt->Jets_muonMultiplicity_()[jetIdx]==1)
+            {
+              double muFrac = evt->Jets_muonEnergyFraction_()[jetIdx];
+              double muPtModified = (evt->JetsEVec_()[jetIdx]*muFrac/muE)*muPt;
+              //printf(" mu: ==> PtModified: %g Pt: %g muPtModified/muPt: %g \n ",muPtModified,muPt,muPtModified/muPt); 
+              if(muPtModified/muPt < 2.)Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
+            }
+
+
             // If there is no match, add the tau jet as a new one
             if(slimJetIdx==-1){
 
