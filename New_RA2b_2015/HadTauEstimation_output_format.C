@@ -4,10 +4,9 @@
 
  */
 
-
 void binMap(TH1* input, TH1* output);
 
-void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
+void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
 				    string elogForMCExp="Elog381_",    // MC expectation
 				    string elogForMCPre="Elog397_",    // MC prediction
 				    string elogForSys="Elog381_",      // MC-based systematics evaluation for Btag and muon efficiencies
@@ -21,6 +20,9 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
 				    string elogForMuFromTau="Elog401_",  // Muon from tau
 				    string elogForAccStat="Elog401_",    // Acceptance 
 				    string elogForMTStat="Elog401_",     // MT cut efficiency
+				    double trigEff=0.948,
+				    double lumiTarget=1.280231,
+				    double lumiControl=1.263886,
 				    int isys==0){
 
   char tempname[200];
@@ -32,7 +34,8 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   //
   // Open data files
   //
-  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15cd_.root",elogForData.c_str());
+  //sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15cd_.root",elogForData.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15d_TriggerOn.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
 
   //
@@ -44,6 +47,9 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
     searchBin_one->SetBinContent(ibin+1,1.);
     searchBin_one->SetBinError(ibin+1,0.);
   }
+
+  TH1D* searchBin_box = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_box");
+  searchBin_box->Reset();
 
   //
   // Open MC expectation and prediction code for closure systematics
@@ -139,17 +145,18 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   TFile * Prob_Tau_mu_file = new TFile(tempname,"R");
   sprintf(tempname,"hProb_Tau_mu");
   TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(tempname)->Clone();
+  
 
   TH1D* searchBin_MuFromTau = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_MuFromTau");
   searchBin_MuFromTau->Reset();
   binMap(hProb_Tau_mu,searchBin_MuFromTau);
 
-  TH1D* searchBin_MuFromTauStat  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_MuFromTauStat");
+  TH1D* searchBin_MuFromTauStat  = (TH1D*)searchBin_MuFromTau->Clone("seaerchBin_MuFromTauStat");
   for (int ibin=0;ibin<searchBin_MuFromTauStat->GetNbinsX();ibin++){
-    searchBin_MuFromTauStat->SetBinContent(ibin+1,searchBin_IsoTrkVetoEff->GetBinError(ibin+1));
+    searchBin_MuFromTauStat->SetBinContent(ibin+1,searchBin_MuFromTau->GetBinError(ibin+1));
   }
-  searchBin_MuFromTau->Add(searchBin_one,-1.);           // (f-1.) ~ -0.3
-  searchBin_MuFromTau->Scale(-1.);                       // (1-f) ~ 0.3
+  searchBin_MuFromTau->Add(searchBin_one,-1.);           // (f-1.) ~ -0.7
+  searchBin_MuFromTau->Scale(-1.);                       // (1-f) ~ 0.7
   searchBin_MuFromTauStat->Divide(searchBin_MuFromTau);  // sigma(f)/(1-f)
   
   //
@@ -202,8 +209,9 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   // Nominal
   //
   TH1D* searchBin_nominal = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_nominal");
-  TH1D* searchBin_nominal_fullstatuncertainty = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_nominal_fullstatuncertainty");
   TH2D* hWeightForSearchBin = (TH2D*)DataEstFile->Get("hWeight4ForSearchBin")->Clone("hWeightForSearchBin");
+  searchBin_nominal->Scale(1/trigEff*lumiTarget/lumiControl);
+  TH1D* searchBin_nominal_fullstatuncertainty = (TH1D*)searchBin_nominal->Clone("searchBin_nominal_fullstatuncertainty");
   for (int ibin=0; ibin<searchBin_nominal->GetNbinsX(); ibin++){
     searchBin_nominal_fullstatuncertainty->SetBinError(ibin+1,pow(pow(searchBin_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
@@ -1177,33 +1185,38 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   // Displaying errors
   //
   TCanvas *tc1 = new TCanvas("searchBin_UncertaintySummary","searchBin_UncertaintySummary",1200,600);
-  searchBin_StatUncertaintiesFractional->SetMaximum(1.5);
-  searchBin_StatUncertaintiesFractional->SetMinimum(-1.0);
-  searchBin_StatUncertaintiesFractional->SetStats(false);
-  searchBin_StatUncertaintiesFractional->SetTitle("Uncertainties versus search bins");
-  searchBin_StatUncertaintiesFractional->GetXaxis()->SetTitle("Search bin");
-  searchBin_StatUncertaintiesFractional->GetYaxis()->SetTitle("Fractional uncertainties");
+  double ymax=+1.5;
+  double ymin=-1.0;
+  double yoff= 0.1;
+  searchBin_box->SetMaximum(ymax);
+  searchBin_box->SetMinimum(ymin);
+  searchBin_box->SetStats(false);
+  searchBin_box->SetTitle("Uncertainties versus search bins");
+  searchBin_box->GetXaxis()->SetTitle("Search bin");
+  searchBin_box->GetYaxis()->SetTitle("Fractional uncertainties");
+  searchBin_box->SetLineWidth(2);
+  searchBin_box->SetLineColor(0);
+  searchBin_box->SetFillColor(0);
+  searchBin_box->Draw();
+
   searchBin_StatUncertaintiesFractional->SetLineColor(1);
-  searchBin_StatUncertaintiesFractional->Draw();
+  searchBin_StatUncertaintiesFractional->Draw("same");
   searchBin_StatUncertaintiesFractional->SetFillColor(21);
   
-  searchBin_closureUncertainty->SetLineColor(6);
+  searchBin_closureUncertainty->SetLineColor(2);
   searchBin_closureUncertainty->SetLineWidth(2);
   searchBin_closureUncertainty->SetFillColor(0);
   searchBin_closureUncertainty->Draw("same");
 
-  searchBin_BMistagUp->SetLineColor(2);
+  searchBin_BMistagUp->SetLineColor(8);
   searchBin_BMistagUp->SetLineWidth(2);
   searchBin_BMistagUp->Draw("hist,same");
 
-  searchBin_BMistagDn->SetLineColor(2);
+  searchBin_BMistagDn->SetLineColor(8);
   searchBin_BMistagDn->SetLineWidth(2);
   searchBin_BMistagDn->SetLineStyle(2);
   searchBin_BMistagDn->Draw("hist,same");
 
-  //searchBin_UncertaintyCorrectionStats->SetLineColor(4);
-  //searchBin_UncertaintyCorrectionStats->SetLineWidth(2);
-  //searchBin_UncertaintyCorrectionStats->Draw("same");
   searchBin_MuRecoIsoSysUp->SetLineColor(4);
   searchBin_MuRecoIsoSysUp->SetLineWidth(2);
   searchBin_MuRecoIsoSysUp->SetLineStyle(2);
@@ -1216,8 +1229,8 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   searchBin_JECSysDn->SetFillColor(0);
   searchBin_JECSysUp->SetLineWidth(2);
   searchBin_JECSysDn->SetLineWidth(2);
-  searchBin_JECSysUp->SetLineColor(8);
-  searchBin_JECSysDn->SetLineColor(8);
+  searchBin_JECSysUp->SetLineColor(6);
+  searchBin_JECSysDn->SetLineColor(6);
   searchBin_JECSysUp->SetLineStyle(2);
   searchBin_JECSysUp->Draw("hist,same");
   searchBin_JECSysDn->Draw("hist,same");
@@ -1236,6 +1249,32 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   searchBin_IsoTrkVetoEffUncertaintyTot->SetLineWidth(2);
   searchBin_IsoTrkVetoEffUncertaintyTot->SetLineColor(16);
   searchBin_IsoTrkVetoEffUncertaintyTot->Draw("hist,same");
+  searchBin_IsoTrkVetoEffUncertaintySys->SetFillColor(0);
+  searchBin_IsoTrkVetoEffUncertaintySys->SetLineWidth(2);
+  searchBin_IsoTrkVetoEffUncertaintySys->SetLineColor(16);
+  searchBin_IsoTrkVetoEffUncertaintyStat->SetFillColor(0);
+  searchBin_IsoTrkVetoEffUncertaintyStat->SetLineWidth(2);
+  searchBin_IsoTrkVetoEffUncertaintyStat->SetLineColor(16);
+
+  searchBin_MtEffStat->SetLineWidth(2);
+  searchBin_MtEffStat->SetLineColor(12);
+  searchBin_MtEffStat->SetLineStyle(2);
+  searchBin_MtEffStat->Draw("hist,same");  
+
+  searchBin_AccStat->SetLineWidth(2);
+  searchBin_AccStat->SetLineColor(2);
+  searchBin_AccStat->SetLineStyle(4);
+  searchBin_AccStat->Draw("hist,same");
+
+  searchBin_MuFromTauStat->SetLineWidth(2);
+  searchBin_MuFromTauStat->SetLineColor(4);
+  searchBin_MuFromTauStat->SetLineStyle(4);
+  searchBin_MuFromTauStat->Draw("hist,same");
+
+  searchBin_DileptonUncertainty->SetLineWidth(2);
+  searchBin_DileptonUncertainty->SetLineColor(8);
+  searchBin_DileptonUncertainty->SetLineStyle(4);
+  searchBin_DileptonUncertainty->Draw("hist,same");
 
   //
   // Drawing lines
@@ -1244,11 +1283,11 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   tlzero->SetLineColor(4);
   tlzero->Draw();
 
-  float ymax_bottom = 1.4;
-  float ymax2_bottom = 1.3;
-  float ymax3_bottom = 1.3;
-  float ymax4_bottom = 1.3;
-  float ymin_bottom = -0.5;
+  float ymax_bottom  = ymax * 0.9;
+  float ymax2_bottom = ymax * 0.8;
+  float ymax3_bottom = ymax * 0.8;
+  float ymax4_bottom = ymax * 0.8;
+  float ymin_bottom  = ymin * 0.8;
 
   TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
   tline_bottom_1->SetLineStyle(2);
@@ -1308,25 +1347,25 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   ttext3->SetTextAlign(22);
   ttext3->Draw();
 
-  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-0.1 , "N_{b} = 0");
+  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-yoff , "N_{b} = 0");
   ttext1a->SetTextFont(42);
   ttext1a->SetTextSize(0.04);
   ttext1a->SetTextAlign(22);
   ttext1a->Draw();
   
-  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-0.1 , "N_{b} = 1");
+  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-yoff , "N_{b} = 1");
   ttext1b->SetTextFont(42);
   ttext1b->SetTextSize(0.04);
   ttext1b->SetTextAlign(22);
   ttext1b->Draw();
   
-  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-0.1 , "N_{b} = 2");
+  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-yoff , "N_{b} = 2");
   ttext1c->SetTextFont(42);
   ttext1c->SetTextSize(0.04);
   ttext1c->SetTextAlign(22);
   ttext1c->Draw();
   
-  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-0.1 , "N_{b} #geq 3");
+  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-yoff , "N_{b} #geq 3");
   ttext1d->SetTextFont(42);
   ttext1d->SetTextSize(0.04);
   ttext1d->SetTextAlign(22);
@@ -1335,8 +1374,8 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   //
   //
   //
-  Float_t legendX1 = .25; //.50;
-  Float_t legendX2 = .45; //.70;
+  Float_t legendX1 = .15; //.50;
+  Float_t legendX2 = .30; //.70;
   Float_t legendY1 = .13; //.65;
   Float_t legendY2 = .28; //
 
@@ -1357,7 +1396,7 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   catLeg1->AddEntry(searchBin_MuRecoIsoSysDn,tempname);
   catLeg1->Draw();
 
-  TLegend* catLeg1b = new TLegend(legendX1+0.4,legendY1,legendX2+0.4,legendY2);
+  TLegend* catLeg1b = new TLegend(legendX1+0.25,legendY1,legendX2+0.25,legendY2);
   catLeg1b->SetTextSize(0.032);
   catLeg1b->SetTextFont(42);
   catLeg1b->SetFillColor(0);
@@ -1368,9 +1407,26 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   catLeg1b->AddEntry(searchBin_JECSysDn,tempname);
   sprintf(tempname,"MT scale uncertainties");
   catLeg1b->AddEntry(searchBin_MTSysDn,tempname);
-  sprintf(tempname,"Isotrack veto uncertainties");
-  catLeg1b->AddEntry(searchBin_IsoTrkVetoEffUncertaintyTot,tempname);
+  sprintf(tempname,"Isotrack veto uncertainties (sys)");
+  catLeg1b->AddEntry(searchBin_IsoTrkVetoEffUncertaintySys,tempname);
+  sprintf(tempname,"Dilepton background subtraction");
+  catLeg1b->AddEntry(searchBin_DileptonUncertainty,tempname);
   catLeg1b->Draw();
+
+  TLegend* catLeg1c = new TLegend(legendX1+0.50,legendY1,legendX2+0.50,legendY2);
+  catLeg1c->SetTextSize(0.032);
+  catLeg1c->SetTextFont(42);
+  catLeg1c->SetFillColor(0);
+  catLeg1c->SetLineColor(0);
+  catLeg1c->SetBorderSize(0);
+
+  sprintf(tempname,"M_{T} cut efficiency (stat)");
+  catLeg1c->AddEntry(searchBin_MtEffStat,tempname);
+  sprintf(tempname,"Acceptance (stat)");
+  catLeg1c->AddEntry(searchBin_AccStat,tempname);
+  sprintf(tempname,"#mu from tau correction (stat)");
+  catLeg1c->AddEntry(searchBin_MuFromTauStat,tempname);
+  catLeg1c->Draw();
 
   sprintf(tempname,"searchBin_UncertaintySummary.png");
   tc1->SaveAs(tempname);
@@ -1382,37 +1438,19 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   // Displaying errors
   //
   TCanvas *tc2 = new TCanvas("searchBin_UncertaintySummary2","searchBin_UncertaintySummary2",1200,600);
-  searchBin_closureUncertainty->SetMaximum(1.5);
-  searchBin_closureUncertainty->SetMinimum(-1.0);
-  searchBin_closureUncertainty->SetStats(false);
-  searchBin_closureUncertainty->SetTitle("Uncertainties versus search bins");
-  searchBin_closureUncertainty->GetXaxis()->SetTitle("Search bin");
-  searchBin_closureUncertainty->GetYaxis()->SetTitle("Fractional uncertainties");
-  //searchBin_closureUncertainty->SetLineColor(1);
-  //searchBin_closureUncertainty->SetFillColor(21);
-  searchBin_closureUncertainty->SetLineColor(6);
-  searchBin_closureUncertainty->SetLineWidth(2);
-  searchBin_closureUncertainty->SetFillColor(0);
-  searchBin_closureUncertainty->Draw("same");
-  searchBin_closureUncertainty->Draw();
+  ymax=+1.5;
+  ymin=-1.0;
+  yoff= 0.1;
+  searchBin_box->SetMaximum(ymax);
+  searchBin_box->SetMinimum(ymin);
+  searchBin_box->Draw();
 
-  searchBin_BMistagUp->SetLineColor(2);
-  searchBin_BMistagUp->SetLineWidth(2);
+  searchBin_closureUncertainty->Draw("same");
+
   searchBin_BMistagUp->Draw("hist,same");
 
-  searchBin_BMistagDn->SetLineColor(2);
-  searchBin_BMistagDn->SetLineWidth(2);
-  searchBin_BMistagDn->SetLineStyle(2);
   searchBin_BMistagDn->Draw("hist,same");
 
-  //searchBin_UncertaintyCorrectionStats->SetLineColor(4);
-  //searchBin_UncertaintyCorrectionStats->SetLineWidth(2);
-  //searchBin_UncertaintyCorrectionStats->Draw("same");
-  searchBin_MuRecoIsoSysUp->SetLineColor(4);
-  searchBin_MuRecoIsoSysUp->SetLineWidth(2);
-  searchBin_MuRecoIsoSysUp->SetLineStyle(2);
-  searchBin_MuRecoIsoSysDn->SetLineColor(4);
-  searchBin_MuRecoIsoSysDn->SetLineWidth(2);
   searchBin_MuRecoIsoSysUp->Draw("hist,same");
   searchBin_MuRecoIsoSysDn->Draw("hist,same");
 
@@ -1431,11 +1469,11 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   tlzero->SetLineColor(4);
   tlzero->Draw();
 
-  float ymax_bottom = 1.4;
-  float ymax2_bottom = 1.3;
-  float ymax3_bottom = 1.3;
-  float ymax4_bottom = 1.3;
-  float ymin_bottom = -0.5;
+  ymax_bottom  = ymax * 0.9;
+  ymax2_bottom = ymax * 0.8;
+  ymax3_bottom = ymax * 0.8;
+  ymax4_bottom = ymax * 0.8;
+  ymin_bottom  = ymin * 0.8;
 
   TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
   tline_bottom_1->SetLineStyle(2);
@@ -1495,25 +1533,25 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   ttext3->SetTextAlign(22);
   ttext3->Draw();
 
-  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-0.1 , "N_{b} = 0");
+  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-yoff , "N_{b} = 0");
   ttext1a->SetTextFont(42);
   ttext1a->SetTextSize(0.04);
   ttext1a->SetTextAlign(22);
   ttext1a->Draw();
   
-  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-0.1 , "N_{b} = 1");
+  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-yoff , "N_{b} = 1");
   ttext1b->SetTextFont(42);
   ttext1b->SetTextSize(0.04);
   ttext1b->SetTextAlign(22);
   ttext1b->Draw();
   
-  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-0.1 , "N_{b} = 2");
+  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-yoff , "N_{b} = 2");
   ttext1c->SetTextFont(42);
   ttext1c->SetTextSize(0.04);
   ttext1c->SetTextAlign(22);
   ttext1c->Draw();
   
-  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-0.1 , "N_{b} #geq 3");
+  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-yoff , "N_{b} #geq 3");
   ttext1d->SetTextFont(42);
   ttext1d->SetTextSize(0.04);
   ttext1d->SetTextAlign(22);
@@ -1550,6 +1588,450 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
   tc2->SaveAs(tempname);
   sprintf(tempname,"searchBin_UncertaintySummary2.pdf");
   tc2->SaveAs(tempname);
+    
+  //-----------------------------------------------------------------------------------------------------------------------------------------------------
+  // 
+  // Displaying errors
+  //
+  TCanvas *tc2a = new TCanvas("searchBin_UncertaintySummary2a","searchBin_UncertaintySummary2a",1200,600);
+  ymax=+0.3;
+  ymin=-0.3;
+  yoff=0.05;
+  searchBin_box->SetMaximum(ymax);
+  searchBin_box->SetMinimum(ymin);
+  searchBin_box->Draw();
+
+  searchBin_closureUncertainty->Draw("same");
+
+  searchBin_BMistagUp->Draw("hist,same");
+  searchBin_BMistagDn->Draw("hist,same");
+
+  searchBin_MuRecoIsoSysUp->Draw("hist,same");
+  searchBin_MuRecoIsoSysDn->Draw("hist,same");
+
+  //searchBin_JECSysUp->Draw("hist,same");
+  //searchBin_JECSysDn->Draw("hist,same");
+
+  //searchBin_MTSysUp->Draw("hist,same");
+  //searchBin_MTSysDn->Draw("hist,same");
+
+  //searchBin_IsoTrkVetoEffUncertaintyTot->Draw("hist,same");
+
+  //
+  // Drawing lines
+  TLine *tlzero = new TLine(1.,0.,73.,0.);
+  tlzero->SetLineStyle(2);
+  tlzero->SetLineColor(4);
+  tlzero->Draw();
+
+  ymax_bottom  = ymax * 0.9;
+  ymax2_bottom = ymax * 0.8;
+  ymax3_bottom = ymax * 0.8;
+  ymax4_bottom = ymax * 0.8;
+  ymin_bottom  = ymin * 0.8;
+
+  TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
+  tline_bottom_1->SetLineStyle(2);
+  tline_bottom_1->Draw();
+  
+  TLine *tline_bottom_2 = new TLine(49.,ymin_bottom,49.,ymax_bottom);
+  tline_bottom_2->SetLineStyle(2);
+  tline_bottom_2->Draw();
+
+  TLine *tline_bottom_1a = new TLine(7.,ymin_bottom,7.,ymax2_bottom);
+  tline_bottom_1a->SetLineStyle(3);
+  tline_bottom_1a->Draw();
+  TLine *tline_bottom_1b = new TLine(13.,ymin_bottom,13.,ymax2_bottom);
+  tline_bottom_1b->SetLineStyle(3);
+  tline_bottom_1b->Draw();
+  TLine *tline_bottom_1c = new TLine(19.,ymin_bottom,19.,ymax2_bottom);
+  tline_bottom_1c->SetLineStyle(3);
+  tline_bottom_1c->Draw();
+
+  TLine *tline_bottom_2a = new TLine(31.,ymin_bottom,31.,ymax3_bottom);
+  tline_bottom_2a->SetLineStyle(3);
+  tline_bottom_2a->Draw();
+  TLine *tline_bottom_2b = new TLine(37.,ymin_bottom,37.,ymax3_bottom);
+  tline_bottom_2b->SetLineStyle(3);
+  tline_bottom_2b->Draw();
+  TLine *tline_bottom_2c = new TLine(43.,ymin_bottom,43.,ymax3_bottom);
+  tline_bottom_2c->SetLineStyle(3);
+  tline_bottom_2c->Draw();
+      
+  TLine *tline_bottom_3a = new TLine(55.,ymin_bottom,55.,ymax4_bottom);
+  tline_bottom_3a->SetLineStyle(3);
+  tline_bottom_3a->Draw();
+  TLine *tline_bottom_3b = new TLine(61.,ymin_bottom,61.,ymax4_bottom);
+  tline_bottom_3b->SetLineStyle(3);
+  tline_bottom_3b->Draw();
+  TLine *tline_bottom_3c = new TLine(67.,ymin_bottom,67.,ymax4_bottom);
+  tline_bottom_3c->SetLineStyle(3);
+  tline_bottom_3c->Draw();
+
+  //
+  // Legend & texts
+  TLatex * ttext1 = new TLatex(13. , ymax_bottom , "4 #leq N_{jets} #leq 6");
+  ttext1->SetTextFont(42);
+  ttext1->SetTextSize(0.04);
+  ttext1->SetTextAlign(22);
+  ttext1->Draw();
+
+  TLatex * ttext2 = new TLatex(37. , ymax_bottom , "7 #leq N_{jets} #leq 8");
+  ttext2->SetTextFont(42);
+  ttext2->SetTextSize(0.04);
+  ttext2->SetTextAlign(22);
+  ttext2->Draw();
+
+  TLatex * ttext3 = new TLatex(61. , ymax_bottom , "N_{jets} #geq 9");
+  ttext3->SetTextFont(42);
+  ttext3->SetTextSize(0.04);
+  ttext3->SetTextAlign(22);
+  ttext3->Draw();
+
+  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-yoff , "N_{b} = 0");
+  ttext1a->SetTextFont(42);
+  ttext1a->SetTextSize(0.04);
+  ttext1a->SetTextAlign(22);
+  ttext1a->Draw();
+  
+  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-yoff , "N_{b} = 1");
+  ttext1b->SetTextFont(42);
+  ttext1b->SetTextSize(0.04);
+  ttext1b->SetTextAlign(22);
+  ttext1b->Draw();
+  
+  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-yoff , "N_{b} = 2");
+  ttext1c->SetTextFont(42);
+  ttext1c->SetTextSize(0.04);
+  ttext1c->SetTextAlign(22);
+  ttext1c->Draw();
+  
+  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-yoff , "N_{b} #geq 3");
+  ttext1d->SetTextFont(42);
+  ttext1d->SetTextSize(0.04);
+  ttext1d->SetTextAlign(22);
+  ttext1d->Draw();
+
+  //
+  //
+  //
+  catLeg1->Draw();
+  //catLeg1b->Draw();
+
+  sprintf(tempname,"searchBin_UncertaintySummary2a.png");
+  tc2a->SaveAs(tempname);
+  sprintf(tempname,"searchBin_UncertaintySummary2a.pdf");
+  tc2a->SaveAs(tempname);
+    
+  //-----------------------------------------------------------------------------------------------------------------------------------------------------
+  // 
+  // Displaying errors
+  //
+  TCanvas *tc2b = new TCanvas("searchBin_UncertaintySummary2b","searchBin_UncertaintySummary2b",1200,600);
+  ymax=+0.3;
+  ymin=-0.3;
+  yoff=0.05;
+  searchBin_box->SetMaximum(ymax);
+  searchBin_box->SetMinimum(ymin);
+  searchBin_box->Draw();
+
+  //searchBin_closureUncertainty->Draw("same");
+
+  //searchBin_BMistagUp->Draw("hist,same");
+  //searchBin_BMistagDn->Draw("hist,same");
+
+  //searchBin_MuRecoIsoSysUp->Draw("hist,same");
+  //searchBin_MuRecoIsoSysDn->Draw("hist,same");
+
+  searchBin_JECSysUp->Draw("hist,same");
+  searchBin_JECSysDn->Draw("hist,same");
+
+  searchBin_MTSysUp->Draw("hist,same");
+  searchBin_MTSysDn->Draw("hist,same");
+
+  searchBin_IsoTrkVetoEffUncertaintySys->Draw("hist,same");
+
+  searchBin_DileptonUncertainty->Draw("hist,same");
+
+  //
+  // Drawing lines
+  TLine *tlzero = new TLine(1.,0.,73.,0.);
+  tlzero->SetLineStyle(2);
+  tlzero->SetLineColor(4);
+  tlzero->Draw();
+
+  ymax_bottom  = ymax * 0.9;
+  ymax2_bottom = ymax * 0.8;
+  ymax3_bottom = ymax * 0.8;
+  ymax4_bottom = ymax * 0.8;
+  ymin_bottom  = ymin * 0.8;
+
+  TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
+  tline_bottom_1->SetLineStyle(2);
+  tline_bottom_1->Draw();
+  
+  TLine *tline_bottom_2 = new TLine(49.,ymin_bottom,49.,ymax_bottom);
+  tline_bottom_2->SetLineStyle(2);
+  tline_bottom_2->Draw();
+
+  TLine *tline_bottom_1a = new TLine(7.,ymin_bottom,7.,ymax2_bottom);
+  tline_bottom_1a->SetLineStyle(3);
+  tline_bottom_1a->Draw();
+  TLine *tline_bottom_1b = new TLine(13.,ymin_bottom,13.,ymax2_bottom);
+  tline_bottom_1b->SetLineStyle(3);
+  tline_bottom_1b->Draw();
+  TLine *tline_bottom_1c = new TLine(19.,ymin_bottom,19.,ymax2_bottom);
+  tline_bottom_1c->SetLineStyle(3);
+  tline_bottom_1c->Draw();
+
+  TLine *tline_bottom_2a = new TLine(31.,ymin_bottom,31.,ymax3_bottom);
+  tline_bottom_2a->SetLineStyle(3);
+  tline_bottom_2a->Draw();
+  TLine *tline_bottom_2b = new TLine(37.,ymin_bottom,37.,ymax3_bottom);
+  tline_bottom_2b->SetLineStyle(3);
+  tline_bottom_2b->Draw();
+  TLine *tline_bottom_2c = new TLine(43.,ymin_bottom,43.,ymax3_bottom);
+  tline_bottom_2c->SetLineStyle(3);
+  tline_bottom_2c->Draw();
+      
+  TLine *tline_bottom_3a = new TLine(55.,ymin_bottom,55.,ymax4_bottom);
+  tline_bottom_3a->SetLineStyle(3);
+  tline_bottom_3a->Draw();
+  TLine *tline_bottom_3b = new TLine(61.,ymin_bottom,61.,ymax4_bottom);
+  tline_bottom_3b->SetLineStyle(3);
+  tline_bottom_3b->Draw();
+  TLine *tline_bottom_3c = new TLine(67.,ymin_bottom,67.,ymax4_bottom);
+  tline_bottom_3c->SetLineStyle(3);
+  tline_bottom_3c->Draw();
+
+  //
+  // Legend & texts
+  TLatex * ttext1 = new TLatex(13. , ymax_bottom , "4 #leq N_{jets} #leq 6");
+  ttext1->SetTextFont(42);
+  ttext1->SetTextSize(0.04);
+  ttext1->SetTextAlign(22);
+  ttext1->Draw();
+
+  TLatex * ttext2 = new TLatex(37. , ymax_bottom , "7 #leq N_{jets} #leq 8");
+  ttext2->SetTextFont(42);
+  ttext2->SetTextSize(0.04);
+  ttext2->SetTextAlign(22);
+  ttext2->Draw();
+
+  TLatex * ttext3 = new TLatex(61. , ymax_bottom , "N_{jets} #geq 9");
+  ttext3->SetTextFont(42);
+  ttext3->SetTextSize(0.04);
+  ttext3->SetTextAlign(22);
+  ttext3->Draw();
+
+  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-yoff , "N_{b} = 0");
+  ttext1a->SetTextFont(42);
+  ttext1a->SetTextSize(0.04);
+  ttext1a->SetTextAlign(22);
+  ttext1a->Draw();
+  
+  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-yoff , "N_{b} = 1");
+  ttext1b->SetTextFont(42);
+  ttext1b->SetTextSize(0.04);
+  ttext1b->SetTextAlign(22);
+  ttext1b->Draw();
+  
+  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-yoff , "N_{b} = 2");
+  ttext1c->SetTextFont(42);
+  ttext1c->SetTextSize(0.04);
+  ttext1c->SetTextAlign(22);
+  ttext1c->Draw();
+  
+  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-yoff , "N_{b} #geq 3");
+  ttext1d->SetTextFont(42);
+  ttext1d->SetTextSize(0.04);
+  ttext1d->SetTextAlign(22);
+  ttext1d->Draw();
+
+  TLegend* catLeg1b = new TLegend(legendX1+0.25,legendY1,legendX2+0.25,legendY2);
+  catLeg1b->SetTextSize(0.032);
+  catLeg1b->SetTextFont(42);
+  catLeg1b->SetFillColor(0);
+  catLeg1b->SetLineColor(0);
+  catLeg1b->SetBorderSize(0);
+
+  sprintf(tempname,"Tau energy scale uncertainties");
+  catLeg1b->AddEntry(searchBin_JECSysDn,tempname);
+  sprintf(tempname,"MT scale uncertainties");
+  catLeg1b->AddEntry(searchBin_MTSysDn,tempname);
+  sprintf(tempname,"Isotrack veto uncertainties (sys)");
+  catLeg1b->AddEntry(searchBin_IsoTrkVetoEffUncertaintySys,tempname);
+  sprintf(tempname,"Dilepton background subtraction");
+  catLeg1b->AddEntry(searchBin_DileptonUncertainty,tempname);
+  catLeg1b->Draw();
+
+  TLegend* catLeg1c = new TLegend(legendX1+0.50,legendY1,legendX2+0.50,legendY2);
+  catLeg1c->SetTextSize(0.032);
+  catLeg1c->SetTextFont(42);
+  catLeg1c->SetFillColor(0);
+  catLeg1c->SetLineColor(0);
+  catLeg1c->SetBorderSize(0);
+
+  sprintf(tempname,"M_{T} cut efficiency (stat)");
+  catLeg1c->AddEntry(searchBin_MtEffStat,tempname);
+  sprintf(tempname,"Acceptance (stat)");
+  catLeg1c->AddEntry(searchBin_AccStat,tempname);
+  sprintf(tempname,"#mu from tau correction (stat)");
+  catLeg1c->AddEntry(searchBin_MuFromTauStat,tempname);
+  sprintf(tempname,"Isotrack veto uncertainties (stat)");
+  catLeg1c->AddEntry(searchBin_IsoTrkVetoEffUncertaintyStat,tempname);
+  //catLeg1c->Draw();
+
+  //
+  //
+  //
+  //catLeg1->Draw();
+  catLeg1b->Draw();
+
+  sprintf(tempname,"searchBin_UncertaintySummary2b.png");
+  tc2b->SaveAs(tempname);
+  sprintf(tempname,"searchBin_UncertaintySummary2b.pdf");
+  tc2b->SaveAs(tempname);
+    
+  //-----------------------------------------------------------------------------------------------------------------------------------------------------
+  // 
+  // Displaying errors
+  //
+  TCanvas *tc2c = new TCanvas("searchBin_UncertaintySummary2c","searchBin_UncertaintySummary2c",1200,600);
+  ymax=+0.3;
+  ymin=-0.3;
+  yoff=0.05;
+  searchBin_box->SetMaximum(ymax);
+  searchBin_box->SetMinimum(ymin);
+  searchBin_box->Draw();
+
+  //searchBin_closureUncertainty->Draw("same");
+
+  //searchBin_BMistagUp->Draw("hist,same");
+  //searchBin_BMistagDn->Draw("hist,same");
+
+  //searchBin_MuRecoIsoSysUp->Draw("hist,same");
+  //searchBin_MuRecoIsoSysDn->Draw("hist,same");
+
+  //searchBin_JECSysUp->Draw("hist,same");
+  //searchBin_JECSysDn->Draw("hist,same");
+
+  //searchBin_MTSysUp->Draw("hist,same");
+  //searchBin_MTSysDn->Draw("hist,same");
+
+  //searchBin_IsoTrkVetoEffUncertaintyTot->Draw("hist,same");
+
+  searchBin_MtEffStat->Draw("hist,same");  
+  searchBin_AccStat->Draw("hist,same");
+  searchBin_MuFromTauStat->Draw("hist,same");
+  searchBin_IsoTrkVetoEffUncertaintyStat->Draw("hist,same");
+
+  //
+  // Drawing lines
+  TLine *tlzero = new TLine(1.,0.,73.,0.);
+  tlzero->SetLineStyle(2);
+  tlzero->SetLineColor(4);
+  tlzero->Draw();
+
+  ymax_bottom  = ymax * 0.9;
+  ymax2_bottom = ymax * 0.8;
+  ymax3_bottom = ymax * 0.8;
+  ymax4_bottom = ymax * 0.8;
+  ymin_bottom  = ymin * 0.8;
+
+  TLine *tline_bottom_1 = new TLine(25.,ymin_bottom,25.,ymax_bottom);
+  tline_bottom_1->SetLineStyle(2);
+  tline_bottom_1->Draw();
+  
+  TLine *tline_bottom_2 = new TLine(49.,ymin_bottom,49.,ymax_bottom);
+  tline_bottom_2->SetLineStyle(2);
+  tline_bottom_2->Draw();
+
+  TLine *tline_bottom_1a = new TLine(7.,ymin_bottom,7.,ymax2_bottom);
+  tline_bottom_1a->SetLineStyle(3);
+  tline_bottom_1a->Draw();
+  TLine *tline_bottom_1b = new TLine(13.,ymin_bottom,13.,ymax2_bottom);
+  tline_bottom_1b->SetLineStyle(3);
+  tline_bottom_1b->Draw();
+  TLine *tline_bottom_1c = new TLine(19.,ymin_bottom,19.,ymax2_bottom);
+  tline_bottom_1c->SetLineStyle(3);
+  tline_bottom_1c->Draw();
+
+  TLine *tline_bottom_2a = new TLine(31.,ymin_bottom,31.,ymax3_bottom);
+  tline_bottom_2a->SetLineStyle(3);
+  tline_bottom_2a->Draw();
+  TLine *tline_bottom_2b = new TLine(37.,ymin_bottom,37.,ymax3_bottom);
+  tline_bottom_2b->SetLineStyle(3);
+  tline_bottom_2b->Draw();
+  TLine *tline_bottom_2c = new TLine(43.,ymin_bottom,43.,ymax3_bottom);
+  tline_bottom_2c->SetLineStyle(3);
+  tline_bottom_2c->Draw();
+      
+  TLine *tline_bottom_3a = new TLine(55.,ymin_bottom,55.,ymax4_bottom);
+  tline_bottom_3a->SetLineStyle(3);
+  tline_bottom_3a->Draw();
+  TLine *tline_bottom_3b = new TLine(61.,ymin_bottom,61.,ymax4_bottom);
+  tline_bottom_3b->SetLineStyle(3);
+  tline_bottom_3b->Draw();
+  TLine *tline_bottom_3c = new TLine(67.,ymin_bottom,67.,ymax4_bottom);
+  tline_bottom_3c->SetLineStyle(3);
+  tline_bottom_3c->Draw();
+
+  //
+  // Legend & texts
+  TLatex * ttext1 = new TLatex(13. , ymax_bottom , "4 #leq N_{jets} #leq 6");
+  ttext1->SetTextFont(42);
+  ttext1->SetTextSize(0.04);
+  ttext1->SetTextAlign(22);
+  ttext1->Draw();
+
+  TLatex * ttext2 = new TLatex(37. , ymax_bottom , "7 #leq N_{jets} #leq 8");
+  ttext2->SetTextFont(42);
+  ttext2->SetTextSize(0.04);
+  ttext2->SetTextAlign(22);
+  ttext2->Draw();
+
+  TLatex * ttext3 = new TLatex(61. , ymax_bottom , "N_{jets} #geq 9");
+  ttext3->SetTextFont(42);
+  ttext3->SetTextSize(0.04);
+  ttext3->SetTextAlign(22);
+  ttext3->Draw();
+
+  TLatex * ttext1a = new TLatex(4. , ymax2_bottom-yoff , "N_{b} = 0");
+  ttext1a->SetTextFont(42);
+  ttext1a->SetTextSize(0.04);
+  ttext1a->SetTextAlign(22);
+  ttext1a->Draw();
+  
+  TLatex * ttext1b = new TLatex(10. , ymax2_bottom-yoff , "N_{b} = 1");
+  ttext1b->SetTextFont(42);
+  ttext1b->SetTextSize(0.04);
+  ttext1b->SetTextAlign(22);
+  ttext1b->Draw();
+  
+  TLatex * ttext1c = new TLatex(16. , ymax2_bottom-yoff , "N_{b} = 2");
+  ttext1c->SetTextFont(42);
+  ttext1c->SetTextSize(0.04);
+  ttext1c->SetTextAlign(22);
+  ttext1c->Draw();
+  
+  TLatex * ttext1d = new TLatex(22. , ymax2_bottom-yoff , "N_{b} #geq 3");
+  ttext1d->SetTextFont(42);
+  ttext1d->SetTextSize(0.04);
+  ttext1d->SetTextAlign(22);
+  ttext1d->Draw();
+
+  //
+  //
+  //
+  //catLeg1->Draw();
+  //catLeg1b->Draw();
+  catLeg1c->Draw();
+
+  sprintf(tempname,"searchBin_UncertaintySummary2c.png");
+  tc2c->SaveAs(tempname);
+  sprintf(tempname,"searchBin_UncertaintySummary2c.pdf");
+  tc2c->SaveAs(tempname);
     
   /*
   //-----------------------------------------------------------------------------------------------------------------------------------------------------

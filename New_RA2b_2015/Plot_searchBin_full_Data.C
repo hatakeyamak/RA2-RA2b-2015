@@ -191,8 +191,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
     EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
     EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
-    cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
-    cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
+    //cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
+    //cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
   }
 
   EstHist_Rectangle=(TH1D*) EstHist->Clone("EstHist_Rectangle");  // This is for rectangle drawing, but the central value is not correct,
@@ -203,9 +203,9 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
       EstHist_Rectangle->SetBinError(ibin+1,(EstHist->GetBinContent(ibin+1)+EstHist->GetBinError(ibin+1))/2.);
     }
   }
-  EstHist->Print("all");
-  EstHistD->Print("all");
-  EstHist_Rectangle->Print("all");
+  //EstHist->Print("all");
+  //EstHistD->Print("all");
+  //EstHist_Rectangle->Print("all");
 
 
   sprintf(tempname,"%s",histname.c_str());
@@ -234,6 +234,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
    
   // Correcting for trigger efficiency
   if (trigEff!=1.) EstHist->Scale(1/trigEff*lumiTarget/lumiControl);  
+  EstHist->Print("all");
 
   GenHist->SetLineColor(2);
   EstHist->SetLineColor(4);
@@ -304,8 +305,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   EstHist_Normalize->DrawCopy("e0 same");
   //EstHist_Normalize->DrawCopy("esame");
 
-  GenHist->Print();
-  EstHist->Print();
+  GenHist->Print("all");
+  EstHist->Print("all");
   
   //
   // Re-draw to have "expectation" on top of "prediction"
@@ -496,7 +497,6 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
   denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
   
-  std::cout << "aaa" << std::endl;
   for (int ibin=0;ibin<GenHist_Clone->GetNbinsX();ibin++){
     if (GenHist_Clone->GetBinContent(ibin+1)<ymin_top && EstHist_Clone->GetBinContent(ibin+1)<ymin_top){
       numerator->SetBinContent(ibin+1,-1.);
@@ -566,8 +566,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
 
   numerator->DrawCopy("same");
 
-  numerator->Print("all");
-  denominator->Print("all");
+  //numerator->Print("all");
+  //denominator->Print("all");
     
   //
   // Drawing lines
@@ -641,10 +641,4 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   canvas->Print(tempname);
 
 
-
-
-
-
-
-
-  }
+}
