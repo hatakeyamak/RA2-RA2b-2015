@@ -4,10 +4,23 @@
 
  */
 
-void HadTauEstimation_output_format(string elogForData="Elog378_",
-				    string elogForMCExp="Elog381_",
-				    string elogForMCPre="Elog397_",
-				    string elogForSys="Elog381_",
+
+void binMap(TH1* input, TH1* output);
+
+void HadTauEstimation_output_format(string elogForData="Elog378_",     // Data
+				    string elogForMCExp="Elog381_",    // MC expectation
+				    string elogForMCPre="Elog397_",    // MC prediction
+				    string elogForSys="Elog381_",      // MC-based systematics evaluation for Btag and muon efficiencies
+				    string elogForMTSysUp="Elog402_",  // MT systematics
+				    string elogForMTSysDn="Elog403_",
+				    string elogForMTSysRef="Elog397_",
+				    string elogForJECSysUp="Elog388_",   // JEC 
+				    string elogForJECSysDn="Elog389_",
+				    string elogForJECSysRef="Elog387_",
+				    string elogForIsoTrkVeto="Elog401_", // Isotrack veto
+				    string elogForMuFromTau="Elog401_",  // Muon from tau
+				    string elogForAccStat="Elog401_",    // Acceptance 
+				    string elogForMTStat="Elog401_",     // MT cut efficiency
 				    int isys==0){
 
   char tempname[200];
@@ -21,6 +34,16 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   //
   sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15cd_.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
+
+  //
+  // Convenient utility histogram
+  //
+  TH1D* searchBin_one = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_one");
+  searchBin_one->Reset();
+  for (int ibin=0; ibin<searchBin_one->GetNbinsX(); ibin++){
+    searchBin_one->SetBinContent(ibin+1,1.);
+    searchBin_one->SetBinError(ibin+1,0.);
+  }
 
   //
   // Open MC expectation and prediction code for closure systematics
@@ -45,6 +68,133 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   printf("Opened %s\n",tempname);
 
   //
+  // MTcut eff
+  //
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
+  TFile * MTSysUpFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
+  TFile * MTSysDnFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
+  TFile * MTSysRefFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+  
+  //
+  // JEC variation
+  //
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
+  TFile * JECSysUpFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
+  TFile * JECSysDnFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
+  TFile * JECSysRefFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  //
+  // Isotrack veto efficiency
+  //
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked.root",elogForIsoTrkVeto.c_str());
+  TFile * IsoTrkVetoFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+  
+  TH1D* IsoTrkVetoEff = (TH1D*)IsoTrkVetoFile->Get("IsoEff")->Clone("IsoEff");
+  TH1D* searchBin_IsoTrkVetoEff = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_IsoTrkVetoEff");
+  searchBin_IsoTrkVetoEff->Reset();
+
+  binMap(IsoTrkVetoEff,searchBin_IsoTrkVetoEff);
+
+  TH1D* searchBin_IsoTrkVetoEffUncertaintyTot  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintyTot");
+  TH1D* searchBin_IsoTrkVetoEffUncertaintyStat = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintyStat");
+  TH1D* searchBin_IsoTrkVetoEffUncertaintySys  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintySys");
+  searchBin_IsoTrkVetoEffUncertaintySys->Add(searchBin_one,-1.);  // (eff-1.) ~ -0.4
+  searchBin_IsoTrkVetoEffUncertaintySys->Scale(-1.); // (1-eff) ~ 0.4
+  searchBin_IsoTrkVetoEffUncertaintySys->Scale(0.1); // (1-eff)*0.1 ~ 0.04, i.e. 10% of the (1-eff)
+  for (int ibin=0;ibin<searchBin_IsoTrkVetoEffUncertaintyTot->GetNbinsX();ibin++){
+    double unc = pow(pow(searchBin_IsoTrkVetoEffUncertaintySys->GetBinContent(ibin+1),2)
+		     + pow(searchBin_IsoTrkVetoEff->GetBinError(ibin+1),2),0.5);
+    searchBin_IsoTrkVetoEffUncertaintyTot->SetBinContent(ibin+1,unc);
+    searchBin_IsoTrkVetoEffUncertaintyStat->SetBinContent(ibin+1,searchBin_IsoTrkVetoEff->GetBinError(ibin+1));
+  }
+  searchBin_IsoTrkVetoEffUncertaintySys->Divide(searchBin_IsoTrkVetoEff);   // (1-eff)*0.1/eff
+  searchBin_IsoTrkVetoEffUncertaintyStat->Divide(searchBin_IsoTrkVetoEff);  // sigma(eff)/eff
+  searchBin_IsoTrkVetoEffUncertaintyTot->Divide(searchBin_IsoTrkVetoEff);   // 
+
+  //
+  // Mu from tau
+  // 
+  sprintf(tempname,"TauHad2/Stack/%sProbability_Tau_mu_stacked.root",elogForMuFromTau.c_str());
+  TFile * Prob_Tau_mu_file = new TFile(tempname,"R");
+  sprintf(tempname,"hProb_Tau_mu");
+  TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(tempname)->Clone();
+
+  TH1D* searchBin_MuFromTau = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_MuFromTau");
+  searchBin_MuFromTau->Reset();
+  binMap(hProb_Tau_mu,searchBin_MuFromTau);
+
+  TH1D* searchBin_MuFromTauStat  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_MuFromTauStat");
+  for (int ibin=0;ibin<searchBin_MuFromTauStat->GetNbinsX();ibin++){
+    searchBin_MuFromTauStat->SetBinContent(ibin+1,searchBin_IsoTrkVetoEff->GetBinError(ibin+1));
+  }
+  searchBin_MuFromTau->Add(searchBin_one,-1.);           // (f-1.) ~ -0.3
+  searchBin_MuFromTau->Scale(-1.);                       // (1-f) ~ 0.3
+  searchBin_MuFromTauStat->Divide(searchBin_MuFromTau);  // sigma(f)/(1-f)
+  
+  //
+  // Acceptance
+  //
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForAccStat.c_str());
+  TFile * MuAcc_file = new TFile(tempname,"R");  
+  sprintf(tempname,"hAcc");
+  TH1D * hAcc =(TH1D *) MuAcc_file->Get(tempname)->Clone();
+
+  TH1D* searchBin_Acc = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_Acc");
+  searchBin_Acc->Reset();
+  binMap(hAcc,searchBin_Acc);
+
+  TH1D* searchBin_AccStat  = (TH1D*)searchBin_Acc->Clone("seaerchBin_AccStat");
+  for (int ibin=0;ibin<searchBin_AccStat->GetNbinsX();ibin++){
+    searchBin_AccStat->SetBinContent(ibin+1,searchBin_Acc->GetBinError(ibin+1));
+  }
+  searchBin_AccStat->Divide(searchBin_Acc);  // sigma(Acc)/Acc
+
+  //
+  // MT cut 
+  //
+  sprintf(tempname,"TauHad2/%sMtEff.root",elogForMTStat.c_str());
+  TFile * MtFile = new TFile(tempname,"R");
+  TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
+
+  TH1D* searchBin_MtEff = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_MtEff");
+  searchBin_MtEff->Reset();
+  binMap(hMT,searchBin_MtEff);
+
+  TH1D* searchBin_MtEffStat  = (TH1D*)searchBin_MtEff->Clone("seaerchBin_MtEffStat");
+  for (int ibin=0;ibin<searchBin_MtEffStat->GetNbinsX();ibin++){
+    searchBin_MtEffStat->SetBinContent(ibin+1,searchBin_MtEff->GetBinError(ibin+1));
+  }
+  searchBin_MtEffStat->Divide(searchBin_MtEff);  // sigma(MtEff)/MtEff
+
+  //
+  // Const uncertainty
+  //
+  double dilep = 0.02; 
+  TH1D *searchBin_DileptonUncertainty = (TH1D*) searchBin_one->Clone("searchBin_DileptonUncertainty");
+  searchBin_DileptonUncertainty->Scale(dilep);
+
+  //
   // ----- Normal 72 bin predicitons -----
   //
 
@@ -66,6 +216,8 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
 
   TH1D* searchBin_StatUncertainties = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_StatUncertainties");
   searchBin_StatUncertainties->Reset();
+  TH1D* searchBin_StatUncertaintiesFractional = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_StatUncertaintiesFractional");
+  searchBin_StatUncertaintiesFractional->Reset();
 
   //
   // Jack's inclusive binning
@@ -132,7 +284,36 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   EstHist=(TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
   GenHist=(TH1D*) tempstack->GetStack()->Last();
+
+  //
+  // JEC & MT cut efficiency
+  //
+  std::cout << "test1" << std::endl;
+  string histname="searchH_b";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
+  TH1D * searchBin_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");  
+  TH1D * searchBin_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("searchBin_JECSysRef");  
+  TH1D * searchBin_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
+
+  std::cout << "test1b" << std::endl;
+  tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("searchBin_MTSysUp");  
+  TH1D * searchBin_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  std::cout << "test1b" << std::endl;
+  tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("searchBin_MTSysDn");  
+  TH1D * searchBin_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  std::cout << "test1b" << std::endl;
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysRef");  
+  TH1D * searchBin_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
   
+  searchBin_JECSysUp->Add(searchBin_JECSysRef,-1.); searchBin_JECSysUp->Divide(searchBin_JECSysRef);
+  searchBin_JECSysDn->Add(searchBin_JECSysRef,-1.); searchBin_JECSysDn->Divide(searchBin_JECSysRef);
+  searchBin_MTSysUp->Add(searchBin_MTSysRef,-1.); searchBin_MTSysUp->Divide(searchBin_MTSysRef);
+  searchBin_MTSysDn->Add(searchBin_MTSysRef,-1.); searchBin_MTSysDn->Divide(searchBin_MTSysRef);
+  std::cout << "test2" << std::endl;
+
   //
   // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
   //
@@ -447,10 +628,11 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
     // Stat uncertainty
     searchBin_stat_uncertainty_fractional[ibin]=0.;
     if (searchBin_nominal->GetBinContent(ibin)!=0.){
+      searchBin_StatUncertainties->SetBinContent(ibin,searchBin_nominal->GetBinError(ibin));
       searchBin_stat_uncertainty_fractional[ibin] = searchBin_nominal_fullstatuncertainty->GetBinError(ibin)/searchBin_nominal->GetBinContent(ibin);
-      searchBin_StatUncertainties->SetBinContent(ibin,searchBin_stat_uncertainty_fractional[ibin]);
+      searchBin_StatUncertaintiesFractional->SetBinContent(ibin,searchBin_stat_uncertainty_fractional[ibin]);
     } else {
-      searchBin_StatUncertainties->SetBinContent(ibin,2.);
+      searchBin_StatUncertaintiesFractional->SetBinContent(ibin,2.);
     }
   }
 
@@ -995,15 +1177,15 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   // Displaying errors
   //
   TCanvas *tc1 = new TCanvas("searchBin_UncertaintySummary","searchBin_UncertaintySummary",1200,600);
-  searchBin_StatUncertainties->SetMaximum(1.5);
-  searchBin_StatUncertainties->SetMinimum(-1.0);
-  searchBin_StatUncertainties->SetStats(false);
-  searchBin_StatUncertainties->SetTitle("Uncertainties versus search bins");
-  searchBin_StatUncertainties->GetXaxis()->SetTitle("Search bin");
-  searchBin_StatUncertainties->GetYaxis()->SetTitle("Fractional uncertainties");
-  searchBin_StatUncertainties->SetLineColor(1);
-  searchBin_StatUncertainties->Draw();
-  searchBin_StatUncertainties->SetFillColor(21);
+  searchBin_StatUncertaintiesFractional->SetMaximum(1.5);
+  searchBin_StatUncertaintiesFractional->SetMinimum(-1.0);
+  searchBin_StatUncertaintiesFractional->SetStats(false);
+  searchBin_StatUncertaintiesFractional->SetTitle("Uncertainties versus search bins");
+  searchBin_StatUncertaintiesFractional->GetXaxis()->SetTitle("Search bin");
+  searchBin_StatUncertaintiesFractional->GetYaxis()->SetTitle("Fractional uncertainties");
+  searchBin_StatUncertaintiesFractional->SetLineColor(1);
+  searchBin_StatUncertaintiesFractional->Draw();
+  searchBin_StatUncertaintiesFractional->SetFillColor(21);
   
   searchBin_closureUncertainty->SetLineColor(6);
   searchBin_closureUncertainty->SetLineWidth(2);
@@ -1029,6 +1211,31 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   searchBin_MuRecoIsoSysDn->SetLineWidth(2);
   searchBin_MuRecoIsoSysUp->Draw("hist,same");
   searchBin_MuRecoIsoSysDn->Draw("hist,same");
+
+  searchBin_JECSysUp->SetFillColor(0);
+  searchBin_JECSysDn->SetFillColor(0);
+  searchBin_JECSysUp->SetLineWidth(2);
+  searchBin_JECSysDn->SetLineWidth(2);
+  searchBin_JECSysUp->SetLineColor(8);
+  searchBin_JECSysDn->SetLineColor(8);
+  searchBin_JECSysUp->SetLineStyle(2);
+  searchBin_JECSysUp->Draw("hist,same");
+  searchBin_JECSysDn->Draw("hist,same");
+
+  searchBin_MTSysUp->SetFillColor(0);
+  searchBin_MTSysDn->SetFillColor(0);
+  searchBin_MTSysUp->SetLineWidth(2);
+  searchBin_MTSysDn->SetLineWidth(2);
+  searchBin_MTSysUp->SetLineColor(12);
+  searchBin_MTSysDn->SetLineColor(12);
+  searchBin_MTSysUp->SetLineStyle(2);
+  searchBin_MTSysUp->Draw("hist,same");
+  searchBin_MTSysDn->Draw("hist,same");
+
+  searchBin_IsoTrkVetoEffUncertaintyTot->SetFillColor(0);
+  searchBin_IsoTrkVetoEffUncertaintyTot->SetLineWidth(2);
+  searchBin_IsoTrkVetoEffUncertaintyTot->SetLineColor(16);
+  searchBin_IsoTrkVetoEffUncertaintyTot->Draw("hist,same");
 
   //
   // Drawing lines
@@ -1147,8 +1354,23 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   sprintf(tempname,"B-tag mistag modeling uncertainties");
   catLeg1->AddEntry(searchBin_BMistagUp,tempname);
   sprintf(tempname,"Muon efficiency uncertainties");
-  catLeg1->AddEntry(searchBin_MuRecoIsoSysUp,tempname);
+  catLeg1->AddEntry(searchBin_MuRecoIsoSysDn,tempname);
   catLeg1->Draw();
+
+  TLegend* catLeg1b = new TLegend(legendX1+0.4,legendY1,legendX2+0.4,legendY2);
+  catLeg1b->SetTextSize(0.032);
+  catLeg1b->SetTextFont(42);
+  catLeg1b->SetFillColor(0);
+  catLeg1b->SetLineColor(0);
+  catLeg1b->SetBorderSize(0);
+
+  sprintf(tempname,"Tau energy scale uncertainties");
+  catLeg1b->AddEntry(searchBin_JECSysDn,tempname);
+  sprintf(tempname,"MT scale uncertainties");
+  catLeg1b->AddEntry(searchBin_MTSysDn,tempname);
+  sprintf(tempname,"Isotrack veto uncertainties");
+  catLeg1b->AddEntry(searchBin_IsoTrkVetoEffUncertaintyTot,tempname);
+  catLeg1b->Draw();
 
   sprintf(tempname,"searchBin_UncertaintySummary.png");
   tc1->SaveAs(tempname);
@@ -1193,6 +1415,14 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   searchBin_MuRecoIsoSysDn->SetLineWidth(2);
   searchBin_MuRecoIsoSysUp->Draw("hist,same");
   searchBin_MuRecoIsoSysDn->Draw("hist,same");
+
+  searchBin_JECSysUp->Draw("hist,same");
+  searchBin_JECSysDn->Draw("hist,same");
+
+  searchBin_MTSysUp->Draw("hist,same");
+  searchBin_MTSysDn->Draw("hist,same");
+
+  searchBin_IsoTrkVetoEffUncertaintyTot->Draw("hist,same");
 
   //
   // Drawing lines
@@ -1311,8 +1541,10 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   sprintf(tempname,"B-tag mistag modeling uncertainties");
   catLeg1->AddEntry(searchBin_BMistagUp,tempname);
   sprintf(tempname,"Muon efficiency uncertainties");
-  catLeg1->AddEntry(searchBin_MuRecoIsoSysUp,tempname);
+  catLeg1->AddEntry(searchBin_MuRecoIsoSysDn,tempname);
   catLeg1->Draw();
+
+  catLeg1b->Draw();
 
   sprintf(tempname,"searchBin_UncertaintySummary2.png");
   tc2->SaveAs(tempname);
@@ -1480,71 +1712,93 @@ void HadTauEstimation_output_format(string elogForData="Elog378_",
   sprintf(tempname,"HadTauEstimation_data_formatted.root");
   TFile HadTauEstimation_OutputFile(tempname,"RECREATE");
 
+  //
   searchBin_nominal->Write();
   searchBin_nominal_fullstatuncertainty->Write();
-  searchBin_closureUncertainty->Write();
-  searchBin_BMistagUp->Write();
-  searchBin_BMistagDn->Write();
-  searchBin_MuRecoIsoSysUp->Write();
-  searchBin_MuRecoIsoSysDn->Write();
+  searchBin_StatUncertainties->Write();
+  searchBin_closureUncertainty->Add(searchBin_one);       searchBin_closureUncertainty->Write();
+  searchBin_BMistagUp->Add(searchBin_one);                searchBin_BMistagUp->Write();
+  searchBin_BMistagDn->Add(searchBin_one);                searchBin_BMistagDn->Write();
+  searchBin_MuRecoIsoSysUp->Add(searchBin_one);           searchBin_MuRecoIsoSysUp->Write();
+  searchBin_MuRecoIsoSysDn->Add(searchBin_one);           searchBin_MuRecoIsoSysDn->Write();
+  searchBin_JECSysUp->Add(searchBin_one);                 searchBin_JECSysUp->Write("searchBin_JECSysUp");
+  searchBin_JECSysDn->Add(searchBin_one);                 searchBin_JECSysDn->Write("searchBin_JECSysDn");
+  searchBin_MTSysUp->Add(searchBin_one);                  searchBin_MTSysUp->Write("searchBin_MTSysUp");
+  searchBin_MTSysDn->Add(searchBin_one);                  searchBin_MTSysDn->Write("searchBin_MTSysDn");
+  searchBin_MtEffStat->Add(searchBin_one);                searchBin_MtEffStat->Write();  
+  searchBin_IsoTrkVetoEffUncertaintyStat->Add(searchBin_one); searchBin_IsoTrkVetoEffUncertaintyStat->Write();
+  searchBin_IsoTrkVetoEffUncertaintySys->Add(searchBin_one);  searchBin_IsoTrkVetoEffUncertaintySys->Write();
+  searchBin_AccStat->Add(searchBin_one);                  searchBin_AccStat->Write();
+  searchBin_MuFromTauStat->Add(searchBin_one);            searchBin_MuFromTauStat->Write();
+  searchBin_DileptonUncertainty->Add(searchBin_one);      searchBin_DileptonUncertainty->Write();
   
-  if (isys==1){
-  searchBin_UncertaintyCorrectionStats->Write();
-  searchBin_BMistagUp->Write();
-  searchBin_BMistagDn->Write();
-  searchBin_ClosureNj46->Write();
-  searchBin_ClosureNj78->Write();
-  searchBin_ClosureNj9->Write();
-  searchBin_ClosureMHT2Wjets->Write();
-  searchBin_ClosureMHT3Wjets->Write();
-  searchBin_ClosureMHT2TTbar->Write();
-  searchBin_ClosureMHT3TTbar->Write();
-  hWeightForSearchBin->Write();
-  }
-
+  //
   hPredHTMHT0b_nominal->Write();
   hPredHTMHTwb_nominal->Write();
   hPredNJetBins_nominal->Write();
   hPredNbBins_nominal->Write();
 
+  //
   QCDBin_HiDphi_nominal->Write();
   QCDBin_HiDphi_closureUncertainty->Write();
-  if (isys==1){
-  QCDBin_HiDphi_UncertaintyCorrectionStats->Write();
-  QCDBin_HiDphi_BMistagUp->Write();
-  QCDBin_HiDphi_BMistagDn->Write();
-  QCDBin_HiDphi_ClosureNj4->Write();
-  QCDBin_HiDphi_ClosureNj5->Write();
-  QCDBin_HiDphi_ClosureNj6->Write();
-  QCDBin_HiDphi_ClosureNj78->Write();
-  QCDBin_HiDphi_ClosureNj9->Write();
-  QCDBin_HiDphi_ClosureMHT2Wjets->Write();
-  QCDBin_HiDphi_ClosureMHT3Wjets->Write();
-  QCDBin_HiDphi_ClosureMHT4Wjets->Write();
-  QCDBin_HiDphi_ClosureMHT2TTbar->Write();
-  QCDBin_HiDphi_ClosureMHT3TTbar->Write();
-  QCDBin_HiDphi_ClosureMHT4TTbar->Write();
-  }
 
+  //
   QCDBin_LowDphi_nominal->Write();
   QCDBin_LowDphi_closureUncertainty->Write();
-  if (isys==1){
-  QCDBin_LowDphi_UncertaintyCorrectionStats->Write();
-  QCDBin_LowDphi_BMistagUp->Write();
-  QCDBin_LowDphi_BMistagDn->Write();
-  QCDBin_LowDphi_ClosureNj4->Write();
-  QCDBin_LowDphi_ClosureNj5->Write();
-  QCDBin_LowDphi_ClosureNj6->Write();
-  QCDBin_LowDphi_ClosureNj78->Write();
-  QCDBin_LowDphi_ClosureNj9->Write();
-  QCDBin_LowDphi_ClosureMHT2Wjets->Write();
-  QCDBin_LowDphi_ClosureMHT3Wjets->Write();
-  QCDBin_LowDphi_ClosureMHT4Wjets->Write();
-  QCDBin_LowDphi_ClosureMHT2TTbar->Write();
-  QCDBin_LowDphi_ClosureMHT3TTbar->Write();
-  QCDBin_LowDphi_ClosureMHT4TTbar->Write();
-  }
 
   HadTauEstimation_OutputFile.Close();
 
 }
+
+void binMap(TH1* input, TH1* output){
+  //
+  // Map from 11*3+6*2 binning to 72 binning
+  //
+
+
+  double noB[18]
+    ={0.,0.,0.,0.,0.,0.,
+      0.,0.,0.,0.,0.,0.,
+      0.,0.,0.,0.,0.,0.};
+  double noBe[18]
+    ={0.,0.,0.,0.,0.,0.,
+      0.,0.,0.,0.,0.,0.,
+      0.,0.,0.,0.,0.,0.};
+
+  double noB_ent[18]
+    ={6,6,6,6,3,6,
+      1,1,1,1,1,1,
+      1,1,1,1,1,1};
+
+  int map_input[45]
+    ={1,2,3,1,2,3,4,4,5,6,6,
+      1,2,3,1,2,3,4,4,5,6,6,
+      1,2,3,1,2,3,4,4,5,6,6,
+      7,8,9,10,11,12,
+      13,14,15,16,17,18};
+
+  int map_output[72]
+    ={1,2,3,4,5,6,
+      1,2,3,4,5,6,
+      1,2,3,4,5,6,
+      1,2,3,4,5,6,
+      7,8,9,10,11,12,
+      7,8,9,10,11,12,
+      7,8,9,10,11,12,
+      7,8,9,10,11,12,
+      13,14,15,16,17,18,
+      13,14,15,16,17,18,
+      13,14,15,16,17,18,
+      13,14,15,16,17,18};
+
+  for (int ibin=1; ibin<=input->GetNbinsX(); ibin++){    
+    noB[map_input[ibin-1]-1] += input->GetBinContent(ibin)/noB_ent[map_input[ibin-1]-1];
+    noBe[map_input[ibin-1]-1] += input->GetBinError(ibin)/noB_ent[map_input[ibin-1]-1];
+  }
+
+  for (int ibin=1; ibin<=output->GetNbinsX(); ibin++){    
+    output->SetBinContent(ibin,noB[map_output[ibin-1]-1]);
+    output->SetBinError(ibin,noBe[map_output[ibin-1]-1]);
+  }
+
+};
