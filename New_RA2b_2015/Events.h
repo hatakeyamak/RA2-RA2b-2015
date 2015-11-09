@@ -102,7 +102,7 @@ using namespace std;
    vector<double>  *selectedIDIsoMuons_MT2Activity;
    vector<double>  *GenMu_MT2Activity;
 
-   vector<bool>     *TriggerPass;
+   vector<int>     *TriggerPass;
    vector<string>  *TriggerNames;
 
    vector<int>     *GenMu_GenMuFromTau;
@@ -225,7 +225,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenMTActivityVec_() const;
 
    vector<string>  TriggerNames_() const;
-   vector<bool>  PassTrigger_() const;
+   vector<int>  PassTrigger_() const;
    double csv_() const;
    
 //   int GoodVtx_() const; 

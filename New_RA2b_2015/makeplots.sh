@@ -172,5 +172,7 @@ if [ $l -eq 1 ]; then
 
   root -l -b -q Plot_searchBin.C'("stacked","searchH",1)'
   root -l -b -q Plot_searchBin_full.C'("stacked","searchH_b","",0,1)'
+  root -l -b -q Plot_searchBin_full.C'("stacked","QCD_Low","",0,1)'
+  root -l -b -q Plot_searchBin_full.C'("stacked","QCD_Up","",0,1)'
 
 fi
