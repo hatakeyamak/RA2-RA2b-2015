@@ -16,7 +16,8 @@ root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up","Elog365_")'
 
 */
 
-Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="",int pull=0,int choice=1){
+Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="Elog401_",string elogExp="Elog381_",
+		    int pull=0,int choice=1){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -48,8 +49,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   float ymax3_top = 200.;
   float ymax4_top = 30.;
 
-  float ymax_bottom = 2.65;
-  float ymin_bottom = 0.0;
+  float ymax_bottom = 1.99;
+  float ymin_bottom = 0.01;
   //float ymax_bottom = 1.50;
   //float ymin_bottom = 0.5;
 
@@ -59,7 +60,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   //
   // Luminosity information for scaling
-  double lumi = 10.; // normaliza to 10 (fb-1)
+  double lumi = 3.; // normaliza to 3 (fb-1)
 
   double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
   int    nevent_ttbar = 25348009;
@@ -74,8 +75,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   char xtitlename[200];
   char ytitlename[200];
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elog.c_str(),sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogExp.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogExp.c_str(),sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
@@ -190,12 +191,14 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //GenHist->GetXaxis()->SetLabelSize(0.04);
   GenHist->GetXaxis()->SetTitleSize(0.05);
   GenHist->GetXaxis()->SetTitleOffset(0.9);
+  //GenHist->GetXaxis()->SetTitleOffset(0.5);
   GenHist->GetXaxis()->SetTitleFont(42);
   //GenHist->GetYaxis()->SetLabelFont(42);
   //GenHist->GetYaxis()->SetLabelOffset(0.007);
   //GenHist->GetYaxis()->SetLabelSize(0.04);
   GenHist->GetYaxis()->SetTitleSize(0.05);
-  GenHist->GetYaxis()->SetTitleOffset(1.25);
+  //GenHist->GetYaxis()->SetTitleOffset(1.25);
+  GenHist->GetYaxis()->SetTitleOffset(0.6);
   GenHist->GetYaxis()->SetTitleFont(42);
 
   //EstHist->GetXaxis()->SetLabelFont(42);
@@ -210,7 +213,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   EstHist->GetYaxis()->SetTitleSize(0.05);
   EstHist->GetYaxis()->SetTitleOffset(1.25);
   EstHist->GetYaxis()->SetTitleFont(42);
-  sprintf(xtitlename,"search bins");
+  sprintf(xtitlename,"Search bin");
   sprintf(ytitlename,"Events");
   gPad->SetLogy();
   GenHist->SetMaximum(ymax_top);
@@ -264,11 +267,53 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     // Putting lines and labels explaining search region definitions
     //-----------------------------------------------------------
 
+    /*
+    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
+    ttext->SetTextFont(42);
+    ttext->SetTextSize(0.045);
+    ttext->SetTextAlign(22);
+    ttext->Draw();
+    */
+    TString line = "";
+    line+=lumi;
+    line+=" fb^{-1} (13 TeV)";
+
+    double x0 = gStyle->GetPadLeftMargin();
+    double x1 = 1.-gStyle->GetPadRightMargin();
+    double y0 = 1.005-gStyle->GetPadTopMargin();
+    double y1 = 0.96;
+    TPaveText *Lumitxt = new TPaveText(x0,y0,x1,y1,"NDC");
+    Lumitxt->SetBorderSize(0);
+    Lumitxt->SetFillColor(0);
+    Lumitxt->SetTextFont(42);
+    Lumitxt->SetTextAlign(31);
+    Lumitxt->SetTextSize(0.8*gStyle->GetPadTopMargin());
+    Lumitxt->SetMargin(0.);
+    Lumitxt->AddText(line);
+    Lumitxt->Draw("same");
+
+    TString CMSlabel = "";
+    CMSlabel += "#splitline{#bf{CMS}}{#scale[0.6]{#it{Simulation}}}";
+
+    x0 = gStyle->GetPadLeftMargin()+0.03;
+    x1 = gStyle->GetPadLeftMargin()+0.13;
+    y0 = 0.905-gStyle->GetPadTopMargin();
+    y1 = 0.88;
+    TPaveText *CMStxt = new TPaveText(x0,y0,x1,y1,"NDC");
+    CMStxt->SetBorderSize(0);
+    CMStxt->SetFillColor(0);
+    CMStxt->SetTextFont(42);
+    CMStxt->SetTextAlign(11);
+    CMStxt->SetTextSize(0.95*gStyle->GetPadTopMargin());
+    CMStxt->SetMargin(0.);
+    CMStxt->AddText(CMSlabel);
+    CMStxt->Draw("same");
+
     // Njet separation lines
     TLine *tl_njet = new TLine();
     tl_njet->SetLineStyle(2);
     tl_njet->DrawLine(25.,ymin_top,25.,ymax_top); 
-    tl_njet->DrawLine(49.,ymin_top,49.,ymax_top); 
+    tl_njet->DrawLine(49.,ymin_top,49.,ymax2_top); 
 
     // Njet labels
     TLatex * ttext_njet = new TLatex();
@@ -303,12 +348,6 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
     ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
     
-    TText * ttext = new TLatex(60. , ymax_top/50. , "Normalized to 3 fb^{-1}");
-    ttext->SetTextFont(42);
-    ttext->SetTextSize(0.045);
-    ttext->SetTextAlign(22);
-    ttext->Draw();
-
     //
   } else {
     
@@ -406,7 +445,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
       //
       // Specific to each bottom plot
       //
-      sprintf(xtitlename,"search bin");
+      sprintf(xtitlename,"Search bin");
       EstHistD->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
       TLine *tline = new TLine(search_x_min,1.,search_x_max,1.);
 
@@ -496,7 +535,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
       //numerator->GetYaxis()->SetLabelOffset(0.007);
       //numerator->GetYaxis()->SetLabelSize(0.04);
       numerator->GetYaxis()->SetTitleSize(0.13);
-      numerator->GetYaxis()->SetTitleOffset(0.5);
+      //numerator->GetYaxis()->SetTitleOffset(0.5);
+      numerator->GetYaxis()->SetTitleOffset(0.25);
       numerator->GetYaxis()->SetTitleFont(42);
 
       numerator->GetXaxis()->SetTitle(xtitlename);
@@ -520,7 +560,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 	  numerator_fullstaterr->SetBinContent(ibin,numerator_fullstaterr->GetBinContent(ibin)/numerator_fullstaterr->GetBinError(ibin));
 	  numerator_fullstaterr->SetBinError(ibin,0.);
 	}
-
+	numerator_fullstaterr->Print("all");
+	
 	numerator_fullstaterr->GetXaxis()->SetLabelSize(font_size_dw);
 	numerator_fullstaterr->GetXaxis()->SetTitleSize(font_size_dw);
 	numerator_fullstaterr->GetYaxis()->SetLabelSize(font_size_dw);
@@ -548,6 +589,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
       //
       // Plotting
+      numerator->GetYaxis()->SetNdivisions(505);
       numerator->SetTitle("");
       numerator->DrawCopy();
 
@@ -630,14 +672,14 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   }
 
-  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%s%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str(),elogExp.c_str());
   if (pull==1) 
-    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%s%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str(),elogExp.c_str());
   canvas->Print(tempname);
 
-  sprintf(tempname,"Closure_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
+  sprintf(tempname,"Closure_%s_%s_Full_%s%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str(),elogExp.c_str());
   if (pull==1)
-    sprintf(tempname,"ClosurePull_%s_%s_Full_%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str());
+    sprintf(tempname,"ClosurePull_%s_%s_Full_%s%sPlot.pdf",histname.c_str(),sample.c_str(),elog.c_str(),elogExp.c_str());
   canvas->Print(tempname);
 
   }

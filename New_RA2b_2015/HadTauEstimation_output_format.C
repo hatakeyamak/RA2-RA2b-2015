@@ -37,6 +37,7 @@ void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
   //sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15cd_.root",elogForData.c_str());
   sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v15d_TriggerOn.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
+  printf("Opened %s\n",tempname);
 
   //
   // Convenient utility histogram
@@ -50,6 +51,7 @@ void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
 
   TH1D* searchBin_box = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_box");
   searchBin_box->Reset();
+  searchBin_box->SetLineColor(0);
 
   //
   // Open MC expectation and prediction code for closure systematics
@@ -210,7 +212,9 @@ void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
   //
   TH1D* searchBin_nominal = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_nominal");
   TH2D* hWeightForSearchBin = (TH2D*)DataEstFile->Get("hWeight4ForSearchBin")->Clone("hWeightForSearchBin");
-  searchBin_nominal->Scale(1/trigEff*lumiTarget/lumiControl);
+  searchBin_nominal->Print();
+  searchBin_nominal->Scale(1/trigEff*lumiTarget/lumiControl); 
+  searchBin_nominal->Print();
   TH1D* searchBin_nominal_fullstatuncertainty = (TH1D*)searchBin_nominal->Clone("searchBin_nominal_fullstatuncertainty");
   for (int ibin=0; ibin<searchBin_nominal->GetNbinsX(); ibin++){
     searchBin_nominal_fullstatuncertainty->SetBinError(ibin+1,pow(pow(searchBin_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
@@ -533,16 +537,34 @@ void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
   // ----- QCD bin predicitons -----
   //
   TH1D* QCDBin_HiDphi_nominal  = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_HiDphi_nominal");
+  QCDBin_HiDphi_nominal->Scale(1/trigEff*lumiTarget/lumiControl);
+  TH1D* QCDBin_HiDphi_nominal_fullstatuncertainty = (TH1D*)QCDBin_HiDphi_nominal->Clone("QCDBin_HiDphi_nominal_fullstatuncertainty");
   for (int ibin=0; ibin<QCDBin_HiDphi_nominal->GetNbinsX(); ibin++){
-    QCDBin_HiDphi_nominal->SetBinError(ibin+1,pow(pow(QCDBin_HiDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+    QCDBin_HiDphi_nominal_fullstatuncertainty->SetBinError(ibin+1,pow(pow(QCDBin_HiDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
-  TH1D* QCDBin_LowDphi_nominal = (TH1D*)DataEstFile->Get("QCD_Low")->Clone("QCDBin_LowDPhi_nominal");
+  TH1D* QCDBin_LowDphi_nominal = (TH1D*)DataEstFile->Get("QCD_Low")->Clone("QCDBin_LowDphi_nominal");
+  QCDBin_LowDphi_nominal->Scale(1/trigEff*lumiTarget/lumiControl);
+  TH1D* QCDBin_LowDphi_nominal_fullstatuncertainty = (TH1D*)QCDBin_LowDphi_nominal->Clone("QCDBin_LowDphi_nominal_fullstatuncertainty");
   for (int ibin=0; ibin<QCDBin_LowDphi_nominal->GetNbinsX(); ibin++){
-    QCDBin_LowDphi_nominal->SetBinError(ibin+1,pow(pow(QCDBin_LowDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+    QCDBin_LowDphi_nominal_fullstatuncertainty->SetBinError(ibin+1,pow(pow(QCDBin_LowDphi_nominal->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
   }
 
   //searchBin_closureUncertainty->Print("all");
+
+  //
+  // Convenient utility histogram
+  //
+  TH1D* QCDBin_one = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_one");
+  QCDBin_one->Reset();
+  for (int ibin=0; ibin<QCDBin_one->GetNbinsX(); ibin++){
+    QCDBin_one->SetBinContent(ibin+1,1.);
+    QCDBin_one->SetBinError(ibin+1,0.);
+  }
+
+  TH1D* QCDBin_box = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_box");
+  QCDBin_box->Reset();
+  QCDBin_box->SetLineColor(0);
 
   // For closure systematics
   histname="QCD_Up";
@@ -2222,10 +2244,12 @@ void HadTauEstimation_output_format(string elogForData="Elog404_",     // Data
 
   //
   QCDBin_HiDphi_nominal->Write();
+  QCDBin_HiDphi_nominal_fullstatuncertainty->Write();
   QCDBin_HiDphi_closureUncertainty->Write();
 
   //
   QCDBin_LowDphi_nominal->Write();
+  QCDBin_LowDphi_nominal_fullstatuncertainty->Write();
   QCDBin_LowDphi_closureUncertainty->Write();
 
   HadTauEstimation_OutputFile.Close();
