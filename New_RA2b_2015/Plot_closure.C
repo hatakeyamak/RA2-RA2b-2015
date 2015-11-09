@@ -18,6 +18,11 @@ using namespace std;
 .x Plot_closure.C("delphi","MHT","stacked","Elog377_")
 .x Plot_closure.C("delphi","MET","stacked","Elog377_")
 
+root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog401_","Elog381_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog401_","Elog381_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog401_","Elog381_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog401_","Elog381_",true)'
+
 root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
 root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog377_",true)'
 root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog377_",true)'
@@ -29,7 +34,6 @@ root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
 root.exe -b -q 'Plot_closure.C("delphi_NoIso","NJet","stacked","",true)'
 root.exe -b -q 'Plot_closure.C("met_500","NJet","stacked","Elog377_",true)'
 root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","NJet","stacked","Elog377_",true)'
-
 
 .x Plot_closure.C("delphi","DelPhiN","stacked","Elog365_")
 .x Plot_closure.C("delphi","DelPhi1","stacked","Elog365_")
@@ -54,7 +58,9 @@ root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","El
 
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",string elogForPlot="",bool zoom=true, bool debug=false){
+Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",
+	     string elogForPre="",string elogForExp="",
+	     bool zoom=true, bool debug=false){
 
   //
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -111,12 +117,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
   
   vector<TFile *> filevec;
   
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForExp.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForExp.c_str(),sample.c_str());
   filevec.push_back(TFile::Open(tempname,"R"));
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPlot.c_str(),sample.c_str());
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPre.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPre.c_str(),sample.c_str());
   // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
   filevec.push_back(TFile::Open(tempname,"R"));
 
@@ -280,6 +286,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       //thist->GetXaxis()->SetLabelSize(0.04);
       thist->GetXaxis()->SetTitleSize(0.05);
       thist->GetXaxis()->SetTitleOffset(1.9);
+      //thist->GetXaxis()->SetTitleOffset(1.2);
       thist->GetXaxis()->SetTitleFont(42);
       //thist->GetYaxis()->SetLabelFont(42);
       //thist->GetYaxis()->SetLabelOffset(0.007);
@@ -289,7 +296,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       thist->GetYaxis()->SetTitleFont(42);
     }
     if(histname=="search"){
-      sprintf(xtitlename,"search bins");
+      sprintf(xtitlename,"Search bin");
       sprintf(ytitlename,"Events");
       thist->SetMaximum(2000);
       thist->SetMinimum(0.);
@@ -631,6 +638,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       //numerator->GetXaxis()->SetLabelSize(0.04);
       numerator->GetXaxis()->SetTitleSize(0.12);
       numerator->GetXaxis()->SetTitleOffset(0.9);
+      //numerator->GetXaxis()->SetTitleOffset(0.5);
       numerator->GetXaxis()->SetTitleFont(42);
       //numerator->GetYaxis()->SetLabelFont(42);
       //numerator->GetYaxis()->SetLabelOffset(0.007);
@@ -658,9 +666,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
 
   //}
 
-  sprintf(tempname,"Closure_%s_%s_%s_%sPlot.png",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.png",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
   canvas->Print(tempname);
-  sprintf(tempname,"Closure_%s_%s_%s_%sPlot.pdf",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPlot.c_str());
+  sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.pdf",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
   canvas->Print(tempname);
 
 }
