@@ -114,6 +114,7 @@
        fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
        fChain->SetBranchAddress("GenTauNu", &GenTauNu);
        fChain->SetBranchAddress("genHT", &genHT);
+       fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
      }
 
      fChain->SetBranchAddress("Jets", &Jets);
@@ -149,7 +150,6 @@
      fChain->SetBranchAddress("IsolatedPionTracksVeto", &IsolatedPionTracksVeto);
 
      fChain->SetBranchAddress("selectedIDIsoMuons_MT2Activity", &selectedIDIsoMuons_MT2Activity);
-     fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
      //
      fChain->SetBranchAddress("TriggerNames", &TriggerNames);
      fChain->SetBranchAddress("TriggerPass", &TriggerPass);
@@ -574,7 +574,7 @@
    vector<double>  Events::GenMTActivityVec_() const{ return *GenMu_MT2Activity; }
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
-   vector<bool>     Events::PassTrigger_() const{ return *TriggerPass;}
+   vector<int>     Events::PassTrigger_() const{ return *TriggerPass;}
 
    vector<int>     Events::GenMuFromTauVec_() const { return *GenMu_GenMuFromTau;}
 
