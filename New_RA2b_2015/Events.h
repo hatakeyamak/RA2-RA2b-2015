@@ -33,13 +33,13 @@ using namespace std;
 //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
-   Int_t           CSCTightHaloFilter;
+   Bool_t          CSCTightHaloFilter;
    Int_t           eeBadScFilter;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
 
    UInt_t          RunNum;
    UInt_t          LumiBlockNum;
-   UInt_t          EvtNum;
+   ULong64_t       EvtNum;
    Int_t           NVtx;
 //   Int_t           isoTracks;
    Int_t           isoElectronTracks;

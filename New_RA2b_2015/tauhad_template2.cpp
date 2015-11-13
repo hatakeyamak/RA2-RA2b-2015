@@ -271,6 +271,23 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     hPredNbBins->Sumw2();
     TH1D* hPredNbBins_evt = static_cast<TH1D*>(hPredNbBins->Clone("hPredNbBins_evt"));
     //
+    TH1D* hPredNbBinsNJ78 = new TH1D("hPredNbBinsNJ78", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBinsNJ78->Sumw2();
+    TH1D* hPredNbBinsNJ78_evt = static_cast<TH1D*>(hPredNbBinsNJ78->Clone("hPredNbBinsNJ78_evt"));
+    //
+    TH1D* hPredNbBinsNJ9 = new TH1D("hPredNbBinsNJ9", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBinsNJ9->Sumw2();
+    TH1D* hPredNbBinsNJ9_evt = static_cast<TH1D*>(hPredNbBinsNJ9->Clone("hPredNbBinsNJ9_evt"));
+    //
+    TH1D* hPredNbBinsNJ78_1L = new TH1D("hPredNbBinsNJ78_1L", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBinsNJ78_1L->Sumw2();
+    TH1D* hPredNbBinsNJ78_1L_evt = static_cast<TH1D*>(hPredNbBinsNJ78_1L->Clone("hPredNbBinsNJ78_1L_evt"));
+    //
+    TH1D* hPredNbBinsNJ9_1L = new TH1D("hPredNbBinsNJ9_1L", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
+    hPredNbBinsNJ9_1L->Sumw2();
+    TH1D* hPredNbBinsNJ9_1L_evt = static_cast<TH1D*>(hPredNbBinsNJ9_1L->Clone("hPredNbBinsNJ9_1L_evt"));
+    //
+
 
 
     // Studying event weight
@@ -617,9 +634,10 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       eventN++;
 
 
-      eventWeight = evt->weight()/evt->puweight();
-      if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
-      if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
+      eventWeight = evt->weight();
+      //eventWeight = evt->weight()/evt->puweight();
+      //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
+      //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
 
 
@@ -1430,6 +1448,14 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
                 }
               }
 
+              // Apply 1L baseline cuts
+              if(evt->ht()>=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && 
+              evt->deltaPhi3()>0.3 && evt->deltaPhi4()>0.3 && evt->nJets() >= 4){
+                if(evt->nJets()==7 || evt->nJets()==8)hPredNbBinsNJ78_1L_evt->Fill(evt->nBtags(),eventWeight);
+                if(evt->nJets()>=9)hPredNbBinsNJ9_1L_evt->Fill(evt->nBtags(),eventWeight);    
+              }
+
+
               // Apply baseline cuts
               if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && newNJet >= 4   ){
 
@@ -1474,6 +1500,9 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
                   if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
                   hPredNJetBins_evt->Fill(newNJet,searchWeight);
                   hPredNbBins_evt->Fill( NewNB,searchWeight);
+                  if(newNJet==7 || newNJet==8)hPredNbBinsNJ78_evt->Fill( NewNB,searchWeight);
+                  if(newNJet>=9)hPredNbBinsNJ9_evt->Fill( NewNB,searchWeight);
+
 
                   // Fill QCD histograms
                   QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
@@ -1748,6 +1777,10 @@ if(newNJet==4 && tempBool && newHT>=500. && newMHT >= 200. && newDphi1>0.5 && ne
         bootstrapUtils::HistogramFillForEventTH1(hPredHTMHTwb, hPredHTMHTwb_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNJetBins, hPredNJetBins_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNbBins, hPredNbBins_evt);
+        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ78, hPredNbBinsNJ78_evt);
+        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ78_1L, hPredNbBinsNJ78_1L_evt);
+        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ9, hPredNbBinsNJ9_evt);
+        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ9_1L, hPredNbBinsNJ9_1L_evt);        
 
               
         // for correlation studies
@@ -1949,6 +1982,10 @@ tempMHT_Dphi4Hist_w->Write();
     hPredHTMHTwb->Write();
     hPredNJetBins->Write();
     hPredNbBins->Write();
+    hPredNbBinsNJ78->Write();
+    hPredNbBinsNJ78_1L->Write();
+    hPredNbBinsNJ9->Write();
+    hPredNbBinsNJ9_1L->Write();
     hCorSearch->Write();
     hCorSearch_b->Write();
     hCorHT->Write();
