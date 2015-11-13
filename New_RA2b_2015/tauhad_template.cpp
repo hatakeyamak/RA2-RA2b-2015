@@ -385,10 +385,10 @@ using namespace std;
       //if(eventN>100000)break;
       //if(eventN>20000)break;
 
-
-      eventWeight = evt->weight()/evt->puweight();
-      if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
-      if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
+      eventWeight = evt->weight();
+      //eventWeight = evt->weight()/evt->puweight();
+      //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
+      //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
 
 

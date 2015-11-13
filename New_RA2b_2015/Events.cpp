@@ -99,7 +99,7 @@
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4);
      fChain->SetBranchAddress("JetID", &JetID);
-     fChain->SetBranchAddress("JetIDloose", &JetIDloose);
+     //fChain->SetBranchAddress("JetIDloose", &JetIDloose);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
      fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter);
      fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
@@ -235,7 +235,7 @@
 
   // To see if an event passes the jetId requirement or not.  
   int Events::JetId() const {
-    return JetIDloose;
+    return JetID;
   }
 
   bool Events::DataBool_() const { return DataBool; }
