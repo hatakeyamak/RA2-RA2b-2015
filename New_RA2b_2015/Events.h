@@ -70,8 +70,13 @@ using namespace std;
    vector<TLorentzVector> *GenEls;
    vector<TLorentzVector> *GenTaus;
    vector<TLorentzVector> *GenTauNu;
-   vector<TLorentzVector> *Jets;
 
+   vector<TLorentzVector> *genParticles;
+   vector<int>     *genParticles_PDGid;
+
+   vector<TLorentzVector> *Jets;
+   vector<int>     *Jets_partonFlavor;
+   vector<bool>    *HTJetsMask;
    vector<double>  *Jets_bDiscriminatorCSV;
    vector<double>  *Jets_chargedEmEnergyFraction;
    vector<double>  *Jets_chargedHadronEnergyFraction;
@@ -162,6 +167,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenTauNuEtaVec_() const;
    vector<double>  GenTauNuPhiVec_() const;
 
+   vector<TLorentzVector>      *genParticles_() const;
+   vector<int>                 *genParticles_PDGid_() const;
+
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
@@ -183,6 +191,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;
    vector<double>  slimJetPhiVec_() const;
+   vector<int>     Jets_partonFlavor_() const;
+   vector<bool>    HTJetsMask_() const;
+
 
    vector<int>     slimJetID_() const;
 

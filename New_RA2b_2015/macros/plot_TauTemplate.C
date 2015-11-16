@@ -52,10 +52,9 @@ void plot_TauTemplate(int icomp=0){
 
   //
   
-  TFile *file_08TeV         = new TFile("tauTemplatesRes_8TeV.root","R"); 
-  TFile *file_13TeV         = new TFile("HadTau_TauResponseTemplates_TTbar_.root","R"); 
+  TFile *file_13TeV         = new TFile("TauHad/Stack/Elog404_HadTau_TauResponseTemplates_stacked.root","R"); 
   //TFile *file_13TeV_Koushik = new TFile("HadTau_TauResponseTemplates_PHYS14_13TeV.root","R"); 
-  TFile *file_TauGan        = new TFile("HadTau_TauResponseTemplates_GenTau_Matching04.root","R"); 
+  TFile *file_TauGan        = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R"); 
 
   TH1D * thist;
   catLeg1->SetHeader("p_{T}(#tau^{tau})");
@@ -65,6 +64,7 @@ void plot_TauTemplate(int icomp=0){
     thist = (TH1D*)file_13TeV->Get(tempname)->Clone();
     sprintf(tempname2,"hTauResp_%d_AB",i);
     thist->SetName(tempname2);
+	thist->SetFillColor(0);
     thist->SetLineColor(i+1);
     thist->SetLineWidth(3);
     thist->SetStats(kFALSE);

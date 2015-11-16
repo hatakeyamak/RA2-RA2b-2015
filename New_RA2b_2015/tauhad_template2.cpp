@@ -7,6 +7,8 @@
 #include "LeptonAcceptance.h"
 #include "utils2.h"
 #include "Lepton_Selection.h"
+#include "ISRCorrector.h"
+#include "BTagCorrector.h"
 
 #include "TTree.h"
 #include <cmath>
@@ -98,10 +100,6 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-//444
-TH2 * tempMHT_Dphi4Hist = new TH2D("tempMHT_Dphi4Hist","MHT vs delphi4",100,0,5000,5,0.15,0.3);
-TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,0,5000,5,0.15,0.3);
-//444
     Double_t ht_bins[15] = {
       0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
       1000.,1200.,1500.,2000.,5000.};
@@ -369,11 +367,53 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     // The tau response templates
     Utils * utils = new Utils();
 
+    bool fastsim=false;
+    TFile * signalPileUp, *IsrFile,*skimfile;
+    TH1* puhist,*h_isr, * h_genpt; 
+    ISRCorrector isrcorr;
+    BTagCorrector *btagcorr;
+    if(subSampleKey.find("fast")!=string::npos){
+      cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
+      fastsim=true;
+      signalPileUp = new TFile("TauHad/PileupHistograms_1104.root","R");
+      puhist=(TH1*)signalPileUp->Get("pu_weights_central");
+      IsrFile = new TFile("TauHad/ISRWeights.root","R");
+      h_isr = (TH1*)IsrFile->Get("isr_weights_central");
+      sample_AUX = new TChain("tree");
+      
+      vector<string> skimInput = utils->skimInput(subSampleKey); 
+      if(skimInput.size()!=3){
+        cout<<"Something is wrong with the naming of the skim file.\nUse an input like T1bbbb_mMother-1500_mLSP-800_fast";
+        return 2;
+      }
+      //
+      sprintf(tempname,
+      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
+      skimInput[0].c_str(),skimInput[1].c_str(),skimInput[2].c_str());
+      //
+      skimfile = new TFile(tempname,"R");
+      if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
+      h_genpt = (TH1*)skimfile->Get("GenPt");
+      isrcorr.SetWeights(h_isr,h_genpt);
+      //PDG ID for gluino
+      isrcorr.SetMother(1000021);
+      //
+    }
+
+
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
     cout<< "\nProcessing " << subSampleKey << " ... " << endl;
     for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
 
+    if(subSampleKey.find("fast")!=string::npos){
+      if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
+      //
+      //
+      btagcorr->SetEffs(skimfile);
+      //btagcorr->SetFastSim(true);
+      //btagcorr->SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
+    }
 
     // --- Analyse the events --------------------------------------------
 
@@ -421,14 +461,14 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       eventType[2]="BMistagMinus";
       eventType[3]="RecoIsoSysPlus";
       eventType[4]="RecoIsoSysMinus";
+      eventType[5]="MuRecoIsoPlus";
+      eventType[6]="MuRecoIsoMinus";
       //eventType[5]="IsoPlus";
       //eventType[6]="IsoMinus";
       //eventType[7]="MTPlus";
       //eventType[8]="MTMinus";
       //eventType[9]="MuFromTauPlus";
       //eventType[10]="MuFromTauMinus";
-      //eventType[11]="MuRecoIsoPlus";
-      //eventType[12]="MuRecoIsoMinus";
       //eventType[13]="BMistag_statPlus";
       //eventType[14]="BMistag_statMinus";  
       //eventType[15]="Tau_BrRatio_Plus";
@@ -541,12 +581,12 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
 
     // Use Ahmad's tau template
-    TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
-
+    //TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
+    TFile * resp_file = new TFile("TauHad/Stack/Elog404_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
-//      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
       sprintf(histname,"hTauResp_%d_xy",i);
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
 
@@ -556,10 +596,12 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
 
 
     // Use Rishi's tau template 
-    TFile * resp_file_Rishi = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
+    //TFile * resp_file_Rishi = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
+    //TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v01.root","R");
+    TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v02.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
-      vec_resp.push_back( (TH1D*) resp_file_Rishi->Get( histname )->Clone() );
+    //  vec_resp.push_back( (TH1D*) resp_file_Rishi->Get( histname )->Clone() );
     }
 
 
@@ -614,7 +656,6 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
     if(!utils2::bootstrap && StudyErrorPropag)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
 
 
-
     int sampletype=-1;
     if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
     else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
@@ -662,11 +703,11 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
       }
       
       cutflow_preselection->Fill(1.,eventWeight);
-      if(evt->HBHEIsoNoiseFilter_()==0)continue;
+      if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
-      if(evt->eeBadScFilter_()==0)continue;
+      if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->HBHENoiseFilter_()==0)continue;
+      if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight); 
@@ -1014,12 +1055,6 @@ TH2 * tempMHT_Dphi4Hist_w = new TH2D("tempMHT_Dphi4Hist_w","MHT vs delphi4",100,
             HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
             MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
 
-//444
-bool tempBool=false;
-for(int iii=0; iii< HT3JetVec.size(); iii++){
-if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
-}
-//444
 
             double newHT=0,newMHT=0,newMHTPhi=-1;
             TVector3 newMHT3Vec;
@@ -1314,6 +1349,17 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
                 if(utils2::IsoTrkModel==0){totWeight*= 1./1.02;totWeight_lowDphi*= 1./1.02;}
               }
 
+              if(fastsim){
+                double puWeight = 
+                    puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+                totWeight*= puWeight ;
+                //
+                double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
+                totWeight*=isrWeight;
+                //printf("PUweight: %g \n ",puWeight);
+                //printf("isrWeight: %g \n ",isrWeight); 
+              }
+
               weightEffAcc = totWeight;
 
               // if bootstrap is on weigh the events such that 
@@ -1527,17 +1573,6 @@ if(iii==3 && ((HT3JetVec[iii].Pt()-NewTauJetPt)<0.1) )tempBool=true;
                 } // passIso2
 
               }   // baseline cut
-
-
-//444
-if(newNJet==4 && tempBool && newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.15 && newDphi4 < 0.3 ){
-  tempMHT_Dphi4Hist->Fill(newMHT,newDphi4,eventWeight);
-  tempMHT_Dphi4Hist_w->Fill(newMHT,newDphi4,totWeight*IsoTrkWeight);
-
-//if(newMHT >= 400. && newMHT < 600.)printf("eventN: %d \n l: %d m: %d \n newDphi4: %g newMHT: %g newHT: %g \n ############## \n ",eventN,l,m,newDphi4,newMHT,newHT);
-
-}
-//444
 
 
               // Fill QCD histogram
@@ -1968,10 +2003,6 @@ if(newNJet==4 && tempBool && newHT>=500. && newMHT >= 200. && newDphi1>0.5 && ne
     TFile *resFile = new TFile(tempname, "RECREATE");
     muMtWHist->Write();
     cutflow_preselection->Write();
-//444
-tempMHT_Dphi4Hist->Write();
-tempMHT_Dphi4Hist_w->Write();
-//444
     searchH->Write();
     searchH_lowDphi->Write();
     QCD_Up->Write();
