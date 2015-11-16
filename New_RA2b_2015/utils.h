@@ -64,5 +64,6 @@ public:
 
     int tau_phi_GetBinX(double x);
 
+    vector<string> skimInput(string mom);
 };
 

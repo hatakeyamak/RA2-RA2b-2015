@@ -41,7 +41,12 @@
      GenTauNu = 0;
      GenTaus = 0;
 
+     genParticles = 0;
+     genParticles_PDGid = 0;  
+
      Jets = 0;
+     Jets_partonFlavor = 0;
+     HTJetsMask = 0;
      Jets_bDiscriminatorCSV = 0;
      Jets_chargedEmEnergyFraction = 0;
      Jets_chargedHadronEnergyFraction = 0;
@@ -115,10 +120,14 @@
        fChain->SetBranchAddress("GenTauNu", &GenTauNu);
        fChain->SetBranchAddress("genHT", &genHT);
        fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
+
+       fChain->SetBranchAddress("genParticles", &genParticles);
+       fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
      }
 
      fChain->SetBranchAddress("Jets", &Jets);
-
+     fChain->SetBranchAddress("Jets_partonFlavor", &Jets_partonFlavor);
+     fChain->SetBranchAddress("HTJetsMask", &HTJetsMask);
 
      fChain->SetBranchAddress("Jets_bDiscriminatorCSV", &Jets_bDiscriminatorCSV);
      fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", &Jets_chargedEmEnergyFraction);
@@ -336,6 +345,10 @@
      return vec;
    }
 
+   vector<TLorentzVector>     *Events::genParticles_() const {return genParticles;}
+   vector<int>                *Events::genParticles_PDGid_() const {return genParticles_PDGid;}
+
+
    vector<double>  Events::JetsPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < Jets->size();i++){
@@ -364,7 +377,20 @@
      }
      return vec;
    }
-
+   vector<int> Events::Jets_partonFlavor_() const {
+    vector<int> vec;
+    for(int i=0;i < Jets_partonFlavor->size();i++){
+      vec.push_back(Jets_partonFlavor->at(i));
+    }
+    return vec; 
+   }
+   vector<bool> Events::HTJetsMask_() const {
+    vector<bool> vec;
+    for(int i=0;i < HTJetsMask->size();i++){
+      vec.push_back(HTJetsMask->at(i));
+    }
+    return vec;
+   }
 
    vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
    vector<double>  Events::Jets_chargedEmEnergyFraction_() const { return *Jets_chargedEmEnergyFraction;}

@@ -137,8 +137,6 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
-  Hname[6]="tempMHT_Dphi4Hist";
-  Hname[7]="tempMHT_Dphi4Hist_w";
  
   for(int j=0; j< Hname.size(); j++){
 
@@ -504,8 +502,6 @@ cout << " flag \n " ;
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
-  Hname[6]="tempMHT_Dphi4Hist";
-  Hname[7]="tempMHT_Dphi4Hist_w";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -975,8 +971,6 @@ cout << " flag \n " ;
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
-  Hname[6]="tempMHT_Dphi4Hist";
-  Hname[7]="tempMHT_Dphi4Hist_w";
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -1399,8 +1393,6 @@ cout << " flag \n " ;
   Hname[3]="QCD_Low";
   Hname[4]="cutflow_preselection";
   Hname[5]="searchH_lowDphi";
-  Hname[6]="tempMHT_Dphi4Hist";
-  Hname[7]="tempMHT_Dphi4Hist_w";
 
   for(int j=0; j< Hname.size(); j++){
 
