@@ -62,7 +62,8 @@ class BTagCorrector {
       for(unsigned ja = 0; ja < Jets->size(); ++ja){
         //HT jet cuts
         if(!HTJetsMask->at(ja)) continue;
-        
+       
+cout <<" flavor: " <<  Jets_flavor->at(ja) << endl;
         //get sf and eff values (checks if already calculated)
         InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
         double eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
@@ -148,9 +149,12 @@ class BTagCorrector {
       flav = abs(flav);
       
       sfEffList = vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
-      
+
+ 
       if(flav==5){
         sfEffList[0] = h_eff_b->GetBinContent(h_eff_b->FindBin(pt,eta));
+cout << "btagSFunc " << btagSFunc << " BTagEntry::FLAV_B: " << BTagEntry::FLAV_B << endl;
+
         sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
                  (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
                          readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
