@@ -371,7 +371,7 @@ using namespace std;
     TFile * signalPileUp, *IsrFile,*skimfile;
     TH1* puhist,*h_isr, * h_genpt; 
     ISRCorrector isrcorr;
-    BTagCorrector *btagcorr;
+    BTagCorrector btagcorr;
     if(subSampleKey.find("fast")!=string::npos){
       cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
       fastsim=true;
@@ -393,6 +393,7 @@ using namespace std;
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
+      else cout << " skimfile: " << tempname << endl;
       h_genpt = (TH1*)skimfile->Get("GenPt");
       isrcorr.SetWeights(h_isr,h_genpt);
       //PDG ID for gluino
@@ -410,9 +411,9 @@ using namespace std;
       if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
       //
       //
-      btagcorr->SetEffs(skimfile);
-      //btagcorr->SetFastSim(true);
-      //btagcorr->SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
+      btagcorr.SetEffs(skimfile);
+      btagcorr.SetFastSim(true);
+      btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
     }
 
     // --- Analyse the events --------------------------------------------
@@ -441,7 +442,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag = false;
+    bool StudyErrorPropag = true;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -459,10 +460,12 @@ using namespace std;
       //////////////////////////
       eventType[1]="BMistagPlus";
       eventType[2]="BMistagMinus";
-      eventType[3]="RecoIsoSysPlus";
-      eventType[4]="RecoIsoSysMinus";
-      eventType[5]="MuRecoIsoPlus";
-      eventType[6]="MuRecoIsoMinus";
+      eventType[3]="RecoSysPlus";
+      eventType[4]="RecoSysMinus";
+      eventType[5]="IsoSysPlus";
+      eventType[6]="IsoSysMinus";
+      eventType[7]="MuRecoIsoPlus";
+      eventType[8]="MuRecoIsoMinus";
       //eventType[5]="IsoPlus";
       //eventType[6]="IsoMinus";
       //eventType[7]="MTPlus";
@@ -1322,8 +1325,8 @@ using namespace std;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
 
-              Eff_ArnePlus = Eff_Arne + Reco_error_Arne + Iso_error_Arne;
-              Eff_ArneMinus = Eff_Arne - Reco_error_Arne - Iso_error_Arne;
+              Eff_ArnePlus = Eff_Arne + pow( (pow(Reco_error_Arne,2.0) + pow(Iso_error_Arne,2.0)) , 0.5);
+              Eff_ArneMinus = Eff_Arne - pow( (pow(Reco_error_Arne,2.0) + pow(Iso_error_Arne,2.0)) , 0.5);
 
               // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
               double Prob_Tau_muError, Prob_Tau_muPlus, Prob_Tau_muMinus, Prob_Tau_muError_lowDelphi, Prob_Tau_muPlus_lowDelphi, Prob_Tau_muMinus_lowDelphi;
@@ -1356,8 +1359,20 @@ using namespace std;
                 //
                 double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
                 totWeight*=isrWeight;
+                //
+                vector<double> prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
+
+                if(evt->nBtags()==0)totWeight*=prob[0];
+                if(evt->nBtags()==1)totWeight*=prob[1];
+                if(evt->nBtags()==2)totWeight*=prob[2];
+                if(evt->nBtags()>=3)totWeight*=prob[3];
                 //printf("PUweight: %g \n ",puWeight);
                 //printf("isrWeight: %g \n ",isrWeight); 
+cout <<  " ###################\n "; 
+                for(int iii=0;iii< prob.size();iii++){
+                  printf("evt->nBtags(): %d btag weight: %g \n ",evt->nBtags(),prob[iii]);
+                }
+
               }
 
               weightEffAcc = totWeight;
@@ -1690,12 +1705,18 @@ using namespace std;
                     totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
                   }
                   // Reco & Iso systetmatics
-                  totWeightMap["RecoIsoSysPlus"]=totWeight/1.1;// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["RecoIsoSysMinus"]=totWeight/0.9;
-                  totWeightMap_lowDphi["RecoIsoSysPlus"]=totWeight_lowDphi/1.1;
-                  totWeightMap_lowDphi["RecoIsoSysMinus"]=totWeight_lowDphi/0.9;
+                  totWeightMap["RecoSysPlus"]=totWeight/(1+utils2::getMuonIDSF(muPt,muEta));// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["RecoSysMinus"]=totWeight/(1-utils2::getMuonIDSF(muPt,muEta));
+                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/(1+utils2::getMuonIDSF(muPt,muEta));
+                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/(1-utils2::getMuonIDSF(muPt,muEta));
+                  totWeightMap["IsoSysPlus"]=totWeight/(1+utils2::getMuonIsoSF(muPt,muEta,activity));// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["IsoSysMinus"]=totWeight/(1-utils2::getMuonIsoSF(muPt,muEta,activity));
+                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/(1+utils2::getMuonIsoSF(muPt,muEta,activity));
+                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/(1-utils2::getMuonIsoSF(muPt,muEta,activity));
+
 
                 }
+
 
               //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
               double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()

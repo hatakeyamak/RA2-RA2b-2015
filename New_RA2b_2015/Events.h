@@ -174,6 +174,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
    vector<double>  JetsEVec_() const;
+   vector<TLorentzVector> * JetsLorVec_() const;
    vector<double>  csvVec() const;
    vector<double>  Jets_chargedEmEnergyFraction_() const;
    vector<double>  Jets_chargedHadronEnergyFraction_() const;
@@ -191,8 +192,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;
    vector<double>  slimJetPhiVec_() const;
-   vector<int>     Jets_partonFlavor_() const;
-   vector<bool>    HTJetsMask_() const;
+   vector<int>    * Jets_partonFlavor_() const;
+   vector<bool>   * HTJetsMask_() const;
 
 
    vector<int>     slimJetID_() const;

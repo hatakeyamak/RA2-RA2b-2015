@@ -377,20 +377,10 @@
      }
      return vec;
    }
-   vector<int> Events::Jets_partonFlavor_() const {
-    vector<int> vec;
-    for(int i=0;i < Jets_partonFlavor->size();i++){
-      vec.push_back(Jets_partonFlavor->at(i));
-    }
-    return vec; 
-   }
-   vector<bool> Events::HTJetsMask_() const {
-    vector<bool> vec;
-    for(int i=0;i < HTJetsMask->size();i++){
-      vec.push_back(HTJetsMask->at(i));
-    }
-    return vec;
-   }
+   vector<TLorentzVector>  *Events::JetsLorVec_() const{return Jets;}
+   vector<int> *Events::Jets_partonFlavor_() const { return Jets_partonFlavor;}
+   vector<bool> *Events::HTJetsMask_() const { return HTJetsMask;}
+
 
    vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
    vector<double>  Events::Jets_chargedEmEnergyFraction_() const { return *Jets_chargedEmEnergyFraction;}
