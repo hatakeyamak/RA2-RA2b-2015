@@ -269,23 +269,6 @@ using namespace std;
     hPredNbBins->Sumw2();
     TH1D* hPredNbBins_evt = static_cast<TH1D*>(hPredNbBins->Clone("hPredNbBins_evt"));
     //
-    TH1D* hPredNbBinsNJ78 = new TH1D("hPredNbBinsNJ78", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
-    hPredNbBinsNJ78->Sumw2();
-    TH1D* hPredNbBinsNJ78_evt = static_cast<TH1D*>(hPredNbBinsNJ78->Clone("hPredNbBinsNJ78_evt"));
-    //
-    TH1D* hPredNbBinsNJ9 = new TH1D("hPredNbBinsNJ9", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
-    hPredNbBinsNJ9->Sumw2();
-    TH1D* hPredNbBinsNJ9_evt = static_cast<TH1D*>(hPredNbBinsNJ9->Clone("hPredNbBinsNJ9_evt"));
-    //
-    TH1D* hPredNbBinsNJ78_1L = new TH1D("hPredNbBinsNJ78_1L", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
-    hPredNbBinsNJ78_1L->Sumw2();
-    TH1D* hPredNbBinsNJ78_1L_evt = static_cast<TH1D*>(hPredNbBinsNJ78_1L->Clone("hPredNbBinsNJ78_1L_evt"));
-    //
-    TH1D* hPredNbBinsNJ9_1L = new TH1D("hPredNbBinsNJ9_1L", ";N_{b-jets} (p_{T} > 30 GeV);Events / Bin", 4, -0.5, 3.5);
-    hPredNbBinsNJ9_1L->Sumw2();
-    TH1D* hPredNbBinsNJ9_1L_evt = static_cast<TH1D*>(hPredNbBinsNJ9_1L->Clone("hPredNbBinsNJ9_1L_evt"));
-    //
-
 
 
     // Studying event weight
@@ -412,7 +395,9 @@ using namespace std;
       //
       //
       btagcorr.SetEffs(skimfile);
+      btagcorr.SetCalib("CSVSLV1.csv");
       btagcorr.SetFastSim(true);
+      //btagcorr.SetDebug(true);
       btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
     }
 
@@ -442,7 +427,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag = true;
+    bool StudyErrorPropag = false;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -1325,8 +1310,8 @@ using namespace std;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
 
-              Eff_ArnePlus = Eff_Arne + pow( (pow(Reco_error_Arne,2.0) + pow(Iso_error_Arne,2.0)) , 0.5);
-              Eff_ArneMinus = Eff_Arne - pow( (pow(Reco_error_Arne,2.0) + pow(Iso_error_Arne,2.0)) , 0.5);
+              Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
+              Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
 
               // Not all the muons are coming from W. Some of them are coming from Tau which should not be considered in our estimation.
               double Prob_Tau_muError, Prob_Tau_muPlus, Prob_Tau_muMinus, Prob_Tau_muError_lowDelphi, Prob_Tau_muPlus_lowDelphi, Prob_Tau_muMinus_lowDelphi;
@@ -1352,6 +1337,8 @@ using namespace std;
                 if(utils2::IsoTrkModel==0){totWeight*= 1./1.02;totWeight_lowDphi*= 1./1.02;}
               }
 
+              // if fastsim
+              vector<double> prob;
               if(fastsim){
                 double puWeight = 
                     puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
@@ -1360,19 +1347,7 @@ using namespace std;
                 double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
                 totWeight*=isrWeight;
                 //
-                vector<double> prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
-
-                if(evt->nBtags()==0)totWeight*=prob[0];
-                if(evt->nBtags()==1)totWeight*=prob[1];
-                if(evt->nBtags()==2)totWeight*=prob[2];
-                if(evt->nBtags()>=3)totWeight*=prob[3];
-                //printf("PUweight: %g \n ",puWeight);
-                //printf("isrWeight: %g \n ",isrWeight); 
-cout <<  " ###################\n "; 
-                for(int iii=0;iii< prob.size();iii++){
-                  printf("evt->nBtags(): %d btag weight: %g \n ",evt->nBtags(),prob[iii]);
-                }
-
+                prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
               }
 
               weightEffAcc = totWeight;
@@ -1509,13 +1484,6 @@ cout <<  " ###################\n ";
                 }
               }
 
-              // Apply 1L baseline cuts
-              if(evt->ht()>=500. && evt->mht() >= 200. && evt->deltaPhi1()>0.5 && evt->deltaPhi2()>0.5 && 
-              evt->deltaPhi3()>0.3 && evt->deltaPhi4()>0.3 && evt->nJets() >= 4){
-                if(evt->nJets()==7 || evt->nJets()==8)hPredNbBinsNJ78_1L_evt->Fill(evt->nBtags(),eventWeight);
-                if(evt->nJets()>=9)hPredNbBinsNJ9_1L_evt->Fill(evt->nBtags(),eventWeight);    
-              }
-
 
               // Apply baseline cuts
               if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && newNJet >= 4   ){
@@ -1556,17 +1524,24 @@ cout <<  " ###################\n ";
                   // MTCalc is on and mu is from nonW mom
                   // otherwise it always pass
                   if(Pass_MuMomForMT)searchH_evt->Fill( binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()],searchWeight);
-                  searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                  if(fastsim){
+                    for(int iii=0;iii< prob.size();iii++){
+                      searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
+                      // Fill QCD histograms
+                      QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
+                    }
+                  }
+                  else{
+                      searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                      // Fill QCD histograms
+                      QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                  }
                   if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);	
                   if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
                   hPredNJetBins_evt->Fill(newNJet,searchWeight);
                   hPredNbBins_evt->Fill( NewNB,searchWeight);
-                  if(newNJet==7 || newNJet==8)hPredNbBinsNJ78_evt->Fill( NewNB,searchWeight);
-                  if(newNJet>=9)hPredNbBinsNJ9_evt->Fill( NewNB,searchWeight);
 
 
-                  // Fill QCD histograms
-                  QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
                   
                   // Fill correlation histograms
                   hCorSearch_evt->Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
@@ -1616,7 +1591,12 @@ cout <<  " ###################\n ";
                   // otherwise it always pass
                   if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()],searchWeight);
                   // Fill QCD histograms
-                  QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                  if(fastsim){
+                    for(int iii=0;iii< prob.size();iii++){
+                      QCD_Low_evt->Fill(binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[0]);
+                    }
+                  }
+                  else QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
                 }
 
               }
@@ -1833,10 +1813,6 @@ cout <<  " ###################\n ";
         bootstrapUtils::HistogramFillForEventTH1(hPredHTMHTwb, hPredHTMHTwb_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNJetBins, hPredNJetBins_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNbBins, hPredNbBins_evt);
-        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ78, hPredNbBinsNJ78_evt);
-        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ78_1L, hPredNbBinsNJ78_1L_evt);
-        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ9, hPredNbBinsNJ9_evt);
-        bootstrapUtils::HistogramFillForEventTH1(hPredNbBinsNJ9_1L, hPredNbBinsNJ9_1L_evt);        
 
               
         // for correlation studies
@@ -2034,10 +2010,6 @@ cout <<  " ###################\n ";
     hPredHTMHTwb->Write();
     hPredNJetBins->Write();
     hPredNbBins->Write();
-    hPredNbBinsNJ78->Write();
-    hPredNbBinsNJ78_1L->Write();
-    hPredNbBinsNJ9->Write();
-    hPredNbBinsNJ9_1L->Write();
     hCorSearch->Write();
     hCorSearch_b->Write();
     hCorHT->Write();
