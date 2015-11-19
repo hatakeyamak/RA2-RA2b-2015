@@ -43,7 +43,7 @@
 
      genParticles = 0;
      genParticles_PDGid = 0;  
-
+     PDFweights =0;
      Jets = 0;
      Jets_partonFlavor = 0;
      HTJetsMask = 0;
@@ -124,7 +124,7 @@
        fChain->SetBranchAddress("genParticles", &genParticles);
        fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
      }
-
+     fChain->SetBranchAddress("PDFweights", &PDFweights);
      fChain->SetBranchAddress("Jets", &Jets);
      fChain->SetBranchAddress("Jets_partonFlavor", &Jets_partonFlavor);
      fChain->SetBranchAddress("HTJetsMask", &HTJetsMask);
@@ -348,7 +348,7 @@
    vector<TLorentzVector>     *Events::genParticles_() const {return genParticles;}
    vector<int>                *Events::genParticles_PDGid_() const {return genParticles_PDGid;}
 
-
+   vector<double> * Events::PDFweights_() const {return PDFweights;}
    vector<double>  Events::JetsPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < Jets->size();i++){
