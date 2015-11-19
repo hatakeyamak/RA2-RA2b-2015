@@ -73,7 +73,7 @@ using namespace std;
 
    vector<TLorentzVector> *genParticles;
    vector<int>     *genParticles_PDGid;
-
+   vector<double>  *PDFweights;
    vector<TLorentzVector> *Jets;
    vector<int>     *Jets_partonFlavor;
    vector<bool>    *HTJetsMask;
@@ -169,7 +169,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
    vector<TLorentzVector>      *genParticles_() const;
    vector<int>                 *genParticles_PDGid_() const;
-
+   vector<double> * PDFweights_() const;
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
