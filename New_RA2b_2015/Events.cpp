@@ -44,6 +44,7 @@
      genParticles = 0;
      genParticles_PDGid = 0;  
      PDFweights =0;
+     ScaleWeights = 0;
      Jets = 0;
      Jets_partonFlavor = 0;
      HTJetsMask = 0;
@@ -71,6 +72,8 @@
 //     selectedIDIsoElectronsPtVec=new vector<double>();
      selectedIDElectrons = 0;
 //     selectedIDIsoElectronsPtVec=new vector<double>();
+     slimJetJECdown = 0;
+     slimJetJECup = 0;
      slimJet = 0;
      IsolatedElectronTracksVeto = 0;
      IsolatedMuonTracksVeto = 0;
@@ -125,6 +128,7 @@
        fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
      }
      fChain->SetBranchAddress("PDFweights", &PDFweights);
+     fChain->SetBranchAddress("ScaleWeights", &ScaleWeights);
      fChain->SetBranchAddress("Jets", &Jets);
      fChain->SetBranchAddress("Jets_partonFlavor", &Jets_partonFlavor);
      fChain->SetBranchAddress("HTJetsMask", &HTJetsMask);
@@ -152,6 +156,8 @@
      fChain->SetBranchAddress("Electrons", &Electrons);
 //     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
      fChain->SetBranchAddress("selectedIDElectrons", &selectedIDElectrons);
+     fChain->SetBranchAddress("slimJetJECdown", &slimJetJECdown);  
+     fChain->SetBranchAddress("slimJetJECup", &slimJetJECup);
      fChain->SetBranchAddress("slimJet", &slimJet);
      fChain->SetBranchAddress("slimJet_slimJetID", &slimJet_slimJetID);
      fChain->SetBranchAddress("IsolatedElectronTracksVeto", &IsolatedElectronTracksVeto);
@@ -197,6 +203,9 @@
 
 
 // Some Functions
+  // Total number of events
+  int Events::TotNEve() const { return template_Entries; }   
+
   // Run number & event number
   int Events::Runnum() const { return RunNum; }
   int Events::Evtnum() const { return EvtNum; }
@@ -349,6 +358,7 @@
    vector<int>                *Events::genParticles_PDGid_() const {return genParticles_PDGid;}
 
    vector<double> * Events::PDFweights_() const {return PDFweights;}
+   vector<double> * Events::ScaleWeights_() const {return ScaleWeights;}
    vector<double>  Events::JetsPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < Jets->size();i++){
@@ -396,6 +406,8 @@
    vector<double>  Events::Jets_photonEnergyFraction_() const {return *Jets_photonEnergyFraction;}
    vector<int>  Events::Jets_photonMultiplicity_() const {return *Jets_photonMultiplicity;}
 
+   vector<TLorentzVector> * Events::slimJetJECdown_() const {return slimJetJECdown;}
+   vector<TLorentzVector> * Events::slimJetJECup_() const {return slimJetJECup;}
    vector<double>  Events::slimJetPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < slimJet->size();i++){
