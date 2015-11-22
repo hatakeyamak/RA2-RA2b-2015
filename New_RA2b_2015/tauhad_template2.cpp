@@ -83,7 +83,7 @@ using namespace std;
     histClass histObj;
     int TauResponse_nBins=4;
     int binx = -1;
-    vector<TH1*> vec_resp, vec_resp_x,vec_resp_y;
+    vector<TH1*> vec_resp, vec_resp_x,vec_resp_y,vec_respUp,vec_respDown;
     vector<TH2*> vec_resp_xy;
     vector<double> vec_recoMuMTW;
     vector<double> vec_MTActivity;
@@ -383,13 +383,17 @@ using namespace std;
       isrcorr.SetMother(1000021);
       //
     }
-
+   
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
     cout<< "\nProcessing " << subSampleKey << " ... " << endl;
     for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
 
+    // Interface to the event content
+    Events * evt = new Events(sample_AUX, subSampleKey,verbose);
+    
+    double fastsimWeight =1.0;
     if(subSampleKey.find("fast")!=string::npos){
       if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
       //
@@ -399,12 +403,29 @@ using namespace std;
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
       btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
+  
+      // determine the weight of fast sim signal
+      fstream XSfile("SkimSampleXSections.txt", std::fstream::in);
+      string line;
+      int GluinoMass =0;
+      double SampleXS=0.0, XS=0.0;
+      while (getline(XSfile, line)){
+        if (line.empty()) continue;
+        if (line[0] == '#') continue;
+        stringstream ss; ss << line;
+        ss >>  GluinoMass >> XS ;
+        if(GluinoMass== atoi(utils->skimInput(subSampleKey)[1].c_str())){
+          printf(" \n \n Gluino mass: %d XSection: %g \n",GluinoMass,XS);
+          SampleXS=XS;
+          break;
+        }
+      } 
+      XSfile.close();
+      fastsimWeight = (3000 * SampleXS)/evt->TotNEve() ;
+      printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
 
     // --- Analyse the events --------------------------------------------
-
-    // Interface to the event content
-    Events * evt = new Events(sample_AUX, subSampleKey,verbose);
 
     // Check consistancy
     bool isData;
@@ -427,7 +448,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag = false;
+    bool StudyErrorPropag = true;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -436,11 +457,17 @@ using namespace std;
     else if(subSampleKey.find("MTSelMinus")!=string::npos)UncerLoop[0]="MTSelMinus";
     else UncerLoop[0]="main";
     
-   
+ 
+    // get the acceptance systematics
+    TFile * AccSysfile;
+    TH1 * hAccSys, * hAccSys_lowDphi;
 
     eventType[0]="allEvents";
     if(StudyErrorPropag){
-
+      
+      AccSysfile = TFile::Open("TauHad/Elog408_AcceptanceSystematics_AllSamples.root","READ");
+      hAccSys = (TH1*) AccSysfile->Get("hAccSys")->Clone();
+      hAccSys_lowDphi = (TH1*) AccSysfile->Get("hAccSys_lowDphi")->Clone();
 
       //////////////////////////
       eventType[1]="BMistagPlus";
@@ -451,6 +478,8 @@ using namespace std;
       eventType[6]="IsoSysMinus";
       eventType[7]="MuRecoIsoPlus";
       eventType[8]="MuRecoIsoMinus";
+      eventType[9]="AccSysPlus";
+      eventType[10]="AccSysMinus";
       //eventType[5]="IsoPlus";
       //eventType[6]="IsoMinus";
       //eventType[7]="MTPlus";
@@ -571,10 +600,16 @@ using namespace std;
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
     //TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
-    TFile * resp_file = new TFile("TauHad/Stack/Elog404_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file = new TFile("TauHad/Stack/Elog404_WithJECUpDown_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      if(subSampleKey.find("template")!=string::npos){
+        sprintf(histname,"hTauResp_%d_Up",i);
+        vec_respUp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+        sprintf(histname,"hTauResp_%d_Down",i);
+        vec_respDown.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      }
       sprintf(histname,"hTauResp_%d_xy",i);
       vec_resp_xy.push_back( (TH2D*) resp_file->Get( histname )->Clone() );
 
@@ -931,11 +966,15 @@ using namespace std;
             // Get random number from tau-response template
             // or if bootstrap is on read the whole template
             // The template is chosen according to the muon pt
-            double scale;
+            double scale, scaleUp, scaleDown;
             if(utils2::bootstrap){
               scale = utils->GetBinValue(muPt,vec_resp,l );
-              if(UncerLoop[iuncer]=="templatePlus")scale=scale*1.1;       
-              else if(UncerLoop[iuncer]=="templateMinus")scale=scale*0.9;
+              if(subSampleKey.find("template")!=string::npos){
+                scaleUp = utils->GetBinValue(muPt,vec_respUp,l );
+                scaleDown = utils->GetBinValue(muPt,vec_respDown,l );
+              }
+              if(UncerLoop[iuncer]=="templatePlus")scale=scaleUp;       
+              else if(UncerLoop[iuncer]=="templateMinus")scale=scaleDown;
             }
             else scale = utils->getRandom(muPt,vec_resp );
             Double_t scale_x=0,scale_y=0;
@@ -1279,7 +1318,7 @@ using namespace std;
               }
 
               // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
-              double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
+              double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi, AccSysPlus, AccSysMinus, AccSysPlus_lowDphi, AccSysMinus_lowDphi;
 
               if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
@@ -1309,7 +1348,12 @@ using namespace std;
               AccMinus = Acc-AccError;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
-
+              if(StudyErrorPropag){
+                AccSysPlus = Acc + hAccSys->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysMinus = Acc - hAccSys->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysPlus_lowDphi = Acc_lowDphi + hAccSys_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysMinus_lowDphi = Acc_lowDphi - hAccSys_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+              }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
               Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
 
@@ -1340,6 +1384,7 @@ using namespace std;
               // if fastsim
               vector<double> prob;
               if(fastsim){
+                totWeight *= fastsimWeight;
                 double puWeight = 
                     puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
@@ -1628,7 +1673,12 @@ using namespace std;
                   totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
                   totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
                   totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
-                  totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;          
+                  totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;         
+                  // Acc Systematics
+                  totWeightMap["AccSysPlus"]=totWeight*Acc/AccSysPlus;
+                  totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
+                  totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
+                  totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
                   // Iso
                   totWeightMap["IsoPlus"]=totWeight;  
                   totWeightMap["IsoMinus"]=totWeight;

@@ -74,6 +74,7 @@ using namespace std;
    vector<TLorentzVector> *genParticles;
    vector<int>     *genParticles_PDGid;
    vector<double>  *PDFweights;
+   vector<double>  *ScaleWeights;
    vector<TLorentzVector> *Jets;
    vector<int>     *Jets_partonFlavor;
    vector<bool>    *HTJetsMask;
@@ -91,6 +92,8 @@ using namespace std;
    vector<double>  *Jets_photonEnergyFraction;
    vector<int>     *Jets_photonMultiplicity;
 
+   vector<TLorentzVector> *slimJetJECdown;
+   vector<TLorentzVector> *slimJetJECup;
    vector<TLorentzVector> *slimJet; 
 //   vector<double>  *slimmedMuonsPtVec;
    vector<TLorentzVector> *Muons;
@@ -114,7 +117,7 @@ using namespace std;
    vector<int>     *GenElec_GenElecFromTau;
    vector<int>     *GenTau_GenTauHad;
    vector<int>     *slimJet_slimJetID;
-   Bool_t         JetID;
+   Bool_t          JetID;
    Bool_t          JetIDloose; 
 
 public:
@@ -123,6 +126,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
 //Functions
   bool loadNext();
+  int TotNEve() const;
   int Runnum() const;
   int Evtnum() const;
   int nJets() const;
@@ -170,6 +174,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<TLorentzVector>      *genParticles_() const;
    vector<int>                 *genParticles_PDGid_() const;
    vector<double> * PDFweights_() const;
+   vector<double> * ScaleWeights_() const;
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
@@ -198,6 +203,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
    vector<int>     slimJetID_() const;
 
+   vector<TLorentzVector> * slimJetJECdown_() const;
+   vector<TLorentzVector> * slimJetJECup_() const;
    vector<double>  slimmedMuPtVec_() const;
    vector<double>  slimmedMuEtaVec_() const;
    vector<double>  slimmedMuPhiVec_() const;
