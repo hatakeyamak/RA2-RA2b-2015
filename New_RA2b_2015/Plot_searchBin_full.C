@@ -26,7 +26,7 @@ void shift_bin(TH1* input, TH1* output){
 
   char tempname[200];  
   char temptitle[200];  
-  //output->SetName(tempname);
+  output->SetName(tempname);
   output->SetTitle(temptitle);
   output->SetBins(input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5);
   //input->Print("all");
@@ -410,12 +410,6 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     ttext_nb->SetTextSize(0.060);
     ttext_nb->SetTextAlign(22);
     
-    /*
-    ttext_nb->DrawLatex( 4. , ymax_top/20. , "N_{b} = 0");
-    ttext_nb->DrawLatex(10. , ymax_top/20. , "N_{b} = 1");
-    ttext_nb->DrawLatex(16. , ymax_top/20. , "N_{b} = 2");
-    ttext_nb->DrawLatex(22. , ymax_top/20. , "N_{b} #geq 3");
-    */
     ttext_nb->DrawLatex( 4.-0.5 , ymax_top/12. , "N_{#scale[0.2]{ }b-jet}");
     ttext_nb->DrawLatex( 4.-0.5 , ymax_top/40. , "0");
     ttext_nb->DrawLatex(10.-0.5 , ymax_top/40. , "1");
@@ -435,7 +429,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     tl_njet->DrawLine( 45.,ymin_top, 45.,ymax_top); 
     tl_njet->DrawLine( 89.,ymin_top, 89.,ymax_top); 
     tl_njet->DrawLine(133.,ymin_top,133.,ymax_top); 
-    tl_njet->DrawLine(177.,ymin_top,177.,ymax_top/100.); 
+    tl_njet->DrawLine(177.,ymin_top,177.,ymax_top); 
 
     // Njet labels
     TLatex * ttext_njet = new TLatex();
@@ -445,8 +439,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     ttext_njet->DrawLatex(23. , ymax_top/4. , "N_{jets} = 4");
     ttext_njet->DrawLatex(67. , ymax_top/4. , "N_{jets} = 5");
     ttext_njet->DrawLatex(111., ymax_top/4. , "N_{jets} = 6");
-    ttext_njet->DrawLatex(155., ymax_top/400. , "7 #leq N_{jets} #leq 8");
-    ttext_njet->DrawLatex(199., ymax_top/400. , "N_{jets} #geq 9");
+    ttext_njet->DrawLatex(155., ymax_top/4. , "7 #leq N_{jets} #leq 8");
+    ttext_njet->DrawLatex(199., ymax_top/4. , "N_{jets} #geq 9");
 
     // Nb separation lines
     TLine *tl_nb = new TLine();
