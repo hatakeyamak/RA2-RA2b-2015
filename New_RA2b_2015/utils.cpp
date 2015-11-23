@@ -160,10 +160,11 @@ using namespace std;
 
     vector<string> Utils::skimInput(string mom){
       vector<string> vecStr;
-      vecStr.push_back(mom.substr(0,mom.find("_")));
-      mom=mom.substr(mom.find("-"));
-      vecStr.push_back(mom.substr(1,mom.find("_")-1));
-      mom=mom.substr(mom.find("LSP")+4);
-      vecStr.push_back(mom.substr(0,mom.find("_")));
+      while(mom.find("_")!=string::npos){
+        vecStr.push_back(mom.substr(0,mom.find("_")));
+        //cout <<  mom.substr(0,mom.find("_")) << endl;
+        mom=mom.substr(mom.find("_")+1);
+      }
+      vecStr.push_back(mom);
       return vecStr;
     }
