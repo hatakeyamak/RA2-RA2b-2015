@@ -6,7 +6,7 @@ using namespace std;
 CalcMtEff(){
 gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
 char tempname[200];
- int W = 600;
+int W = 600;
 int H = 600;
 int H_ref = 600;
 int W_ref = 800;
@@ -37,22 +37,21 @@ TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
 catLeg1->SetTextSize(0.032);
 catLeg1->SetTextFont(42);
 catLeg1->SetTextSize(0.04);
-  catLeg1->SetFillColor(0);
-  catLeg1->SetLineColor(0);
-  catLeg1->SetBorderSize(0);
-
+catLeg1->SetFillColor(0);
+catLeg1->SetLineColor(0);
+catLeg1->SetBorderSize(0);
 
 TH1D * thist_tt, * thist_wj;
 TH1D * thist_tt2, * thist_wj2;
 TH1D * thist_t, * thist_t2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * after_t = new TFile("Stack/Elog377_AfterMT_HadTauEstimation_T_stacked.root","R");
-TFile * before_t = new TFile("Stack/Elog377_BeforeMT_HadTauEstimation_T_stacked.root","R");
+TFile * after_tt = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
+TFile * before_tt = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
+TFile * after_wj = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * before_wj = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * after_t = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_T_stacked.root","R");
+TFile * before_t = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_T_stacked.root","R");
 
 TFile * outFile = new TFile("MtEff.root","RECREATE");
 
@@ -70,7 +69,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 19. , maxVal=2.;
+double XUp = 46. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);
@@ -192,7 +191,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 19. , maxVal=2.;
+double XUp = 46. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);

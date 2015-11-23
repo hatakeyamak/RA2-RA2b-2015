@@ -156,5 +156,14 @@ using namespace std;
 
       int bin = (int)( x/binWidth );
       return bin;
-    };
+    }
 
+    vector<string> Utils::skimInput(string mom){
+      vector<string> vecStr;
+      vecStr.push_back(mom.substr(0,mom.find("_")));
+      mom=mom.substr(mom.find("-"));
+      vecStr.push_back(mom.substr(1,mom.find("_")-1));
+      mom=mom.substr(mom.find("LSP")+4);
+      vecStr.push_back(mom.substr(0,mom.find("_")));
+      return vecStr;
+    }

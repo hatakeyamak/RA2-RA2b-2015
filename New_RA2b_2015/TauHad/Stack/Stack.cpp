@@ -615,6 +615,15 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
   histname[8]="tau_GenJetPhi";
+  histname[9]="hTauResp_0_Up";
+  histname[10]="hTauResp_1_Up";
+  histname[11]="hTauResp_2_Up";
+  histname[12]="hTauResp_3_Up";
+  histname[13]="hTauResp_0_Down";
+  histname[14]="hTauResp_1_Down";
+  histname[15]="hTauResp_2_Down";
+  histname[16]="hTauResp_3_Down";
+
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -1218,6 +1227,15 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
   histname[8]="tau_GenJetPhi";
+  histname[9]="hTauResp_0_Up";
+  histname[10]="hTauResp_1_Up";
+  histname[11]="hTauResp_2_Up";
+  histname[12]="hTauResp_3_Up";
+  histname[13]="hTauResp_0_Down";
+  histname[14]="hTauResp_1_Down";
+  histname[15]="hTauResp_2_Down";
+  histname[16]="hTauResp_3_Down";
+
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -1756,6 +1774,15 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[6]="hTauResp_2_xy";
   histname[7]="hTauResp_3_xy";
   histname[8]="tau_GenJetPhi";
+  histname[9]="hTauResp_0_Up";
+  histname[10]="hTauResp_1_Up";
+  histname[11]="hTauResp_2_Up";
+  histname[12]="hTauResp_3_Up";
+  histname[13]="hTauResp_0_Down";
+  histname[14]="hTauResp_1_Down";
+  histname[15]="hTauResp_2_Down";
+  histname[16]="hTauResp_3_Down";
+
 
   // Open the files to read
   sprintf(tempname,"HadTau_TauResponseTemplates_TTbar_stacked.root");
