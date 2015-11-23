@@ -41,7 +41,13 @@
      GenTauNu = 0;
      GenTaus = 0;
 
+     genParticles = 0;
+     genParticles_PDGid = 0;  
+     PDFweights =0;
+     ScaleWeights = 0;
      Jets = 0;
+     Jets_partonFlavor = 0;
+     HTJetsMask = 0;
      Jets_bDiscriminatorCSV = 0;
      Jets_chargedEmEnergyFraction = 0;
      Jets_chargedHadronEnergyFraction = 0;
@@ -66,6 +72,8 @@
 //     selectedIDIsoElectronsPtVec=new vector<double>();
      selectedIDElectrons = 0;
 //     selectedIDIsoElectronsPtVec=new vector<double>();
+     slimJetJECdown = 0;
+     slimJetJECup = 0;
      slimJet = 0;
      IsolatedElectronTracksVeto = 0;
      IsolatedMuonTracksVeto = 0;
@@ -99,7 +107,7 @@
      fChain->SetBranchAddress("DeltaPhi3", &DeltaPhi3);
      fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4);
      fChain->SetBranchAddress("JetID", &JetID);
-     fChain->SetBranchAddress("JetIDloose", &JetIDloose);
+     //fChain->SetBranchAddress("JetIDloose", &JetIDloose);
      fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
      fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter);
      fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
@@ -114,10 +122,16 @@
        fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
        fChain->SetBranchAddress("GenTauNu", &GenTauNu);
        fChain->SetBranchAddress("genHT", &genHT);
+       fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
+
+       fChain->SetBranchAddress("genParticles", &genParticles);
+       fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
      }
-
+     fChain->SetBranchAddress("PDFweights", &PDFweights);
+     fChain->SetBranchAddress("ScaleWeights", &ScaleWeights);
      fChain->SetBranchAddress("Jets", &Jets);
-
+     fChain->SetBranchAddress("Jets_partonFlavor", &Jets_partonFlavor);
+     fChain->SetBranchAddress("HTJetsMask", &HTJetsMask);
 
      fChain->SetBranchAddress("Jets_bDiscriminatorCSV", &Jets_bDiscriminatorCSV);
      fChain->SetBranchAddress("Jets_chargedEmEnergyFraction", &Jets_chargedEmEnergyFraction);
@@ -142,6 +156,8 @@
      fChain->SetBranchAddress("Electrons", &Electrons);
 //     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
      fChain->SetBranchAddress("selectedIDElectrons", &selectedIDElectrons);
+     fChain->SetBranchAddress("slimJetJECdown", &slimJetJECdown);  
+     fChain->SetBranchAddress("slimJetJECup", &slimJetJECup);
      fChain->SetBranchAddress("slimJet", &slimJet);
      fChain->SetBranchAddress("slimJet_slimJetID", &slimJet_slimJetID);
      fChain->SetBranchAddress("IsolatedElectronTracksVeto", &IsolatedElectronTracksVeto);
@@ -149,7 +165,6 @@
      fChain->SetBranchAddress("IsolatedPionTracksVeto", &IsolatedPionTracksVeto);
 
      fChain->SetBranchAddress("selectedIDIsoMuons_MT2Activity", &selectedIDIsoMuons_MT2Activity);
-     fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
      //
      fChain->SetBranchAddress("TriggerNames", &TriggerNames);
      fChain->SetBranchAddress("TriggerPass", &TriggerPass);
@@ -188,6 +203,9 @@
 
 
 // Some Functions
+  // Total number of events
+  int Events::TotNEve() const { return template_Entries; }   
+
   // Run number & event number
   int Events::Runnum() const { return RunNum; }
   int Events::Evtnum() const { return EvtNum; }
@@ -235,7 +253,7 @@
 
   // To see if an event passes the jetId requirement or not.  
   int Events::JetId() const {
-    return JetIDloose;
+    return JetID;
   }
 
   bool Events::DataBool_() const { return DataBool; }
@@ -336,6 +354,11 @@
      return vec;
    }
 
+   vector<TLorentzVector>     *Events::genParticles_() const {return genParticles;}
+   vector<int>                *Events::genParticles_PDGid_() const {return genParticles_PDGid;}
+
+   vector<double> * Events::PDFweights_() const {return PDFweights;}
+   vector<double> * Events::ScaleWeights_() const {return ScaleWeights;}
    vector<double>  Events::JetsPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < Jets->size();i++){
@@ -364,6 +387,9 @@
      }
      return vec;
    }
+   vector<TLorentzVector>  *Events::JetsLorVec_() const{return Jets;}
+   vector<int> *Events::Jets_partonFlavor_() const { return Jets_partonFlavor;}
+   vector<bool> *Events::HTJetsMask_() const { return HTJetsMask;}
 
 
    vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
@@ -380,6 +406,8 @@
    vector<double>  Events::Jets_photonEnergyFraction_() const {return *Jets_photonEnergyFraction;}
    vector<int>  Events::Jets_photonMultiplicity_() const {return *Jets_photonMultiplicity;}
 
+   vector<TLorentzVector> * Events::slimJetJECdown_() const {return slimJetJECdown;}
+   vector<TLorentzVector> * Events::slimJetJECup_() const {return slimJetJECup;}
    vector<double>  Events::slimJetPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < slimJet->size();i++){
@@ -574,7 +602,7 @@
    vector<double>  Events::GenMTActivityVec_() const{ return *GenMu_MT2Activity; }
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
-   vector<bool>     Events::PassTrigger_() const{ return *TriggerPass;}
+   vector<int>     Events::PassTrigger_() const{ return *TriggerPass;}
 
    vector<int>     Events::GenMuFromTauVec_() const { return *GenMu_GenMuFromTau;}
 

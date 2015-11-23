@@ -272,11 +272,16 @@ using namespace std;
     
     // They are filled for different bins in generated tau-lepton pt.
     std::vector<TH1*> hTauResp(utils->TauResponse_nBins_());
+    std::vector<TH1*> hTauRespUp(utils->TauResponse_nBins_());
+    std::vector<TH1*> hTauRespDown(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauResp_x(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauResp_y(utils->TauResponse_nBins_());
     std::vector<TH2*> hTauResp_xy(utils->TauResponse_nBins_());
+
     for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
       hTauResp.at(i) = new TH1D(utils->TauResponse_name(i),";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
+      hTauRespUp.at(i) = new TH1D(utils->TauResponse_name(i)+"_Up",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
+      hTauRespDown.at(i) = new TH1D(utils->TauResponse_name(i)+"_Down",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauResp.at(i)->Sumw2();
       hTauResp_x.at(i) = new TH1D(utils->TauResponse_name(i)+"_x",";p_{T}(visible)_x / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauResp_x.at(i)->Sumw2();
@@ -316,6 +321,49 @@ using namespace std;
 
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
+
+    // to calculate the acceptance systematics. Here evt->PDFweights_()[0] is the pdf for the nominal acc
+    // we want to calculate all the Acc correspondig with the 100 different pdf and take the RMS as systematic
+    bool CalcAccSys = true;
+    // define some vector of histograms corresponidng with different pdfs
+    vector<TH1*> hAccAllVec, hAccPassVec, hAccAll_lowDphiVec, hAccPass_lowDphiVec;
+    TH1* hSumofSquareOfDev = static_cast<TH1*>(hAccAll->Clone("hSumofSquareOfDev"));
+    TH1* hSumofSquareOfDev_lowDphi = static_cast<TH1*>(hAccAll->Clone("hSumofSquareOfDev_lowDphi"));
+    // this is the systematic uncertainty at the end
+    TH1* hAccSys = static_cast<TH1*>(hAccAll->Clone("hAccSys"));
+    TH1* hAccSys_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hAccSys_lowDphi"));
+    //
+    // scale uncertainty 
+    // define some vector of histograms corresponidng with different pdfs
+    vector<TH1*> hScaleAccAllVec, hScaleAccPassVec, hScaleAccAll_lowDphiVec, hScaleAccPass_lowDphiVec;
+    // this is the systematic uncertainty at the end
+    TH1* hScaleAccSys = static_cast<TH1*>(hAccAll->Clone("hScaleAccSys"));
+    TH1* hScaleAccSys_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hScaleAccSys_lowDphi"));
+
+    // number of pdfs. There is a check to make sure the number is correct. 
+    int PDFsize=101;
+    int Scalesize=9;
+    // initialize the vectors of histograms. So the binning is the same as nominal Acc
+    for(int iacc=0; iacc < PDFsize; iacc++){
+      sprintf(tempname,"hAccAll_%d",iacc);
+      hAccAllVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hAccPass_%d",iacc);
+      hAccPassVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hAccAll_lowDphi_%d",iacc);
+      hAccAll_lowDphiVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hAccPass_lowDphi_%d",iacc);
+      hAccPass_lowDphiVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+    }
+    for(int iacc=0; iacc < Scalesize; iacc++){
+      sprintf(tempname,"hScaleAccAll_%d",iacc);
+      hScaleAccAllVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hScaleAccPass_%d",iacc);
+      hScaleAccPassVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hScaleAccAll_lowDphi_%d",iacc);
+      hScaleAccAll_lowDphiVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+      sprintf(tempname,"hScaleAccPass_lowDphi_%d",iacc);
+      hScaleAccPass_lowDphiVec.push_back(static_cast<TH1*>(hAccAll->Clone(tempname)));
+    }
 
     // This code is to run only on MC
     if(evt->DataBool_()==true){
@@ -382,13 +430,24 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
+      if(evt->PDFweights_()->size()!= PDFsize){
+        cout << " PDFweights_()->size(): " << evt->PDFweights_()->size() << endl;
+        cout << " Please fix the value of the variable \"PDFsize\". \n Turning off the AccSys calculation \n " ;
+        CalcAccSys = false;
+      }
+      if(evt->ScaleWeights_()->size()!=Scalesize){
+        cout << " ScaleWeights_()->size(): " << evt->ScaleWeights_()->size() << endl;
+        cout << " Please fix the value of the variable \"Scalesize\". \n Turning off the AccSys calculation \n " ;
+        CalcAccSys = false;
+      }
+
       //if(eventN>100000)break;
       //if(eventN>20000)break;
 
-
-      eventWeight = evt->weight()/evt->puweight();
-      if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
-      if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
+      eventWeight = evt->weight();
+      //eventWeight = evt->weight()/evt->puweight();
+      //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
+      //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
 
 
@@ -601,8 +660,24 @@ using namespace std;
            &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
         hAccAll->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
+        if(CalcAccSys){
+        for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+          hAccAllVec.at(iacc)->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+        }
+        for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+          hScaleAccAllVec.at(iacc)->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+        }
+        }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
           hAccPass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          if(CalcAccSys){
+          for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+             hAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+          }
+          for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+             hScaleAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+          }
+          }
         } 
       }
       // Acceptance for low_Dphi region
@@ -610,8 +685,24 @@ using namespace std;
            &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
         ){
         hAccAll_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+        if(CalcAccSys){
+        for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+          hAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+        }
+        for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+          hScaleAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+        }
+        }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
           hAccPass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          if(CalcAccSys){
+          for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+            hAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+          }
+          for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+            hScaleAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+          }
+          }
         }
       }      
 
@@ -654,7 +745,7 @@ using namespace std;
 
 
       if(pass3){
-	cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
+  cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -766,7 +857,7 @@ using namespace std;
       // Ahmad33 this is to remove acceptance role to check other sources of error. 
       if(pass3){
 
-	cutflow_preselection->Fill(10.,eventWeight); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
+  cutflow_preselection->Fill(10.,eventWeight); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
@@ -880,10 +971,17 @@ using namespace std;
         // Select tau jet
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
+          //printf(" slimSize: %d UpSize: %d DownSize: %d \n ",evt->slimJetPtVec_().size(),evt->slimJetJECup_()->size(),evt->slimJetJECdown_()->size());
+
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
+          const double tauJetPtUp = evt->slimJetJECup_()->at(jetIdx).Pt();
+          const double tauJetPtDown = evt->slimJetJECdown_()->at(jetIdx).Pt();
+
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
+          hTauRespUp.at(ptBin)->Fill( tauJetPtUp / genTauPt ,eventWeight);
+          hTauRespDown.at(ptBin)->Fill( tauJetPtDown / genTauPt ,eventWeight);
 
           double tauJetPhi = evt->slimJetPhiVec_().at(jetIdx);
           const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
@@ -970,6 +1068,61 @@ using namespace std;
     hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
     TH1* hAcc_lowDphi = static_cast<TH1*>(hAccPass_lowDphi->Clone("hAcc_lowDphi"));
     hAcc_lowDphi->Divide(hAccPass_lowDphi,hAccAll_lowDphi,1,1,"B");
+    // some temporary histograms for acceptance systematics
+    vector<TH1*> hAccVec, hAcc_lowDphiVec, hAcc_DeviationFromNomVec, hAcc_DeviationFromNom_lowDphiVec;
+    vector<TH1*> hScaleAccVec, hScaleAcc_lowDphiVec;
+    if(CalcAccSys){
+      for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+        sprintf(tempname,"hAccVec_%d",iacc);
+        hAccVec.push_back(static_cast<TH1*>(hAccPassVec[iacc]->Clone(tempname)));
+        hAccVec[iacc]->Divide(hAccPassVec[iacc],hAccAllVec[iacc],1,1,"B");
+        sprintf(tempname,"hAcc_lowDphiVec_%d",iacc);
+        hAcc_lowDphiVec.push_back(static_cast<TH1*>(hAccPass_lowDphiVec[iacc]->Clone(tempname)));
+        hAcc_lowDphiVec[iacc]->Divide(hAccPass_lowDphiVec[iacc],hAccAll_lowDphiVec[iacc],1,1,"B");
+        // calculate the deviation from nominal acceptance 
+        hAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hAccVec[iacc]->Clone("hAcc_DeviationFromNomVec")));// copy
+        hAcc_DeviationFromNomVec[iacc]->Add(hAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
+        hAcc_DeviationFromNomVec[iacc]->Multiply(hAcc_DeviationFromNomVec[iacc]); // (Acc - Acc_nom)^2
+        hSumofSquareOfDev->Add(hAcc_DeviationFromNomVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+        // do the same for lowDphi
+        hAcc_DeviationFromNom_lowDphiVec.push_back(static_cast<TH1*>(hAcc_lowDphiVec[iacc]->Clone("hAcc_DeviationFromNom_lowDphiVec")));// copy
+        hAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
+        hAcc_DeviationFromNom_lowDphiVec[iacc]->Multiply(hAcc_DeviationFromNom_lowDphiVec[iacc]); // (Acc - Acc_nom)^2
+        hSumofSquareOfDev_lowDphi->Add(hAcc_DeviationFromNom_lowDphiVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+
+      }
+      for(int ibin=0; ibin < hAccSys->GetNbinsX()+2; ibin++){
+        hAccSys->SetBinContent(ibin,pow(hSumofSquareOfDev->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+        hAccSys_lowDphi->SetBinContent(ibin,pow(hSumofSquareOfDev_lowDphi->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+      }
+      //////////////
+      //////////////
+/*
+      for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+        sprintf(tempname,"hAccVec_%d",iacc);
+        hAccVec.push_back(static_cast<TH1*>(hAccPassVec[iacc]->Clone(tempname)));
+        hAccVec[iacc]->Divide(hAccPassVec[iacc],hAccAllVec[iacc],1,1,"B");
+        sprintf(tempname,"hAcc_lowDphiVec_%d",iacc);
+        hAcc_lowDphiVec.push_back(static_cast<TH1*>(hAccPass_lowDphiVec[iacc]->Clone(tempname)));
+        hAcc_lowDphiVec[iacc]->Divide(hAccPass_lowDphiVec[iacc],hAccAll_lowDphiVec[iacc],1,1,"B");
+        // calculate the deviation from nominal acceptance
+        hAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hAccVec[iacc]->Clone("hAcc_DeviationFromNomVec")));// copy
+        hAcc_DeviationFromNomVec[iacc]->Add(hAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
+        hAcc_DeviationFromNomVec[iacc]->Multiply(hAcc_DeviationFromNomVec[iacc]); // (Acc - Acc_nom)^2
+        hSumofSquareOfDev->Add(hAcc_DeviationFromNomVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+        // do the same for lowDphi
+        hAcc_DeviationFromNom_lowDphiVec.push_back(static_cast<TH1*>(hAcc_lowDphiVec[iacc]->Clone("hAcc_DeviationFromNom_lowDphiVec")));// copy
+        hAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
+        hAcc_DeviationFromNom_lowDphiVec[iacc]->Multiply(hAcc_DeviationFromNom_lowDphiVec[iacc]); // (Acc - Acc_nom)^2
+        hSumofSquareOfDev_lowDphi->Add(hAcc_DeviationFromNom_lowDphiVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+
+      }
+      for(int ibin=0; ibin < hAccSys->GetNbinsX()+2; ibin++){
+        hAccSys->SetBinContent(ibin,pow(hSumofSquareOfDev->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+        hAccSys_lowDphi->SetBinContent(ibin,pow(hSumofSquareOfDev_lowDphi->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+      }
+*/
+    }
 
     sprintf(tempname,"%s/LostLepton2_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile2(tempname,"RECREATE");
@@ -979,6 +1132,21 @@ using namespace std;
     hAcc_lowDphi->Write();
     hAccAll_lowDphi->Write();
     hAccPass_lowDphi->Write();
+    if(CalcAccSys){
+      TDirectory *tdir = outFile2.mkdir("Systematics"); 
+      tdir->cd();
+      for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+        hAccAllVec[iacc]->Write();
+        hAccPassVec[iacc]->Write();
+        hAccVec[iacc]->Write();
+        hAccAll_lowDphiVec[iacc]->Write();
+        hAccPass_lowDphiVec[iacc]->Write();
+        hAcc_lowDphiVec[iacc]->Write();
+
+      }
+      hAccSys->Write();
+      hAccSys_lowDphi->Write();
+    }
     outFile2.Close();
 
 
@@ -1076,6 +1244,14 @@ using namespace std;
         // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
         hTauResp.at(i)->Scale(1./hTauResp.at(i)->Integral("width"));
       }
+      if( hTauRespUp.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hTauRespUp.at(i)->Scale(1./hTauRespUp.at(i)->Integral("width"));
+      }
+      if( hTauRespDown.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hTauRespDown.at(i)->Scale(1./hTauRespDown.at(i)->Integral("width"));
+      }
       if( hTauResp_x.at(i)->Integral("width") > 0. ) {
         // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
         hTauResp_x.at(i)->Scale(1./hTauResp_x.at(i)->Integral("width"));
@@ -1097,6 +1273,10 @@ using namespace std;
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
       hTauResp.at(i)->Write();
       hTauResp.at(i)->SetLineColor(i);
+      hTauRespUp.at(i)->Write();
+      hTauRespUp.at(i)->SetLineColor(i);
+      hTauRespDown.at(i)->Write();
+      hTauRespDown.at(i)->SetLineColor(i);
       hTauResp_x.at(i)->Write();
       hTauResp_x.at(i)->SetLineColor(i);
       hTauResp_y.at(i)->Write();
@@ -1110,3 +1290,4 @@ using namespace std;
     tau_GenJetPhi->Write();
 
   }// end of main
+

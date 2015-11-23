@@ -33,13 +33,13 @@ using namespace std;
 //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
-   Int_t           CSCTightHaloFilter;
+   Bool_t          CSCTightHaloFilter;
    Int_t           eeBadScFilter;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
 
    UInt_t          RunNum;
    UInt_t          LumiBlockNum;
-   UInt_t          EvtNum;
+   ULong64_t       EvtNum;
    Int_t           NVtx;
 //   Int_t           isoTracks;
    Int_t           isoElectronTracks;
@@ -70,8 +70,14 @@ using namespace std;
    vector<TLorentzVector> *GenEls;
    vector<TLorentzVector> *GenTaus;
    vector<TLorentzVector> *GenTauNu;
-   vector<TLorentzVector> *Jets;
 
+   vector<TLorentzVector> *genParticles;
+   vector<int>     *genParticles_PDGid;
+   vector<double>  *PDFweights;
+   vector<double>  *ScaleWeights;
+   vector<TLorentzVector> *Jets;
+   vector<int>     *Jets_partonFlavor;
+   vector<bool>    *HTJetsMask;
    vector<double>  *Jets_bDiscriminatorCSV;
    vector<double>  *Jets_chargedEmEnergyFraction;
    vector<double>  *Jets_chargedHadronEnergyFraction;
@@ -86,6 +92,8 @@ using namespace std;
    vector<double>  *Jets_photonEnergyFraction;
    vector<int>     *Jets_photonMultiplicity;
 
+   vector<TLorentzVector> *slimJetJECdown;
+   vector<TLorentzVector> *slimJetJECup;
    vector<TLorentzVector> *slimJet; 
 //   vector<double>  *slimmedMuonsPtVec;
    vector<TLorentzVector> *Muons;
@@ -102,14 +110,14 @@ using namespace std;
    vector<double>  *selectedIDIsoMuons_MT2Activity;
    vector<double>  *GenMu_MT2Activity;
 
-   vector<bool>     *TriggerPass;
+   vector<int>     *TriggerPass;
    vector<string>  *TriggerNames;
 
    vector<int>     *GenMu_GenMuFromTau;
    vector<int>     *GenElec_GenElecFromTau;
    vector<int>     *GenTau_GenTauHad;
    vector<int>     *slimJet_slimJetID;
-   Bool_t         JetID;
+   Bool_t          JetID;
    Bool_t          JetIDloose; 
 
 public:
@@ -118,6 +126,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
 //Functions
   bool loadNext();
+  int TotNEve() const;
   int Runnum() const;
   int Evtnum() const;
   int nJets() const;
@@ -162,10 +171,15 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenTauNuEtaVec_() const;
    vector<double>  GenTauNuPhiVec_() const;
 
+   vector<TLorentzVector>      *genParticles_() const;
+   vector<int>                 *genParticles_PDGid_() const;
+   vector<double> * PDFweights_() const;
+   vector<double> * ScaleWeights_() const;
    vector<double>  JetsPtVec_() const;
    vector<double>  JetsEtaVec_() const;
    vector<double>  JetsPhiVec_() const;
    vector<double>  JetsEVec_() const;
+   vector<TLorentzVector> * JetsLorVec_() const;
    vector<double>  csvVec() const;
    vector<double>  Jets_chargedEmEnergyFraction_() const;
    vector<double>  Jets_chargedHadronEnergyFraction_() const;
@@ -183,9 +197,14 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;
    vector<double>  slimJetPhiVec_() const;
+   vector<int>    * Jets_partonFlavor_() const;
+   vector<bool>   * HTJetsMask_() const;
+
 
    vector<int>     slimJetID_() const;
 
+   vector<TLorentzVector> * slimJetJECdown_() const;
+   vector<TLorentzVector> * slimJetJECup_() const;
    vector<double>  slimmedMuPtVec_() const;
    vector<double>  slimmedMuEtaVec_() const;
    vector<double>  slimmedMuPhiVec_() const;
@@ -225,7 +244,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenMTActivityVec_() const;
 
    vector<string>  TriggerNames_() const;
-   vector<bool>  PassTrigger_() const;
+   vector<int>  PassTrigger_() const;
    double csv_() const;
    
 //   int GoodVtx_() const; 
