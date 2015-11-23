@@ -7,12 +7,12 @@
 //
 // inner product
 template <class InputIterator1, class InputIterator2, class T>
-   T inner_product (InputIterator1 first1, InputIterator1 last1,
-                    InputIterator2 first2, T init)
+T inner_product (InputIterator1 first1, InputIterator1 last1,
+		 InputIterator2 first2, T init)
 {
   while (first1!=last1) {
     init = init + (*first1)*(*first2);
-               // or: init = binary_op1 (init, binary_op2(*first1,*first2));
+    // or: init = binary_op1 (init, binary_op2(*first1,*first2));
     ++first1; ++first2;
   }
   return init;
@@ -21,7 +21,7 @@ template <class InputIterator1, class InputIterator2, class T>
 //
 // accumulate
 template <class InputIterator, class T>
-   T accumulate (InputIterator first, InputIterator last, T init)
+T accumulate (InputIterator first, InputIterator last, T init)
 {
   while (first!=last) {
     init = init + *first;  // or: init=binary_op(init,*first) for the binary_op version
@@ -132,78 +132,24 @@ void CalcAcceptanceSystematics_KH(){
 
     //cout << "bincontent: " <<  hAccSys->GetBinContent(iacc) << endl;
     accPDFVariations.clear();
-    accPDFVariations_lowDphi.clear();
-    accPDFVariations_sort.clear();
-    accPDFVariations_lowDphi_sort.clear();
-    for (int iPDF=1;iPDF<=100;iPDF++){
-      accPDFVariations.push_back(hAccVec[iPDF]->GetBinContent(iacc));
-      accPDFVariations_lowDphi.push_back(hAcc_lowDphiVec[iPDF]->GetBinContent(iacc));
-      //if (iPDF==1||iPDF==2) std::cout << hAccVec[iPDF]->GetBinContent(iacc) << std::endl;
-    }  
-    accPDFVariations_sort=accPDFVariations;
-    accPDFVariations_lowDphi_sort=accPDFVariations_lowDphi;
-    sort(accPDFVariations_sort.begin(),accPDFVariations_sort.end());
-    sort(accPDFVariations_lowDphi_sort.begin(),accPDFVariations_lowDphi_sort.end());
+    _lowDphi_sort.end());
 
-    double sum = accumulate(accPDFVariations.begin(), accPDFVariations.end(), 0.0);
-    double mean = sum / accPDFVariations.size();
+  double sum = accumulate(accPDFVariations.begin(), accPDFVariations.end(), 0.0);
+  double mean = sum / accPDFVariations.size();
 
-    double sq_sum = inner_product(accPDFVariations.begin(), accPDFVariations.end(), accPDFVariations.begin(), 0.0);
-    double stdev = sqrt(sq_sum / accPDFVariations.size() - mean * mean);
-
-    double max_dev = *max_element(accPDFVariations.begin(),accPDFVariations.end()) - hAccVec[0]->GetBinContent(iacc);
-    double min_dev = *min_element(accPDFVariations.begin(),accPDFVariations.end()) - hAccVec[0]->GetBinContent(iacc);
-    double max2_dev = accPDFVariations_sort[accPDFVariations_sort.size()-2]-hAccVec[0]->GetBinContent(iacc);
-    double min2_dev = accPDFVariations_sort[1]-hAccVec[0]->GetBinContent(iacc);
+  double sq_sum = inner_product(accPDFVariations.begin(), accPDFVariations.end(), accPDFVariations.begin(), 0.0);
+  double stdev = sqrt(sq_sum / accPDi.begin(), accPDFVariations_lowDphi.end(), accPDFVariations_lowDphi.begin(), 0.0);
+  double stdev_lowDphi = sqrt(sq_sum_lowDphi / accPDFVariations_lowDphi.size() - mean_lowDphi * mean_lowDphi);
   
-    double sum_lowDphi = accumulate(accPDFVariations_lowDphi.begin(), accPDFVariations_lowDphi.end(), 0.0);
-    double mean_lowDphi = sum_lowDphi / accPDFVariations_lowDphi.size();
+  double max_dev_lowDphi = *max_element(accPDFVariations_lowDphi.begin(),accPDFVariatioev,min_dev,max2_dev,min2_dev,
+					hAcc_lowDphiVec[0]->GetBinContent(iacc),mean_lowDphi,stdev_lowDphi,max_dev_lowDphi,min_dev_lowDphi,max2_dev_lowDphi,min2_dev_lowDphi
+					);
 
-    double sq_sum_lowDphi = inner_product(accPDFVariations_lowDphi.begin(), accPDFVariations_lowDphi.end(), accPDFVariations_lowDphi.begin(), 0.0);
-    double stdev_lowDphi = sqrt(sq_sum_lowDphi / accPDFVariations_lowDphi.size() - mean_lowDphi * mean_lowDphi);
-  
-    double max_dev_lowDphi = *max_element(accPDFVariations_lowDphi.begin(),accPDFVariations_lowDphi.end()) - hAcc_lowDphiVec[0]->GetBinContent(iacc);
-    double min_dev_lowDphi = *min_element(accPDFVariations_lowDphi.begin(),accPDFVariations_lowDphi.end()) - hAcc_lowDphiVec[0]->GetBinContent(iacc);
-    double max2_dev_lowDphi = accPDFVariations_lowDphi_sort[accPDFVariations_lowDphi_sort.size()-2]        - hAcc_lowDphiVec[0]->GetBinContent(iacc);
-    double min2_dev_lowDphi = accPDFVariations_lowDphi_sort[1]                                             - hAcc_lowDphiVec[0]->GetBinContent(iacc);
-
-    printf("%5d %8.3f(%8.3f) +- %6.3f(RMS) +%6.3f%6.3f(max/min),+%6.3f%6.3f(2n max/min), %8.3f(%8.3f) +- %6.3f +%6.3f%6.3f(max/min)+%6.3f%6.3f(2nd max/min)\n",
-	   iacc,
-	   hAccVec[0]->GetBinContent(iacc),mean,stdev,max_dev,min_dev,max2_dev,min2_dev,
-	   hAcc_lowDphiVec[0]->GetBinContent(iacc),mean_lowDphi,stdev_lowDphi,max_dev_lowDphi,min_dev_lowDphi,max2_dev_lowDphi,min2_dev_lowDphi
-	   );
-
-    hAccSysRMS->SetBinContent(iacc,stdev);
-    hAccSysUp->SetBinContent(iacc,max_dev);
-    hAccSysDn->SetBinContent(iacc,min_dev);
-
-    hAccSysRMS_lowDphi->SetBinContent(iacc,stdev_lowDphi); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
-    hAccSysUp_lowDphi->SetBinContent(iacc,max_dev_lowDphi); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
-    hAccSysDn_lowDphi->SetBinContent(iacc,min_dev_lowDphi); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
-  
-  }
-
-  TFile * outFile = new TFile("AcceptanceSystematics_AllSamples.root","RECREATE");
-
-  hAccSysRMS->Write();
-  hAccSysUp->Write();
-  hAccSysDn->Write();
-
-  hAccSysRMS_lowDphi->Write();
-  hAccSysUp_lowDphi->Write();
-  hAccSysDn_lowDphi->Write();
-
-  //hAccSysRMS->Print("all");
-  
-  /*
-    for(int iacc=0; iacc < PDFsize ; iacc++){
-    hAccAllVec[iacc]->Write();
-    hAccPassVec[iacc]->Write();
-    hAccVec[iacc]->Write();
-    hAccAll_lowDphiVec[iacc]->Write();
-    hAccPass_lowDphiVec[iacc]->Write();
-    hAcc_lowDphiVec[iacc]->Write();
-    }
+  hAccSysRMS->SetBinContent(iacc,stdev);
+  hAccSysUp->SetBinC   hAccAll_lowDphiVec[iacc]->Write();
+  hAccPass_lowDphiVec[iacc]->Write();
+  hAcc_lowDphiVec[iacc]->Write();
+}
   */
 
   outFile->Close();
