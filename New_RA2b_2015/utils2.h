@@ -33,12 +33,12 @@ namespace utils2{
   // CalcMT. Save the search bin histogram. Next turn on applyMT and run again. Divide 
   // the two search bin histograms, after and before applyMT. 
   // At the end, turn off CalcMT.
-  bool CalcMT =false;
+  bool CalcMT =true;
 
 
   bool applyTrig = false;
 
-  bool applyIsoTrk =true;
+  bool applyIsoTrk =false;
 //###############################################################################################################
 
 
