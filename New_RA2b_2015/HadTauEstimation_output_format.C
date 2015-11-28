@@ -12,22 +12,25 @@ void muFromTauStatErrPropagation(TH1* input, TH1* one, TH1* output);
 void isoTrkVetoErrPropagation(TH1* input, double sys, TH1* one, TH1* output_tot, TH1* output_stat, TH1* output_sys);
 
 void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
-				    string elogForMCExp="Elog404_",    // MC expectation
-				    string elogForMCPre="Elog408_",    // MC prediction
+				    string elogForMCExp="Elog410_",    // MC expectation
+				    string elogForMCPre="Elog410_",    // MC prediction
 				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag and muon efficiencies
+				    string elogForMuSys="Elog410_",    // MC-based systematics evaluation for Btag and muon efficiencies
 				    string elogForMTSysUp="Elog402_",  // MT systematics
 				    string elogForMTSysDn="Elog403_",
 				    string elogForMTSysRef="Elog397_",
-				    string elogForJECSysUp="Elog388_",   // JEC 
-				    string elogForJECSysDn="Elog389_",
-				    string elogForJECSysRef="Elog387_",
+				    string elogForJECSysUp="Elog410_",   // JEC 
+				    string elogForJECSysDn="Elog410_",
+				    string elogForJECSysRef="Elog410_",
 				    string elogForIsoTrkVeto="Elog401_", // Isotrack veto
 				    string elogForMuFromTau="Elog401_",  // Muon from tau
 				    string elogForAccStat="Elog401_",    // Acceptance 
 				    string elogForMTStat="Elog401_",     // MT cut efficiency
+				    string elogForMTUp="Elog410_",     // MT cut efficiency
+ 				    string elogForMTDn="Elog410_",     // MT cut efficiency  
 				    string elogForAccPDF="Elog408_",
 				    string elogForAccScale="Elog408_",
-				    double trigEff=0.948,
+				    double trigEff=0.951,
 				    //double lumiTarget=1.280231,
 				    //double lumiControl=1.263886,
 				    double lumiTarget=2.109271,
@@ -101,22 +104,9 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   TFile * MCSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
-  //
-  // MTcut eff
-  //
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
-  TFile * MTSysUpFile = new TFile(tempname,"R");
-  printf("Opened %s\n",tempname);
-
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
-  TFile * MTSysDnFile = new TFile(tempname,"R");
-  printf("Opened %s\n",tempname);
-
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
-  TFile * MTSysRefFile = new TFile(tempname,"R");
+  sprintf(tempname,"TauHad2/HadTauEstimation_MuonIDIsoSys_AllSamples_%s.root",elogForMuSys.c_str());
+  //sprintf(tempname,"TauHad2/%sHadTauEstimation_haddedToContainSysErrorFolders_.root",elogForSys.c_str());
+  TFile * MuSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
   
   //
@@ -244,8 +234,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   //
   // Acceptance systematics
   // -----------------
-  string elogForAccPDF="Elog408_";
-  string elogForAccScale="Elog408_";
+  //string elogForAccPDF="Elog408_";
+  //string elogForAccScale="Elog408_";
 
   //----------
   sprintf(tempname,"TauHad/%sAcceptanceSystematicsFromPDF_AllSamples.root",elogForAccPDF.c_str());
@@ -320,15 +310,22 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   accErrPropagation(QCDBin_LowDphi_AccSysScaleDn,QCDBin_LowDphi_Acc);
 
   //
-  /*
-  TH1D* searchBin_MtEffStat  = (TH1D*)searchBin_MtEff->Clone("seaerchBin_MtEffStat");
-  TH1D* QCDBin_HiDphi_MtEffStat  = (TH1D*)QCDBin_HiDphi_MtEff->Clone("QCDBin_HiDphi_MtEffStat");
-  TH1D* QCDBin_LowDphi_MtEffStat = (TH1D*)QCDBin_LowDphi_MtEff->Clone("QCDBin_LowDphi_MtEffStat");
+  // MTcut eff
+  //
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
+  TFile * MTSysUpFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
 
-  effMapStatErrPropagation(searchBin_MtEff,searchBin_MtEffStat);
-  effMapStatErrPropagation(QCDBin_HiDphi_MtEff, QCDBin_HiDphi_MtEffStat);
-  effMapStatErrPropagation(QCDBin_LowDphi_MtEff,QCDBin_LowDphi_MtEffStat);
-  */
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
+  TFile * MTSysDnFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+
+  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
+  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
+  TFile * MTSysRefFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
 
   //
   // MT cut efficiency
@@ -338,6 +335,18 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   printf("Opened %s\n",tempname);
   TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
   TH1D * hMT_LowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
+
+  sprintf(tempname,"TauHad2/MtEff_%sMTPlus_.root",elogForMTUp.c_str());
+  TFile * MtUpFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+  TH1D * hMTUp = (TH1D *) MtUpFile->Get("MtCutEff")->Clone();
+  TH1D * hMTUp_LowDphi = (TH1D *) MtUpFile->Get("MtCutEff_lowDphi")->Clone();
+
+  sprintf(tempname,"TauHad2/MtEff_%sMTMinus_.root",elogForMTDn.c_str());
+  TFile * MtDnFile = new TFile(tempname,"R");
+  printf("Opened %s\n",tempname);
+  TH1D * hMTDn = (TH1D *) MtDnFile->Get("MtCutEff")->Clone();
+  TH1D * hMTDn_LowDphi = (TH1D *) MtDnFile->Get("MtCutEff_lowDphi")->Clone();
 
   TH1D* searchBin_MtEff = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_MtEff");
   searchBin_MtEff->Reset();
@@ -672,14 +681,14 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   TH1D* searchBin_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagDn");
   
   sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  TH1D* searchBin_MuRecoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoSysUp");
+  TH1D* searchBin_MuRecoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysUp");
   sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  TH1D* searchBin_MuRecoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoSysDn");
+  TH1D* searchBin_MuRecoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysDn");
 
   sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  TH1D* searchBin_MuIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuIsoSysUp");
+  TH1D* searchBin_MuIsoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysUp");
   sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  TH1D* searchBin_MuIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuIsoSysDn");
+  TH1D* searchBin_MuIsoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysDn");
 
   sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
   TH1D* searchBin_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoUp");
@@ -877,6 +886,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   //
   // JEC & MT cut efficiency
   //
+
   string histname="searchH_b";
   sprintf(tempname,"%s",histname.c_str());
   tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
