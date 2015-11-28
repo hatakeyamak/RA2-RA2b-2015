@@ -330,15 +330,19 @@ using namespace std;
     TH1* hSumofSquareOfDev = static_cast<TH1*>(hAccAll->Clone("hSumofSquareOfDev"));
     TH1* hSumofSquareOfDev_lowDphi = static_cast<TH1*>(hAccAll->Clone("hSumofSquareOfDev_lowDphi"));
     // this is the systematic uncertainty at the end
-    TH1* hAccSys = static_cast<TH1*>(hAccAll->Clone("hAccSys"));
-    TH1* hAccSys_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hAccSys_lowDphi"));
+    TH1* hAccSysMax = static_cast<TH1*>(hAccAll->Clone("hAccSysMax"));
+    TH1* hAccSysMax_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hAccSysMax_lowDphi"));
+    TH1* hAccSysMin = static_cast<TH1*>(hAccAll->Clone("hAccSysMin"));
+    TH1* hAccSysMin_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hAccSysMin_lowDphi"));
     //
     // scale uncertainty 
     // define some vector of histograms corresponidng with different pdfs
     vector<TH1*> hScaleAccAllVec, hScaleAccPassVec, hScaleAccAll_lowDphiVec, hScaleAccPass_lowDphiVec;
     // this is the systematic uncertainty at the end
-    TH1* hScaleAccSys = static_cast<TH1*>(hAccAll->Clone("hScaleAccSys"));
-    TH1* hScaleAccSys_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hScaleAccSys_lowDphi"));
+    TH1* hScaleAccSysMax = static_cast<TH1*>(hAccAll->Clone("hScaleAccSysMax"));
+    TH1* hScaleAccSysMax_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hScaleAccSysMax_lowDphi"));
+    TH1* hScaleAccSysMin = static_cast<TH1*>(hAccAll->Clone("hScaleAccSysMin"));
+    TH1* hScaleAccSysMin_lowDphi = static_cast<TH1*>(hAccAll_lowDphi->Clone("hScaleAccSysMin_lowDphi"));
 
     // number of pdfs. There is a check to make sure the number is correct. 
     int PDFsize=101;
@@ -675,7 +679,7 @@ using namespace std;
              hAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
           }
           for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-             hScaleAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+            hScaleAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
           }
           }
         } 
@@ -690,18 +694,18 @@ using namespace std;
           hAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
         }
         for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-          hScaleAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+         hScaleAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
         }
         }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
           hAccPass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
-          if(CalcAccSys){
-          for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-            hAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
-          }
-          for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-            hScaleAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
-          }
+            if(CalcAccSys){
+            for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+              hAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+            }
+            for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+              hScaleAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+            }
           }
         }
       }      
@@ -1070,7 +1074,7 @@ using namespace std;
     hAcc_lowDphi->Divide(hAccPass_lowDphi,hAccAll_lowDphi,1,1,"B");
     // some temporary histograms for acceptance systematics
     vector<TH1*> hAccVec, hAcc_lowDphiVec, hAcc_DeviationFromNomVec, hAcc_DeviationFromNom_lowDphiVec;
-    vector<TH1*> hScaleAccVec, hScaleAcc_lowDphiVec;
+    vector<TH1*> hScaleAccVec, hScaleAcc_lowDphiVec, hScaleAcc_DeviationFromNomVec, hScaleAcc_DeviationFromNom_lowDphiVec;
     if(CalcAccSys){
       for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
         sprintf(tempname,"hAccVec_%d",iacc);
@@ -1082,46 +1086,62 @@ using namespace std;
         // calculate the deviation from nominal acceptance 
         hAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hAccVec[iacc]->Clone("hAcc_DeviationFromNomVec")));// copy
         hAcc_DeviationFromNomVec[iacc]->Add(hAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
-        hAcc_DeviationFromNomVec[iacc]->Multiply(hAcc_DeviationFromNomVec[iacc]); // (Acc - Acc_nom)^2
-        hSumofSquareOfDev->Add(hAcc_DeviationFromNomVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
         // do the same for lowDphi
         hAcc_DeviationFromNom_lowDphiVec.push_back(static_cast<TH1*>(hAcc_lowDphiVec[iacc]->Clone("hAcc_DeviationFromNom_lowDphiVec")));// copy
         hAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
-        hAcc_DeviationFromNom_lowDphiVec[iacc]->Multiply(hAcc_DeviationFromNom_lowDphiVec[iacc]); // (Acc - Acc_nom)^2
-        hSumofSquareOfDev_lowDphi->Add(hAcc_DeviationFromNom_lowDphiVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
 
       }
-      for(int ibin=0; ibin < hAccSys->GetNbinsX()+2; ibin++){
-        hAccSys->SetBinContent(ibin,pow(hSumofSquareOfDev->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
-        hAccSys_lowDphi->SetBinContent(ibin,pow(hSumofSquareOfDev_lowDphi->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+      for(int ibin=0; ibin < hAccSysMax->GetNbinsX()+2; ibin++){
+        for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
+          if(hAccSysMax->GetBinContent(ibin)<hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
+            hAccSysMax->SetBinContent(ibin,hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+          }
+          if(hAccSysMax_lowDphi->GetBinContent(ibin)<hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)){
+            hAccSysMax_lowDphi->SetBinContent(ibin,hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+          }
+          if(hAccSysMin->GetBinContent(ibin)>hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
+            hAccSysMin->SetBinContent(ibin,hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+          }
+          if(hAccSysMin_lowDphi->GetBinContent(ibin)>hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)){
+            hAccSysMin_lowDphi->SetBinContent(ibin,hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+          }
+        }
       }
       //////////////
       //////////////
-/*
-      for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-        sprintf(tempname,"hAccVec_%d",iacc);
-        hAccVec.push_back(static_cast<TH1*>(hAccPassVec[iacc]->Clone(tempname)));
-        hAccVec[iacc]->Divide(hAccPassVec[iacc],hAccAllVec[iacc],1,1,"B");
-        sprintf(tempname,"hAcc_lowDphiVec_%d",iacc);
-        hAcc_lowDphiVec.push_back(static_cast<TH1*>(hAccPass_lowDphiVec[iacc]->Clone(tempname)));
-        hAcc_lowDphiVec[iacc]->Divide(hAccPass_lowDphiVec[iacc],hAccAll_lowDphiVec[iacc],1,1,"B");
+
+      for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+        sprintf(tempname,"hScaleAccVec_%d",iacc);
+        hScaleAccVec.push_back(static_cast<TH1*>(hScaleAccPassVec[iacc]->Clone(tempname)));
+        hScaleAccVec[iacc]->Divide(hScaleAccPassVec[iacc],hScaleAccAllVec[iacc],1,1,"B");
+        sprintf(tempname,"hScaleAcc_lowDphiVec_%d",iacc);
+        hScaleAcc_lowDphiVec.push_back(static_cast<TH1*>(hScaleAccPass_lowDphiVec[iacc]->Clone(tempname)));
+        hScaleAcc_lowDphiVec[iacc]->Divide(hScaleAccPass_lowDphiVec[iacc],hScaleAccAll_lowDphiVec[iacc],1,1,"B");
         // calculate the deviation from nominal acceptance
-        hAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hAccVec[iacc]->Clone("hAcc_DeviationFromNomVec")));// copy
-        hAcc_DeviationFromNomVec[iacc]->Add(hAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
-        hAcc_DeviationFromNomVec[iacc]->Multiply(hAcc_DeviationFromNomVec[iacc]); // (Acc - Acc_nom)^2
-        hSumofSquareOfDev->Add(hAcc_DeviationFromNomVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+        hScaleAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hScaleAccVec[iacc]->Clone("hScaleAcc_DeviationFromNomVec")));// copy
+        hScaleAcc_DeviationFromNomVec[iacc]->Add(hScaleAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
         // do the same for lowDphi
-        hAcc_DeviationFromNom_lowDphiVec.push_back(static_cast<TH1*>(hAcc_lowDphiVec[iacc]->Clone("hAcc_DeviationFromNom_lowDphiVec")));// copy
-        hAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
-        hAcc_DeviationFromNom_lowDphiVec[iacc]->Multiply(hAcc_DeviationFromNom_lowDphiVec[iacc]); // (Acc - Acc_nom)^2
-        hSumofSquareOfDev_lowDphi->Add(hAcc_DeviationFromNom_lowDphiVec[iacc]); // sum{ (Acc - Acc_nom)^2 }
+        hScaleAcc_DeviationFromNom_lowDphiVec.push_back(static_cast<TH1*>(hScaleAcc_lowDphiVec[iacc]->Clone("hScaleAcc_DeviationFromNom_lowDphiVec")));// copy
+        hScaleAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hScaleAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
 
       }
-      for(int ibin=0; ibin < hAccSys->GetNbinsX()+2; ibin++){
-        hAccSys->SetBinContent(ibin,pow(hSumofSquareOfDev->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
-        hAccSys_lowDphi->SetBinContent(ibin,pow(hSumofSquareOfDev_lowDphi->GetBinContent(ibin),0.5)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
+      for(int ibin=0; ibin < hScaleAccSysMax->GetNbinsX()+2; ibin++){
+        for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+          if(hScaleAccSysMax->GetBinContent(ibin)<hScaleAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
+            hScaleAccSysMax->SetBinContent(ibin,hScaleAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin));// 
+          }
+          if(hScaleAccSysMax_lowDphi->GetBinContent(ibin)<hScaleAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)){
+            hScaleAccSysMax_lowDphi->SetBinContent(ibin,hScaleAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin));
+          }
+          if(hScaleAccSysMin->GetBinContent(ibin)>hScaleAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
+            hScaleAccSysMin->SetBinContent(ibin,hScaleAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin));//
+          }
+          if(hScaleAccSysMin_lowDphi->GetBinContent(ibin)>hScaleAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)){
+            hScaleAccSysMin_lowDphi->SetBinContent(ibin,hScaleAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin));
+          }
+        }
       }
-*/
+
     }
 
     sprintf(tempname,"%s/LostLepton2_MuonEfficienciesFrom%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
@@ -1135,6 +1155,16 @@ using namespace std;
     if(CalcAccSys){
       TDirectory *tdir = outFile2.mkdir("Systematics"); 
       tdir->cd();
+      hAccSysMax->Write();
+      hAccSysMax_lowDphi->Write();
+      hAccSysMin->Write();
+      hAccSysMin_lowDphi->Write();
+      hScaleAccSysMax->Write();
+      hScaleAccSysMax_lowDphi->Write();
+      hScaleAccSysMin->Write();
+      hScaleAccSysMin_lowDphi->Write();
+      TDirectory *tdir2 = outFile2.mkdir("PdfAcc");
+      tdir2->cd();
       for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
         hAccAllVec[iacc]->Write();
         hAccPassVec[iacc]->Write();
@@ -1144,8 +1174,18 @@ using namespace std;
         hAcc_lowDphiVec[iacc]->Write();
 
       }
-      hAccSys->Write();
-      hAccSys_lowDphi->Write();
+      TDirectory *tdir3 = outFile2.mkdir("ScaleAcc");
+      tdir3->cd();
+      for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
+        hScaleAccAllVec[iacc]->Write();
+        hScaleAccPassVec[iacc]->Write();
+        hScaleAccVec[iacc]->Write();
+        hScaleAccAll_lowDphiVec[iacc]->Write();
+        hScaleAccPass_lowDphiVec[iacc]->Write();
+        hScaleAcc_lowDphiVec[iacc]->Write();
+
+      }
+
     }
     outFile2.Close();
 
@@ -1290,4 +1330,5 @@ using namespace std;
     tau_GenJetPhi->Write();
 
   }// end of main
+
 

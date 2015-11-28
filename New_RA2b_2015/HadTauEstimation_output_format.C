@@ -234,8 +234,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   //
   // Acceptance systematics
   // -----------------
-  string elogForAccPDF="Elog408_";
-  string elogForAccScale="Elog408_";
+  //string elogForAccPDF="Elog408_";
+  //string elogForAccScale="Elog408_";
 
   //----------
   sprintf(tempname,"TauHad/%sAcceptanceSystematicsFromPDF_AllSamples.root",elogForAccPDF.c_str());
@@ -308,17 +308,6 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   QCDBin_LowDphi_AccSysScaleDn->Reset();
   binMap_QCD(hAccSysScaleDn_LowDphi,QCDBin_LowDphi_AccSysScaleDn);
   accErrPropagation(QCDBin_LowDphi_AccSysScaleDn,QCDBin_LowDphi_Acc);
-
-  //
-  /*
-  TH1D* searchBin_MtEffStat  = (TH1D*)searchBin_MtEff->Clone("seaerchBin_MtEffStat");
-  TH1D* QCDBin_HiDphi_MtEffStat  = (TH1D*)QCDBin_HiDphi_MtEff->Clone("QCDBin_HiDphi_MtEffStat");
-  TH1D* QCDBin_LowDphi_MtEffStat = (TH1D*)QCDBin_LowDphi_MtEff->Clone("QCDBin_LowDphi_MtEffStat");
-
-  effMapStatErrPropagation(searchBin_MtEff,searchBin_MtEffStat);
-  effMapStatErrPropagation(QCDBin_HiDphi_MtEff, QCDBin_HiDphi_MtEffStat);
-  effMapStatErrPropagation(QCDBin_LowDphi_MtEff,QCDBin_LowDphi_MtEffStat);
-  */
 
   //
   // MTcut eff
@@ -897,6 +886,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   //
   // JEC & MT cut efficiency
   //
+
   string histname="searchH_b";
   sprintf(tempname,"%s",histname.c_str());
   tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  

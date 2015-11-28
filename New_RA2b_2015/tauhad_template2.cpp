@@ -365,14 +365,14 @@ using namespace std;
       sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
-      if(skimInput.size()!=3){
-        cout<<"Something is wrong with the naming of the skim file.\nUse an input like T1bbbb_mMother-1500_mLSP-800_fast";
+      if(skimInput.size()!=5){
+        cout<<"Something is wrong with the naming of the skim file.\nUse an input like T1bbbb_mMother-1500_mLSP-800_fast \n";
         return 2;
       }
       //
       sprintf(tempname,
       "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-      skimInput[0].c_str(),skimInput[1].c_str(),skimInput[2].c_str());
+      skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
@@ -414,7 +414,7 @@ using namespace std;
         if (line[0] == '#') continue;
         stringstream ss; ss << line;
         ss >>  GluinoMass >> XS ;
-        if(GluinoMass== atoi(utils->skimInput(subSampleKey)[1].c_str())){
+        if(GluinoMass== atoi(utils->skimInput(subSampleKey)[2].c_str())){
           printf(" \n \n Gluino mass: %d XSection: %g \n",GluinoMass,XS);
           SampleXS=XS;
           break;
@@ -448,7 +448,7 @@ using namespace std;
     }
 
 
-    bool StudyErrorPropag = true;
+    bool StudyErrorPropag = false;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -459,15 +459,23 @@ using namespace std;
     
  
     // get the acceptance systematics
-    TFile * AccSysfile;
-    TH1 * hAccSys, * hAccSys_lowDphi;
+    TFile * AccSysfile, * AccSysfile2;
+    TH1 * hAccSysMax, * hAccSysMax_lowDphi, * hScaleAccSysMax, * hScaleAccSysMax_lowDphi;
+    TH1 * hAccSysMin, * hAccSysMin_lowDphi, * hScaleAccSysMin, * hScaleAccSysMin_lowDphi;
 
     eventType[0]="allEvents";
     if(StudyErrorPropag){
       
-      AccSysfile = TFile::Open("TauHad/Elog408_AcceptanceSystematics_AllSamples.root","READ");
-      hAccSys = (TH1*) AccSysfile->Get("hAccSys")->Clone();
-      hAccSys_lowDphi = (TH1*) AccSysfile->Get("hAccSys_lowDphi")->Clone();
+      AccSysfile = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromPDF_AllSamples.root","READ");
+      AccSysfile2 = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromScale_AllSamples.root","READ");
+      hAccSysMax = (TH1*) AccSysfile->Get("hAccSysMax")->Clone();
+      hAccSysMax_lowDphi = (TH1*) AccSysfile->Get("hAccSysMax_lowDphi")->Clone();
+      hScaleAccSysMax = (TH1*) AccSysfile2->Get("hScaleAccSysMax")->Clone();
+      hScaleAccSysMax_lowDphi = (TH1*) AccSysfile2->Get("hScaleAccSysMax_lowDphi")->Clone();
+      hAccSysMin = (TH1*) AccSysfile->Get("hAccSysMin")->Clone();
+      hAccSysMin_lowDphi = (TH1*) AccSysfile->Get("hAccSysMin_lowDphi")->Clone();
+      hScaleAccSysMin = (TH1*) AccSysfile2->Get("hScaleAccSysMin")->Clone();
+      hScaleAccSysMin_lowDphi = (TH1*) AccSysfile2->Get("hScaleAccSysMin_lowDphi")->Clone();
 
       //////////////////////////
       eventType[1]="BMistagPlus";
@@ -478,8 +486,13 @@ using namespace std;
       eventType[6]="IsoSysMinus";
       eventType[7]="MuRecoIsoPlus";
       eventType[8]="MuRecoIsoMinus";
+/*
       eventType[9]="AccSysPlus";
       eventType[10]="AccSysMinus";
+      eventType[11]="ScaleAccSysPlus";
+      eventType[12]="ScaleAccSysMinus";
+*/
+      //
       //eventType[5]="IsoPlus";
       //eventType[6]="IsoMinus";
       //eventType[7]="MTPlus";
@@ -1318,7 +1331,8 @@ using namespace std;
               }
 
               // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
-              double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi, AccSysPlus, AccSysMinus, AccSysPlus_lowDphi, AccSysMinus_lowDphi;
+              double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
+              double AccSysPlus, AccSysMinus, AccSysPlus_lowDphi, AccSysMinus_lowDphi, ScaleAccSysPlus, ScaleAccSysMinus, ScaleAccSysPlus_lowDphi, ScaleAccSysMinus_lowDphi;
 
               if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
@@ -1349,10 +1363,14 @@ using namespace std;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
               if(StudyErrorPropag){
-                AccSysPlus = Acc + hAccSys->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysMinus = Acc - hAccSys->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysPlus_lowDphi = Acc_lowDphi + hAccSys_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysMinus_lowDphi = Acc_lowDphi - hAccSys_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysPlus = Acc + hAccSysMax->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysMinus = Acc - hAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysPlus_lowDphi = Acc_lowDphi + hAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysMinus_lowDphi = Acc_lowDphi - hAccSysMin_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                ScaleAccSysPlus = Acc + hScaleAccSysMax->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                ScaleAccSysMinus = Acc - hScaleAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                ScaleAccSysPlus_lowDphi = Acc_lowDphi + hScaleAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                ScaleAccSysMinus_lowDphi = Acc_lowDphi - hScaleAccSysMin_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
               }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
               Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
@@ -1679,6 +1697,10 @@ using namespace std;
                   totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
                   totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
                   totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
+                  totWeightMap["ScaleAccSysPlus"]=totWeight*Acc/ScaleAccSysPlus;
+                  totWeightMap["ScaleAccSysMinus"]=totWeight*Acc/ScaleAccSysMinus;
+                  totWeightMap_lowDphi["ScaleAccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysPlus_lowDphi;
+                  totWeightMap_lowDphi["ScaleAccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysMinus_lowDphi;
                   // Iso
                   totWeightMap["IsoPlus"]=totWeight;  
                   totWeightMap["IsoMinus"]=totWeight;
@@ -1735,14 +1757,14 @@ using namespace std;
                     totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
                   }
                   // Reco & Iso systetmatics
-                  totWeightMap["RecoSysPlus"]=totWeight/(1+utils2::getMuonIDSF(muPt,muEta));// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["RecoSysMinus"]=totWeight/(1-utils2::getMuonIDSF(muPt,muEta));
-                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/(1+utils2::getMuonIDSF(muPt,muEta));
-                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/(1-utils2::getMuonIDSF(muPt,muEta));
-                  totWeightMap["IsoSysPlus"]=totWeight/(1+utils2::getMuonIsoSF(muPt,muEta,activity));// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["IsoSysMinus"]=totWeight/(1-utils2::getMuonIsoSF(muPt,muEta,activity));
-                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/(1+utils2::getMuonIsoSF(muPt,muEta,activity));
-                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/(1-utils2::getMuonIsoSF(muPt,muEta,activity));
+                  totWeightMap["RecoSysPlus"]=totWeight/(1.01);// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["RecoSysMinus"]=totWeight/(0.99);
+                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/(1.01);
+                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/(0.99);
+                  totWeightMap["IsoSysPlus"]=totWeight/(1.01);// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["IsoSysMinus"]=totWeight/(0.99);
+                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/(1.01);
+                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/(0.99);
 
 
                 }

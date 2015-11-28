@@ -7,5 +7,5 @@ eval `scramv1 runtime -sh`
 #
 
 
-./run_tauHad2 "InputFiles_Signal/${filename}" "${filename}_${outputStr}" "TauHad2Multiple" "00" "0"
+./run_tauHad2 "InputFiles_Signal/${filename}" "${filename}-${outputStr}" "TauHad2Multiple" "00" "0"
 
