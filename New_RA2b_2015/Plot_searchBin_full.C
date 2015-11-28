@@ -7,9 +7,9 @@ using namespace std;
 
 /*
 
-root.exe -b -q 'Plot_searchBin_full.C("stacked","searchH_b","Elog408_","Elog404_")'
-root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Low",  "Elog408_","Elog404_")'
-root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up",   "Elog408_","Elog404_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","searchH_b","Elog410_","Elog410_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Low",  "Elog410_","Elog410_")'
+root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up",   "Elog410_","Elog410_")'
 
 .L Plot_searchBin_full.C
 Plot_searchBin_full("stacked","searchH_b","Elog365_");
@@ -45,7 +45,7 @@ void shift_bin(TH1* input, TH1* output){
 
 }
 
-Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="Elog401_",string elogExp="Elog381_",
+Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="Elog410_",string elogExp="Elog410_",
 		    int pull=0){
 
   ///////////////////////////////////////////////////////////////////////////////////////////

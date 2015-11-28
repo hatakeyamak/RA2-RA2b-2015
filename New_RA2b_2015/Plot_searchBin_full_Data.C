@@ -5,12 +5,14 @@ using namespace std;
 
 /*
 
+root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","searchH_b")'
+
 .L Plot_searchBin_full_Data.C
-Plot_searchBin_full_Data("stacked","searchH_b",1.28)
-Plot_searchBin_full_Data("stacked","hPredHTMHT0b",1.28)
-Plot_searchBin_full_Data("stacked","hPredHTMHTwb",1.28)
-Plot_searchBin_full_Data("stacked","hPredNJetBins",1.28)
-Plot_searchBin_full_Data("stacked","hPredNbBins",1.28)
+Plot_searchBin_full_Data("stacked","searchH_b")
+Plot_searchBin_full_Data("stacked","hPredHTMHT0b")
+Plot_searchBin_full_Data("stacked","hPredHTMHTwb")
+Plot_searchBin_full_Data("stacked","hPredNJetBins")
+Plot_searchBin_full_Data("stacked","hPredNbBins")
 
 root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","searchH_b",1.28)'
 root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","QCD_Up",1.28)'
@@ -23,8 +25,8 @@ root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","hPredNbBins",1.28)'
 */
 
 Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
-			 double lumiTarget=1.280231, double lumiControl=1.263886,
-			 bool normalize=false,double trigEff=0.948){
+			 double lumiTarget=2.109271, double lumiControl=2.093663,
+			 bool normalize=false,double trigEff=0.951){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -83,7 +85,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   
   //data file
   //TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15cd_.root","R");
-  TFile * EstFile = new TFile("TauHad2/Elog404_HadTauEstimation_data_SingleMuon_v15d_TriggerOn.root","R");
+  //TFile * EstFile = new TFile("TauHad2/Elog404_HadTauEstimation_data_SingleMuon_v15d_TriggerOn.root","R");
+  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15d_Elog408_V5_.root","R");
   
 
   sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
@@ -189,8 +192,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   
   // Adding extra poisson 0 error term
   for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
-    EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
-    EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.275,2),0.5));
+    EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.45,2),0.5));
+    EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.45,2),0.5));
     //cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
     //cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
   }
@@ -291,7 +294,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
 
   //EstHist->SetFillStyle(3004);
   EstHist->SetFillStyle(3144);
-  EstHist->SetFillColor(kGreen-3);
+  EstHist->SetFillColor(kRed-10);
   EstHist->SetMarkerStyle(20);
   EstHist->SetMarkerSize(0.0001);
   //EstHist->Draw("e2same");
@@ -300,7 +303,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //EstHist_Normalize->Scale(lumi/lumi_ttbar);
   //EstHist_Normalize->DrawCopy("e2 same");
   EstHist_Rectangle->SetFillStyle(3144);
-  EstHist_Rectangle->SetFillColor(kGreen-3);
+  EstHist_Rectangle->SetFillColor(kRed-10);
   EstHist_Rectangle->DrawCopy("e2 same");
   EstHist_Normalize->DrawCopy("e0 same");
   //EstHist_Normalize->DrawCopy("esame");
@@ -324,7 +327,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //
   
   char lumilabel[200];
-  sprintf(lumilabel,"%8.2f fb^{-1}",lumiTarget);
+  sprintf(lumilabel,"%8.1f fb^{-1}",lumiTarget);
 
   if(histname.find("searchH_b")!=string::npos ){
 	
