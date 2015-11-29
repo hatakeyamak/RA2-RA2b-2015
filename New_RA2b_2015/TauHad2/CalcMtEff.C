@@ -3,7 +3,7 @@
 using namespace std;
 
 
-CalcMtEff(){
+CalcMtEff(string outStr=""){
 gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
 char tempname[200];
 int W = 600;
@@ -46,14 +46,15 @@ TH1D * thist_tt2, * thist_wj2;
 TH1D * thist_t, * thist_t2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * after_t = new TFile("Stack/Elog401_AfterMT_HadTauEstimation_T_stacked.root","R");
-TFile * before_t = new TFile("Stack/Elog401_BeforeMT_HadTauEstimation_T_stacked.root","R");
+TFile * after_tt = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_TTbar_stacked.root","R");
+TFile * before_tt = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_TTbar_stacked.root","R");
+TFile * after_wj = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_WJet_stacked.root","R");
+TFile * before_wj = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_WJet_stacked.root","R");
+TFile * after_t = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_T_stacked.root","R");
+TFile * before_t = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_T_stacked.root","R");
 
-TFile * outFile = new TFile("MtEff.root","RECREATE");
+sprintf(tempname,"MtEff_%s_.root",outStr.c_str());
+TFile * outFile = new TFile(tempname,"RECREATE");
 
 ////////
 // ttbar
@@ -150,7 +151,7 @@ MtCutEff_tot->Write();
     catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
     catLeg1->Draw();
 
-sprintf(tempname,"MtEff.png");
+sprintf(tempname,"MtEffi_%s_.png",outStr.c_str());
 c1->Print(tempname);
 
 //////////
@@ -270,7 +271,7 @@ MtCutEff_tot->Write();
     catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
     catLeg2->Draw();
 
-sprintf(tempname,"MtEff_lowDphi.png");
+sprintf(tempname,"MtEff_lowDphi_%s_.png",outStr.c_str());
 c2->Print(tempname);
 
 

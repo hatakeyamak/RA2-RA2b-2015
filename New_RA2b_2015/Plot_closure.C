@@ -63,7 +63,7 @@ root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","El
 
  */
 
-Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacked",
+Plot_closure(string cutname="delphi", string histname="NJet",string sample="stacked",
 	     string elogForPre="Elog410_",string elogForExp="Elog410_",
 	     bool zoom=true, bool debug=false){
 
@@ -210,7 +210,9 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
   double search_x_min=0.;
   double DelPhiN_x_max=20.;
   double Delphi1_x_max=3.2;
-  
+
+  Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.}; 
+ 
   TH1D * GenHist_Clone;
   
   for(int i=0; i<filevec.size(); i++){
@@ -227,6 +229,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
           tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
           GenHist=(TH1D*) tempstack->GetStack()->Last();
+          if(histname=="NJet")GenHist=(TH1D*)GenHist->Rebin(10,"GenHist",NJ_bins);
         }
       }
       if(i==1){
@@ -238,10 +241,12 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
           tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
           EstHist=(TH1D*) tempstack->GetStack()->Last();
+          if(histname=="NJet")EstHist=(TH1D*)EstHist->Rebin(10,"EstHist",NJ_bins);
         }
       }
       tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
       thist=(TH1D*) tempstack->GetStack()->Last();
+      if(histname=="NJet")thist=(TH1D*) thist->Rebin(10,"thist",NJ_bins);
       thist->SetLineColor(2*i+2);
       thist->SetFillColor(0);
       std::cout << "tempstack print starts" << std::endl;
@@ -341,6 +346,7 @@ Plot_closure(string cutname="nocut", string histname="MHT",string sample="stacke
       xtext_top = 2.8;
       //y_legend = 3000.;
       ymax_top = 2000.;
+      if(cutname=="Njet_9")ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;
       sprintf(xtitlename,"Number of b-tags");
