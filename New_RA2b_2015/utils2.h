@@ -33,69 +33,12 @@ namespace utils2{
   // CalcMT. Save the search bin histogram. Next turn on applyMT and run again. Divide 
   // the two search bin histograms, after and before applyMT. 
   // At the end, turn off CalcMT.
-  bool CalcMT =true;
+  bool CalcMT =false;
 
 
   bool applyTrig = false;
 
-  bool applyIsoTrk =false;
-//###############################################################################################################
-
-
-static double getMuonIDSF(Double_t pt, Double_t eta){
-  double sf = 1.;
-
-  if(std::abs(eta)<1.2){
-    if(pt < 20) sf = 0.983;
-    else if(pt < 30) sf = 0.985;
-    else if(pt < 40) sf = 0.992;
-    else if(pt < 50) sf = 0.994;
-    else if(pt < 60) sf = 0.988;
-    else if(pt < 80) sf = 0.986;
-    else if(pt < 120) sf = 0.979;
-    else sf = 1.016;
-  }
-  else{
-    if(pt < 20) sf = 1.004;
-    else if(pt < 30) sf = 0.994;
-    else if(pt < 40) sf = 0.99;
-    else if(pt < 50) sf = 0.992;
-    else if(pt < 60) sf = 0.986;
-    else if(pt < 80) sf = 0.981;
-    else if(pt < 120) sf = 0.955;
-    else sf = 1.005;
-  }
-
-  return std::abs(1. - sf);
-}
-
-static double getMuonIsoSF(Double_t pt, Double_t eta, Double_t act){
-  double sf = 1.;
-
-  if(std::abs(eta)<1.2){
-    if(pt < 20) sf = 1.002;
-    else if(pt < 30) sf = 1.001;
-    else if(pt < 40) sf = 1.000;
-    else if(pt < 50) sf = 1.000;
-    else if(pt < 60) sf = 1.001;
-    else if(pt < 80) sf = 1.001;
-    else if(pt < 120) sf = 1.000;
-    else sf = 1.000;
-  }
-  else{
-    if(pt < 20) sf = 0.995;
-    else if(pt < 30) sf = 1.001;
-    else if(pt < 40) sf = 1.000;
-    else if(pt < 50) sf = 1.000;
-    else if(pt < 60) sf = 1.000;
-    else if(pt < 80) sf = 1.000;
-    else if(pt < 120) sf = 1.000;
-    else sf = 1.000;
-  }
-
-  return std::abs(1. - sf);
-}
-
+  bool applyIsoTrk =true;
 
 
 //###############################################################################################################

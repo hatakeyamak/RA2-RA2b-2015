@@ -12,6 +12,7 @@
     cutname[8]="delphi"; cutname[9]="low_Dphi";
     cutname[10]="delphi_NoIso"; cutname[11]="mht_500";
     cutname[12]="J46_HT5001200_MHT500750";
+    cutname[13]="Njet_9";
   }
 
   bool Selection::ElecIsoTrk(int nElecIso_){
@@ -52,6 +53,7 @@
     if(ss== cutname[10]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
     if(ss== cutname[11]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_500( mht_))return true;}
     if(ss== cutname[12]){if(nolep( nLeptons_)&&Njet_4_6( nJets_)&&ht_500_1200( ht_)&&mht_500_750( mht_))return true;}
+    if(ss== cutname[13]){if(nolep( nLeptons_)&&Njet_9( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&PionIsoTrk(nPionIso_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
   return false;
   }
 
@@ -70,6 +72,7 @@
     if(ss== cutname[10]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
     if(ss== cutname[11]){if(Njet_4( nJets_)&&ht_500( ht_)&&mht_500( mht_))return true;}
     if(ss== cutname[12]){if(Njet_4_6( nJets_)&&ht_500_1200( ht_)&&mht_500_750( mht_))return true;}
+    if(ss== cutname[13]){if(Njet_9( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
 
   return false;
   }
