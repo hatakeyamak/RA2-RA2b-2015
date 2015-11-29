@@ -371,7 +371,8 @@ using namespace std;
       }
       //
       sprintf(tempname,
-      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
+      //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
+      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
       skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
@@ -463,9 +464,16 @@ using namespace std;
     TH1 * hAccSysMax, * hAccSysMax_lowDphi, * hScaleAccSysMax, * hScaleAccSysMax_lowDphi;
     TH1 * hAccSysMin, * hAccSysMin_lowDphi, * hScaleAccSysMin, * hScaleAccSysMin_lowDphi;
 
+    TFile * MuonIdFile, * MuonIsoFile;
+    TH2F * hMuIdSF, * hMuIsoSF;
     eventType[0]="allEvents";
     if(StudyErrorPropag){
-      
+      MuonIdFile = TFile::Open("TauHad/MuonIDScaleFactor.root","READ");
+      MuonIsoFile = TFile::Open("TauHad/MuonIsoScaleFactor.root","READ");
+      hMuIdSF = (TH2F*) MuonIdFile->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_tag_combRelIsoPF04dBeta_bin0_&_tag_pt_bin0_&_tag_IsoMu20_pass")->Clone();
+      hMuIsoSF = (TH2F*) MuonIsoFile->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_tag_combRelIsoPF04dBeta_bin0_&_tag_pt_bin0_&_PF_pass_&_tag_IsoMu20_pass")->Clone();
+
+/*      
       AccSysfile = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromPDF_AllSamples.root","READ");
       AccSysfile2 = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromScale_AllSamples.root","READ");
       hAccSysMax = (TH1*) AccSysfile->Get("hAccSysMax")->Clone();
@@ -476,17 +484,17 @@ using namespace std;
       hAccSysMin_lowDphi = (TH1*) AccSysfile->Get("hAccSysMin_lowDphi")->Clone();
       hScaleAccSysMin = (TH1*) AccSysfile2->Get("hScaleAccSysMin")->Clone();
       hScaleAccSysMin_lowDphi = (TH1*) AccSysfile2->Get("hScaleAccSysMin_lowDphi")->Clone();
-
+*/
       //////////////////////////
+      eventType[1]="RecoSysPlus";
+      eventType[2]="RecoSysMinus";
+      eventType[3]="IsoSysPlus";
+      eventType[4]="IsoSysMinus";
+/*
       eventType[1]="BMistagPlus";
       eventType[2]="BMistagMinus";
-      eventType[3]="RecoSysPlus";
-      eventType[4]="RecoSysMinus";
-      eventType[5]="IsoSysPlus";
-      eventType[6]="IsoSysMinus";
       eventType[7]="MuRecoIsoPlus";
       eventType[8]="MuRecoIsoMinus";
-/*
       eventType[9]="AccSysPlus";
       eventType[10]="AccSysMinus";
       eventType[11]="ScaleAccSysPlus";
@@ -1333,6 +1341,7 @@ using namespace std;
               // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
               double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
               double AccSysPlus, AccSysMinus, AccSysPlus_lowDphi, AccSysMinus_lowDphi, ScaleAccSysPlus, ScaleAccSysMinus, ScaleAccSysPlus_lowDphi, ScaleAccSysMinus_lowDphi;
+              double IsoSFUp, IsoSFDw, IdSFUp,IdSFDw;
 
               if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
@@ -1363,6 +1372,34 @@ using namespace std;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
               if(StudyErrorPropag){
+                double tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
+                double tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
+                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is laways less than 2.1 so we are fine.
+                  tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
+                  tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
+                }
+                //printf(" ####\n muPt: %g muEta: %g \n err1: %2.3f err2: %2.3f \n",muPt,muEta,fabs(1.-tempval),pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5)); 
+                tempval=max( fabs(1.-tempval) , pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5) );
+                //printf(" err: %2.3f \n",tempval);
+                IsoSFUp=1.+tempval;
+                IsoSFDw=1.-tempval;
+                
+                tempval=0.;
+                tempvalErr=0.;
+                tempval=hMuIdSF->GetBinContent(hMuIdSF->GetXaxis()->FindBin(muPt),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
+                tempvalErr=hMuIdSF->GetBinError(hMuIdSF->GetXaxis()->FindBin(muPt),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
+                if(muPt>=120.){
+                  tempval=hMuIdSF->GetBinContent(hMuIdSF->GetXaxis()->FindBin(119.99),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
+                  tempvalErr=hMuIdSF->GetBinError(hMuIdSF->GetXaxis()->FindBin(119.99),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
+                }
+                //printf(" ####\n muPt: %g muEta: %g \n err1: %2.3f err2: %2.3f \n",muPt,muEta,fabs(1.-tempval),pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5));
+                tempval=max( fabs(1.-tempval) , pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5) );
+                //printf(" err: %2.3f \n",tempval);
+                IdSFUp=1.+tempval;
+                IdSFDw=1.-tempval;
+                //printf(" muPt: %g muEta: %g IsoSFUp: %g IsoSFDw: %g IdSFUp: %g IdSFDw: %g \n",muPt,muEta,IsoSFUp,IsoSFDw,IdSFUp,IdSFDw);
+                
+/*
                 AccSysPlus = Acc + hAccSysMax->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
                 AccSysMinus = Acc - hAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
                 AccSysPlus_lowDphi = Acc_lowDphi + hAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
@@ -1371,6 +1408,7 @@ using namespace std;
                 ScaleAccSysMinus = Acc - hScaleAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
                 ScaleAccSysPlus_lowDphi = Acc_lowDphi + hScaleAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
                 ScaleAccSysMinus_lowDphi = Acc_lowDphi - hScaleAccSysMin_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+*/
               }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
               Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
@@ -1422,6 +1460,12 @@ using namespace std;
 
               if(utils2::bootstrap){
                 double bootstrapWeight = utils->GetBinContent(muPt,vec_resp,l) * utils->GetBinWidth(muPt,vec_resp,l);
+                if(UncerLoop[iuncer]=="templatePlus"){
+                  bootstrapWeight = utils->GetBinContent(muPt,vec_respUp,l) * utils->GetBinWidth(muPt,vec_respUp,l);
+                }
+                else if(UncerLoop[iuncer]=="templateMinus"){
+                  bootstrapWeight = utils->GetBinContent(muPt,vec_respDown,l) * utils->GetBinWidth(muPt,vec_respDown,l);
+                }
                 totWeight*=bootstrapWeight;
                 totWeight*=Prob_Btag;
                 totWeight_lowDphi*=bootstrapWeight;
@@ -1757,14 +1801,14 @@ using namespace std;
                     totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
                   }
                   // Reco & Iso systetmatics
-                  totWeightMap["RecoSysPlus"]=totWeight/(1.01);// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["RecoSysMinus"]=totWeight/(0.99);
-                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/(1.01);
-                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/(0.99);
-                  totWeightMap["IsoSysPlus"]=totWeight/(1.01);// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["IsoSysMinus"]=totWeight/(0.99);
-                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/(1.01);
-                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/(0.99);
+                  totWeightMap["RecoSysPlus"]=totWeight/IdSFUp;// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["RecoSysMinus"]=totWeight/IdSFDw;
+                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/IdSFUp;
+                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/IdSFDw;
+                  totWeightMap["IsoSysPlus"]=totWeight/IsoSFUp;// this is Eff_Arne/1.1*Eff_Arne
+                  totWeightMap["IsoSysMinus"]=totWeight/IsoSFDw;
+                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/IsoSFUp;
+                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/IsoSFDw;
 
 
                 }

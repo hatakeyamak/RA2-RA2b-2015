@@ -11,10 +11,14 @@
 #include <unistd.h>
 
 
-void WrapUpSignalContamination(){
+void WrapUpSignalContamination(string type="T1bbbb"){
+
+  char tempname[200];
+  char filenames[500];
 
   // open a file to write the output 
-  TFile * outfile = new TFile("TauHad2/AllSignalFiles.root","RECREATE");
+  sprintf(tempname,"TauHad2/%s_SignalFiles.root",type.c_str());
+  TFile * outfile = new TFile(tempname,"RECREATE");
   TDirectory * tdirSearch = outfile->mkdir("SearchH_b");
   TDirectory * tdirQCD_Up = outfile->mkdir("QCD_Up");
   TDirectory * tdirQCD_Low = outfile->mkdir("QCD_Low");
@@ -22,13 +26,12 @@ void WrapUpSignalContamination(){
   // a temporary histogram
   TH1D * temphist;
 
-  char filenames[500];
-  char tempname[200];
   vector<string> filesVec;
-  ifstream fin("AllInputSignal.txt");
+  sprintf(tempname,"%s_InputSignal.txt",type.c_str());
+  ifstream fin(tempname);
   // check the timing of the file. If outdated alert. 
   struct stat t_stat; 
-  stat("AllInputSignal.txt", &t_stat);
+  stat(tempname, &t_stat);
   tm  timeinfo = *localtime(&t_stat.st_ctime); // or gmtime() depending on what you want
   printf(" File's date: year: %g month: %g day: %g \n",1900+timeinfo.tm_year,1+timeinfo.tm_mon,timeinfo.tm_mday );
   // Today's date
@@ -46,7 +49,7 @@ void WrapUpSignalContamination(){
   while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
   for(unsigned int in=0; in<filesVec.size(); in++){
     sprintf(tempname,"%s",filesVec.at(in).c_str());
-    sprintf(filenames,"TauHad2Multiple/HadTauEstimation_%s-Nov22_00.root",filesVec.at(in).c_str());  
+    sprintf(filenames,"TauHad2Multiple/HadTauEstimation_%s-Nov28_00.root",filesVec.at(in).c_str());  
     TFile * infile = new TFile(filenames,"READ");
     if(!infile->IsOpen()){
       printf(" file: %s is not open \n",filesVec.at(in).c_str());
