@@ -20,8 +20,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 				    string elogForMTSysUp="Elog402_",  // MT systematics
 				    string elogForMTSysDn="Elog403_",
 				    string elogForMTSysRef="Elog397_",
-				    string elogForJECSysUp="Elog410_",   // JEC 
-				    string elogForJECSysDn="Elog410_",
+				    string elogForJECSysUp="Elog410V2_",   // JEC 
+				    string elogForJECSysDn="Elog410V2_",
 				    string elogForJECSysRef="Elog410_",
 				    string elogForIsoTrkVeto="Elog401_", // Isotrack veto
 				    string elogForMuFromTau="Elog401_",  // Muon from tau
@@ -105,7 +105,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   TFile * MCSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_MuonIDIsoSys_AllSamples_%s.root",elogForMuSys.c_str());
+  sprintf(tempname,"TauHad2/HadTauEstimation_MuonIDIsoSys_AllSamples_%sV2_.root",elogForMuSys.c_str());
   //sprintf(tempname,"TauHad2/%sHadTauEstimation_haddedToContainSysErrorFolders_.root",elogForSys.c_str());
   TFile * MuSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
@@ -113,13 +113,15 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   //
   // JEC variation
   //
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
+  //if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
+  //else sprintf(tempname,"TauHad2/Stack/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
+  sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_.root",elogForJECSysUp.c_str());
   TFile * JECSysUpFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
+  //if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
+  //else sprintf(tempname,"TauHad2/Stack/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
+  sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_.root",elogForJECSysDn.c_str());
   TFile * JECSysDnFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -601,6 +603,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
   closureRatio->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction-1 - Non closure
 
+  //EstHist_Clone->Print("all");
+
   double searchBin_closure_stat_uncertainty_fractional[73];
   //-----
   int n10percent=0;
@@ -614,15 +618,17 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   for (int ibin=1;ibin<=72;ibin++){
     // Stat uncertainty
     searchBin_closure_stat_uncertainty_fractional[ibin]=0.;
+    double Unc,Unc1,Unc2;
     if (numerator->GetBinContent(ibin)!=0.){
       searchBin_closure_stat_uncertainty_fractional[ibin] = closureRatio->GetBinError(ibin)/closureRatio->GetBinContent(ibin);
+      Unc1=searchBin_closure_stat_uncertainty_fractional[ibin];
     }
-    double Unc;
+    Unc2=fabs(closureRatio->GetBinContent(ibin)-1.);
     Unc = TMath::Max(fabs(closureRatio->GetBinContent(ibin)-1.),searchBin_closure_stat_uncertainty_fractional[ibin]);
     if (Unc>1.) Unc=1.;
     searchBin_closureUncertainty->SetBinContent(ibin,Unc);    
     //----
-    printf("%5d, %8.2f\n",ibin,Unc);
+    printf("%5d, %8.2f, %8.2f, %8.2f\n",ibin,Unc,Unc1,Unc2);
     if (Unc<0.1) n10percent++;
     if (Unc<0.3) n30percent++;
     if (ibin>=1 &&ibin<=24) avenj1+=Unc/24.;
@@ -639,7 +645,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   printf("nj1nb23 average=%8.2f\n",avenj1nb23);
   printf("nj2 average=%8.2f\n",avenj2);
   printf("nj3 average=%8.2f\n",avenj3);
-  searchBin_closureUncertainty->Print("all");
+  //searchBin_closureUncertainty->Print("all");
 
   // For closure systematics
   histname="QCD_Up";
@@ -683,7 +689,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
     if (Unc>1.) Unc=1.;
     QCDBin_HiDphi_closureUncertainty->SetBinContent(ibin,Unc);    
   }
-  QCDBin_HiDphi_closureUncertainty->Print("all");
+  //QCDBin_HiDphi_closureUncertainty->Print("all");
 
 
   //
@@ -719,7 +725,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
     if (Unc>1.) Unc=1.;
     QCDBin_LowDphi_closureUncertainty->SetBinContent(ibin,Unc);    
   }
-  QCDBin_LowDphi_closureUncertainty->Print("all");
+  //QCDBin_LowDphi_closureUncertainty->Print("all");
 
   //
   // ---- BMistag & MuRecoIso systematics -----
@@ -731,12 +737,15 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   string cutname="delphi";
   sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
   TH1D * searchBin_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
+  TH1D * searchBin_default2 = (TH1D*)MuSysFile->Get(tempname)->Clone();
+  //searchBin_default->Print("all");
+  //searchBin_default2->Print("all");
 
   sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
   TH1D* searchBin_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagUp");
   sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
   TH1D* searchBin_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagDn");
-  
+
   sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
   TH1D* searchBin_MuRecoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysUp");
   sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
@@ -810,6 +819,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   takeDiffForSys(searchBin_BMistagUp,searchBin_default);
   takeDiffForSys(searchBin_BMistagDn,searchBin_default);
 
+  //
+  // --- smoothing starts
   for (int ibin=1; ibin<=searchBin_BMistagUp->GetNbinsX(); ibin++){
     if (ibin==24||ibin==48||ibin==66||ibin==72){
       double ave;
@@ -827,12 +838,13 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
       searchBin_BMistagDn->SetBinContent(ibin,ave);
     }
   }
+  // --- smoothing ends
 
-  takeDiffForSys(searchBin_MuRecoSysUp,searchBin_default);
-  takeDiffForSys(searchBin_MuRecoSysDn,searchBin_default);
+  takeDiffForSys(searchBin_MuRecoSysUp,searchBin_default2);
+  takeDiffForSys(searchBin_MuRecoSysDn,searchBin_default2);
 
-  takeDiffForSys(searchBin_MuIsoSysUp,searchBin_default);
-  takeDiffForSys(searchBin_MuIsoSysDn,searchBin_default);
+  takeDiffForSys(searchBin_MuIsoSysUp,searchBin_default2);
+  takeDiffForSys(searchBin_MuIsoSysDn,searchBin_default2);
 
   takeDiffForSys(searchBin_MuRecoIsoUp,searchBin_default);
   takeDiffForSys(searchBin_MuRecoIsoDn,searchBin_default);
@@ -843,6 +855,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   takeDiffForSys(QCDBin_HiDphi_BMistagUp,QCDBin_HiDphi_default);
   takeDiffForSys(QCDBin_HiDphi_BMistagDn,QCDBin_HiDphi_default);
 
+  //
+  // --- smoothing starts
   for (int ibin=1; ibin<=QCDBin_HiDphi_BMistagUp->GetNbinsX(); ibin++){
     if (ibin==43||ibin==44||
 	ibin==87||ibin==88||
@@ -875,8 +889,21 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 	     QCDBin_HiDphi_BMistagDn->GetBinContent(ibin-8)+
 	     QCDBin_HiDphi_BMistagDn->GetBinContent(ibin-9)
 	     )/9.;
+      QCDBin_HiDphi_BMistagDn->SetBinContent(ibin,ave);
+    }
+    if (ibin==39||ibin==42||ibin==216
+	){
+      ave = (QCDBin_HiDphi_BMistagUp->GetBinContent(ibin-1)+
+	     QCDBin_HiDphi_BMistagUp->GetBinContent(ibin+1)
+	     )/2.;
+      QCDBin_HiDphi_BMistagUp->SetBinContent(ibin,ave);
+      ave = (QCDBin_HiDphi_BMistagDn->GetBinContent(ibin-1)+
+	     QCDBin_HiDphi_BMistagDn->GetBinContent(ibin+1)
+	     )/2.;
+      QCDBin_HiDphi_BMistagDn->SetBinContent(ibin,ave);      
     }
   }
+  // --- smoothing ends
 
   takeDiffForSys(QCDBin_HiDphi_MuRecoSysUp,QCDBin_HiDphi_default);
   takeDiffForSys(QCDBin_HiDphi_MuRecoSysDn,QCDBin_HiDphi_default);
@@ -893,6 +920,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   takeDiffForSys(QCDBin_LowDphi_BMistagUp,QCDBin_LowDphi_default);
   takeDiffForSys(QCDBin_LowDphi_BMistagDn,QCDBin_LowDphi_default);
 
+  //
+  // --- smoothing starts
   for (int ibin=1; ibin<=QCDBin_LowDphi_BMistagUp->GetNbinsX(); ibin++){
     if (ibin==43||ibin==44||
 	ibin==87||ibin==88||
@@ -925,8 +954,23 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 	     QCDBin_LowDphi_BMistagDn->GetBinContent(ibin-8)+
 	     QCDBin_LowDphi_BMistagDn->GetBinContent(ibin-9)
 	     )/9.;
+      QCDBin_LowDphi_BMistagDn->SetBinContent(ibin,ave);
     }
   }
+  for (int ibin=1; ibin<=QCDBin_LowDphi_BMistagUp->GetNbinsX(); ibin++){
+    if (ibin==153||ibin==164||ibin==194||ibin==205||ibin==207||ibin==216||ibin==218
+	){
+      ave = (QCDBin_LowDphi_BMistagUp->GetBinContent(ibin-1)+
+	     QCDBin_LowDphi_BMistagUp->GetBinContent(ibin+1)
+	     )/2.;
+      QCDBin_LowDphi_BMistagUp->SetBinContent(ibin,ave);
+      ave = (QCDBin_LowDphi_BMistagDn->GetBinContent(ibin-1)+
+	     QCDBin_LowDphi_BMistagDn->GetBinContent(ibin+1)
+	     )/2.;
+      QCDBin_LowDphi_BMistagDn->SetBinContent(ibin,ave);      
+    }
+  }
+  // --- smoothing ends
 
   takeDiffForSys(QCDBin_LowDphi_MuRecoSysUp,QCDBin_LowDphi_default);
   takeDiffForSys(QCDBin_LowDphi_MuRecoSysDn,QCDBin_LowDphi_default);
@@ -946,10 +990,14 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 
   string histname="searchH_b";
   sprintf(tempname,"%s",histname.c_str());
-  tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
-  TH1D * searchBin_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");  
-  TH1D * searchBin_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
+  //TH1D * searchBin_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");  
+  //TH1D * searchBin_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * searchBin_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");
+  TH1D * searchBin_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");
+  searchBin_JECSysUp->Scale(3000.);
+  searchBin_JECSysDn->Scale(3000.);
   tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("searchBin_JECSysRef");  
   TH1D * searchBin_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
   /*
@@ -970,10 +1018,14 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 
   string histname="QCD_Up";
   sprintf(tempname,"%s",histname.c_str());
-  tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");  
-  TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");  
-  TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");  
+  //TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");  
+  //TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");
+  TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");
+  QCDBin_HiDphi_JECSysUp->Scale(3000.);
+  QCDBin_HiDphi_JECSysDn->Scale(3000.);
   tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysRef");  
   TH1D * QCDBin_HiDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
   /*
@@ -1001,10 +1053,14 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 
   string histname="QCD_Low";
   sprintf(tempname,"%s",histname.c_str());
-  tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");  
-  TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");  
-  TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");  
+  //TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");  
+  //TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");
+  TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");
+  QCDBin_LowDphi_JECSysUp->Scale(3000.);
+  QCDBin_LowDphi_JECSysDn->Scale(3000.);
   tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysRef");  
   TH1D * QCDBin_LowDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
 
@@ -1960,6 +2016,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   QCDBin_HiDphi_JECSysDn->Add(QCDBin_one);                 QCDBin_HiDphi_JECSysDn->Write("QCDBin_HiDphi_JECSysDn");
   //QCDBin_HiDphi_MTSysUp->Add(QCDBin_one);                  QCDBin_HiDphi_MTSysUp->Write("QCDBin_HiDphi_MTSysUp");
   //QCDBin_HiDphi_MTSysDn->Add(QCDBin_one);                  QCDBin_HiDphi_MTSysDn->Write("QCDBin_HiDphi_MTSysDn");
+  QCDBin_HiDphi_MTSysUp->SetFillColor(0);
+  QCDBin_HiDphi_MTSysDn->SetFillColor(0);
   QCDBin_HiDphi_MTSysUp->Write("QCDBin_HiDphi_MTSysUp");
   QCDBin_HiDphi_MTSysDn->Write("QCDBin_HiDphi_MTSysDn");
   QCDBin_HiDphi_MtEffStat->Add(QCDBin_one);                QCDBin_HiDphi_MtEffStat->Write();  
@@ -1991,6 +2049,8 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   QCDBin_LowDphi_JECSysDn->Add(QCDBin_one);                QCDBin_LowDphi_JECSysDn->Write("QCDBin_LowDphi_JECSysDn");
   //QCDBin_LowDphi_MTSysUp->Add(QCDBin_one);                 QCDBin_LowDphi_MTSysUp->Write("QCDBin_LowDphi_MTSysUp");
   //QCDBin_LowDphi_MTSysDn->Add(QCDBin_one);                 QCDBin_LowDphi_MTSysDn->Write("QCDBin_LowDphi_MTSysDn");
+  QCDBin_LowDphi_MTSysUp->SetFillColor(0);
+  QCDBin_LowDphi_MTSysDn->SetFillColor(0);
   QCDBin_LowDphi_MTSysUp->Write("QCDBin_LowDphi_MTSysUp");
   QCDBin_LowDphi_MTSysDn->Write("QCDBin_LowDphi_MTSysDn");
   QCDBin_LowDphi_MtEffStat->Add(QCDBin_one);                QCDBin_LowDphi_MtEffStat->Write();  
@@ -2024,7 +2084,7 @@ void takeAverage(TH1* sys){
     ient ++;
   }
   sum = sum/double(ient);
-  std::cout << sum << std::endl;
+  //std::cout << sum << std::endl;
   for (int ibin=0;ibin<sys->GetNbinsX();ibin++){
     sys->SetBinContent(ibin+1,sum);
   }
