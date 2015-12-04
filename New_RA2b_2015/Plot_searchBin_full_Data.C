@@ -192,8 +192,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   
   // Adding extra poisson 0 error term
   for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
-    EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.45,2),0.5));
-    EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.45,2),0.5));
+    EstHist->SetBinError( ibin+1,pow(pow(EstHist->GetBinError(ibin+1),2)+pow(0.460255,2),0.5));
+    EstHistD->SetBinError(ibin+1,pow(pow(EstHistD->GetBinError(ibin+1),2)+pow(0.460255,2),0.5));
     //cout << "bin content: " << EstHist->GetBinContent(ibin+1) << endl;
     //cout << "bin error: " << EstHist->GetBinError(ibin+1) << endl;
   }
