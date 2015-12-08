@@ -4,6 +4,7 @@
 
 void binMap(TH1* input, TH1* output);
 void binMap_QCD(TH1* input, TH1* output);
+void printMaxMin(TH1* sys);
 void takeAverage(TH1* sys);
 void takeDiffForSys(TH1* sys, TH1* input_nominal);
 void accErrPropagation(TH1* sys, TH1* input_nominal);
@@ -512,10 +513,14 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   // ----- Stat uncertainties
   //
 
+  printf("\nstat uncertainty check\n\n");
   for (int ibin=1;ibin<=72;ibin++){
     // Stat uncertainty
     searchBin_stat_uncertainty_fractional[ibin]=0.;
     if (searchBin_nominal->GetBinContent(ibin)!=0.){
+      printf("ibin=%3d: %8.4f\n",ibin,
+	     searchBin_nominal->GetBinError(ibin)/searchBin_nominal->GetBinContent(ibin) 
+	     );
       searchBin_StatUncertainties->SetBinContent(ibin,searchBin_nominal->GetBinError(ibin));
       searchBin_stat_uncertainty_fractional[ibin] = searchBin_nominal_fullstatuncertainty->GetBinError(ibin)/searchBin_nominal->GetBinContent(ibin);
       searchBin_StatUncertaintiesFractional->SetBinContent(ibin,searchBin_stat_uncertainty_fractional[ibin]);
@@ -1973,9 +1978,11 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   searchBin_JECSysUp->Add(searchBin_one);                 searchBin_JECSysUp->Write("searchBin_JECSysUp");
   searchBin_JECSysDn->Add(searchBin_one);                 searchBin_JECSysDn->Write("searchBin_JECSysDn");
   //searchBin_MTSysUp->Add(searchBin_one);                  searchBin_MTSysUp->Write("searchBin_MTSysUp");
-  //searchBin_MTSysDn->Add(searchBin_one);                  searchBin_MTSysDn->Write("searchBin_MTSysDn");
-  searchBin_MTSysUp->Write("searchBin_MTSysUp");
-  searchBin_MTSysDn->Write("searchBin_MTSysDn");
+  //searchBin_MTSysDn->Add(searchBin_one);                  searchBin_MTSysDn->Write("searchBin_MTSysDn");  
+  searchBin_MTSysUp->SetName("searchBin_MTSysUp");
+  searchBin_MTSysDn->SetName("searchBin_MTSysDn");
+  searchBin_MTSysUp->Write();
+  searchBin_MTSysDn->Write();
   searchBin_MtEffStat->Add(searchBin_one);                searchBin_MtEffStat->Write();  
   searchBin_IsoTrkVetoEffUncertaintyStat->Add(searchBin_one); searchBin_IsoTrkVetoEffUncertaintyStat->Write();
   searchBin_IsoTrkVetoEffUncertaintySys->Add(searchBin_one);  searchBin_IsoTrkVetoEffUncertaintySys->Write();
@@ -1987,7 +1994,34 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   searchBin_MuFromTauStat->Add(searchBin_one);            searchBin_MuFromTauStat->Write();
   searchBin_DileptonUncertainty->Add(searchBin_one);      searchBin_DileptonUncertainty->Write();
   searchBin_TrigEffUncertainty->Add(searchBin_one);       searchBin_TrigEffUncertainty->Write();
-  
+
+  printMaxMin(searchBin_BMistagUp);
+  printMaxMin(searchBin_BMistagDn);
+
+  printMaxMin(searchBin_JECSysUp);
+  printMaxMin(searchBin_JECSysDn);
+
+  printMaxMin(searchBin_MuRecoSysUp);
+  printMaxMin(searchBin_MuRecoSysDn);
+  printMaxMin(searchBin_MuIsoSysUp);
+  printMaxMin(searchBin_MuIsoSysDn);
+  printMaxMin(searchBin_MuRecoIsoUp);
+  printMaxMin(searchBin_MuRecoIsoDn);
+
+  printMaxMin(searchBin_IsoTrkVetoEffUncertaintyStat);
+  printMaxMin(searchBin_IsoTrkVetoEffUncertaintySys);
+
+  printMaxMin(searchBin_MTSysUp);
+  printMaxMin(searchBin_MTSysDn);
+  printMaxMin(searchBin_MtEffStat);
+
+  printMaxMin(searchBin_AccStat);
+  printMaxMin(searchBin_AccSysPDFUp);
+  printMaxMin(searchBin_AccSysPDFDn);
+
+  printMaxMin(searchBin_MuFromTauStat);
+  printMaxMin(searchBin_DileptonUncertainty);
+  printMaxMin(searchBin_TrigEffUncertainty);
   //TH1D* QCDBin_HiDphi_AccSysPDFUp = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_HiDphi_AccSysPDFUp");
   //TH1D* QCDBin_HiDphi_AccSysPDFDn = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_HiDphi_AccSysPDFDn");
   //TH1D* QCDBin_LowDphi_AccSysPDFUp = (TH1D*)DataEstFile->Get("QCD_Low")->Clone("QCDBin_LowDphi_AccSysPDFUp");
@@ -2068,6 +2102,28 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
   HadTauEstimation_OutputFile.Close();
 
 }
+
+// ----------
+void printMaxMin(TH1* input){
+
+  double max=0.;
+  double min=100.;
+  int    ient=0;
+  for (int ibin=0;ibin<input->GetNbinsX();ibin++){
+    double content = fabs(input->GetBinContent(ibin+1)-1.);
+    if (content>max) max=content; 
+    if (content<min) min=content; 
+  }
+  //std::cout << input->GetTitle() << std::endl;
+  std::cout << input->GetName() << std::endl;
+  printf("max: %8.3f, min: %8.3f\n",max,min);
+  //sum = sum/double(ient);
+  //std::cout << sum << std::endl;
+  //for (int ibin=0;ibin<sys->GetNbinsX();ibin++){
+  //  sys->SetBinContent(ibin+1,sum);
+  //}
+
+};
 
 // ----------
 void takeAverage(TH1* sys){
