@@ -33,11 +33,12 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=1.28,
+Plot_Commissioning(string histname="MHT2", string cutname="delphi", 
+		   double lumi=2.109271, double lumiControl=2.093663,
 		   string PDname="SingleMuon",
 		   bool normalize=false, int rebin=0,
 		   double lowPredictionCutOff=0.15,
-		   double trigEff=0.955
+		   double trigEff=0.951
 		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +59,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
   lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
-  int iPeriod = 4;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
+  int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
   // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
   // iPos=11 : top-left, left-aligned
   // iPos=33 : top-right, right-aligned
@@ -66,6 +67,12 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   // mode generally : 
   //   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
   int iPos =10;
+
+  TString line = "";
+  sprintf(tempname,"%8.1f",lumi);
+  line+=tempname;
+  line+=" fb^{-1} (13 TeV)";
+  TString lumi_sqrtS = line;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +100,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v15cd_.root",PDname.c_str());
+  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v15d_Elog408_V5_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
@@ -199,6 +206,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi", double lumi=
 
   /////TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
   TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
+  hPre->Scale(lumi/lumiControl);
 
   TH1D * hExp_forScale = static_cast<TH1D*>(hExpTT->Clone("hExp_forScale"));
   hExp_forScale->Add(hExpWJ);

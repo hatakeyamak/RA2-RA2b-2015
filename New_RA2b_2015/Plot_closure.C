@@ -12,6 +12,11 @@ using namespace std;
 
   Usage:
 
+root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog410_","Elog410_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog410_","Elog410_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog410_","Elog410_",true)'
+root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog410_","Elog410_",true)'
+
 .x Plot_closure.C("delphi","NJet","stacked","Elog377_")
 .x Plot_closure.C("delphi","NBtag","stacked","Elog377_")
 .x Plot_closure.C("delphi","HT","stacked","Elog377_")
@@ -87,7 +92,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
   float ymin_top = 0.04.;
   float ymax_bottom = 2.65;
   float ymin_bottom = 0.0;
-  float ytext_top = 3200.;
+  float ytext_top = 2000.;
   float x_legend = 10.;
   float y_legend = 4000.;
   float xtext_top;
@@ -99,7 +104,8 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
 
   //
   // Luminosity information for scaling
-  double lumi = 3.; // normaliza to 3 (fb-1)
+  double lumi     = 2.109271; // normaliza to this lumi (fb-1)
+  double lumi_ref = 3.0; // normaliza to 3 (fb-1)
 
   double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
   int    nevent_ttbar = 25348009;
@@ -131,7 +137,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
   //
   Float_t legendX1 = .35; //.50;
   Float_t legendX2 = .90; //.70;
-  Float_t legendY1 = .76; //.65;
+  Float_t legendY1 = .72; //.65;
   Float_t legendY2 = .88;
 
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
@@ -279,7 +285,8 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
     }
 
     thist->SetTitle("");
-//    thist->Scale(lumi/lumi_ttbar);
+    //    thist->Scale(lumi/lumi_ttbar);
+    thist->Scale(lumi/lumi_ref);
 
     //
     // Setting style
@@ -338,13 +345,13 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
     if(histname=="NBtag"){
       xtext_top = 2.8;
       //y_legend = 3000.;
-      ymax_top = 4000.;
+      ymax_top = 2000.;
       if(cutname=="Njet_9")ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
-      thist->SetMaximum(ymax_top/2.);
+      thist->SetMaximum(ymax_top);
       thist->SetMinimum(0.);
       thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
     }
@@ -354,7 +361,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
       //y_legend = 2000.;
       ymax_top = 300000.;
       ymin_top = 0.04.;
-      ytext_top = ymax_top*0.01;
+      ytext_top = ymax_top*0.005;
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
       thist->SetMaximum(ymax_top);
@@ -484,7 +491,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
     }
     else{
       thist->SetFillStyle(3144);
-      thist->SetFillColor(kGreen-3);
+      thist->SetFillColor(kRed-10);
       thist->SetMarkerStyle(20);
       thist->SetMarkerSize(0.0001);
       thist->DrawCopy("e2same ");
@@ -498,11 +505,15 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
     // Set up canvas
     //
     if(i==0){
-      sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
+      //sprintf(tempname,"#tau_{hadronic} BG expectation (MC truth)");
+      sprintf(tempname,"Hadronic #tau-lepton background");
+      catLeg1->SetHeader(tempname);
+      sprintf(tempname,"Direct from simulation");
       catLeg1->AddEntry(thist,tempname,"p");
     }
     else if(i==1){
-      sprintf(tempname,"Prediction from MC");
+      //sprintf(tempname,"Prediction from MC");
+      sprintf(tempname,"Treat simulation like data");
       catLeg1->AddEntry(thist,tempname);
     }
   }
@@ -510,12 +521,16 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
   GenHist_Clone->DrawCopy("esame");
   catLeg1->Draw();
 
-  TText * ttext = new TLatex(xtext_top, ytext_top, "Normalized to 3 fb^{-1}");
+  sprintf(tempname,"Normalized to %8.1f fb^{-1}",lumi);
+  //TText * ttext = new TLatex(xtext_top, ytext_top, "Normalized to 3 fb^{-1}");
+  TText * ttext = new TLatex(xtext_top, ytext_top,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.045);
   ttext->SetTextAlign(22);
   ttext->Draw();
   
+  gPad->RedrawAxis();
+
   //
   // Bottom ratio plot
   //
@@ -527,7 +542,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
       GenHist->SetLineColor(1);
 
       EstHist->SetFillStyle(3144);
-      EstHist->SetFillColor(kGreen-3);
+      EstHist->SetFillColor(kRed-10);
       EstHist->SetMarkerStyle(20);
       EstHist->SetMarkerSize(0.0001);
 
@@ -633,7 +648,7 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
       // Common to all bottom plots
       //
       //      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
-      sprintf(ytitlename,"#frac{Expectation}{Prediction} ");
+      sprintf(ytitlename,"#frac{Direct}{Prediction} ");
       numerator->SetMaximum(ymax_bottom);
       numerator->SetMinimum(ymin_bottom);
 
@@ -649,8 +664,8 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
       //numerator->GetYaxis()->SetLabelFont(42);
       //numerator->GetYaxis()->SetLabelOffset(0.007);
       //numerator->GetYaxis()->SetLabelSize(0.04);
-      numerator->GetYaxis()->SetTitleSize(0.13);
-      numerator->GetYaxis()->SetTitleOffset(0.5);
+      numerator->GetYaxis()->SetTitleSize(0.15);
+      numerator->GetYaxis()->SetTitleOffset(0.4);
       numerator->GetYaxis()->SetTitleFont(42);
 
       numerator->GetXaxis()->SetTitle(xtitlename);
@@ -669,6 +684,8 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
 
       tline->SetLineStyle(2);
       tline->Draw();
+
+      gPad->RedrawAxis();
 
   //}
 
