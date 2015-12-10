@@ -61,8 +61,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   // Canvas size
   int W = 1200;
-  int H = 600;
-  int H_ref = 600;
+  int H = 740;
+  int H_ref = 740;
   int W_ref = 800;
   float T = 0.10*H_ref;
   float B = 0.06*H_ref;
@@ -124,7 +124,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   //catLeg1->SetTextSize(0.060);
-  catLeg1->SetTextSize(0.055);
+  //catLeg1->SetTextSize(0.055);
+  catLeg1->SetTextSize(0.044);
   catLeg1->SetTextFont(42);
   catLeg1->SetFillColor(0);
   catLeg1->SetLineColor(1);
@@ -313,7 +314,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   int iPos=0;
     
   writeExtraText = true;
-  extraText   = "      Simulation";
+  extraText   = "        Simulation";
   //float extraTextFont = 52;  // default is helvetica-italics
 
   // text sizes and text offsets with respect to the top frame
@@ -385,7 +386,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     // Njet labels
     TLatex * ttext_njet = new TLatex();
     ttext_njet->SetTextFont(42);
-    ttext_njet->SetTextSize(0.060);
+    //ttext_njet->SetTextSize(0.060);
+    ttext_njet->SetTextSize(0.040);
     ttext_njet->SetTextAlign(22);
     ttext_njet->DrawLatex(13.-0.5 , ymax_top/4. , "4 #leq N_{#scale[0.2]{ }jet} #leq 6");
     ttext_njet->DrawLatex(37.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
@@ -407,7 +409,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     // Nb labels
     TLatex * ttext_nb = new TLatex();
     ttext_nb->SetTextFont(42);
-    ttext_nb->SetTextSize(0.060);
+    //ttext_nb->SetTextSize(0.060);
+    ttext_nb->SetTextSize(0.040);
     ttext_nb->SetTextAlign(22);
     
     ttext_nb->DrawLatex( 4.-0.5 , ymax_top/12. , "N_{#scale[0.2]{ }b-jet}");
