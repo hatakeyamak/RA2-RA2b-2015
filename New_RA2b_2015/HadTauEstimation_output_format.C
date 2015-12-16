@@ -13,7 +13,7 @@ void effMapConstErrPropagation(TH1* input, double fractionalError, TH1* output);
 void muFromTauStatErrPropagation(TH1* input, TH1* one, TH1* output);
 void isoTrkVetoErrPropagation(TH1* input, double sys, TH1* one, TH1* output_tot, TH1* output_stat, TH1* output_sys);
 
-void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
+void HadTauEstimation_output_format(string elogForData="Elog408V2_",     // Data
 				    string elogForMCExp="Elog410_",    // MC expectation
 				    string elogForMCPre="Elog410_",    // MC prediction
 				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag and muon efficiencies
@@ -35,8 +35,10 @@ void HadTauEstimation_output_format(string elogForData="Elog408_",     // Data
 				    double trigEff=0.951,
 				    //double lumiTarget=1.280231,
 				    //double lumiControl=1.263886,
-				    double lumiTarget=2.109271,
-				    double lumiControl=2.093663,
+				    //double lumiTarget=2.109271,
+				    //double lumiControl=2.093663,
+				    double lumiTarget=2.15374,
+				    double lumiControl=2.13727,
 				    int isys==0){
 
   char tempname[200];
