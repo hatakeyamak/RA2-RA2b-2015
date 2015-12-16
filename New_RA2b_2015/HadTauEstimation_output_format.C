@@ -35,8 +35,10 @@ void HadTauEstimation_output_format(string elogForData="Elog408V2_",     // Data
 				    double trigEff=0.951,
 				    //double lumiTarget=1.280231,
 				    //double lumiControl=1.263886,
-				    double lumiTarget=2.109271,
-				    double lumiControl=2.093663,
+				    //double lumiTarget=2.109271,
+				    //double lumiControl=2.093663,
+				    double lumiTarget=2.15374,
+				    double lumiControl=2.13727,
 				    int isys==0){
 
   char tempname[200];
