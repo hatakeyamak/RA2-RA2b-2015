@@ -104,12 +104,13 @@ Plot_closure(string cutname="delphi", string histname="NJet",string sample="stac
 
   //
   // Luminosity information for scaling
-  double lumi     = 2.109271; // normaliza to this lumi (fb-1)
+  //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
+  double lumi     = 2.15374; // normaliza to this lumi (fb-1)
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
 
-  double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
-  int    nevent_ttbar = 25348009;
-  double lumi_ttbar   = 31.445; // (fb-1)
+  //double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
+  //int    nevent_ttbar = 25348009;
+  //double lumi_ttbar   = 31.445; // (fb-1)
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   //
