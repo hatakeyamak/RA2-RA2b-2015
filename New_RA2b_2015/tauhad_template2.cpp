@@ -9,6 +9,7 @@
 #include "Lepton_Selection.h"
 #include "ISRCorrector.h"
 #include "BTagCorrector.h"
+#include "EventListFilter.h"
 
 #include "TTree.h"
 #include <cmath>
@@ -713,6 +714,9 @@ using namespace std;
       return 2;  
     }
 
+    //initialize a met filter for data
+    EventListFilter filter("csc2015.txt");
+
     double eventWeight = 1.0;
     int eventN=0;
     while( evt->loadNext() ){
@@ -752,6 +756,7 @@ using namespace std;
       if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
       if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
+      if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight); 

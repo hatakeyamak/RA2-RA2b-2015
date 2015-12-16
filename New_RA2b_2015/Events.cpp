@@ -209,6 +209,7 @@
   // Run number & event number
   int Events::Runnum() const { return RunNum; }
   int Events::Evtnum() const { return EvtNum; }
+  int Events::LumiBlocknum() const { return LumiBlockNum; }
 
   // Event weight (for luminosity and PU profile)
   double Events::weight() const { return Weight; }
