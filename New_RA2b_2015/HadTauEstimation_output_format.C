@@ -14,8 +14,8 @@ void muFromTauStatErrPropagation(TH1* input, TH1* one, TH1* output);
 void isoTrkVetoErrPropagation(TH1* input, double sys, TH1* one, TH1* output_tot, TH1* output_stat, TH1* output_sys);
 
 void HadTauEstimation_output_format(string elogForData="Elog408V2_",     // Data
-				    string elogForMCExp="Elog410_",    // MC expectation
-				    string elogForMCPre="Elog410_",    // MC prediction
+				    string elogForMCExp="Elog410_PlusRare_",    // MC expectation
+				    string elogForMCPre="Elog410_PlusRare_",    // MC prediction
 				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag and muon efficiencies
 				    string elogForMuSys="Elog410_",    // MC-based systematics evaluation for Btag and muon efficiencies
 				    string elogForMTSysUp="Elog402_",  // MT systematics

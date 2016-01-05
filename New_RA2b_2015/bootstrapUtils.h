@@ -39,7 +39,7 @@ namespace bootstrapUtils{
         double content = h_evt->GetBinContent(ibin);
         double entry   = h_noW_evt->GetBinContent(ibin);
         //KH std::cout << "bin content: " << bin << " " << content << " " << entry << std::endl;
-        if (entry>0.){
+        if (entry!=0.){
           h->Fill(bin,content);
           h_noW->Fill(bin);
         }
@@ -59,7 +59,7 @@ namespace bootstrapUtils{
           double binY     = h_evt->GetYaxis()->GetBinCenter(jbin);
           double content  = h_evt->GetBinContent(ibin,jbin);
           double entry    = h_noW_evt->GetBinContent(ibin,jbin);
-          if (entry>0.){
+          if (entry!=0.){
             h->Fill(binX,binY,content);
             h_noW->Fill(binX,binY);
           }
@@ -79,7 +79,7 @@ namespace bootstrapUtils{
         double content = h_evt->GetBinContent(ibin);
         //KH double entry   = h_noW_evt->GetBinContent(ibin);
         //KH std::cout << "bin content: " << bin << " " << content << " " << entry << std::endl;
-        if (content>0.){
+        if (content != 0.){
           h->Fill(bin,content);
           //KH h_noW->Fill(bin);
         }
@@ -99,7 +99,7 @@ namespace bootstrapUtils{
           double binY     = h_evt->GetYaxis()->GetBinCenter(jbin);
           double content  = h_evt->GetBinContent(ibin,jbin);
           //KH double entry    = h_noW_evt->GetBinContent(ibin,jbin);
-          if (content>0.){
+          if (content != 0.){
             h->Fill(binX,binY,content);
             //KH h_noW->Fill(binX,binY);
           }
