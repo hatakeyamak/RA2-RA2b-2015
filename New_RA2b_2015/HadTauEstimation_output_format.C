@@ -13,7 +13,7 @@ void effMapConstErrPropagation(TH1* input, double fractionalError, TH1* output);
 void muFromTauStatErrPropagation(TH1* input, TH1* one, TH1* output);
 void isoTrkVetoErrPropagation(TH1* input, double sys, TH1* one, TH1* output_tot, TH1* output_stat, TH1* output_sys);
 
-void HadTauEstimation_output_format(string elogForData="Elog408V2_",     // Data
+void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
 				    string elogForMCExp="Elog410_PlusRare_",    // MC expectation
 				    string elogForMCPre="Elog410_PlusRare_",    // MC prediction
 				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag and muon efficiencies
@@ -37,8 +37,9 @@ void HadTauEstimation_output_format(string elogForData="Elog408V2_",     // Data
 				    //double lumiControl=1.263886,
 				    //double lumiTarget=2.109271,
 				    //double lumiControl=2.093663,
-				    double lumiTarget=2.15374,
-				    double lumiControl=2.13727,
+                                    // because 2015C does not have our trigger, we scale 2015D to account for that
+				    double lumiTarget=2.26198,
+				    double lumiControl=2.24572, 
 				    int isys==0){
 
   char tempname[200];
