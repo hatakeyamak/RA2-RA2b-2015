@@ -63,8 +63,8 @@ root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","El
 
  */
 
-Plot_closure(string cutname="delphi", string histname="NJet",string sample="stacked",
-	     string elogForPre="Elog410_",string elogForExp="Elog410_",
+Plot_closure(string cutname="delphi", string histname="MHT",string sample="stacked",
+	     string elogForPre="Elog410_PlusRare_",string elogForExp="Elog410_PlusRare_",
 	     bool zoom=true, bool debug=false){
 
   //

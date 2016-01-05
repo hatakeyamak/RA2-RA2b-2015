@@ -33,7 +33,7 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="MHT2", string cutname="delphi", 
+Plot_Commissioning(string histname="NBtag", string cutname="delphi", 
 		   //double lumi=2.109271, double lumiControl=2.093663,
 		   double lumi=2.15374, double lumiControl=2.13727,
 		   string PDname="SingleMuon",
@@ -106,7 +106,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
   TFile * ExpT  = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_T_stacked.root","R");
-
+  TFile * ExpRare = new TFile("TauHad/GenInfo_HadTauEstimation_Rare_Elog410.root","R");
   //
   // Define legend
   //
@@ -175,6 +175,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   canvas_up->cd();
 
   TH1D * hExpTT, * hExpWJ, * hPreTT, * hPreWJ12, * hPreWJ24, * hPreWJ46, * hPreWJ6I;
+  TH1D * hExpRare;
   TH1D * hPreData, * hPreData_StatError;
   TH1D * histTemplate;
   THStack * stackTT, * stackWJ, * stackT, * ExpStack;
@@ -204,6 +205,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   hExpWJ=(TH1D*) stackWJ->GetStack()->Last();
   stackT=(THStack*)ExpT->Get(tempname)->Clone("ExpT");   
   hExpT=(TH1D*) stackT->GetStack()->Last();
+  hExpRare=(TH1D*)ExpRare->Get(tempname)->Clone("EXpRare");
 
   /////TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
   TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
@@ -212,6 +214,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   TH1D * hExp_forScale = static_cast<TH1D*>(hExpTT->Clone("hExp_forScale"));
   hExp_forScale->Add(hExpWJ);
   if (!skipSingleTop) hExp_forScale->Add(hExpT);
+  hExp_forScale->Add(hExpRare);
 
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
@@ -229,6 +232,10 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   else           hExpTT->Scale(lumi/(3.));
   hExpTT->SetFillColor(kBlue-6);
 
+  if (normalize) hExpRare->Scale(scale);
+  else           hExpRare->Scale(lumi*1000.);
+  hExpRare->SetFillColor(kCyan);
+
   if (normalize) hExpWJ->Scale(scale);
   else           hExpWJ->Scale(lumi/(3.));
   hExpWJ->SetFillColor(kGreen);
@@ -240,6 +247,7 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
   }
   
   TH1D * hExp = static_cast<TH1D*>(hExpTT->Clone("hExp"));
+  hExp->Add(hExpRare);
   hExp->Add(hExpWJ);
   if (!skipSingleTop) hExp->Add(hExpT);
 
@@ -272,7 +280,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
     hExpTT = hExpTT_Rebin;
     hExpWJ = hExpWJ_Rebin;
   }
-  
+  hExpRare->Print("all"); 
+  ExpStack->Add(hExpRare);
   if (!skipSingleTop) ExpStack->Add(hExpT);
   ExpStack->Add(hExpWJ);
   ExpStack->Add(hExpTT);
@@ -407,6 +416,8 @@ Plot_Commissioning(string histname="MHT2", string cutname="delphi",
     //sprintf(tempname,"#tau_{h} MC expectation from single top");
     sprintf(tempname,"MC: single top");
     catLeg1->AddEntry(hExpT,tempname,"f");
+    sprintf(tempname,"MC: Other");
+    catLeg1->AddEntry(hExpRare,tempname,"f");
   }
   catLeg1->Draw();
   

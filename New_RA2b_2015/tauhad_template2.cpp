@@ -761,7 +761,7 @@ using namespace std;
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight); 
       // Through out an event that contains HTjets with bad id
-      if(evt->JetId()==0)continue;
+      if( !fastsim && evt->JetId()==0)continue;
       cutflow_preselection->Fill(6.,eventWeight); // events passing JetID event cleaning
 
       nCleanEve++;
@@ -1445,7 +1445,7 @@ using namespace std;
               // if fastsim
               vector<double> prob;
               if(fastsim){
-                totWeight *= fastsimWeight;
+                totWeight *= fastsimWeight*0.99; // 0.99 is the jet id efficiency correction. 
                 double puWeight = 
                     puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
