@@ -6,8 +6,11 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=true;
- 
+    DataBool=false;
+    
+    // Study Tau ID
+    StudyTauId=true;
+
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -78,6 +81,19 @@
      IsolatedElectronTracksVeto = 0;
      IsolatedMuonTracksVeto = 0;
      IsolatedPionTracksVeto = 0;
+
+     TauLorVec = 0;
+     TauIdVecagainstElectronLooseMVA5 = 0;
+     TauIdVecagainstElectronMediumMVA5 = 0;
+     TauIdVecagainstElectronVLooseMVA5 = 0;
+     TauIdVecagainstMuonLoose3 = 0;
+     TauIdVecagainstMuonTight3 = 0;
+     TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits = 0;
+     TauIdVecbyLoosePileupWeightedIsolation3Hits = 0;
+     TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits = 0;
+     TauIdVecbyMediumPileupWeightedIsolation3Hits = 0;
+     TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits = 0;
+     TauIdVecbyTightPileupWeightedIsolation3Hits = 0;
 
      TriggerNames=0;
      TriggerPass=0;
@@ -165,7 +181,22 @@
      fChain->SetBranchAddress("IsolatedPionTracksVeto", &IsolatedPionTracksVeto);
 
      fChain->SetBranchAddress("selectedIDIsoMuons_MT2Activity", &selectedIDIsoMuons_MT2Activity);
-     //
+
+     if(StudyTauId){
+       fChain->SetBranchAddress("TauLorVec", &TauLorVec);
+       fChain->SetBranchAddress("TauIdVecagainstElectronLooseMVA5", &TauIdVecagainstElectronLooseMVA5);
+       fChain->SetBranchAddress("TauIdVecagainstElectronMediumMVA5", &TauIdVecagainstElectronMediumMVA5);
+       fChain->SetBranchAddress("TauIdVecagainstElectronVLooseMVA5", &TauIdVecagainstElectronVLooseMVA5);
+       fChain->SetBranchAddress("TauIdVecagainstMuonLoose3", &TauIdVecagainstMuonLoose3);
+       fChain->SetBranchAddress("TauIdVecagainstMuonTight3", &TauIdVecagainstMuonTight3);
+       fChain->SetBranchAddress("TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits", &TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits);
+       fChain->SetBranchAddress("TauIdVecbyLoosePileupWeightedIsolation3Hits", &TauIdVecbyLoosePileupWeightedIsolation3Hits);
+       fChain->SetBranchAddress("TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits", &TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits);
+       fChain->SetBranchAddress("TauIdVecbyMediumPileupWeightedIsolation3Hits", &TauIdVecbyMediumPileupWeightedIsolation3Hits);
+       fChain->SetBranchAddress("TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits", &TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits);
+       fChain->SetBranchAddress("TauIdVecbyTightPileupWeightedIsolation3Hits", &TauIdVecbyTightPileupWeightedIsolation3Hits);
+     }
+     
      fChain->SetBranchAddress("TriggerNames", &TriggerNames);
      fChain->SetBranchAddress("TriggerPass", &TriggerPass);
 
@@ -601,6 +632,21 @@
 
    vector<double>  Events::MTActivityVec_() const{ return *selectedIDIsoMuons_MT2Activity; }
    vector<double>  Events::GenMTActivityVec_() const{ return *GenMu_MT2Activity; }
+
+   vector<TLorentzVector>* Events::TauLorVec_() const { return TauLorVec;}
+   vector<double>* Events::tauId1() const { return TauIdVecagainstElectronLooseMVA5;}
+   vector<double>* Events::tauId2() const { return TauIdVecagainstElectronMediumMVA5;}
+   vector<double>* Events::tauId3() const { return TauIdVecagainstElectronVLooseMVA5;}
+   vector<double>* Events::tauId4() const { return TauIdVecagainstMuonLoose3;}
+   vector<double>* Events::tauId5() const { return TauIdVecagainstMuonTight3;}
+   vector<double>* Events::tauId6() const { return TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId7() const { return TauIdVecbyLoosePileupWeightedIsolation3Hits;}
+   vector<double>* Events::tauId8() const { return TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId9() const { return TauIdVecbyMediumPileupWeightedIsolation3Hits;}
+   vector<double>* Events::tauId10() const { return TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId11() const { return TauIdVecbyTightPileupWeightedIsolation3Hits;}
+
+
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
    vector<int>     Events::PassTrigger_() const{ return *TriggerPass;}

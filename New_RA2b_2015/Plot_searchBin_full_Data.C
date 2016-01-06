@@ -26,7 +26,7 @@ root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","hPredNbBins",1.28)'
 
 Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
 			 //double lumiTarget=2.109271, double lumiControl=2.093663,
-			 double lumiTarget=2.15374, double lumiControl=2.13727,
+			 double lumiTarget=2.26198, double lumiControl=2.24572,
 			 bool normalize=false,double trigEff=0.951){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //data file
   //TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15cd_.root","R");
   //TFile * EstFile = new TFile("TauHad2/Elog404_HadTauEstimation_data_SingleMuon_v15d_TriggerOn.root","R");
-  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15d_Elog408V2_V5_.root","R");
+  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15d_Elog408V3_V5_.root","R");
   
 
   sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
