@@ -13,25 +13,25 @@ void effMapConstErrPropagation(TH1* input, double fractionalError, TH1* output);
 void muFromTauStatErrPropagation(TH1* input, TH1* one, TH1* output);
 void isoTrkVetoErrPropagation(TH1* input, double sys, TH1* one, TH1* output_tot, TH1* output_stat, TH1* output_sys);
 
-void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
+void HadTauEstimation_output_format(string elogForData="Elog408V3_",            // Data
 				    string elogForMCExp="Elog410_PlusRare_",    // MC expectation
 				    string elogForMCPre="Elog410_PlusRare_",    // MC prediction
-				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag and muon efficiencies
-				    string elogForMuSys="Elog410_",    // MC-based systematics evaluation for Btag and muon efficiencies
-				    string elogForMTSysUp="Elog402_",  // MT systematics
-				    string elogForMTSysDn="Elog403_",
-				    string elogForMTSysRef="Elog397_",
-				    string elogForJECSysUp="Elog410V2_",   // JEC 
-				    string elogForJECSysDn="Elog410V2_",
-				    string elogForJECSysRef="Elog410_",
-				    string elogForIsoTrkVeto="Elog401_", // Isotrack veto
-				    string elogForMuFromTau="Elog401_",  // Muon from tau
-				    string elogForAccStat="Elog401_",    // Acceptance 
-				    string elogForMTStat="Elog401_",     // MT cut efficiency
-				    string elogForMTUp="Elog410_",     // MT cut efficiency
- 				    string elogForMTDn="Elog410_",     // MT cut efficiency  
-				    string elogForAccPDF="Elog408_",
-				    string elogForAccScale="Elog408_",
+				    string elogForSys="Elog408_",      // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
+				    string elogForMuSys="Elog410_",    // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
+				    string elogForJECSysUp="Elog410V2_",   // JEC Up systematics
+				    string elogForJECSysDn="Elog410V2_",   // JEC Down systematics
+				    string elogForJECSysRef="Elog410_",    // JEC uncertainty reference
+				    string elogForIsoTrkVeto="Elog401_",   // Isotrack veto efficiency stat uncertainty
+				    string elogForMuFromTau="Elog401_",    // Muon from tau stat uncertainty
+				    string elogForAccStat="Elog401_",      // Acceptance stat uncertainty
+    //				    string elogForMTSysUp="Elog402_",      // MT systematics (flat error is assigned now, so not used)
+    //				    string elogForMTSysDn="Elog403_",      // same as above
+				    string elogForMTSysRef="Elog397_",     // MT cut efficiency reference (flat error is assigned, so this reference serves only just to provide histogram template)
+				    string elogForMTStat="Elog401_",       // MT cut efficiency
+    //				    string elogForMTUp="Elog410_",         // MT systematics (flat error is assigned now, so not used)
+    // 				    string elogForMTDn="Elog410_",         // MT systematics (flat error is assigned now, so not used)
+				    string elogForAccPDF="Elog408_",       // Acceptance uncertainty due to PDF
+				    string elogForAccScale="Elog408_",     // Acceptance uncertainty due to scale
 				    double trigEff=0.951,
 				    //double lumiTarget=1.280231,
 				    //double lumiControl=1.263886,
@@ -327,6 +327,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
   //
   // MTcut eff
   //
+  /*
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysUp.c_str(),sample.c_str());
   TFile * MTSysUpFile = new TFile(tempname,"R");
@@ -336,6 +337,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
   else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysDn.c_str(),sample.c_str());
   TFile * MTSysDnFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
+  */
 
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForMTSysRef.c_str(),sample.c_str());
@@ -351,6 +353,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
   TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
   TH1D * hMT_LowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
 
+  /*
   sprintf(tempname,"TauHad2/MtEff_%sMTPlus_.root",elogForMTUp.c_str());
   TFile * MtUpFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
@@ -362,6 +365,7 @@ void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
   printf("Opened %s\n",tempname);
   TH1D * hMTDn = (TH1D *) MtDnFile->Get("MtCutEff")->Clone();
   TH1D * hMTDn_LowDphi = (TH1D *) MtDnFile->Get("MtCutEff_lowDphi")->Clone();
+  */
 
   TH1D* searchBin_MtEff = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_MtEff");
   searchBin_MtEff->Reset();
@@ -387,26 +391,32 @@ void HadTauEstimation_output_format(string elogForData="Elog408V3_",     // Data
   THStack *tempstack;
   string histname="searchH_b";
   sprintf(tempname,"%s",histname.c_str());
-  tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("searchBin_MTSysUp");  
+  //tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("searchBin_MTSysUp");  
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysUp");       // Template for MTSysUp
   TH1D * searchBin_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("searchBin_MTSysDn");  
+  //tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("searchBin_MTSysDn");  
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysDn");       // Template for MTSysDn
   TH1D * searchBin_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysRef");  
   TH1D * searchBin_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
 
   histname="QCD_Up";
   sprintf(tempname,"%s",histname.c_str());
-  tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysUp");  
+  //tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysUp");  
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysUp");   // Template for MTSysUp
   TH1D * QCDBin_HiDphi_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysDn");  
+  //tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysDn"); 
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysDn");   // Template for MTSysDn
   TH1D * QCDBin_HiDphi_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysRef");  
   TH1D * QCDBin_HiDphi_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
 
   histname="QCD_Low";
-  tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysUp");  
+  //tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysUp");  
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysUp");  // Template for MTSysUp
   TH1D * QCDBin_LowDphi_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysDn");  
+  //tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysDn");  
+  tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysDn");  // Template for MTSysDn
   TH1D * QCDBin_LowDphi_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
   tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysRef");  
   TH1D * QCDBin_LowDphi_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
