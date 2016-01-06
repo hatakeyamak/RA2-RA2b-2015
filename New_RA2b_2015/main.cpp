@@ -158,8 +158,14 @@ int main(int argc, char *argv[]){
   int eventN=0;
   while( evt->loadNext() ){
 
-
-
+  printf(" ############# \n Number of gen tau: %d \n ",evt->GenTauPtVec_().size());
+  for(int i=0; i < evt->GenTauPtVec_().size(); i++){
+    printf(" had tau: %d genEta: %g \n ",evt->GenTauHadVec_()[i],evt->GenTauEtaVec_()[i]);
+  }
+  for(int i=0; i<evt->TauLorVec_()->size(); i++){
+    printf(" \n eta: %g \n ",evt->TauLorVec_()->at(i).Eta());
+    printf(" Tauid => id1: %g id2: %g id3: %g id4: %g id5: %g id6: %g id7: %g id8: %g id9: %g id10: %g id11: %g \n ",evt->tauId1()->at(i),evt->tauId2()->at(i),evt->tauId3()->at(i),evt->tauId4()->at(i),evt->tauId5()->at(i),evt->tauId6()->at(i),evt->tauId7()->at(i),evt->tauId8()->at(i),evt->tauId9()->at(i),evt->tauId10()->at(i),evt->tauId11()->at(i));
+  }
     // Print out some information
     if(verbose!=0){
       printf(" ########################### \n event #: %d \n",eventN);
@@ -176,7 +182,7 @@ int main(int argc, char *argv[]){
 
     // JetId efficiency 
     // We want this after the baseline cuts
-    if( verbose > 1 && evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 && evt->minDeltaPhiN() > 4.){
+    if( verbose > 1 && evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 /*&& evt->minDeltaPhiN() > 4.*/){
       for(int i=0; i< evt->slimJetPtVec_().size(); i++){
         if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5. && evt->slimJetID_().at(i)==0){
           printf("event#: %d pt: %g eta: %g phi: %g jetId: %d \n ",eventN,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
@@ -221,9 +227,9 @@ int main(int argc, char *argv[]){
         for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
 //          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-            histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-          } 
+//          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+  //           histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+    //       } 
         }//end of loop over cut names
 
         ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts

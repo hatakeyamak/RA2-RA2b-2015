@@ -29,6 +29,9 @@ using namespace std;
    // See if working with Data or MC
    bool DataBool;
 
+   // Study Tau ID
+   bool StudyTauId;
+
    // Declaration of leaf types
 //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
@@ -109,6 +112,20 @@ using namespace std;
 
    vector<double>  *selectedIDIsoMuons_MT2Activity;
    vector<double>  *GenMu_MT2Activity;
+
+   vector<TLorentzVector> *TauLorVec;
+   vector<double>  *TauIdVecagainstElectronLooseMVA5;
+   vector<double>  *TauIdVecagainstElectronMediumMVA5;
+   vector<double>  *TauIdVecagainstElectronVLooseMVA5;
+   vector<double>  *TauIdVecagainstMuonLoose3;
+   vector<double>  *TauIdVecagainstMuonTight3;
+   vector<double>  *TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits;
+   vector<double>  *TauIdVecbyLoosePileupWeightedIsolation3Hits;
+   vector<double>  *TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits;
+   vector<double>  *TauIdVecbyMediumPileupWeightedIsolation3Hits;
+   vector<double>  *TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits;
+   vector<double>  *TauIdVecbyTightPileupWeightedIsolation3Hits;
+
 
    vector<int>     *TriggerPass;
    vector<string>  *TriggerNames;
@@ -243,6 +260,20 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
    vector<double>  MTActivityVec_() const;
    vector<double>  GenMTActivityVec_() const;
+
+   vector<TLorentzVector> *TauLorVec_() const;
+   vector<double>* tauId1() const;
+   vector<double>* tauId2() const;
+   vector<double>* tauId3() const;
+   vector<double>* tauId4() const;
+   vector<double>* tauId5() const;
+   vector<double>* tauId6() const;
+   vector<double>* tauId7() const;
+   vector<double>* tauId8() const;
+   vector<double>* tauId9() const;
+   vector<double>* tauId10() const;
+   vector<double>* tauId11() const;
+
 
    vector<string>  TriggerNames_() const;
    vector<int>  PassTrigger_() const;

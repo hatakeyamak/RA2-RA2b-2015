@@ -88,7 +88,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
-  double lumi     = 2.15374; // normaliza to this lumi (fb-1)
+  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   
   ///////////////////////////////////////////////////////////////////////////////////////////

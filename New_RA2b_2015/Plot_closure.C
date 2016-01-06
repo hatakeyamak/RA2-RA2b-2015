@@ -63,7 +63,7 @@ root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","El
 
  */
 
-Plot_closure(string cutname="delphi", string histname="MHT",string sample="stacked",
+Plot_closure(string cutname="delphi", string histname="NBtag",string sample="stacked",
 	     string elogForPre="Elog410_PlusRare_",string elogForExp="Elog410_PlusRare_",
 	     bool zoom=true, bool debug=false){
 
@@ -105,7 +105,7 @@ Plot_closure(string cutname="delphi", string histname="MHT",string sample="stack
   //
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
-  double lumi     = 2.15374; // normaliza to this lumi (fb-1)
+  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
 
   //double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV

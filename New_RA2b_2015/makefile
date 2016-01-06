@@ -9,6 +9,9 @@ LD            = g++
 LIBS          = $(shell root-config --glibs)   
 
 
+OBJS1         = main.o Events.o Selection.o utils.o
+PROGRAM1      = run
+
 OBJS2	      = tauhad_template.o Events.o Selection.o utils.o
 PROGRAM2      = run_tauHad
 
@@ -30,13 +33,17 @@ HEADERS       = $(DIR)/Events.h Selection.h utils.h utils2.h Lepton_Selection.h 
 %.o : %.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-all : $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
+all : $(PROGRAM1) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 
 clean : *.o $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 	$(RM) *.o $(PROGRAM) $(PROGRAM2) $(PROGRAM3) $(PROGRAM4)
 
 .PHONY : all 
 
+$(PROGRAM1): $(OBJS1)
+	@echo "Linking $(PROGRAM1) ..."
+	@$(LD) $(OBJS1) $(LIBS) -o $(PROGRAM1)
+	@echo "done"
 
 $(PROGRAM2): $(OBJS2)
 	@echo "Linking $(PROGRAM2) ..."
