@@ -180,11 +180,12 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  GenElecEtaVec_() const;
    vector<double>  GenElecPhiVec_() const;
 
-
+   vector<TLorentzVector>* GenTauLorVec() const;
    vector<double>  GenTauPtVec_() const;
    vector<double>  GenTauEtaVec_() const;
    vector<double>  GenTauPhiVec_() const;
 
+   vector<TLorentzVector>*  GenTauNuLorVec() const;
    vector<double>  GenTauNuPtVec_() const;
    vector<double>  GenTauNuEtaVec_() const;
    vector<double>  GenTauNuPhiVec_() const;
