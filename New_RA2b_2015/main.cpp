@@ -1,7 +1,7 @@
 
 //Lost Lepton Efficiency and Acceptance maps
 #include "Events.h"
-#include "Selection.h"
+#include "Selection2.h"
 #include "TTree.h"
 #include <string>
 #include <vector>
@@ -88,15 +88,17 @@ int main(int argc, char *argv[]){
   TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
   vec.push_back(weight_hist);
   TH1D RA2HT_hist = TH1D("HT","HT Distribution",50,0,5000);
+  RA2HT_hist.Sumw2();
   vec.push_back(RA2HT_hist);
   TH1D RA2MHT_hist = TH1D("MHT","MHT Distribution",100,0,5000);
+  RA2MHT_hist.Sumw2();
   vec.push_back(RA2MHT_hist);
   TH1D RA2NJet_hist = TH1D("NJet","Number of Jets Distribution",20,0,20);
+  RA2NJet_hist.Sumw2();
   vec.push_back(RA2NJet_hist);
   TH1D RA2NBtag_hist = TH1D("NBtag","Number of Btag Distribution",20,0,20);
+  RA2NBtag_hist.Sumw2();
   vec.push_back(RA2NBtag_hist);
-  TH1D NLostLep_hist = TH1D("NLostLep","Number of Lost Lepton Distribution",20,0,20);
-  vec.push_back(NLostLep_hist);
   int Nhists=((int)(vec.size())-1);//-1 is because weight shouldn't be counted.
 
   ///read the file names from the .txt files and load them to a vector.
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]){
   Events * evt = new Events(sample_AUX, subSampleKey,verbose);
 
   // Get a pointer to the Selection class  
-  Selection * sel = new Selection();
+  Selection2 * sel = new Selection2();
 
   // For each selection, cut, make a vector containing the same histograms as those in vec
   for(int i=0; i<(int) sel->cutName().size();i++){
@@ -132,40 +134,106 @@ int main(int argc, char *argv[]){
     histobjmap[it->first]=histObj;
   }
 
-  // Veto Events with bad jets?
-  bool JetIdSwitch=false;
-  
-  // Count muon, electron, jets? 
-  bool counterSwitch=true;
+  TH1D* TauIDhist = new TH1D("yield_tauId","Yield after tau Id",200,0.,200.);
 
-  // To calculate JetId efficiency
-  int nTotEvent=0 , nFailJetIdEvent=0;
 
-  // Counter for muon
-  int NSlimMu=0,NSlimMuEta=0,NSlimMuPt=0,NMuID=0,NMuIDIso=0;
-  int MuEve_noCut=0,MuEve_Eta=0,MuEve_Pt=0,MuEve_ID=0,MuEve_IDIso=0;
-  // Counter for electron
-  int NSlimElec=0,NSlimElecEta=0,NSlimElecPt=0,NElecID=0,NElecIDIso=0;
-  int ElecEve_noCut=0,ElecEve_Eta=0,ElecEve_Pt=0,ElecEve_ID=0,ElecEve_IDIso=0;
-  // Counter for jet
-  int NSlimJet=0,NSlimJetEtaPt=0,NSlimJetID=0;
-  int JetEve_noCut=0,JetEve_EtaPt=0,JetEve_ID=0;
-  // Counter for IsoTrks
-  int NIsoElec=0,NIsoMu=0,NIsoPion=0;
-  int IsoElecEve=0,IsoMuEve=0,IsoPionEve=0;
+  // Introduce cutflow histogram to monior event yields for early preselection
+  TH1D* cutflow_preselection = new TH1D("cutflow_preselection","cutflow_preselectoion",
+                                       11,0.,11.);
+  cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
+  cutflow_preselection->GetXaxis()->SetBinLabel(2,"Sample based gen-selection");
+  cutflow_preselection->GetXaxis()->SetBinLabel(3,"HBHEIsoNoiseFilter");
+  cutflow_preselection->GetXaxis()->SetBinLabel(4,"eeBadScFilter");
+  cutflow_preselection->GetXaxis()->SetBinLabel(5,"HBHENoiseFilter");
+  cutflow_preselection->GetXaxis()->SetBinLabel(6,"GoodVtx");
+  cutflow_preselection->GetXaxis()->SetBinLabel(7,"JetID Cleaning");
+
+  int sampletype=-1;
+  if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
+  else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
+  else if(subSampleKey.find("TTbar_DiLept")!=string::npos)sampletype=2;
+  else if(subSampleKey.find("TTbar_HT_600_800")!=string::npos)sampletype=3;
+  else if(subSampleKey.find("TTbar_HT_800_1200")!=string::npos)sampletype=4;
+  else if(subSampleKey.find("TTbar_HT_1200_2500")!=string::npos)sampletype=5;
+  else if(subSampleKey.find("TTbar_HT_2500_Inf")!=string::npos)sampletype=6;
+  else if(subSampleKey.find("TTbar")!=string::npos){
+    cout << " TT sample is not known. Please check the second input \n " ;
+    return 2;
+  }
 
   // Loop over the events (tree entries)
   int eventN=0;
   while( evt->loadNext() ){
 
-  printf(" ############# \n Number of gen tau: %d \n ",evt->GenTauPtVec_().size());
-  for(int i=0; i < evt->GenTauPtVec_().size(); i++){
-    printf(" had tau: %d genEta: %g \n ",evt->GenTauHadVec_()[i],evt->GenTauEtaVec_()[i]);
+    cutflow_preselection->Fill(0.); // keep track of all events processed
+
+    if(!evt->DataBool_()){
+
+      if(sampletype==0){
+        if(evt->gen_ht()>600||evt->GenElecPtVec_().size()>0||evt->GenMuPtVec_().size()>0||evt->GenTauPtVec_().size()>0)continue;
+      }
+
+      if(sampletype==1){
+        if(evt->gen_ht()>600)continue;
+      }
+
+      if(sampletype==2){
+        if(evt->gen_ht()>600)continue;
+      }
+
+    }
+
+    cutflow_preselection->Fill(1.);
+    if(evt->HBHEIsoNoiseFilter_()==0)continue;
+    cutflow_preselection->Fill(2.);
+    if(evt->eeBadScFilter_()==0)continue;
+    cutflow_preselection->Fill(3.);
+    if(evt->HBHENoiseFilter_()==0)continue;
+    cutflow_preselection->Fill(4.);
+    if(!(evt->NVtx_() >0))continue;
+    cutflow_preselection->Fill(5.);
+    // Through out an event that contains HTjets with bad id
+    if(evt->JetId()==0)continue;
+    cutflow_preselection->Fill(6.); // events passing JetID event cleaning
+
+
+
+  vector<TLorentzVector> genTauJetLorVec;
+  for(int i=0;i<evt->GenTauLorVec()->size();i++){
+    TLorentzVector tempVec(evt->GenTauLorVec()->at(i).Px()-evt->GenTauNuLorVec()->at(i).Px(),
+                           evt->GenTauLorVec()->at(i).Py()-evt->GenTauNuLorVec()->at(i).Py(),
+                           evt->GenTauLorVec()->at(i).Pz()-evt->GenTauNuLorVec()->at(i).Pz(),
+                           evt->GenTauLorVec()->at(i).Energy()-evt->GenTauNuLorVec()->at(i).Energy()
+                          );
+    genTauJetLorVec.push_back(tempVec);
   }
+
+  if(verbose!=0){
+    printf(" ############# \n Number of gen tau: %d \n ",evt->GenTauPtVec_().size());
+    for(int i=0; i < genTauJetLorVec.size(); i++){
+      if(evt->GenTauHadVec_()[i]==1 && genTauJetLorVec.at(i).Pt() > 18.){
+        printf(" genTauJet: Pt: %g Eta: %g Phi: %g \n ",genTauJetLorVec.at(i).Pt(),genTauJetLorVec.at(i).Eta(),genTauJetLorVec.at(i).Phi());
+        for(int i=0; i<evt->TauLorVec_()->size(); i++){
+          printf(" \n patTau: pt: %g eta: %g phi: %g \n ",evt->TauLorVec_()->at(i).Pt(),evt->TauLorVec_()->at(i).Eta(),evt->TauLorVec_()->at(i).Phi());
+          printf(" Tauid => id1: %g id2: %g id3: %g id4: %g id5: %g id6: %g id7: %g id8: %g id9: %g id10: %g id11: %g \n ",evt->tauId1()->at(i),evt->tauId2()->at(i),evt->tauId3()->at(i),evt->tauId4()->at(i),evt->tauId5()->at(i),evt->tauId6()->at(i),evt->tauId7()->at(i),evt->tauId8()->at(i),evt->tauId9()->at(i),evt->tauId10()->at(i),evt->tauId11()->at(i));
+        }
+      }
+    }
+  }
+
+  int ntau_346=0, ntau_3469=0,ntau_257=0,ntau_25710=0,ntau_258=0,ntau_25811=0;
   for(int i=0; i<evt->TauLorVec_()->size(); i++){
-    printf(" \n eta: %g \n ",evt->TauLorVec_()->at(i).Eta());
-    printf(" Tauid => id1: %g id2: %g id3: %g id4: %g id5: %g id6: %g id7: %g id8: %g id9: %g id10: %g id11: %g \n ",evt->tauId1()->at(i),evt->tauId2()->at(i),evt->tauId3()->at(i),evt->tauId4()->at(i),evt->tauId5()->at(i),evt->tauId6()->at(i),evt->tauId7()->at(i),evt->tauId8()->at(i),evt->tauId9()->at(i),evt->tauId10()->at(i),evt->tauId11()->at(i));
+    if(((int)evt->tauId3()->at(i))==1 && ((int)evt->tauId4()->at(i))==1 && ((int)evt->tauId6()->at(i))==1)ntau_346++;
+    if(((int)evt->tauId3()->at(i))==1 && ((int)evt->tauId4()->at(i))==1 && ((int)evt->tauId6()->at(i))==1 && ((int)evt->tauId9()->at(i))==1)ntau_3469++;
+    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId7()->at(i))==1)ntau_257++;
+    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId7()->at(i))==1 && ((int)evt->tauId10()->at(i))==1)ntau_25710++;
+    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId8()->at(i))==1)ntau_258++;
+    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId8()->at(i))==1 && ((int)evt->tauId11()->at(i))==1)ntau_25811++;
   }
+
+    //printf(" ntau_346: %d ntau_3469: %d ntau_257: %d ntau_25710: %d ntau_258: %d ntau_25811: %d \n",ntau_346,ntau_3469,ntau_257,ntau_25710,ntau_258,ntau_25811);
+
+
     // Print out some information
     if(verbose!=0){
       printf(" ########################### \n event #: %d \n",eventN);
@@ -180,39 +248,61 @@ int main(int argc, char *argv[]){
       }
     }
 
-    // JetId efficiency 
-    // We want this after the baseline cuts
-    if( verbose > 1 && evt->nJets() >= 4 && evt->ht() >= 500. && evt->mht() >= 200. && evt->nLeptons()==0 /*&& evt->minDeltaPhiN() > 4.*/){
-      for(int i=0; i< evt->slimJetPtVec_().size(); i++){
-        if( evt->slimJetPtVec_()[i] > 30. && fabs(evt->slimJetEtaVec_()[i])<5. && evt->slimJetID_().at(i)==0){
-          printf("event#: %d pt: %g eta: %g phi: %g jetId: %d \n ",eventN,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
-          nFailJetIdEvent++;
-          break;
-        }
-      }
-      nTotEvent++;
-    }
-    // Print out some information about slimJets
-    if(verbose > 1){
-      printf(" @@@@\n slimJets section: \n NSlimJets: %d \n ", evt->slimJetPtVec_().size());
-      for(int i=0;i<evt->slimJetPtVec_().size();i++){
-        printf("jet#: %d pt: %g eta: %g phi: %g jetId: %d \n ",i+1,evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i],evt->slimJetID_()[i]);
-      }
-
-    }
-
-    // Through out an event that contains HTjets with bad id
-    if(JetIdSwitch && evt->JetId()==0)continue;
-
     // Total weight
     double totWeight = evt->weight()*1.;
 
     //printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
     //printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
+    // count the number of taus for all possible combinations of tau id s
+    vector<int> NtauVec(200,0);
+    for(int i=0; i<evt->TauLorVec_()->size(); i++){
+      // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied. 
+      // the following 4 lines correspond whith each of the categories in the tau id. 
+      int tauIdElec[4]={1,(int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i)};
+      int tauIdMu[3]  ={1,(int)evt->tauId4()->at(i),(int)evt->tauId5()->at(i)};
+      int tauIdIso[4] ={1,(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i)};
+      int tauIdPile[4]={1,(int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i)};
+
+      /*printf(" id1: %d id2: %d id3: %d id4: %d id5: %d id6: %d id7: %d id8: %d id9: %d id10: %d id11: %d \n",
+            (int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i),(int)evt->tauId4()->at(i),
+            (int)evt->tauId5()->at(i),(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i),
+            (int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i));      
+      */
+      int IdNum=0;
+
+      for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+        for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+          for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+            for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+              IdNum++;
+              ostringstream binS;
+              binS << 1000*(1+iPile)+100*(1+iIso)+10*(1+iMu)+(1+iElec);
+              if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)NtauVec[IdNum]++;
+    //            printf(" id #: %d ",IdNum);
+      //          cout << " => " << binS.str() << endl;
+
+                //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
+              
+            }
+          }
+        }
+      }
+    } 
+
+    // apply the baseline cuts here to study the tau id s
+    if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())&&
+       sel->mht_200(evt->mht())&&sel->MuIsoTrk(evt->nIsoMu())&&sel->ElecIsoTrk(evt->nIsoElec())&&
+       sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
+    {
+      for(int iId=0; iId<NtauVec.size();iId++){
+        if(NtauVec[iId]==0)TauIDhist->Fill(iId);
+      }
+    }
+
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec
-    double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags(),(double) evt->nLeptons() }; //the last one gives the RA2 defined number of jets.     
+    double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags()}; //the last one gives the RA2 defined number of jets.     
 
 
     //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
@@ -226,10 +316,9 @@ int main(int argc, char *argv[]){
         //////loop over cut names and fill the histograms
         for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-//          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->minDeltaPhiN(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-//          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
-  //           histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-    //       } 
+          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),ntau_346,ntau_3469,ntau_257,ntau_25710,ntau_258,ntau_25811)==true){
+             histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+           } 
         }//end of loop over cut names
 
         ////EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts//EndOfCuts
@@ -241,31 +330,33 @@ int main(int argc, char *argv[]){
     eventN++;
   } // End of loop over events
 
-  if(counterSwitch){
-    // Print out muon informations
-    printf("NSlimMu: %d NSlimMuEta: %d NSlimMuPt: %d NMuID: %d NMuIDIso: %d \n ",NSlimMu,NSlimMuEta,NSlimMuPt,NMuID,NMuIDIso);
-    printf("MuEve_noCut: %d MuEve_Eta: %d MuEve_Pt: %d MuEve_ID: %d MuEve_IDIso: %d \n ",MuEve_noCut,MuEve_Eta,MuEve_Pt,MuEve_ID,MuEve_IDIso);
-    // Print out electron informations
-    printf("NSlimElec: %d NSlimElecEta: %d NSlimElecPt: %d NElecID: %d NElecIDIso: %d \n ",NSlimElec,NSlimElecEta,NSlimElecPt,NElecID,NElecIDIso);
-    printf("ElecEve_noCut: %d ElecEve_Eta: %d ElecEve_Pt: %d ElecEve_ID: %d ElecEve_IDIso: %d \n ",ElecEve_noCut,ElecEve_Eta,ElecEve_Pt,ElecEve_ID,ElecEve_IDIso);
-    // Print out jet information
-    printf("NSlimJet: %d NSlimJetEtaPt: %d NSlimJetID: %d \n ",NSlimJet,NSlimJetEtaPt,NSlimJetID);
-    printf("JetEve_noCut: %d ,JetEve_EtaPt: %d ,JetEve_ID: %d \n ",JetEve_noCut,JetEve_EtaPt,JetEve_ID);
-    printf("NIsoElec: %d NIsoMu: %d NIsoPion: %d \n",NIsoElec,NIsoMu,NIsoPion);
-    printf("IsoElecEve: %d IsoMuEve: %d IsoPionEve: %d \n ",IsoElecEve,IsoMuEve,IsoPionEve);
 
+
+  int IdNum_=0;
+
+  for(int iElec=0;iElec<4;iElec++){
+    for(int iMu=0;iMu<3;iMu++){
+      for(int iIso=0;iIso<4;iIso++){
+        for(int iPile=0;iPile<4;iPile++){
+          IdNum_++;
+          ostringstream binS_;
+          binS_ << 1000*(1+iPile)+100*(1+iIso)+10*(1+iMu)+(1+iElec);
+          TauIDhist->GetXaxis()->SetBinLabel(IdNum_,binS_.str().c_str());
+        }
+      }
+    }
   }
 
 
-  // Calculate JetId efficiency
-//  double JetIdEff = ((double)nFailJetIdEvent/nTotEvent)*100 ;
-//  printf(" # totalEvents: %d # events that fail JetId: %d  Percent of failed JetId: %g \n ",nTotEvent,nFailJetIdEvent,JetIdEff);
 
   //open a file to write the histograms
   sprintf(tempname,"%s/results_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
   TFile *resFile = new TFile(tempname, "RECREATE");
   TDirectory *cdtoitt;
   TDirectory *cdtoit;
+
+  cutflow_preselection->Write();
+  TauIDhist->Write();
 
   // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
   for(int iet=0;iet<(int)eventType.size();iet++){

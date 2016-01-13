@@ -341,7 +341,8 @@
      }
      return vec;
    }
-   
+  
+   vector<TLorentzVector>* Events::GenTauLorVec() const { return GenTaus;} 
    vector<double>  Events::GenTauPtVec_() const {
      vector<double> vec;
      for(int i=0;i < GenTaus->size();i++){
@@ -363,7 +364,7 @@
      }
      return vec;
    }
-
+   vector<TLorentzVector>*  Events::GenTauNuLorVec() const { return GenTauNu;}
    vector<double>  Events::GenTauNuPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < GenTauNu->size();i++){
@@ -640,12 +641,11 @@
    vector<double>* Events::tauId4() const { return TauIdVecagainstMuonLoose3;}
    vector<double>* Events::tauId5() const { return TauIdVecagainstMuonTight3;}
    vector<double>* Events::tauId6() const { return TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits;}
-   vector<double>* Events::tauId7() const { return TauIdVecbyLoosePileupWeightedIsolation3Hits;}
-   vector<double>* Events::tauId8() const { return TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits;}
-   vector<double>* Events::tauId9() const { return TauIdVecbyMediumPileupWeightedIsolation3Hits;}
-   vector<double>* Events::tauId10() const { return TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId7() const { return TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId8() const { return TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits;}
+   vector<double>* Events::tauId9() const { return TauIdVecbyLoosePileupWeightedIsolation3Hits;}
+   vector<double>* Events::tauId10() const { return TauIdVecbyMediumPileupWeightedIsolation3Hits;}
    vector<double>* Events::tauId11() const { return TauIdVecbyTightPileupWeightedIsolation3Hits;}
-
 
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
