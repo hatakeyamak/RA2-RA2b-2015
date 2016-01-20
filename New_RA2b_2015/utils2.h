@@ -39,6 +39,51 @@ namespace utils2{
   bool applyTrig = false;
 
   bool applyIsoTrk =true;
+//###############################################################################################################
+
+  // get the total # of events for normalization purposes
+  int TotNEve(string subSampleKey){
+    int NEve=-1;
+    if(subSampleKey.find("TTbar_DiLept")!=string::npos)NEve=5470162;
+    else if(subSampleKey.find("TTbar_HT_600_800")!=string::npos)NEve=4837326;
+    else if(subSampleKey.find("TTbar_HT_800_1200")!=string::npos)NEve=3273714;
+    else if(subSampleKey.find("TTbar_HT_1200_2500")!=string::npos)NEve=970912;
+    else if(subSampleKey.find("TTbar_HT_2500_Inf")!=string::npos)NEve=467189;
+    else if(subSampleKey.find("TTbar_Inclusive")!=string::npos)NEve=11299872;
+    else if(subSampleKey.find("TTbar_T_SingleLep")!=string::npos)NEve=10145239;
+    else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)NEve=11619522; //
+    else if(subSampleKey.find("WJet_HT_100_200")!=string::npos)NEve=6334833;
+    else if(subSampleKey.find("WJet_HT_200_400")!=string::npos)NEve=4156939;
+    else if(subSampleKey.find("WJet_HT_400_600")!=string::npos)NEve=1728593;
+    else if(subSampleKey.find("WJet_HT_600_800")!=string::npos)NEve=3077541;
+    else if(subSampleKey.find("WJet_HT_800_1200")!=string::npos)NEve=1173001;
+    else if(subSampleKey.find("WJet_HT_1200_2500")!=string::npos)NEve=210017;
+    else if(subSampleKey.find("WJet_HT_2500_Inf")!=string::npos)NEve=253036; //
+    else if(subSampleKey.find("ST_tW_antitop")!=string::npos)NEve=703454;
+    else if(subSampleKey.find("ST_tW_top")!=string::npos)NEve=995600;
+    else if(subSampleKey.find("ST_t_top")!=string::npos)NEve=2745000;
+    else if(subSampleKey.find("ST_t_antitop")!=string::npos)NEve=1595900; //
+    else if(subSampleKey.find("ZJet_HT_100_200")!=string::npos)NEve=5075985;
+    else if(subSampleKey.find("ZJet_HT_200_400")!=string::npos)NEve=4865021;
+    else if(subSampleKey.find("ZJet_HT_400_600")!=string::npos)NEve=891556;
+    else if(subSampleKey.find("ZJet_HT_600_Inf")!=string::npos)NEve=963090; //
+    else if(subSampleKey.find("QCD_HT_200_300")!=string::npos)NEve=18675969;
+    else if(subSampleKey.find("QCD_HT_300_500")!=string::npos)NEve=18477055;
+    else if(subSampleKey.find("QCD_HT_500_700")!=string::npos)NEve=14978442;
+    else if(subSampleKey.find("QCD_HT_700_1000")!=string::npos)NEve=13922489;
+    else if(subSampleKey.find("QCD_HT_1000_1500")!=string::npos)NEve=4914035;
+    else if(subSampleKey.find("QCD_HT_1500_2000")!=string::npos)NEve=3673364;
+    else if(subSampleKey.find("QCD_HT_2000_Inf")!=string::npos)NEve=1912529; //
+    else if(subSampleKey.find("T1bbbb_1000_900")!=string::npos)NEve=142674;
+    else if(subSampleKey.find("T1bbbb_1500_100")!=string::npos)NEve=52613;
+    else if(subSampleKey.find("T1qqqq_1000_800")!=string::npos)NEve=95354;
+    else if(subSampleKey.find("T1tttt_1200_800")!=string::npos)NEve=147194;
+    else if(subSampleKey.find("T1tttt_1500_100")!=string::npos)NEve=103140;
+    else cout << " there is no # events for the given smaple. The weight is not correct now! \n " << endl;
+    cout << " Please make sure that total # events are up to date! \n " << endl;
+
+    return NEve;
+  }
 
 
 //###############################################################################################################

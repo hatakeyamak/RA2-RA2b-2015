@@ -101,6 +101,7 @@
      fChain = ttree_;
 
     /// the variables
+     fChain->SetBranchAddress("CrossSection", &CrossSection);
      fChain->SetBranchAddress("RunNum", &RunNum);
      fChain->SetBranchAddress("LumiBlockNum", &LumiBlockNum);
      fChain->SetBranchAddress("EvtNum", &EvtNum);
@@ -234,6 +235,8 @@
 
 
 // Some Functions
+  double Events::XS() const { return CrossSection; }
+
   // Total number of events
   int Events::TotNEve() const { return template_Entries; }   
 
