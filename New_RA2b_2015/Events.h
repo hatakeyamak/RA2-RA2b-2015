@@ -52,6 +52,7 @@ using namespace std;
    Int_t           NJets;
    Int_t           BTags;
    Double_t         Weight;
+   Double_t        CrossSection;
    Double_t        puWeight;
    Double_t         HT;
    Double_t         MHT;
@@ -142,6 +143,7 @@ public:
 Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0);
 
 //Functions
+  double XS() const ;
   bool loadNext();
   int TotNEve() const;
   int Runnum() const;

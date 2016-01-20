@@ -26,6 +26,8 @@
 #include "TVector2.h"
 #include "TCanvas.h"
 #include "TH2.h"
+#include "utils2.h"
+
 
 using namespace std;
 
@@ -38,7 +40,6 @@ class histClass{
   void fill(int Nhists, double * eveinfarr_, TH1D * hist_){
     a = eveinfarr_;
     b_hist=hist_;
-
     (*b_hist).Fill(*a);
 
     for(int i=1; i<=Nhists ; i++){
@@ -46,11 +47,6 @@ class histClass{
     }
   }
 };
-
-
-
-
-
 
 
 int main(int argc, char *argv[]){
@@ -135,6 +131,24 @@ int main(int argc, char *argv[]){
   }
 
   TH1D* TauIDhist = new TH1D("yield_tauId","Yield after tau Id",200,0.,200.);
+  TH1D* TauIDhist_trk = new TH1D("yield_tauId_trk","Yield after trk veto and tau Id",200,0.,200.);
+  map <int,string> idMap;
+  int IdNum_=0;
+  for(int iPile=0;iPile<4;iPile++){
+    for(int iIso=0;iIso<4;iIso++){
+      for(int iMu=0;iMu<3;iMu++){
+        for(int iElec=0;iElec<4;iElec++){
+          IdNum_++;
+          ostringstream binS_;
+          binS_ << (1+iPile)+10*(1+iIso)+100*(1+iMu)+1000*(1+iElec);
+          idMap[IdNum_]=binS_.str();
+          TauIDhist->GetXaxis()->SetBinLabel(IdNum_,binS_.str().c_str());
+          TauIDhist_trk->GetXaxis()->SetBinLabel(IdNum_,binS_.str().c_str());
+        }
+      }
+    }
+  }
+
 
 
   // Introduce cutflow histogram to monior event yields for early preselection
@@ -161,11 +175,18 @@ int main(int argc, char *argv[]){
     return 2;
   }
 
+  int TotNEve_ = utils2::TotNEve(subSampleKey);
   // Loop over the events (tree entries)
   int eventN=0;
   while( evt->loadNext() ){
 
-    cutflow_preselection->Fill(0.); // keep track of all events processed
+  //if(eventN>1000)break;
+    // Total weight
+    //double totWeight = evt->weight()*1.;
+    double totWeight = 10000.*evt->XS()/TotNEve_;
+    //printf(" XS: %g NEvents: %d weight: %g \n ",evt->XS(),TotNEve_,totWeight);
+
+    cutflow_preselection->Fill(0.,totWeight); // keep track of all events processed
 
     if(!evt->DataBool_()){
 
@@ -183,19 +204,18 @@ int main(int argc, char *argv[]){
 
     }
 
-    cutflow_preselection->Fill(1.);
+    cutflow_preselection->Fill(1.,totWeight);
     if(evt->HBHEIsoNoiseFilter_()==0)continue;
-    cutflow_preselection->Fill(2.);
+    cutflow_preselection->Fill(2.,totWeight);
     if(evt->eeBadScFilter_()==0)continue;
-    cutflow_preselection->Fill(3.);
+    cutflow_preselection->Fill(3.,totWeight);
     if(evt->HBHENoiseFilter_()==0)continue;
-    cutflow_preselection->Fill(4.);
+    cutflow_preselection->Fill(4.,totWeight);
     if(!(evt->NVtx_() >0))continue;
-    cutflow_preselection->Fill(5.);
+    cutflow_preselection->Fill(5.,totWeight);
     // Through out an event that contains HTjets with bad id
     if(evt->JetId()==0)continue;
-    cutflow_preselection->Fill(6.); // events passing JetID event cleaning
-
+    cutflow_preselection->Fill(6.,totWeight); // events passing JetID event cleaning
 
 
   vector<TLorentzVector> genTauJetLorVec;
@@ -248,58 +268,56 @@ int main(int argc, char *argv[]){
       }
     }
 
-    // Total weight
-    double totWeight = evt->weight()*1.;
 
     //printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
     //printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
     // count the number of taus for all possible combinations of tau id s
     vector<int> NtauVec(200,0);
-    for(int i=0; i<evt->TauLorVec_()->size(); i++){
-      // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied. 
-      // the following 4 lines correspond whith each of the categories in the tau id. 
-      int tauIdElec[4]={1,(int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i)};
-      int tauIdMu[3]  ={1,(int)evt->tauId4()->at(i),(int)evt->tauId5()->at(i)};
-      int tauIdIso[4] ={1,(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i)};
-      int tauIdPile[4]={1,(int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i)};
-
-      /*printf(" id1: %d id2: %d id3: %d id4: %d id5: %d id6: %d id7: %d id8: %d id9: %d id10: %d id11: %d \n",
-            (int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i),(int)evt->tauId4()->at(i),
-            (int)evt->tauId5()->at(i),(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i),
-            (int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i));      
-      */
-      int IdNum=0;
-
-      for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
-        for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
-          for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
-            for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
-              IdNum++;
-              ostringstream binS;
-              binS << 1000*(1+iPile)+100*(1+iIso)+10*(1+iMu)+(1+iElec);
-              if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)NtauVec[IdNum]++;
-    //            printf(" id #: %d ",IdNum);
-      //          cout << " => " << binS.str() << endl;
-
-                //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
-              
-            }
-          }
-        }
-      }
-    } 
 
     // apply the baseline cuts here to study the tau id s
     if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())&&
        sel->mht_200(evt->mht())&&sel->MuIsoTrk(evt->nIsoMu())&&sel->ElecIsoTrk(evt->nIsoElec())&&
        sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
     {
+      for(int i=0; i<evt->TauLorVec_()->size(); i++){
+        // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied. 
+        // the following 4 lines correspond whith each of the categories in the tau id. 
+        int tauIdElec[4]={1,(int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i)};
+        int tauIdMu[3]  ={1,(int)evt->tauId4()->at(i),(int)evt->tauId5()->at(i)};
+        int tauIdIso[4] ={1,(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i)};
+        int tauIdPile[4]={1,(int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i)};
+        /*
+        printf(" id1: %d id2: %d id3: %d id4: %d id5: %d id6: %d id7: %d id8: %d id9: %d id10: %d id11: %d \n",
+              (int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i),(int)evt->tauId4()->at(i),
+              (int)evt->tauId5()->at(i),(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i),
+              (int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i));      
+        */
+        int IdNum=0;
+
+        for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+          for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+            for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+              for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+                IdNum++;
+                if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)NtauVec[IdNum]++;
+                  //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
+                  //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
+              }
+            }
+          }
+        }
+      } 
+
       for(int iId=0; iId<NtauVec.size();iId++){
-        if(NtauVec[iId]==0)TauIDhist->Fill(iId);
+        //printf(" @ \n iId: %d -> %s \n ",iId,idMap[iId].c_str());
+        if(NtauVec[iId]==0){
+          TauIDhist->Fill(iId-1,totWeight); 
+          //cout << " filled \n ";
+          if(sel->PionIsoTrk(evt->nIsoPion()))TauIDhist_trk->Fill(iId-1,totWeight);
+        }
       }
     }
-
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec
     double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->mht() ,(double) evt->nJets(),(double) evt->nBtags()}; //the last one gives the RA2 defined number of jets.     
@@ -326,27 +344,8 @@ int main(int argc, char *argv[]){
       }//end of bg_type determination
     }//end of loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
 
-
     eventN++;
   } // End of loop over events
-
-
-
-  int IdNum_=0;
-
-  for(int iElec=0;iElec<4;iElec++){
-    for(int iMu=0;iMu<3;iMu++){
-      for(int iIso=0;iIso<4;iIso++){
-        for(int iPile=0;iPile<4;iPile++){
-          IdNum_++;
-          ostringstream binS_;
-          binS_ << 1000*(1+iPile)+100*(1+iIso)+10*(1+iMu)+(1+iElec);
-          TauIDhist->GetXaxis()->SetBinLabel(IdNum_,binS_.str().c_str());
-        }
-      }
-    }
-  }
-
 
 
   //open a file to write the histograms
@@ -357,6 +356,7 @@ int main(int argc, char *argv[]){
 
   cutflow_preselection->Write();
   TauIDhist->Write();
+  TauIDhist_trk->Write();
 
   // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
   for(int iet=0;iet<(int)eventType.size();iet++){
