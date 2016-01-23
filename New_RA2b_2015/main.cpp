@@ -241,18 +241,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  int ntau_346=0, ntau_3469=0,ntau_257=0,ntau_25710=0,ntau_258=0,ntau_25811=0;
-  for(int i=0; i<evt->TauLorVec_()->size(); i++){
-    if(((int)evt->tauId3()->at(i))==1 && ((int)evt->tauId4()->at(i))==1 && ((int)evt->tauId6()->at(i))==1)ntau_346++;
-    if(((int)evt->tauId3()->at(i))==1 && ((int)evt->tauId4()->at(i))==1 && ((int)evt->tauId6()->at(i))==1 && ((int)evt->tauId9()->at(i))==1)ntau_3469++;
-    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId7()->at(i))==1)ntau_257++;
-    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId7()->at(i))==1 && ((int)evt->tauId10()->at(i))==1)ntau_25710++;
-    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId8()->at(i))==1)ntau_258++;
-    if(((int)evt->tauId2()->at(i))==1 && ((int)evt->tauId5()->at(i))==1 && ((int)evt->tauId8()->at(i))==1 && ((int)evt->tauId11()->at(i))==1)ntau_25811++;
-  }
-
-    //printf(" ntau_346: %d ntau_3469: %d ntau_257: %d ntau_25710: %d ntau_258: %d ntau_25811: %d \n",ntau_346,ntau_3469,ntau_257,ntau_25710,ntau_258,ntau_25811);
-
+    //printf("nTau=> 2233: %d 2243: %d 2333: %d 4333: %d 1333: %d \n ",evt->nTauMap()[2233],evt->nTauMap()[2243],evt->nTauMap()[2333],evt->nTauMap()[4333],evt->nTauMap()[1333]);
 
     // Print out some information
     if(verbose!=0){
@@ -334,7 +323,7 @@ int main(int argc, char *argv[]){
         //////loop over cut names and fill the histograms
         for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),ntau_346,ntau_3469,ntau_257,ntau_25710,ntau_258,ntau_25811)==true){
+          if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),evt->nTauMap()[2233],evt->nTauMap()[2243],evt->nTauMap()[2333],evt->nTauMap()[4333],evt->nTauMap()[1333])==true){
              histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
            } 
         }//end of loop over cut names

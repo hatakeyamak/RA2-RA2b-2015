@@ -650,6 +650,35 @@
    vector<double>* Events::tauId10() const { return TauIdVecbyMediumPileupWeightedIsolation3Hits;}
    vector<double>* Events::tauId11() const { return TauIdVecbyTightPileupWeightedIsolation3Hits;}
 
+   map<int,int> Events::nTauMap() const{
+     map<int,int> map_;
+     for(int i=0; i< TauLorVec->size();i++){
+       if(TauIdVecagainstElectronLooseMVA5->at(i)==1&&
+          TauIdVecagainstMuonLoose3->at(i)==1&&
+          TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+          TauIdVecbyMediumPileupWeightedIsolation3Hits->at(i)==1)map_[2233]++;
+
+       if(TauIdVecagainstElectronLooseMVA5->at(i)==1&&
+          TauIdVecagainstMuonLoose3->at(i)==1&&
+          TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+          TauIdVecbyMediumPileupWeightedIsolation3Hits->at(i)==1)map_[2243]++;
+
+       if(TauIdVecagainstElectronLooseMVA5->at(i)==1&&
+          TauIdVecagainstMuonTight3->at(i)==1&&
+          TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+          TauIdVecbyMediumPileupWeightedIsolation3Hits->at(i)==1)map_[2333]++;
+
+       if(TauIdVecagainstElectronVLooseMVA5->at(i)==1&&
+          TauIdVecagainstMuonTight3->at(i)==1&&
+          TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+          TauIdVecbyMediumPileupWeightedIsolation3Hits->at(i)==1)map_[4333]++;
+
+       if(TauIdVecagainstMuonTight3->at(i)==1&&
+          TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+          TauIdVecbyMediumPileupWeightedIsolation3Hits->at(i)==1)map_[1333]++;
+     }
+     return map_;
+   }
 
    vector<string>  Events::TriggerNames_() const{ return *TriggerNames;}
    vector<int>     Events::PassTrigger_() const{ return *TriggerPass;}

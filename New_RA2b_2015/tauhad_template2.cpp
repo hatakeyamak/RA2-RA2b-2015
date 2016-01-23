@@ -407,7 +407,9 @@ using namespace std;
       btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
   
       // determine the weight of fast sim signal
-      fstream XSfile("SkimSampleXSections.txt", std::fstream::in);
+      sprintf(tempname,"SkimSampleXSections.txt");
+      if(subSampleKey.find("T2tt")!=string::npos)sprintf(tempname,"SkimSampleXSections_t2tt.txt");
+      fstream XSfile(tempname, std::fstream::in);
       string line;
       int GluinoMass =0;
       double SampleXS=0.0, XS=0.0;
@@ -417,7 +419,8 @@ using namespace std;
         stringstream ss; ss << line;
         ss >>  GluinoMass >> XS ;
         if(GluinoMass== atoi(utils->skimInput(subSampleKey)[2].c_str())){
-          printf(" \n \n Gluino mass: %d XSection: %g \n",GluinoMass,XS);
+          if(subSampleKey.find("T2tt")!=string::npos)printf(" \n \n STOP mass: %d XSection: %g \n",GluinoMass,XS);
+          else printf(" \n \n Gluino mass: %d XSection: %g \n",GluinoMass,XS);
           SampleXS=XS;
           break;
         }
