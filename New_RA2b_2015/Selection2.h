@@ -61,7 +61,7 @@ public:
 //  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
 //  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
   bool checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_, 
-                int nTaus_346, int nTaus_3469,int nTaus_257, int nTaus_25710, int nTaus_258, int nTaus_25811);
+                int nTaus_2233, int nTaus_2243,int nTaus_2333, int nTaus_4333, int nTaus_1333);
 
   bool applyIsoTrk_() const ;
 

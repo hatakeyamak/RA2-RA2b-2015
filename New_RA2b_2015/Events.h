@@ -126,7 +126,7 @@ using namespace std;
    vector<double>  *TauIdVecbyMediumPileupWeightedIsolation3Hits;
    vector<double>  *TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits;
    vector<double>  *TauIdVecbyTightPileupWeightedIsolation3Hits;
-
+   
 
    vector<int>     *TriggerPass;
    vector<string>  *TriggerNames;
@@ -276,7 +276,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>* tauId9() const;
    vector<double>* tauId10() const;
    vector<double>* tauId11() const;
-
+   map<int,int> nTauMap() const;
 
    vector<string>  TriggerNames_() const;
    vector<int>  PassTrigger_() const;

@@ -47,7 +47,7 @@ void Order_the_Vec(vector<double> inQvec_, vector<string> inIdvec_, vector<doubl
 
 
 
-void FindSignif(string signalName="T1bbbb_1000_900"){
+void FindSignif(string signalName="T1bbbb_1000_900",string histName="yield_tauId_trk"){
 
   char tempname[200];
 
@@ -71,8 +71,9 @@ void FindSignif(string signalName="T1bbbb_1000_900"){
   sprintf(tempname,"results_filelist_Spring15_%s_.root",signalName.c_str());
   TFile * sigFile = new TFile(tempname,"R");
 
-  TH1D * bgHist = (TH1D*)bgFile->Get("yield_tauId")->Clone("bg");
-  TH1D * sigHist= (TH1D*)sigFile->Get("yield_tauId")->Clone("sig");
+  sprintf(tempname,"%s",histName.c_str());
+  TH1D * bgHist = (TH1D*)bgFile->Get(tempname)->Clone("bg");
+  TH1D * sigHist= (TH1D*)sigFile->Get(tempname)->Clone("sig");
 
 
   vector<double> Qvec, inQvec_;
@@ -100,8 +101,10 @@ void FindSignif(string signalName="T1bbbb_1000_900"){
   printf("Pion IsoTrk => BG: %g Signal: %g Significance: %g Qmetric: %g \n ",pionBG,pionSig,pionSig/sqrt(1.1*pionBG),2*(sqrt(pionSig+pionBG) - sqrt(pionBG) ));
 
   Order_the_Vec(inQvec_, inIdvec_, Qvec, Idvec);
+  
   for (int ibin=0; ibin<192; ibin++){
-    printf("Id: %s => Qmetric: %g Significance: %g zbi: %g Signal: %g BG: %g \n ",Idvec[ibin].c_str(),Qvec[ibin],signifmap[Idvec[ibin]],zbiimap[Idvec[ibin]],signalmap[Idvec[ibin]],bgmap[Idvec[ibin]]);
+    printf(" %s, %1.2f, %1.2f, %7.0f, %7.0f, \n ",Idvec[ibin].c_str(),Qvec[ibin],signifmap[Idvec[ibin]],signalmap[Idvec[ibin]],bgmap[Idvec[ibin]]);
+    //printf("Id: %s => Qmetric: %g Significance: %g zbi: %g Signal: %g BG: %g \n ",Idvec[ibin].c_str(),Qvec[ibin],signifmap[Idvec[ibin]],zbiimap[Idvec[ibin]],signalmap[Idvec[ibin]],bgmap[Idvec[ibin]]);
   }
 
 }
