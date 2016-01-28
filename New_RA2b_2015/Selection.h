@@ -51,7 +51,7 @@ public:
   bool btag_3(int nBtags_){if(nBtags_ >= 3)return true; return false;}
 //  bool isoTrk(int nIso_){if(nIso_ ==0)return true; return false;}
 
-
+  bool notau(int ntau_){if(ntau_==0)return true; return false;}
 
   bool ElecIsoTrk(int nElecIso_);
   bool MuIsoTrk(int nMuIso_);
@@ -59,9 +59,8 @@ public:
 
 
 //  bool checkcut(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
-//
 //  bool checkcut_HadTau(string ss,double ht_,double mht_,double minDeltaPhiN_,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
-  bool checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_);
+  bool checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_,int nTaus_1124, int nTaus_1134,int nTaus_1144, int nTaus_4, int nTaus_5);
   bool checkcut_HadTau(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_ );
 
   bool applyIsoTrk_() const ;

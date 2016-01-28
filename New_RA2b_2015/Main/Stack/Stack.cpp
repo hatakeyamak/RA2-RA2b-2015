@@ -1,4 +1,4 @@
-#include "Selection2.h"
+#include "Selection.h"
 
 #include <iostream>
 #include <cassert>
@@ -24,7 +24,7 @@ int main(){
   TH1D *temphist, *temphist2, * temphist30, *temphistI, *temphistII, *temphistIII, *temphistI_lowDphi, *temphistII_lowDphi, *temphistIII_lowDphi;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
-  Selection2 * sel = new Selection2();
+  Selection * sel = new Selection();
   cutname = sel->cutName();
   map<int, string> Ttype, WJettype, TTbartype, ZJettype, QCDtype;
   WJettype[0]="allEvents";
@@ -34,7 +34,6 @@ int main(){
   QCDtype[0]="allEvents";
 
   int qcdHT=7, zjnHT=4, ttbarnHT=1, wjnHT=7, tnHT=4;
-
 
 
 // ..............................................................................................................//
@@ -64,12 +63,13 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
   Hname.clear();
   Hname[0]="yield_tauId";
   Hname[1]="yield_tauId_trk";
   Hname[2]="cutflow_preselection";
-
 
   for(int j=0; j< Hname.size(); j++){
 
@@ -103,10 +103,10 @@ int main(){
       for(int j=0; j<histname.size(); j++){                                        // loop over different histograms
 
         for(int i=0; i<qcdHT ; i++){                                                  // loop over different HT bins
-
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;
-          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          if(j>=5)sprintf(tempname,"%s/%s/%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str());
+          else sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) QCD_inputfilevec.at(i)->Get(tempname)->Clone();
           //if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -157,6 +157,8 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
   Hname.clear();
   Hname[0]="yield_tauId";
@@ -199,7 +201,8 @@ int main(){
 
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;
-          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          if(j>=5)sprintf(tempname,"%s/%s/%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str());
+          else sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) ZJet_inputfilevec.at(i)->Get(tempname)->Clone();
           //if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -246,6 +249,8 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
   Hname.clear();
   Hname[0]="yield_tauId";
@@ -287,7 +292,8 @@ int main(){
 
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", TTbartype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;
-          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          if(j>=5)sprintf(tempname,"%s/%s/%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str());
+          else sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
           //if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -339,6 +345,8 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
   Hname.clear();
   Hname[0]="yield_tauId";
@@ -381,7 +389,8 @@ int main(){
 
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;
-          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          if(j>=5)sprintf(tempname,"%s/%s/%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str());
+          else sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
           //if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -430,6 +439,8 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
   Hname.clear();
   Hname[0]="yield_tauId";
@@ -473,7 +484,8 @@ int main(){
 
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;
-          sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
+          if(j>=5)sprintf(tempname,"%s/%s/%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str());
+          else sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
           //if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -533,6 +545,8 @@ int main(){
   histname[2]="MHT";
   histname[3]="NJet";
   histname[4]="NBtag";
+  histname[5]="searchH_";
+  histname[6]="searchH_b_";
 
 
   for(int j=0; j< Hname.size(); j++){

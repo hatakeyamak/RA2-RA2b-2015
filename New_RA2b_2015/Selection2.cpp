@@ -1,8 +1,8 @@
-#include "Selection2.h"  
+#include "Selection.h"  
 
 
   // Constructor
-  Selection2::Selection2(){
+  Selection::Selection(){
 
     applyIsoTrk = true;
 
@@ -18,19 +18,19 @@
 
   }
 
-  bool Selection2::ElecIsoTrk(int nElecIso_){
+  bool Selection::ElecIsoTrk(int nElecIso_){
     if(!applyIsoTrk) return true;
     else if(nElecIso_ ==0)return true; return false;
   }
 
 
-  bool Selection2::MuIsoTrk(int nMuIso_){
+  bool Selection::MuIsoTrk(int nMuIso_){
     if(!applyIsoTrk) return true;
     else if(nMuIso_ ==0)return true; return false;
   }
 
 
-  bool Selection2::PionIsoTrk(int nPionIso_){
+  bool Selection::PionIsoTrk(int nPionIso_){
     if(!applyIsoTrk) return true;
     else if(nPionIso_ ==0)return true; return false;
   }
@@ -41,7 +41,7 @@
   ///apply the cuts here
 
 
-  bool Selection2::checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_,int nTaus_2233, int nTaus_2243,int nTaus_2333, int nTaus_4333, int nTaus_1333){
+  bool Selection::checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_,int nTaus_2233, int nTaus_2243,int nTaus_2333, int nTaus_4333, int nTaus_1333){
 
     if(ss == cutname[0])return true;
     if(ss== cutname[1]){if(nolep( nLeptons_))return true;}
@@ -62,5 +62,5 @@
 
 
 
-  map<int, string> Selection2::cutName() const {return cutname;}
+  map<int, string> Selection::cutName() const {return cutname;}
  

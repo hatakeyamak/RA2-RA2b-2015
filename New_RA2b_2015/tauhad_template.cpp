@@ -64,10 +64,10 @@ using namespace std;
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
     char tempname[200];
     char histname[200];
-    vector<TH1D > vec;
+    vector<TH1D > vec, vec_search;
     map<int, string> eventType;
-    map<string , vector<TH1D> > cut_histvec_map;
-    map<string, map<string , vector<TH1D> > > map_map;
+    map<string , vector<TH1D> > cut_histvec_map, cut_histvec_map_search;
+    map<string, map<string , vector<TH1D> > > map_map, map_map_search;
     map<string, histClass> histobjmap;
     histClass histObj;
 
@@ -385,9 +385,17 @@ using namespace std;
       return 2;
     }
 
+    // vector of search and QCD histograms
+    TH1D searchH_ = TH1D("searchH_","search bin histogram",totNbins,1,totNbins+1);
+    searchH_.Sumw2();
+    vec_search.push_back(searchH_);
+    TH1D searchH_b_ = TH1D("searchH_b_","search bin histogram",totNbins_b,1,totNbins_b+1);
+    searchH_b_.Sumw2();
+    vec_search.push_back(searchH_b_);
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
+      cut_histvec_map_search[sel->cutName()[i]]=vec_search;
     }
 
     // Define different event categories
@@ -396,6 +404,7 @@ using namespace std;
     //initialize a map between string and maps. copy the map of histvecs into each
     for(int i=0; i< eventType.size();i++){
       map_map[eventType[i]]=cut_histvec_map;
+      map_map_search[eventType[i]]=cut_histvec_map_search;
     }
   
     //initialize histobjmap
@@ -430,6 +439,7 @@ using namespace std;
 
     // Loop over the events (tree entries)
     double eventWeight = 1.0;
+    int TotNEve_ = utils2::TotNEve(subSampleKey);
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
@@ -448,7 +458,9 @@ using namespace std;
       //if(eventN>100000)break;
       //if(eventN>20000)break;
 
-      eventWeight = evt->weight();
+      //eventWeight = evt->weight();
+      eventWeight = 10000.*evt->XS()/TotNEve_;
+      //printf(" XS: %g NEve: %d weight: %g \n ",evt->XS(),TotNEve_,eventWeight);
       //eventWeight = evt->weight()/evt->puweight();
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
@@ -874,8 +886,10 @@ using namespace std;
             //////loop over cut names and fill the histograms
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),evt->nTauMap()[1124],evt->nTauMap()[1134],evt->nTauMap()[1144],1,1)==true){
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
+                map_map_search[itt->first][ite->first][0].Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eveinfvec[0]);//searchH_
+                map_map_search[itt->first][ite->first][1].Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],eveinfvec[0]);//searchH_b_
               }
             }//end of loop over cut names
 
@@ -1206,15 +1220,6 @@ using namespace std;
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
 
-    // A sanity check:
-    // sumofweights for searchH_b and HT
-    // after delphi cut should be the same
-    int w1 = (int) searchH_b->GetSumOfWeights();
-    int w2 = (int) map_map["allEvents"]["delphi"][2].GetSumOfWeights();
-    if(w1!=w2){
-      for(int j=0;j<11;j++)cout << " Warning! delphi cut is not exactly applied to searchH!\n###\n###\n###\n###\n";
-      printf("searchH_b->GetSumOfWeights(): %d ht->GetSumOfWeights(): %d \n ",w1,w2);
-    }
 
     // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
     for(int iet=0;iet<(int)eventType.size();iet++){
@@ -1233,6 +1238,11 @@ using namespace std;
                 for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
                   sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
                   it->second[i].Write(tempname);
+                }
+                int nHist_search = map_map_search[itt->first][it->first].size();
+                for(int ii=0; ii<nHist_search; ii++){
+                  sprintf(tempname,"%s_%s_%s",map_map_search[itt->first][it->first][ii].GetName(),(it->first).c_str(),(itt->first).c_str());
+                  map_map_search[itt->first][it->first][ii].Write();
                 }
                 cdtoitt->cd();
               }

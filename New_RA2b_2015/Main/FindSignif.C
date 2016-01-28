@@ -91,7 +91,7 @@ void FindSignif(string signalName="T1bbbb_1000_900",string histName="yield_tauId
     zbiimap[idMap[ibin]]=zbii;
     inQvec_.push_back(Qmetric);  
     inIdvec_.push_back(idMap[ibin]);
-    printf("Id: %s => BG: %g Signal: %g significance: %g zbi: %g Qmetric: %g \n ",idMap[ibin].c_str(),bg,signal,signif,zbii,Qmetric);
+    printf(" ibin %d -> Id: %s => BG: %g Signal: %g significance: %g zbi: %g Qmetric: %g \n ",ibin,idMap[ibin].c_str(),bg,signal,signif,zbii,Qmetric);
   }
 
   TH1D * pionbgHis = (TH1D*)bgFile->Get("allEvents/isoPion/HT_isoPion_allEvents")->Clone("pionbg");

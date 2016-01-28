@@ -10,10 +10,10 @@ LD            = g++
 
 LIBS = $(shell root-config --glibs)
 
-OBJS2	      = Stack.o $(DIR)/Selection2.o
+OBJS2	      = Stack.o $(DIR)/Selection.o
 PROGRAM2      = Stack
 
-HEADERS       = $(DIR)/Selection2.h
+HEADERS       = $(DIR)/Selection.h
 
 %.o : %.C $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
