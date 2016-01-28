@@ -1,5 +1,3 @@
-
-//Lost Lepton Efficiency and Acceptance maps
 #include "Events.h"
 #include "Selection.h"
 #include "TTree.h"
