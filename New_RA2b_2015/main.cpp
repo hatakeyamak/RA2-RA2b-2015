@@ -24,6 +24,7 @@
 #include "TVector2.h"
 #include "TCanvas.h"
 #include "TH2.h"
+#include "utils.h"
 #include "utils2.h"
 
 
@@ -163,7 +164,14 @@ int main(int argc, char *argv[]){
     }
   }
 
+  TH1D * VisGenTauHist = new TH1D("VisGenTauHist","pT of visible gen tau",80,0,400);
+  TH1D * isoPionHist_match = new TH1D("isoPionHist_match","pT of isoPion matched with gen tau",80,0,400);
+  TH1D patTauHist_match = TH1D("patTauHist_match","pT of pat tau matched with gen tau",80,0,400); 
+  vector<TH1D> patTauHistVec_match(200,patTauHist_match);
 
+ 
+  // Some useful tools
+  Utils * utils = new Utils();
 
   // Introduce cutflow histogram to monior event yields for early preselection
   TH1D* cutflow_preselection = new TH1D("cutflow_preselection","cutflow_preselectoion",
@@ -275,51 +283,113 @@ int main(int argc, char *argv[]){
     //printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
     //printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
+
     // count the number of taus for all possible combinations of tau id s
     vector<int> NtauVec(200,0);
 
     // apply the baseline cuts here to study the tau id s
     if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())&&
-       sel->mht_200(evt->mht())&&sel->MuIsoTrk(evt->nIsoMu())&&sel->ElecIsoTrk(evt->nIsoElec())&&
-       sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
+       sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
     {
-      for(int i=0; i<evt->TauLorVec_()->size(); i++){
-        // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied. 
-        // the following 4 lines correspond whith each of the categories in the tau id. 
-        int tauIdElec[4]={1,(int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i)};
-        int tauIdMu[3]  ={1,(int)evt->tauId4()->at(i),(int)evt->tauId5()->at(i)};
-        int tauIdIso[4] ={1,(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i)};
-        int tauIdPile[4]={1,(int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i)};
-        /*
-        printf(" id1: %d id2: %d id3: %d id4: %d id5: %d id6: %d id7: %d id8: %d id9: %d id10: %d id11: %d \n",
-              (int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i),(int)evt->tauId4()->at(i),
-              (int)evt->tauId5()->at(i),(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i),
-              (int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i));      
-        */
+      int patTauIdx = -1;
+      int isoPionIdx = -1;
+      double deltaRMax = 0.2;
+      if(genTauJetLorVec.size()>0){
+        // match gen tau with a pat tau
+        utils->findMatchedObject2(patTauIdx,genTauJetLorVec[0].Eta(),genTauJetLorVec[0].Phi(), evt->TauLorVec_(),deltaRMax,verbose);
+        // match gen tau with an isoPion
+        utils->findMatchedObject(isoPionIdx,genTauJetLorVec[0].Eta(),genTauJetLorVec[0].Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
+      // fill the pT of visible gen taus
+      VisGenTauHist->Fill(genTauJetLorVec[0].Pt(),totWeight);
+      if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[0].Pt(),totWeight);
+      if(patTauIdx!=-1){
+        // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
+        // the following 4 lines correspond whith each of the categories in the tau id.
+        int tauIdElec[4]={1,(int)evt->tauId1()->at(patTauIdx),(int)evt->tauId2()->at(patTauIdx),(int)evt->tauId3()->at(patTauIdx)};
+        int tauIdMu[3]  ={1,(int)evt->tauId4()->at(patTauIdx),(int)evt->tauId5()->at(patTauIdx)};
+        int tauIdIso[4] ={1,(int)evt->tauId6()->at(patTauIdx),(int)evt->tauId7()->at(patTauIdx),(int)evt->tauId8()->at(patTauIdx)};
+        int tauIdPile[4]={1,(int)evt->tauId9()->at(patTauIdx),(int)evt->tauId10()->at(patTauIdx),(int)evt->tauId11()->at(patTauIdx)};
         int IdNum=0;
-
         for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
           for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
             for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
               for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
                 IdNum++;
-                if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)NtauVec[IdNum]++;
+                if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)
+                  patTauHistVec_match[IdNum].Fill(genTauJetLorVec[0].Pt(),totWeight);
                   //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
                   //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
               }
             }
           }
         }
-      } 
+      }
+    }
+      /*
+      printf(" ##\n  VisibleGenTauSection:\n ");
+      for(int i=0; i < genTauJetLorVec.size(); i++){
+        printf(" Pt: %g Eta: %g Phi: %g \n ",genTauJetLorVec.at(i).Pt(),genTauJetLorVec.at(i).Eta(),genTauJetLorVec.at(i).Phi());
+      }
+      printf(" ##\n  PatTauSection:\n ");
+      for(int i=0; i<evt->TauLorVec_()->size(); i++){
+        printf(" pt: %g eta: %g phi: %g ",evt->TauLorVec_()->at(i).Pt(),evt->TauLorVec_()->at(i).Eta(),evt->TauLorVec_()->at(i).Phi());
+        printf(" id1: %g id2: %g id3: %g id4: %g id5: %g id6: %g id7: %g id8: %g id9: %g id10: %g id11: %g \n ",
+               evt->tauId1()->at(i),evt->tauId2()->at(i),evt->tauId3()->at(i),evt->tauId4()->at(i),evt->tauId5()->at(i),
+               evt->tauId6()->at(i),evt->tauId7()->at(i),evt->tauId8()->at(i),evt->tauId9()->at(i),evt->tauId10()->at(i),
+               evt->tauId11()->at(i)
+              );
+      }
+      printf(" ##\n  IsoPionSection:\n ");
+      for(int i=0; i < evt->IsoPionPtVec_().size(); i++){
+        printf(" Pt: %g Eta: %g Phi: %g \n ",evt->IsoPionPtVec_().at(i),evt->IsoPionEtaVec_().at(i),evt->IsoPionPhiVec_().at(i));
+      }      
+      printf(" ##\n  JetSection:\n ");
+      for(int i=0; i < evt->slimJetPtVec_().size(); i++){
+        printf(" Pt: %g Eta: %g Phi: %g \n ",evt->slimJetPtVec_().at(i),evt->slimJetEtaVec_().at(i),evt->slimJetPhiVec_().at(i));
+      }
+      */
+      /* 
+      // also apply muon and electron isolated track veto 
+      if(sel->MuIsoTrk(evt->nIsoMu())&&sel->ElecIsoTrk(evt->nIsoElec())){
+        for(int i=0; i<evt->TauLorVec_()->size(); i++){
+          // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied. 
+          // the following 4 lines correspond whith each of the categories in the tau id. 
+          int tauIdElec[4]={1,(int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i)};
+          int tauIdMu[3]  ={1,(int)evt->tauId4()->at(i),(int)evt->tauId5()->at(i)};
+          int tauIdIso[4] ={1,(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i)};
+          int tauIdPile[4]={1,(int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i)};
+          
+          printf(" id1: %d id2: %d id3: %d id4: %d id5: %d id6: %d id7: %d id8: %d id9: %d id10: %d id11: %d \n",
+                (int)evt->tauId1()->at(i),(int)evt->tauId2()->at(i),(int)evt->tauId3()->at(i),(int)evt->tauId4()->at(i),
+                (int)evt->tauId5()->at(i),(int)evt->tauId6()->at(i),(int)evt->tauId7()->at(i),(int)evt->tauId8()->at(i),
+                (int)evt->tauId9()->at(i),(int)evt->tauId10()->at(i),(int)evt->tauId11()->at(i));      
+          
+          int IdNum=0;
 
-      for(int iId=0; iId<NtauVec.size();iId++){
-        //printf(" @ \n iId: %d -> %s \n ",iId,idMap[iId].c_str());
-        if(NtauVec[iId]==0){
-          TauIDhist->Fill(iId-1,totWeight); 
-          //cout << " filled \n ";
-          if(sel->PionIsoTrk(evt->nIsoPion()))TauIDhist_trk->Fill(iId-1,totWeight);
+          for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+            for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+              for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+                for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+                  IdNum++;
+                  if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)NtauVec[IdNum]++;
+                    //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
+                    //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
+                }
+              }
+            }
+          }
+        } 
+
+        for(int iId=0; iId<NtauVec.size();iId++){
+          //printf(" @ \n iId: %d -> %s \n ",iId,idMap[iId].c_str());
+          if(NtauVec[iId]==0){
+            TauIDhist->Fill(iId-1,totWeight); 
+            //cout << " filled \n ";
+            if(sel->PionIsoTrk(evt->nIsoPion()))TauIDhist_trk->Fill(iId-1,totWeight);
+          }
         }
       }
+    */
     }
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec
@@ -357,8 +427,11 @@ int main(int argc, char *argv[]){
   TFile *resFile = new TFile(tempname, "RECREATE");
   TDirectory *cdtoitt;
   TDirectory *cdtoit;
+  TDirectory *cdtoTauDir;
 
   cutflow_preselection->Write();
+  VisGenTauHist->Write();
+  isoPionHist_match->Write();
   TauIDhist->Write();
   TauIDhist_trk->Write();
 
@@ -393,7 +466,12 @@ int main(int argc, char *argv[]){
     }
   }
 
-
+  cdtoTauDir = resFile->mkdir("PatTauMathcedGenTau");
+  cdtoTauDir->cd();
+  for(int id=0; id < patTauHistVec_match.size();id++){
+    sprintf(tempname,"id_%d",id);
+    patTauHistVec_match[id].Write(tempname);
+  }
 
 
 }

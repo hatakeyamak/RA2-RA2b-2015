@@ -8,6 +8,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include "TLorentzVector.h"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ public:
     double deltaR(double eta1, double eta2, double phi1, double phi2);
 
     bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi, vector<double> PtVec,vector<double> EtaVec, vector<double> PhiVec,double deltaRMax, int ver);
+   bool findMatchedObject2(int &matchedObjIdx,double genTauEta, double genTauPhi, vector<TLorentzVector> * LorVec,double deltaRMax, int ver); 
 
     bool RelPt(double genTauPt, double IsoPt,double relPt);
 

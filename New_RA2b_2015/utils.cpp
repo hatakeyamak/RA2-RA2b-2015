@@ -55,6 +55,30 @@ using namespace std;
       return match;
     }
 
+    bool Utils::findMatchedObject2(int &matchedObjIdx,double genTauEta, double genTauPhi, vector<TLorentzVector> * LorVec,double deltaRMax, int ver){
+      if(LorVec->size() ==0 ) return false;
+
+      matchedObjIdx = -1;
+      double deltaRMin = 100000.;
+      for(int objIdx = 0; objIdx < (int) LorVec->size(); ++objIdx){
+        const double dr = deltaR(genTauEta,LorVec->at(objIdx).Eta(),genTauPhi,LorVec->at(objIdx).Phi());
+        if( dr < deltaRMin ){
+          deltaRMin = dr;
+          matchedObjIdx = objIdx;
+        }
+      } // end of loop over vec
+
+      // printf("matchedObjIdx: %d \n ",matchedObjIdx);
+      bool match = false;
+      if( deltaRMin < deltaRMax ) {
+        match = true;
+        if(ver!=0)printf("\n Mathed recoJet info: deltaRMin: %g matchedIdx: %d Pt: %g eta: %g phi: %g \n ",deltaRMin,matchedObjIdx,LorVec->at(matchedObjIdx).Pt(),LorVec->at(matchedObjIdx).Eta(),LorVec->at(matchedObjIdx).Phi());
+      } else {
+        matchedObjIdx = -1;
+      }
+      return match;
+    }
+
     bool Utils::RelPt(double genTauPt, double IsoPt,double relPt){
       bool bo=false;
       if( abs(genTauPt-IsoPt)/genTauPt < relPt )bo=true;
