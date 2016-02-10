@@ -239,15 +239,45 @@ int main(int argc, char *argv[]){
     if(evt->JetId()==0)continue;
     cutflow_preselection->Fill(6.,totWeight); // events passing JetID event cleaning
 
-
   vector<TLorentzVector> genTauJetLorVec;
-  for(int i=0;i<evt->GenTauLorVec()->size();i++){
-    TLorentzVector tempVec(evt->GenTauLorVec()->at(i).Px()-evt->GenTauNuLorVec()->at(i).Px(),
+  vector<TLorentzVector> genTauLorVec;
+  genTauJetLorVec.clear();
+  genTauLorVec.clear();
+  // We are interested in hadronically decaying taus only
+  bool hadTau=false;
+  double genTauPt=-1.;
+  int TauIdex = -1;
+  for(int i=0; i<evt->GenTauHadVec_().size();i++){
+    if(evt->GenTauHadVec_()[i]==1){
+      double pt=evt->GenTauLorVec()->at(i).Pt();
+      TLorentzVector tempVec(evt->GenTauLorVec()->at(i).Px()-evt->GenTauNuLorVec()->at(i).Px(),
                            evt->GenTauLorVec()->at(i).Py()-evt->GenTauNuLorVec()->at(i).Py(),
                            evt->GenTauLorVec()->at(i).Pz()-evt->GenTauNuLorVec()->at(i).Pz(),
                            evt->GenTauLorVec()->at(i).Energy()-evt->GenTauNuLorVec()->at(i).Energy()
                           );
-    genTauJetLorVec.push_back(tempVec);
+      TLorentzVector tempVec2(evt->GenTauLorVec()->at(i).Px(),
+                           evt->GenTauLorVec()->at(i).Py(),
+                           evt->GenTauLorVec()->at(i).Pz(),
+                           evt->GenTauLorVec()->at(i).Energy()
+                          );
+      if(tempVec2.Pt() < 0.1)continue;
+      if(tempVec.Pt() < 0.1 )continue;
+      genTauJetLorVec.push_back(tempVec);
+      genTauLorVec.push_back(tempVec2);
+      if(pt > genTauPt){
+        genTauPt = pt;
+        TauIdex++;
+      }
+    }
+  }
+  if(genTauJetLorVec.size()>0)hadTau=true;
+  //printf(" genTauPt: %g TauIdex: %d #hadtau: %d \n ",genTauPt,TauIdex, genTauJetLorVec.size());
+  if(verbose!=0 && TauIdex!=-1 && (genTauJetLorVec[TauIdex].Pt() < 10.) ){
+    cout << " ####### \n " ; 
+    for(int j=0; j< genTauJetLorVec.size(); j++){
+      printf(" TauIdex: %d  VisTauPt: %g TauPt: %g \n ",TauIdex,genTauJetLorVec[j].Pt(),genTauLorVec[j].Pt());
+    }
+    
   }
 
   if(verbose!=0){
@@ -294,14 +324,14 @@ int main(int argc, char *argv[]){
       int patTauIdx = -1;
       int isoPionIdx = -1;
       double deltaRMax = 0.2;
-      if(genTauJetLorVec.size()>0){
+      if(hadTau){
         // match gen tau with a pat tau
-        utils->findMatchedObject2(patTauIdx,genTauJetLorVec[0].Eta(),genTauJetLorVec[0].Phi(), evt->TauLorVec_(),deltaRMax,verbose);
+        utils->findMatchedObject2(patTauIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(), evt->TauLorVec_(),deltaRMax,verbose);
         // match gen tau with an isoPion
-        utils->findMatchedObject(isoPionIdx,genTauJetLorVec[0].Eta(),genTauJetLorVec[0].Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
+        utils->findMatchedObject(isoPionIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
       // fill the pT of visible gen taus
-      VisGenTauHist->Fill(genTauJetLorVec[0].Pt(),totWeight);
-      if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[0].Pt(),totWeight);
+      VisGenTauHist->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+      if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
       if(patTauIdx!=-1){
         // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
         // the following 4 lines correspond whith each of the categories in the tau id.
@@ -316,7 +346,7 @@ int main(int argc, char *argv[]){
               for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
                 IdNum++;
                 if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)
-                  patTauHistVec_match[IdNum].Fill(genTauJetLorVec[0].Pt(),totWeight);
+                  patTauHistVec_match[IdNum].Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
                   //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
                   //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
               }
