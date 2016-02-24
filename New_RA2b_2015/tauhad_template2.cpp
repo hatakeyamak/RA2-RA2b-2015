@@ -274,7 +274,7 @@ using namespace std;
     TH2* hSearchBinCorrNjets = new TH2D("hSearchBinCorrNjets","hSearchBinCorrNjets",3,SearchBinNjets,3,SearchBinNjets);
     hSearchBinCorrNjets->Sumw2();  
 
-    TH2* hSearchBinCorrNb = new TH2D("hSearchBinCorrNb","hSearchBinCorrNb",3,SearchBinNb,3,SearchBinNb);
+    TH2* hSearchBinCorrNb = new TH2D("hSearchBinCorrNb","hSearchBinCorrNb",4,SearchBinNb,4,SearchBinNb);
     hSearchBinCorrNb->Sumw2();  
     //KH-Feb2016-ends
 
