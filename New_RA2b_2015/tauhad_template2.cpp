@@ -2019,9 +2019,6 @@ using namespace std;
         bootstrapUtils::HistogramFillForEventTH2(hCorNJet,  hCorNJet_noW,  hCorNJet_evt,  hCorNJet_noW_evt);
         bootstrapUtils::HistogramFillForEventTH2(hCorNBtag, hCorNBtag_noW, hCorNBtag_evt, hCorNBtag_noW_evt);
 
-	//
-        //-- bootstrapUtils::HistogramFillForEventTH2Correlation(hCorrelation_searchH_b, searchH_b_evt);	
-	
         // Correct the uncertainties
         // Loop over differnt event types
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
