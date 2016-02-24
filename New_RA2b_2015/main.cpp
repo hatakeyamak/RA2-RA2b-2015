@@ -168,7 +168,11 @@ int main(int argc, char *argv[]){
   TH1D * isoPionHist_match = new TH1D("isoPionHist_match","pT of isoPion matched with gen tau",80,0,400);
   TH1D patTauHist_match = TH1D("patTauHist_match","pT of pat tau matched with gen tau",80,0,400); 
   vector<TH1D> patTauHistVec_match(200,patTauHist_match);
-
+  //
+  TH1D * Jet_genTau     = new TH1D("Jet_genTau","pT of the jet matched with gen tau",80,0,400);
+  TH1D * Jet_genTau_NoIso = new TH1D("Jet_genTau_NoIso","pT of the jet matched with gen tau but not IsoPion",80,0,400);
+  TH1D  Jet_patTau_NoIso = TH1D("Jet_patTau_NoIso","pT of the jet matched with pat tau but not IsoPion",80,0,400);
+  vector<TH1D> Jet_patTauVec_NoIso(200,Jet_patTau_NoIso);
  
   // Some useful tools
   Utils * utils = new Utils();
@@ -202,7 +206,7 @@ int main(int argc, char *argv[]){
   int eventN=0;
   while( evt->loadNext() ){
     eventN++;
-    //if(eventN>100000)break;
+    //if(eventN>10000)break;
     // Total weight
     //double totWeight = evt->weight()*1.;
     double totWeight = 10000.*evt->XS()/TotNEve_;
@@ -309,7 +313,6 @@ int main(int argc, char *argv[]){
       }
     }
 
-
     //printf(" mu from tau: %d elec from tau : %d hadronicTau: %d \n ", evt->GenMu_GenMuFromTau_(), evt->GenElec_GenElecFromTau_(),evt->GenTau_GenTauHad_());
     //printf(" #Mu: %d #Tau: %d \n ", evt->GenMuPtVec_().size(), evt->GenTauPtVec_().size());
 
@@ -323,38 +326,86 @@ int main(int argc, char *argv[]){
     {
       int patTauIdx = -1;
       int isoPionIdx = -1;
-      double deltaRMax = 0.2;
+      int genTau_JetIdx=-1, iso_JetIdx=-1, patTau_JetIdx=-1;
+      double deltaRMax = 0.4;
       if(hadTau){
+        /////////////
+        // Efficiency
+        /////////////
         // match gen tau with a pat tau
         utils->findMatchedObject2(patTauIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(), evt->TauLorVec_(),deltaRMax,verbose);
         // match gen tau with an isoPion
         utils->findMatchedObject(isoPionIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
-      // fill the pT of visible gen taus
-      VisGenTauHist->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
-      if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
-      if(patTauIdx!=-1){
-        // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
-        // the following 4 lines correspond whith each of the categories in the tau id.
-        int tauIdElec[4]={1,(int)evt->tauId1()->at(patTauIdx),(int)evt->tauId2()->at(patTauIdx),(int)evt->tauId3()->at(patTauIdx)};
-        int tauIdMu[3]  ={1,(int)evt->tauId4()->at(patTauIdx),(int)evt->tauId5()->at(patTauIdx)};
-        int tauIdIso[4] ={1,(int)evt->tauId6()->at(patTauIdx),(int)evt->tauId7()->at(patTauIdx),(int)evt->tauId8()->at(patTauIdx)};
-        int tauIdPile[4]={1,(int)evt->tauId9()->at(patTauIdx),(int)evt->tauId10()->at(patTauIdx),(int)evt->tauId11()->at(patTauIdx)};
-        int IdNum=0;
-        for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
-          for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
-            for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
-              for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
-                IdNum++;
-                if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1)
-                  patTauHistVec_match[IdNum].Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
-                  //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
-                  //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
+        // fill the pT of visible gen taus
+        VisGenTauHist->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+        if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+        //
+        /////////////
+        // Fake Rate
+        /////////////
+        // match gen tau with a Jet
+        utils->findMatchedObject(genTau_JetIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(),evt->slimJetPtVec_(),evt->slimJetEtaVec_(),evt->slimJetPhiVec_(),deltaRMax,verbose);
+        if(genTau_JetIdx!=-1){
+
+          utils->findMatchedObject2(patTau_JetIdx,evt->slimJetEtaVec_()[genTau_JetIdx],evt->slimJetPhiVec_()[genTau_JetIdx],evt->TauLorVec_(),deltaRMax,verbose);
+          utils->findMatchedObject(iso_JetIdx,evt->slimJetEtaVec_()[genTau_JetIdx],evt->slimJetPhiVec_()[genTau_JetIdx],evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
+          // Fill the pT of the Jet containing the gen tau
+          Jet_genTau->Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
+          if(iso_JetIdx!=-1)Jet_genTau_NoIso->Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
+
+        }
+        else cout << " gen tau is not in any Jet \n " ;
+        
+        if(patTauIdx!=-1){        
+          // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
+          // the following 4 lines correspond whith each of the categories in the tau id.
+          int tauIdElec[4]={1,(int)evt->tauId1()->at(patTauIdx),(int)evt->tauId2()->at(patTauIdx),(int)evt->tauId3()->at(patTauIdx)};
+          int tauIdMu[3]  ={1,(int)evt->tauId4()->at(patTauIdx),(int)evt->tauId5()->at(patTauIdx)};
+          int tauIdIso[4] ={1,(int)evt->tauId6()->at(patTauIdx),(int)evt->tauId7()->at(patTauIdx),(int)evt->tauId8()->at(patTauIdx)};
+          int tauIdPile[4]={1,(int)evt->tauId9()->at(patTauIdx),(int)evt->tauId10()->at(patTauIdx),(int)evt->tauId11()->at(patTauIdx)};
+          int IdNum=0;
+          for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+            for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+              for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+                for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+                  IdNum++;
+                  if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1){
+                    // Fill all genTau matched with patTau
+                    patTauHistVec_match[IdNum].Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+                    //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
+                    //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
+                  }
+                }
+              }
+            }
+          }
+        }
+        if(genTau_JetIdx!=-1&&patTau_JetIdx!=-1){
+          // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
+          // the following 4 lines correspond whith each of the categories in the tau id.
+          int tauIdElec[4]={1,(int)evt->tauId1()->at(patTau_JetIdx),(int)evt->tauId2()->at(patTau_JetIdx),(int)evt->tauId3()->at(patTau_JetIdx)};
+          int tauIdMu[3]  ={1,(int)evt->tauId4()->at(patTau_JetIdx),(int)evt->tauId5()->at(patTau_JetIdx)};
+          int tauIdIso[4] ={1,(int)evt->tauId6()->at(patTau_JetIdx),(int)evt->tauId7()->at(patTau_JetIdx),(int)evt->tauId8()->at(patTau_JetIdx)};
+          int tauIdPile[4]={1,(int)evt->tauId9()->at(patTau_JetIdx),(int)evt->tauId10()->at(patTau_JetIdx),(int)evt->tauId11()->at(patTau_JetIdx)};
+          int IdNum=0;
+          for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+            for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+              for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+                for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+                  IdNum++;
+                  if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1){
+                    // Fill all Jets matched with gen Tau and also a subset of those matched with a patTau
+                    Jet_patTauVec_NoIso[IdNum].Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
+                    //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
+                    //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
+                  }
+
+                }
               }
             }
           }
         }
       }
-    }
       /*
       printf(" ##\n  VisibleGenTauSection:\n ");
       for(int i=0; i < genTauJetLorVec.size(); i++){
@@ -464,6 +515,8 @@ int main(int argc, char *argv[]){
   isoPionHist_match->Write();
   TauIDhist->Write();
   TauIDhist_trk->Write();
+  Jet_genTau->Write();
+  Jet_genTau_NoIso->Write();  
 
   // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
   for(int iet=0;iet<(int)eventType.size();iet++){
@@ -496,6 +549,7 @@ int main(int argc, char *argv[]){
     }
   }
 
+
   cdtoTauDir = resFile->mkdir("PatTauMathcedGenTau");
   cdtoTauDir->cd();
   for(int id=0; id < patTauHistVec_match.size();id++){
@@ -503,5 +557,12 @@ int main(int argc, char *argv[]){
     patTauHistVec_match[id].Write(tempname);
   }
 
+
+  cdtoTauDir = resFile->mkdir("JetMathcedGenTauMatchedPatTau");
+  cdtoTauDir->cd();
+  for(int id=0; id < Jet_patTauVec_NoIso.size();id++){
+    sprintf(tempname,"id_%d",id);
+    Jet_patTauVec_NoIso[id].Write(tempname);
+  }
 
 }
