@@ -107,8 +107,9 @@ namespace bootstrapUtils{
 	  double contentY = h_evt->GetBinContent(jbin);	  
 	  double content = TMath::Min(contentX,contentY); // how this line works in MC events with negative weights
 	                                                  // is not clear yet. Needs to be revisited.
-	  if (content != 0.){
-	    h->Fill(binX,binY,content); // diagonal entries
+	  if (contentX != 0. && contentY != 0.){
+	    h->Fill(binX,binY,contentY); // diagonal entries
+	    h->Fill(binY,binX,contentX); // diagonal entries
 	  }
 	}
 
