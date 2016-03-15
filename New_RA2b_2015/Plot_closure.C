@@ -68,6 +68,10 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 	     bool zoom=true, bool debug=false){
 
   //
+  // Luminosity information for scaling
+  //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
+  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
+  double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
   //
@@ -75,9 +79,25 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   //
   gROOT->LoadMacro("tdrstyle.C");
   setTDRStyle();
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+  gROOT->LoadMacro("CMS_lumi.C");
 
-  int W = 600;
+  writeExtraText = true;
+  extraText   = "      Supplementary Simulation";
+  lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
+  lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
+  lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+  int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
+  int iPos=0;
+
+  TString line = "";
+  char tempname[200];
+  sprintf(tempname,"%8.1f",lumi);
+  line+=tempname;
+  line+=" fb^{-1} (13 TeV)";
+  lumi_sqrtS = line;
+
+  int W = 750;
   int H = 600;
   int H_ref = 600;
   int W_ref = 800;
@@ -103,10 +123,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   }
 
   //
-  // Luminosity information for scaling
-  //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
-  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
-  double lumi_ref = 3.0; // normaliza to 3 (fb-1)
 
   //double xsec_ttbar   = 806.1; // (pb) https://twiki.cern.ch/twiki/bin/viewauth/CMS/RA2b13TeV
   //int    nevent_ttbar = 25348009;
@@ -118,7 +134,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   //
 
   gStyle->SetOptStat(0);  ///to avoid the stat. on the plots 
-  char tempname[200];
   char xtitlename[200];
   char ytitlename[200];
   
@@ -168,6 +183,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   //canvas->SetTickx(0);
   //canvas->SetTicky(0);
 
+
   canvas->Divide(1, 2);
 
   //
@@ -211,7 +227,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   double search_x_min=0.;
   double DelPhiN_x_max=20.;
   double Delphi1_x_max=3.2;
-
   Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.}; 
  
   TH1D * GenHist_Clone;
@@ -292,6 +307,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     //
     // Setting style
     //---------------
+    double xlatex, ylatex;
+
     if(i==0){
       thist->SetMaximum(1.4);
       //thist->GetXaxis()->SetLabelFont(42);
@@ -319,10 +336,11 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     if(histname=="HT"){
       xtext_top = 1800.;
       //y_legend  = 2000.;
+      xlatex=1896.257;ylatex=11.59619;
       ymax_top = 300000.;
       ymin_top = 0.2.;
       sprintf(xtitlename,"H_{T} (GeV)");
-      sprintf(ytitlename,"Events / 200 GeV");
+      sprintf(ytitlename,"Events / 100 GeV");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
@@ -333,6 +351,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       xtext_top = 650.;
       //y_legend = 500.;
       ymax_top = 1000000.;
+      xlatex=726.1259;ylatex=12.97329;
       ymin_top = 0.05;
       sprintf(xtitlename,"#slash{H}_{T} (GeV)");
       sprintf(ytitlename,"Events / 100 GeV");
@@ -350,6 +369,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       if(cutname=="Njet_9")ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;
+      xlatex=2.762612;ylatex=608.1839;
       sprintf(xtitlename,"Number of b-tags");
       sprintf(ytitlename,"Events");
       thist->SetMaximum(ymax_top);
@@ -363,6 +383,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       ymax_top = 300000.;
       ymin_top = 0.04.;
       ytext_top = ymax_top*0.005;
+      xlatex=14.88397;ylatex=0.962934;
       sprintf(xtitlename,"Number of jets");
       sprintf(ytitlename,"Events");
       thist->SetMaximum(ymax_top);
@@ -478,10 +499,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     thist->GetYaxis()->SetTitle(ytitlename);
     if(i==0){
       //thist->Draw();
-      /*
-      thist->SetFillStyle(3004);
-      thist->SetFillColor(kGreen-3);
-      */
       thist->SetMarkerStyle(20);
       thist->SetLineColor(1);
       thist->DrawCopy("e");      
@@ -528,9 +545,21 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.045);
   ttext->SetTextAlign(22);
-  ttext->Draw();
+//  ttext->Draw();
+
+  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+   tex->SetTextColor(4);
+   tex->SetTextFont(61);
+   tex->SetTextSize(0.0375);
+   tex->SetLineColor(4);
+   tex->SetLineWidth(2);
+   tex->Draw();
+
   
   gPad->RedrawAxis();
+
+
+
 
   //
   // Bottom ratio plot
@@ -557,11 +586,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 	EstHist_NoError->SetBinError(ibin,0.);
       }
 
-      /*
-      TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
-      EstHist->Add(GenHist,-1);
-      denominator->Divide(EstHist,GenHist,1,1,"");
-      */
 
       if(histname=="TauJet_MHT_delPhi"){
 	numerator->Rebin(5);
@@ -689,11 +713,16 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       gPad->RedrawAxis();
 
   //}
+  {
+    CMS_lumi( canvas_up, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+  }
+  canvas->Update();
+  canvas->RedrawAxis();
 
   sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.png",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.pdf",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
   canvas->Print(tempname);
-
+  canvas->Print("test.C");
 }
 
