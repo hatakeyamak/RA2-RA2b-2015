@@ -10,9 +10,25 @@ void plot_TauTemplate(int icomp=0){
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
   gROOT->LoadMacro("tdrstyle.C");
-  //setTDRStyle();
-  gROOT->LoadMacro("CMS_lumi_v2.C");
+  setTDRStyle();
+  gStyle->SetPalette(1) ; // for better color output
+  gROOT->LoadMacro("CMS_lumi.C");
+ writeExtraText = true;       // if extra text
+  extraText  = "         Supplementary";  // default extra text is "Preliminary"
+  lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
+  lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
+  lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
+  int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
+  // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
+  // iPos=11 : top-left, left-aligned
+  // iPos=33 : top-right, right-aligned
+  // iPos=22 : center, centered
+  // mode generally : 
+  //   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
+  int iPos =0;
+  
+  
   
   char tempname[200];
   char tempname2[200];
@@ -105,6 +121,14 @@ void plot_TauTemplate(int icomp=0){
     }
   catLeg1->Draw();
 
+   TLatex *   tex = new TLatex(1.5,0.03,"arXiv:1602.06581");
+   tex->SetTextColor(4);
+   tex->SetTextFont(61);
+   tex->SetTextSize(0.0375);
+   tex->SetLineColor(4);
+   tex->SetLineWidth(2);
+   tex->Draw();
+  
   TH1D * thist_km;
   if (icomp==1){
   for(int i=0;i<4;i++){
@@ -126,9 +150,14 @@ void plot_TauTemplate(int icomp=0){
     }
   }
   }
-
+  {
+    CMS_lumi( c1, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+  }
+  c1->Update();
+  c1->RedrawAxis();
   catLeg1->Draw();  
 
-  c1->Print("Plot_TauTemplate_TTbar.pdf");
+  c1->Print("Plot_TauTemplate_TTbar_Wjets.pdf");
+  c1->Print("Plot_TauTemplate_TTbar_Wjets.png");
 
 }

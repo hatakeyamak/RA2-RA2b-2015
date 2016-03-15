@@ -295,7 +295,13 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   ex2->Draw();
   //EstHist_Normalize->GetListOfFunctions()->Add(ex2);
   EstHist_Normalize->DrawCopy("e2same");
-  EstHist_Normalize->DrawCopy("esame");
+  ////EstHist_Normalize->DrawCopy("esame");
+  TH1D *EstHist_Normalize_Clone = (TH1D*)EstHist_Normalize->Clone(); 
+  for(int i=1; i<72; i++) {
+    EstHist_Normalize_Clone->SetBinError(i,0);
+  } 
+  EstHist_Normalize_Clone->SetFillColor(kWhite);
+  EstHist_Normalize_Clone->Draw("esame"); 
 
   GenHist->Print("all");
   EstHist->Print("all");
@@ -315,7 +321,10 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   int iPos=0;
     
   writeExtraText = true;
-  extraText   = "        Simulation";
+  //extraText   = "        Simulation";
+  extraText   = "        Supplementary";
+
+
   //float extraTextFont = 52;  // default is helvetica-italics
 
   // text sizes and text offsets with respect to the top frame
@@ -630,7 +639,10 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
       ex2->Draw();
       denominator->DrawCopy("e2same");
-      denominator->DrawCopy("same");
+      //denominator->DrawCopy("same");
+      TH1D *denominator_Clone = (TH1D*)denominator->Clone();
+      denominator_Clone->SetFillColor(kWhite);
+      denominator_Clone->Draw("hist same"); 
 
       ex1->Draw();
       numerator->DrawCopy("same");
