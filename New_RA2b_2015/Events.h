@@ -33,7 +33,7 @@ using namespace std;
    bool StudyTauId;
 
    // Declaration of leaf types
-//   UChar_t         GoodVtx;
+//UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
    Bool_t          CSCTightHaloFilter;
@@ -44,7 +44,7 @@ using namespace std;
    UInt_t          LumiBlockNum;
    ULong64_t       EvtNum;
    Int_t           NVtx;
-//   Int_t           isoTracks;
+//Int_t           isoTracks;
    Int_t           isoElectronTracks;
    Int_t           isoMuonTracks;
    Int_t           isoPionTracks;
