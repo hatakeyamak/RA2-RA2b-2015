@@ -1642,6 +1642,8 @@ using namespace std;
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
                       searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
+
+
                       // Fill QCD histograms
                       QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
                     }
@@ -1938,7 +1940,7 @@ using namespace std;
         bootstrapUtils::HistogramFillForEventTH1(hPredNJetBins, hPredNJetBins_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNbBins, hPredNbBins_evt);
 
-              
+
         // for correlation studies
         bootstrapUtils::HistogramFillForEventTH2(hCorSearch_b, hCorSearch_b_noW, hCorSearch_b_evt, hCorSearch_b_noW_evt);
         bootstrapUtils::HistogramFillForEventTH2(hCorHT,    hCorHT_noW,    hCorHT_evt,    hCorHT_noW_evt);
