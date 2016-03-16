@@ -101,6 +101,7 @@
      fChain = ttree_;
 
     /// the variables
+     fChain->SetBranchAddress("TrueNumInteractions", &TrueNumInteractions);
      fChain->SetBranchAddress("CrossSection", &CrossSection);
      fChain->SetBranchAddress("RunNum", &RunNum);
      fChain->SetBranchAddress("LumiBlockNum", &LumiBlockNum);
@@ -239,6 +240,7 @@
 
 
 // Some Functions
+  double Events::TrueNumInteractions_() const {return TrueNumInteractions; }
   double Events::XS() const { return CrossSection; }
 
   // Total number of events

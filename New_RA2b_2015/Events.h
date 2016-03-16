@@ -33,7 +33,10 @@ using namespace std;
    bool StudyTauId;
 
    // Declaration of leaf types
-//UChar_t         GoodVtx;
+   //UChar_t         GoodVtx;
+   Int_t           NumInteractions;
+   Double_t        TrueNumInteractions;
+   //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
    Bool_t          CSCTightHaloFilter;
@@ -68,9 +71,6 @@ using namespace std;
    int             currentEntry_;
    int             template_Entries; 
    Double_t        genHT;
-
-   Int_t           NumInteractions;
-   Double_t        TrueNumInteractions;
 
    vector<TLorentzVector> *GenMus;
    vector<TLorentzVector> *GenEls;
@@ -145,6 +145,8 @@ public:
 Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0);
 
 //Functions
+  int NumInteractions_() const;
+  double TrueNumInteractions_() const;
   double XS() const ;
   bool loadNext();
   int TotNEve() const;
@@ -291,9 +293,6 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    int HBHEIsoNoiseFilter_() const;
    int EcalDeadCellTriggerPrimitiveFilter_() const;
    int NVtx_() const;
-
-   int NumInteractions_() const;
-   double TrueNumInteractions_() const;
 
 };//end of class Events
 #endif

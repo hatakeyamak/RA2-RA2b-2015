@@ -240,7 +240,7 @@ using namespace std;
     //KH-Feb2016-starts
     // Search binning - correlation
     TH2* hSearchBinCorr = new TH2D("hSearchBinCorr","hSearchBinCorr",
-				   totNbins_b,0.5,totNbins_b+0.5,totNbins_b,0.5,totNbins_b+0.5);
+           totNbins_b,0.5,totNbins_b+0.5,totNbins_b,0.5,totNbins_b+0.5);
     hSearchBinCorr->Sumw2();  
 
     // HT,MHT,njet,nb search binning
@@ -443,10 +443,10 @@ using namespace std;
       //
       //
       btagcorr.SetEffs(skimfile);
-      btagcorr.SetCalib("CSVSLV1.csv");
+      btagcorr.SetCalib("CSVv2_mod.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
-      btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
+      btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
   
       // determine the weight of fast sim signal
       sprintf(tempname,"SkimSampleXSections.txt");
@@ -830,7 +830,7 @@ using namespace std;
           if(!isData)trigStr="PFHT400";
           if(isData)trigStr="PFHT350";
           sprintf(tempname,"HLT_Mu15_IsoVVVL_%s_v",trigStr.c_str());
-          //if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){       	 
+          //if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){          
           if( evt->TriggerNames_().at(i).find(tempname) != string::npos ){
           //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
           //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos ){
@@ -1696,25 +1696,25 @@ using namespace std;
                   }
                   else{
 
-		    searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+        searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
-		    //KH-Feb2016-starts
-		    double newHT_tmp,newMHT_tmp,newNJet_tmp,NewNB_tmp;
-		    newHT_tmp=newHT; newMHT_tmp=newMHT; newNJet_tmp=newNJet; NewNB_tmp=NewNB;
+        //KH-Feb2016-starts
+        double newHT_tmp,newMHT_tmp,newNJet_tmp,NewNB_tmp;
+        newHT_tmp=newHT; newMHT_tmp=newMHT; newNJet_tmp=newNJet; NewNB_tmp=NewNB;
                     if (newHT_tmp>1500.) newHT_tmp=1499.;
-		    if (newMHT_tmp>1200.) newMHT_tmp=1199.;
-		    if (newNJet_tmp>=13) newNJet_tmp=12;
-		    if (NewNB_tmp>=4) NewNB_tmp=3.;
-		    hSearchBinHT_evt->Fill( newHT_tmp , searchWeight);
-		    hSearchBinMHT_evt->Fill( newMHT_tmp , searchWeight);
-		    hSearchBinNjets_evt->Fill( newNJet_tmp , searchWeight);
-		    hSearchBinNb_evt->Fill( NewNB_tmp , searchWeight);
-		    //KH-Feb2016-ends
+        if (newMHT_tmp>1200.) newMHT_tmp=1199.;
+        if (newNJet_tmp>=13) newNJet_tmp=12;
+        if (NewNB_tmp>=4) NewNB_tmp=3.;
+        hSearchBinHT_evt->Fill( newHT_tmp , searchWeight);
+        hSearchBinMHT_evt->Fill( newMHT_tmp , searchWeight);
+        hSearchBinNjets_evt->Fill( newNJet_tmp , searchWeight);
+        hSearchBinNb_evt->Fill( NewNB_tmp , searchWeight);
+        //KH-Feb2016-ends
 
-		    // Fill QCD histograms
-		    QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+        // Fill QCD histograms
+        QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
                   }
-                  if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);	
+                  if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);  
                   if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
                   hPredNJetBins_evt->Fill(newNJet,searchWeight);
                   hPredNbBins_evt->Fill( NewNB,searchWeight);
@@ -1990,15 +1990,15 @@ using namespace std;
           }
         }
 
-	//KH-Feb2016-starts - add histograms for correlation studies
-	//These lines have to come before HistogramFillForEventTH1,
-	//because HistogramFillForEventTH1 resets XXXX_evt histograms
+  //KH-Feb2016-starts - add histograms for correlation studies
+  //These lines have to come before HistogramFillForEventTH1,
+  //because HistogramFillForEventTH1 resets XXXX_evt histograms
         bootstrapUtils::HistogramFillForEventCorrelation(hSearchBinCorr, searchH_b_evt);
         bootstrapUtils::HistogramFillForEventCorrelation(hSearchBinCorrHT, hSearchBinHT_evt);
         bootstrapUtils::HistogramFillForEventCorrelation(hSearchBinCorrMHT, hSearchBinMHT_evt);
         bootstrapUtils::HistogramFillForEventCorrelation(hSearchBinCorrNjets, hSearchBinNjets_evt);
         bootstrapUtils::HistogramFillForEventCorrelation(hSearchBinCorrNb, hSearchBinNb_evt);
-	//KH-Feb2016-ends
+  //KH-Feb2016-ends
 
         // Correct the uncertainties
         bootstrapUtils::HistogramFillForEventTH1(searchH, searchH_evt);
@@ -2011,14 +2011,14 @@ using namespace std;
         bootstrapUtils::HistogramFillForEventTH1(hPredNJetBins, hPredNJetBins_evt);
         bootstrapUtils::HistogramFillForEventTH1(hPredNbBins, hPredNbBins_evt);
 
-	//KH-Feb2016-starts - add new histograms
+  //KH-Feb2016-starts - add new histograms
         bootstrapUtils::HistogramFillForEventTH1(hSearchBinHT, hSearchBinHT_evt);
         bootstrapUtils::HistogramFillForEventTH1(hSearchBinMHT, hSearchBinMHT_evt);
         bootstrapUtils::HistogramFillForEventTH1(hSearchBinNjets, hSearchBinNjets_evt);
         bootstrapUtils::HistogramFillForEventTH1(hSearchBinNb, hSearchBinNb_evt);
-	//KH-Feb2016-ends
+  //KH-Feb2016-ends
 
-	// for correlation studies
+  // for correlation studies
         bootstrapUtils::HistogramFillForEventTH2(hCorSearch_b, hCorSearch_b_noW, hCorSearch_b_evt, hCorSearch_b_noW_evt);
         bootstrapUtils::HistogramFillForEventTH2(hCorHT,    hCorHT_noW,    hCorHT_evt,    hCorHT_noW_evt);
         bootstrapUtils::HistogramFillForEventTH2(hCorMHT,   hCorMHT_noW,   hCorMHT_evt,   hCorMHT_noW_evt);
@@ -2318,3 +2318,4 @@ using namespace std;
   }
 
   
+
