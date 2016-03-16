@@ -143,6 +143,10 @@
 
        fChain->SetBranchAddress("genParticles", &genParticles);
        fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
+
+       fChain->SetBranchAddress("NumInteractions", &NumInteractions);
+       fChain->SetBranchAddress("TrueNumInteractions", &TrueNumInteractions);       
+
      }
      fChain->SetBranchAddress("PDFweights", &PDFweights);
      fChain->SetBranchAddress("ScaleWeights", &ScaleWeights);
@@ -699,6 +703,8 @@
   int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
   int Events::NVtx_() const {return NVtx;}
 
+  int Events::NumInteractions_() const {return NumInteractions;}
+  double Events::TrueNumInteractions_() const {return TrueNumInteractions;}
   
 //  std::vector<double> Events::Pt_GenMu() const { 
 //    std::vector<double> tempV;

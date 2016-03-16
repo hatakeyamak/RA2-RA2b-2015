@@ -69,6 +69,8 @@ using namespace std;
    int             template_Entries; 
    Double_t        genHT;
 
+   Int_t           NumInteractions;
+   Double_t        TrueNumInteractions;
 
    vector<TLorentzVector> *GenMus;
    vector<TLorentzVector> *GenEls;
@@ -289,6 +291,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    int HBHEIsoNoiseFilter_() const;
    int EcalDeadCellTriggerPrimitiveFilter_() const;
    int NVtx_() const;
+
+   int NumInteractions_() const;
+   double TrueNumInteractions_() const;
 
 };//end of class Events
 #endif
