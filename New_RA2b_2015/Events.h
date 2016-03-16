@@ -33,6 +33,7 @@ using namespace std;
    bool StudyTauId;
 
    // Declaration of leaf types
+   Double_t        TrueNumInteractions;
 //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
@@ -143,6 +144,7 @@ public:
 Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0);
 
 //Functions
+  double TrueNumInteractions_() const;
   double XS() const ;
   bool loadNext();
   int TotNEve() const;

@@ -443,10 +443,10 @@ using namespace std;
       //
       //
       btagcorr.SetEffs(skimfile);
-      btagcorr.SetCalib("CSVSLV1.csv");
+      btagcorr.SetCalib("CSVv2_mod.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
-      btagcorr.SetCalibFastSim("CSV_13TEV_TTJets_12_10_2015_prelimUnc.csv");
+      btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
   
       // determine the weight of fast sim signal
       sprintf(tempname,"SkimSampleXSections.txt");
@@ -1492,7 +1492,7 @@ using namespace std;
               if(fastsim){
                 totWeight *= fastsimWeight*0.99; // 0.99 is the jet id efficiency correction. 
                 double puWeight = 
-                    puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+                    puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->TrueNumInteractions_(),puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
                 double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
