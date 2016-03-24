@@ -170,7 +170,7 @@ int main(int argc, char *argv[]){
   vector<TH1D> patTauHistVec_match(200,patTauHist_match);
   //
   TH1D * Jet_genTau     = new TH1D("Jet_genTau","pT of the jet matched with gen tau",80,0,400);
-  TH1D * Jet_genTau_NoIso = new TH1D("Jet_genTau_NoIso","pT of the jet matched with gen tau but not IsoPion",80,0,400);
+  TH1D * Jet_genTau_Iso = new TH1D("Jet_genTau_Iso","pT of the jet matched with gen tau but not IsoPion",80,0,400);
   TH1D  Jet_patTau_NoIso = TH1D("Jet_patTau_NoIso","pT of the jet matched with pat tau but not IsoPion",80,0,400);
   vector<TH1D> Jet_patTauVec_NoIso(200,Jet_patTau_NoIso);
  
@@ -351,7 +351,7 @@ int main(int argc, char *argv[]){
           utils->findMatchedObject(iso_JetIdx,evt->slimJetEtaVec_()[genTau_JetIdx],evt->slimJetPhiVec_()[genTau_JetIdx],evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
           // Fill the pT of the Jet containing the gen tau
           Jet_genTau->Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
-          if(iso_JetIdx!=-1)Jet_genTau_NoIso->Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
+          if(iso_JetIdx!=-1)Jet_genTau_Iso->Fill(evt->slimJetPtVec_()[genTau_JetIdx],totWeight);
 
         }
         else cout << " gen tau is not in any Jet \n " ;
@@ -516,7 +516,7 @@ int main(int argc, char *argv[]){
   TauIDhist->Write();
   TauIDhist_trk->Write();
   Jet_genTau->Write();
-  Jet_genTau_NoIso->Write();  
+  Jet_genTau_Iso->Write();  
 
   // Loop over different event categories (e.g. "All events, Wlnu, Zll, Zvv, etc")
   for(int iet=0;iet<(int)eventType.size();iet++){
