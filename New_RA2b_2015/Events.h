@@ -33,8 +33,10 @@ using namespace std;
    bool StudyTauId;
 
    // Declaration of leaf types
+   //UChar_t         GoodVtx;
+   Int_t           NumInteractions;
    Double_t        TrueNumInteractions;
-//   UChar_t         GoodVtx;
+   //   UChar_t         GoodVtx;
    Bool_t          HBHENoiseFilter;
    Bool_t          HBHEIsoNoiseFilter;
    Bool_t          CSCTightHaloFilter;
@@ -45,7 +47,7 @@ using namespace std;
    UInt_t          LumiBlockNum;
    ULong64_t       EvtNum;
    Int_t           NVtx;
-//   Int_t           isoTracks;
+//Int_t           isoTracks;
    Int_t           isoElectronTracks;
    Int_t           isoMuonTracks;
    Int_t           isoPionTracks;
@@ -69,7 +71,6 @@ using namespace std;
    int             currentEntry_;
    int             template_Entries; 
    Double_t        genHT;
-
 
    vector<TLorentzVector> *GenMus;
    vector<TLorentzVector> *GenEls;
@@ -144,6 +145,7 @@ public:
 Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0);
 
 //Functions
+  int NumInteractions_() const;
   double TrueNumInteractions_() const;
   double XS() const ;
   bool loadNext();

@@ -101,6 +101,7 @@
      fChain = ttree_;
 
     /// the variables
+     fChain->SetBranchAddress("NumInteractions", &NumInteractions);
      fChain->SetBranchAddress("TrueNumInteractions", &TrueNumInteractions);
      fChain->SetBranchAddress("CrossSection", &CrossSection);
      fChain->SetBranchAddress("RunNum", &RunNum);
@@ -144,6 +145,7 @@
 
        fChain->SetBranchAddress("genParticles", &genParticles);
        fChain->SetBranchAddress("genParticles_PDGid", &genParticles_PDGid);
+
      }
      fChain->SetBranchAddress("PDFweights", &PDFweights);
      fChain->SetBranchAddress("ScaleWeights", &ScaleWeights);
@@ -236,6 +238,7 @@
 
 
 // Some Functions
+  int Events::NumInteractions_() const {return NumInteractions; }
   double Events::TrueNumInteractions_() const {return TrueNumInteractions; }
   double Events::XS() const { return CrossSection; }
 
@@ -693,7 +696,7 @@
 
   double Events::csv_() const {return 0.890;} 
 
-//  int Events::GoodVtx_() const {return GoodVtx;}
+//int Events::GoodVtx_() const {return GoodVtx;}
   int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}
   int Events::eeBadScFilter_() const {return eeBadScFilter;}
   int Events::HBHENoiseFilter_() const {return HBHENoiseFilter;}
@@ -701,8 +704,7 @@
   int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
   int Events::NVtx_() const {return NVtx;}
 
-  
-//  std::vector<double> Events::Pt_GenMu() const { 
+//std::vector<double> Events::Pt_GenMu() const { 
 //    std::vector<double> tempV;
 //    tempV.assign(&GenMuPt[0],&GenMuPt[0]+2);
 //std::vector<double> tempV(GenMuPt,GenMuPt+sizeof(GenMuPt)/sizeof(double));

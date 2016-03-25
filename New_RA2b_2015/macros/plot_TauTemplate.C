@@ -13,11 +13,12 @@ void plot_TauTemplate(int icomp=0){
   setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
   gROOT->LoadMacro("CMS_lumi.C");
- writeExtraText = true;       // if extra text
-  extraText  = "         Supplementary";  // default extra text is "Preliminary"
+  writeExtraText = true;       // if extra text
+  extraText  = "         Supplementary (Simulation)";  // default extra text is "Preliminary"
   lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
   lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
   lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+  cmsTextSize      = 0.65;
 
   int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
   // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
