@@ -625,9 +625,6 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
   gPad->RedrawAxis();
 
-
-
-
   //
   // Bottom ratio plot
   //
