@@ -33,13 +33,37 @@ Input arguments:
 
  */
 
+void shift_bin(TH1* input, TH1* output){
+
+  char tempname[200];  
+  char temptitle[200];  
+  output->SetName(tempname);
+  output->SetTitle(temptitle);
+  output->SetBins(input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5);
+  //input->Print("all");
+  //output = new TH1D(tempname,temptitle,input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5); 
+  // 0: underflow
+  // 1: first bin [Use the lowedge of this bin]
+  // input->GetNbinsX(): highest bin 
+  // input->GetNbinsX()+1: overflow bin [use the lowedge of this bin]
+  //
+
+  for (int ibin=1;ibin<=input->GetNbinsX();ibin++){
+    output->SetBinContent(ibin,input->GetBinContent(ibin));    
+    output->SetBinError(ibin,input->GetBinError(ibin));    
+    //std::cout << input->GetBinContent(ibin) << std::endl;
+  }
+
+}
+
 Plot_Commissioning(string histname="NBtag", string cutname="delphi", 
 		   //double lumi=2.109271, double lumiControl=2.093663,
 		   double lumi=2.26198, double lumiControl=2.24572,
 		   string PDname="SingleMuon",
 		   bool normalize=false, int rebin=0,
 		   double lowPredictionCutOff=0.15,
-		   double trigEff=0.951
+		   double trigEff=0.951,
+		   bool debug=true
 		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -103,9 +127,9 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
 
   sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v15d_Elog408V3_V5_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
-  TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
-  TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
-  TFile * ExpT  = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_T_stacked.root","R");
+  TFile * ExpTT = new TFile("TauHad/Stack/Elog410_GenInfo_HadTauEstimation_TTbar_stacked.root","R");
+  TFile * ExpWJ = new TFile("TauHad/Stack/Elog410_GenInfo_HadTauEstimation_WJet_stacked.root","R");
+  TFile * ExpT  = new TFile("TauHad/Stack/Elog410_GenInfo_HadTauEstimation_T_stacked.root","R");
   TFile * ExpRare = new TFile("TauHad/GenInfo_HadTauEstimation_Rare_Elog410.root","R");
   //
   // Define legend
@@ -164,10 +188,12 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   canvas_dw->SetPad(0., dw_height_offset, 0.97, dw_height+dw_height_offset);
   canvas_up->SetFrameFillColor(0);
   canvas_up->SetFillColor(0);
+  canvas_up->SetRightMargin(0.03);
   canvas_dw->SetFillColor(0);
   canvas_dw->SetFrameFillColor(0);
   canvas_dw->SetBottomMargin(0.30);
-  
+  canvas_dw->SetRightMargin(0.03);
+
   // set top margin 0 for bottom figure
   canvas_dw->SetTopMargin(0);
   
@@ -207,14 +233,31 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   hExpT=(TH1D*) stackT->GetStack()->Last();
   hExpRare=(TH1D*)ExpRare->Get(tempname)->Clone("EXpRare");
 
+
   /////TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
   TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
   hPre->Scale(lumi/lumiControl);
+
+  // Bin shifting
+  if(histname=="NBtag" || histname=="NJet"){
+  TH1D* hPre_input = static_cast<TH1D*>(hPre->Clone("hPre_input"));
+  shift_bin(hPre_input,hPre);  
+  TH1D* hExpTT_input = static_cast<TH1D*>(hExpTT->Clone("hExpTT_input"));
+  shift_bin(hExpTT_input,hExpTT);  
+  TH1D* hExpWJ_input = static_cast<TH1D*>(hExpWJ->Clone("hExpWJ_input"));
+  shift_bin(hExpWJ_input,hExpWJ);  
+  TH1D* hExpT_input = static_cast<TH1D*>(hExpT->Clone("hExpT_input"));
+  shift_bin(hExpT_input,hExpT);  
+  TH1D* hExpRare_input = static_cast<TH1D*>(hExpRare->Clone("hExpRare_input"));
+  shift_bin(hExpRare_input,hExpRare);  
+  }
+  //
 
   TH1D * hExp_forScale = static_cast<TH1D*>(hExpTT->Clone("hExp_forScale"));
   hExp_forScale->Add(hExpWJ);
   if (!skipSingleTop) hExp_forScale->Add(hExpT);
   hExp_forScale->Add(hExpRare);
+  std::cout << "KH" << std::endl;
 
   hPre->SetMarkerSize(1.2);
   hPre->SetMarkerStyle(20);
@@ -227,7 +270,12 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
 	 scale,lumi/(3.));
 
   if (trigEff!=1.) hPre->Scale(1/trigEff);
-  
+  if (debug){
+    std::cout << "prediction from data" << std::endl;
+    hPre->SetName("hPred");
+    hPre->Print("all");
+  }
+
   if (normalize) hExpTT->Scale(scale);
   else           hExpTT->Scale(lumi/(3.));
   hExpTT->SetFillColor(kBlue-6);
@@ -250,6 +298,15 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   hExp->Add(hExpRare);
   hExp->Add(hExpWJ);
   if (!skipSingleTop) hExp->Add(hExpT);
+  if (debug){    
+    std::cout << "KH: after summed" << std::endl;
+    hExp->Print("all");
+    std::cout << "TT,WJ,T,Rare starts" << std::endl;
+    hExpTT->SetName("hExpTT");hExpTT->Print();
+    hExpWJ->SetName("hExpWJ");hExpWJ->Print();
+    hExpT->SetName("hExpT");hExpT->Print();
+    hExpRare->SetName("hExpRare");hExpRare->Print();
+  }
 
   if (rebin==1 && histname=="MHT"){
     Double_t mht_bins[13] = {
@@ -280,11 +337,12 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     hExpTT = hExpTT_Rebin;
     hExpWJ = hExpWJ_Rebin;
   }
-  hExpRare->Print("all"); 
+  //KH hExpRare->Print("all"); 
   ExpStack->Add(hExpRare);
   if (!skipSingleTop) ExpStack->Add(hExpT);
   ExpStack->Add(hExpWJ);
   ExpStack->Add(hExpTT);
+  //KH ExpStack->Print("all");
 	
   double xlatex, ylatex;
   if(histname=="MHT"){
@@ -348,22 +406,23 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     //y_legend  = 2000.;
     ymax_top = 10000.;
     ymin_top = 0.15;
-    xmax = 5.;
-    xmin = 0;
-	xlatex=3.406299;ylatex=70.30534;
-    sprintf(xtitlename,"N_{b}");
+    xmax = 4.5;
+    xmin = -0.5;
+    xlatex=2.906299;ylatex=70.30534;
+    sprintf(xtitlename,"N_{b-jet}");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
+    hPre->GetXaxis()->SetNdivisions(505);
   }
   if(histname=="NJet"){
     xtext_top = 1800.;
     //y_legend  = 2000.;
     ymax_top = 10000.;
     ymin_top = 0.15;
-    xmax = 12.;
-    xmin = 3;
-	xlatex=9.190936;ylatex=71.94065;
-    sprintf(xtitlename,"N_{jets}");
+    xmax = 11.5;
+    xmin = 2.5;
+    xlatex=8.690936;ylatex=71.94065;
+    sprintf(xtitlename,"N_{jet}");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
   }
@@ -406,6 +465,11 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   hPre->DrawCopy("e");
   
   ExpStack->Draw("same hist");
+  /*
+  std::cout << "print what is plotted" << std::endl;
+  ExpStack->Print("all");
+  std::cout << "print what is plotted ends" << std::endl;
+  */
 
   hPre->DrawCopy("e same");
 
@@ -415,11 +479,11 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   sprintf(tempname,"MC: t#bar{t}");
   catLeg1->AddEntry(hExpTT,tempname,"f");
   //sprintf(tempname,"#tau_{h} MC expectation from W + jets");
-  sprintf(tempname,"MC: W + jets");
+  sprintf(tempname,"MC: W+jets");
   catLeg1->AddEntry(hExpWJ,tempname,"f");  
   if (!skipSingleTop) {
     //sprintf(tempname,"#tau_{h} MC expectation from single top");
-    sprintf(tempname,"MC: single top");
+    sprintf(tempname,"MC: Single top");
     catLeg1->AddEntry(hExpT,tempname,"f");
     sprintf(tempname,"MC: Other");
     catLeg1->AddEntry(hExpRare,tempname,"f");
@@ -475,7 +539,9 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     hPreWJ6I->Print("all");
     hExp->Print("all");
   */
-  hPreOverExp->Print("all");
+  if (debug){
+    hPreOverExp->Print("all");
+  }
 
   // draw bottom figure
   canvas_dw->cd();
@@ -491,7 +557,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   sprintf(ytitlename,"Data / MC");
   hPreOverExp->GetYaxis()->SetTitle(ytitlename);
   hPreOverExp->SetMaximum(2.65);
-  hPreOverExp->SetMinimum(0.0);
+  hPreOverExp->SetMinimum(0.01);
 
   //
   // Specific to each bottom plot
@@ -521,7 +587,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   tline->SetLineStyle(2);
   tline->Draw();
 
-  hPreOverExp->Print("all");
+  //hPreOverExp->Print("all");
   
   if (normalize) sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_normalize_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());
   else           sprintf(tempname,"DataPreVsMCExp_hadtau_%s_%s_%s_Plot.png",histname.c_str(),cutname.c_str(),PDname.c_str());

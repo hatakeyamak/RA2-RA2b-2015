@@ -123,7 +123,7 @@ void plot_TauTemplate(int icomp=0){
   catLeg1->Draw();
 
    TLatex *   tex = new TLatex(1.5,0.03,"arXiv:1602.06581");
-   tex->SetTextColor(1);
+   tex->SetTextColor(4);
    tex->SetTextFont(61);
    tex->SetTextSize(0.0375);
    tex->SetLineColor(4);
