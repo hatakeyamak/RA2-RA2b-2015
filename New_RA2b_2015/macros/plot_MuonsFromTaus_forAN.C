@@ -168,6 +168,29 @@ void plot_MuonsFromTaus_forAN(){
 
   CMS_lumi( c1, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
   
+  double xlatex=0.75;
+  double ylatex=0.55;
+  /*
+  TLatex *   tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+  tex->SetTextColor(4);
+  tex->SetTextFont(61);
+  tex->SetTextSize(0.055);
+  tex->SetLineColor(4);
+  tex->SetLineWidth(2);
+  //tex->Draw();
+  tex->DrawLatexNDC(xlatex,ylatex-0.2,"arXiv:1602.06581");
+  */
+  TPaveText pt(xlatex,ylatex,xlatex+0.19,ylatex+0.1,"NDC");
+  pt.AddText("arXiv:1602.06581");
+  pt.SetFillColor(0);
+  pt.SetLineColor(0);
+  pt.SetLineWidth(0);
+  pt.SetBorderSize(0);
+  pt.SetTextColor(4);
+  pt.SetTextFont(61);
+  pt.SetTextSize(0.055);
+  pt.Draw();
+
   c1->Print("plot_MuonsFromTaus.pdf");
 
 }

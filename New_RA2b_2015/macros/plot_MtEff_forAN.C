@@ -33,7 +33,7 @@ void plot_MtEff_forAN(){
   
   double ymax=1.1;
   double ymin=0.2;
-  double ytext=0.44;
+  double ytext=0.34;
   
   TCanvas* c1 = new TCanvas("name","name",10,10,W,H);
   c1->SetFillColor(0);
@@ -150,6 +150,20 @@ void plot_MtEff_forAN(){
   tline_4->Draw();
 
   CMS_lumi( c1, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+
+  double xlatex=0.75;
+  double ylatex=0.40;
+  TPaveText pt(xlatex,ylatex,xlatex+0.19,ylatex+0.1,"NDC");
+  pt.AddText("arXiv:1602.06581");
+  pt.SetFillColor(0);
+  pt.SetLineColor(0);
+  pt.SetLineWidth(0);
+  pt.SetBorderSize(0);
+  pt.SetTextColor(4);
+  pt.SetTextFont(61);
+  pt.SetTextSize(0.055);
+  pt.Draw();
+
   c1->Print("plot_MtEff.pdf");
 
 }
