@@ -353,7 +353,8 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     xmax = 1000.;
     //if (cutname=="delphi") xmax = 700.;
     xmin = 100;
-	xlatex=686.927;ylatex=13.61134;
+    xlatex=686.927;ylatex=13.61134;
+    xlatex=0.70;ylatex=0.58;
     //sprintf(xtitlename,"#slash{H}_{T} [GeV]");
     sprintf(xtitlename,"H_{T}^{miss} [GeV]");
     sprintf(ytitlename,"Events / 50 GeV");
@@ -383,7 +384,8 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     xmax = 2000.;
     //if (cutname=="delphi") xmax = 1500.;
     xmin = 400;
-	xlatex=1466.973;ylatex=14.62075;
+    xlatex=1466.973;ylatex=14.62075;
+    xlatex=0.70;ylatex=0.58;
     sprintf(xtitlename,"H_{T} [GeV]");
     sprintf(ytitlename,"Events / 100 GeV");
     gPad->SetLogy();
@@ -409,6 +411,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     xmax = 4.5;
     xmin = -0.5;
     xlatex=2.906299;ylatex=70.30534;
+    xlatex=0.70;ylatex=0.58;
     sprintf(xtitlename,"N_{b-jet}");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
@@ -422,6 +425,7 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
     xmax = 11.5;
     xmin = 2.5;
     xlatex=8.690936;ylatex=71.94065;
+    xlatex=0.70;ylatex=0.58;
     sprintf(xtitlename,"N_{jet}");
     sprintf(ytitlename,"Events");
     gPad->SetLogy();
@@ -505,12 +509,13 @@ Plot_Commissioning(string histname="NBtag", string cutname="delphi",
   //  ttext->Draw();
 
   TLatex *   tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
-   tex->SetTextColor(4);
-   tex->SetTextFont(61);
-   tex->SetTextSize(0.0375);
-   tex->SetLineColor(4);
-   tex->SetLineWidth(2);
-   tex->Draw();
+  tex->SetTextColor(4);
+  tex->SetTextFont(61);
+  tex->SetTextSize(0.0375);
+  tex->SetLineColor(4);
+  tex->SetLineWidth(2);
+  //tex->Draw();
+  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
    
   gPad->RedrawAxis(); 
   
