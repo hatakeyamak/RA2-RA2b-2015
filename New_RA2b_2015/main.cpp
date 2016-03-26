@@ -173,6 +173,13 @@ int main(int argc, char *argv[]){
   TH1D * Jet_genTau_Iso = new TH1D("Jet_genTau_Iso","pT of the jet matched with gen tau but not IsoPion",80,0,400);
   TH1D  Jet_patTau_NoIso = TH1D("Jet_patTau_NoIso","pT of the jet matched with pat tau but not IsoPion",80,0,400);
   vector<TH1D> Jet_patTauVec_NoIso(200,Jet_patTau_NoIso);
+
+  // some histograms needed for fake rate
+  TH1D * HistJetsPtForTauFakeR = new TH1D("JetsPtForTauFakeR","",80,0,400);
+  TH1D * HistIso_FakeTauJetsPt = new TH1D("Iso_FakeTauJetsPt","",80,0,400);
+  TH1D  HistFakeTau = TH1D("HistFakeTau","",80,0,400);
+  vector<TH1D> HistFakeTauVec(200,HistFakeTau);
+
  
   // Some useful tools
   Utils * utils = new Utils();
@@ -206,7 +213,7 @@ int main(int argc, char *argv[]){
   int eventN=0;
   while( evt->loadNext() ){
     eventN++;
-    //if(eventN>10000)break;
+    //if(eventN>1000000)break;
     // Total weight
     //double totWeight = evt->weight()*1.;
     double totWeight = 10000.*evt->XS()/TotNEve_;
@@ -274,12 +281,13 @@ int main(int argc, char *argv[]){
       }
     }
   }
+
   if(genTauJetLorVec.size()>0)hadTau=true;
   //printf(" genTauPt: %g TauIdex: %d #hadtau: %d \n ",genTauPt,TauIdex, genTauJetLorVec.size());
-  if(verbose!=0 && TauIdex!=-1 && (genTauJetLorVec[TauIdex].Pt() < 10.) ){
+  if(verbose!=0 && TauIdex!=-1 && (genTauJetLorVec.at(TauIdex).Pt() < 10.) ){
     cout << " ####### \n " ; 
     for(int j=0; j< genTauJetLorVec.size(); j++){
-      printf(" TauIdex: %d  VisTauPt: %g TauPt: %g \n ",TauIdex,genTauJetLorVec[j].Pt(),genTauLorVec[j].Pt());
+      printf(" TauIdex: %d  VisTauPt: %g TauPt: %g \n ",TauIdex,genTauJetLorVec.at(j).Pt(),genTauLorVec[j].Pt());
     }
     
   }
@@ -328,23 +336,96 @@ int main(int argc, char *argv[]){
       int isoPionIdx = -1;
       int genTau_JetIdx=-1, iso_JetIdx=-1, patTau_JetIdx=-1;
       double deltaRMax = 0.4;
+
+
+
+      /////////////
+      // Fake Rate
+      /////////////
+
+      // first make a collection of jets with pt > 20 and eta < 2.3
+      vector<double> JetsPtForTauFakeR;
+      JetsPtForTauFakeR.clear();
+      // now make a collection of fake tau jets 
+      // this is a fraction of JetsPtForTauFakeR
+      vector<double> dummyvec;
+      dummyvec.clear();
+      vector<vector<double>> VecId_FakeTauJetsPt(200,dummyvec);
+      vector<double> Iso_FakeTauJetsPt;
+
+      // really make the two collections above
+      for(int i=0;i<evt->JetsPtVec_().size();i++){
+        if(evt->JetsPtVec_()[i]>20. && fabs(evt->JetsEtaVec_()[i])<2.3){
+          JetsPtForTauFakeR.push_back(evt->JetsPtVec_()[i]);
+          int index1=-1;
+          utils->findMatchedObject2(index1,evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i],&genTauJetLorVec,deltaRMax,verbose);
+          int index2=-1;
+          utils->findMatchedObject2(index2,evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i],evt->TauLorVec_(),deltaRMax,verbose);
+          int index3=-1;
+          utils->findMatchedObject(index3,evt->JetsEtaVec_()[i],evt->JetsPhiVec_()[i],evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
+          // if the jet is not matched with a gen tau but is matched with a pat tau candidate and the pat tau cand has pt>20 eta<2.3
+          // that jet is fake tau jet and add it to the fake jet collection
+          if(index1==-1 && index2!=-1 && evt->TauLorVec_()->at(index2).Pt()>20. && fabs(evt->TauLorVec_()->at(index2).Eta())<2.3){
+            // 4 categories of tau id. First is anti-elec which has 3 id's. We also insert a 1 which means non of them are applied.
+            // the following 4 lines correspond whith each of the categories in the tau id.
+            int tauIdElec[4]={1,(int)evt->tauId1()->at(index2),(int)evt->tauId2()->at(index2),(int)evt->tauId3()->at(index2)};
+            int tauIdMu[3]  ={1,(int)evt->tauId4()->at(index2),(int)evt->tauId5()->at(index2)};
+            int tauIdIso[4] ={1,(int)evt->tauId6()->at(index2),(int)evt->tauId7()->at(index2),(int)evt->tauId8()->at(index2)};
+            int tauIdPile[4]={1,(int)evt->tauId9()->at(index2),(int)evt->tauId10()->at(index2),(int)evt->tauId11()->at(index2)};
+            int IdNum=0;
+
+            for(int iPile=0;iPile<(sizeof(tauIdPile)/sizeof(tauIdPile[0]));iPile++){
+              for(int iIso=0;iIso<(sizeof(tauIdIso)/sizeof(tauIdIso[0]));iIso++){
+                for(int iMu=0;iMu<(sizeof(tauIdMu)/sizeof(tauIdMu[0]));iMu++){
+                  for(int iElec=0;iElec<(sizeof(tauIdElec)/sizeof(tauIdElec[0]));iElec++){
+                    IdNum++;
+                    if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1){
+                      VecId_FakeTauJetsPt[IdNum].push_back(evt->JetsPtVec_()[i]);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // if the jet is not matched with a gen tau but is matched with an isoPion trk with pt>10 eta<2.3
+          // that jet is fake tau jet and add it to the fake jet collection
+          if(index1==-1 && index3!=-1 && evt->IsoPionPtVec_()[index3]>10. && fabs(evt->IsoPionEtaVec_()[index3])<2.3){
+            Iso_FakeTauJetsPt.push_back(evt->JetsPtVec_()[i]);  
+          }
+          //
+        }
+      }
+
+      for(int i=0;i<JetsPtForTauFakeR.size();i++){
+        HistJetsPtForTauFakeR->Fill(JetsPtForTauFakeR[i],totWeight);
+      }
+      
+      for(int j=0;j<VecId_FakeTauJetsPt.size();j++){
+        for(int i=0;i<VecId_FakeTauJetsPt[j].size();i++){
+          HistFakeTauVec[j].Fill(VecId_FakeTauJetsPt[j][i],totWeight);
+        }
+      }
+      for(int i=0;i<Iso_FakeTauJetsPt.size();i++){
+        HistIso_FakeTauJetsPt->Fill(Iso_FakeTauJetsPt[i],totWeight);
+      }
+
+
       if(hadTau){
         /////////////
         // Efficiency
         /////////////
         // match gen tau with a pat tau
-        utils->findMatchedObject2(patTauIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(), evt->TauLorVec_(),deltaRMax,verbose);
+        utils->findMatchedObject2(patTauIdx,genTauJetLorVec.at(TauIdex).Eta(),genTauJetLorVec.at(TauIdex).Phi(), evt->TauLorVec_(),deltaRMax,verbose);
         // match gen tau with an isoPion
-        utils->findMatchedObject(isoPionIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
+        utils->findMatchedObject(isoPionIdx,genTauJetLorVec.at(TauIdex).Eta(),genTauJetLorVec.at(TauIdex).Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),deltaRMax,verbose);
         // fill the pT of visible gen taus
-        VisGenTauHist->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
-        if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+        VisGenTauHist->Fill(genTauJetLorVec.at(TauIdex).Pt(),totWeight);
+        if(isoPionIdx!=-1)isoPionHist_match->Fill(genTauJetLorVec.at(TauIdex).Pt(),totWeight);
         //
-        /////////////
-        // Fake Rate
-        /////////////
+
         // match gen tau with a Jet
-        utils->findMatchedObject(genTau_JetIdx,genTauJetLorVec[TauIdex].Eta(),genTauJetLorVec[TauIdex].Phi(),evt->slimJetPtVec_(),evt->slimJetEtaVec_(),evt->slimJetPhiVec_(),deltaRMax,verbose);
+        utils->findMatchedObject(genTau_JetIdx,genTauJetLorVec.at(TauIdex).Eta(),genTauJetLorVec.at(TauIdex).Phi(),evt->slimJetPtVec_(),evt->slimJetEtaVec_(),evt->slimJetPhiVec_(),deltaRMax,verbose);
         if(genTau_JetIdx!=-1){
 
           utils->findMatchedObject2(patTau_JetIdx,evt->slimJetEtaVec_()[genTau_JetIdx],evt->slimJetPhiVec_()[genTau_JetIdx],evt->TauLorVec_(),deltaRMax,verbose);
@@ -371,7 +452,7 @@ int main(int argc, char *argv[]){
                   IdNum++;
                   if(tauIdElec[iElec]==1&&tauIdMu[iMu]==1&&tauIdIso[iIso]==1&&tauIdPile[iPile]==1){
                     // Fill all genTau matched with patTau
-                    patTauHistVec_match[IdNum].Fill(genTauJetLorVec[TauIdex].Pt(),totWeight);
+                    patTauHistVec_match[IdNum].Fill(genTauJetLorVec.at(TauIdex).Pt(),totWeight);
                     //printf(" iPile: %d => %d iIso: %d => %d iMu: %d => %d iElec: %d => %d \n",iPile,tauIdPile[iPile],iIso,tauIdIso[iIso],iMu,tauIdMu[iMu],iElec,tauIdElec[iElec]);
                     //printf(" id #: %d nTau: %d \n ",IdNum,NtauVec[IdNum]);
                   }
@@ -564,5 +645,15 @@ int main(int argc, char *argv[]){
     sprintf(tempname,"id_%d",id);
     Jet_patTauVec_NoIso[id].Write(tempname);
   }
+
+  cdtoTauDir = resFile->mkdir("JetsPtForTauFakeR");
+  cdtoTauDir->cd();
+  HistJetsPtForTauFakeR->Write();
+  HistIso_FakeTauJetsPt->Write();
+  for(int id=1; id <= 192;id++){
+    sprintf(tempname,"id_%d",id);
+    HistFakeTauVec[id].Write(tempname);
+  }
+  
 
 }
