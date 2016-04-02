@@ -653,14 +653,22 @@
    map<int,int> Events::nTauMap() const{
      map<int,int> map_;
      for(int i=0; i< TauLorVec->size();i++){
-       if(TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
-          TauIdVecbyTightPileupWeightedIsolation3Hits->at(i)==1)map_[1124]++;
 
-       if(TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
-          TauIdVecbyTightPileupWeightedIsolation3Hits->at(i)==1)map_[1134]++;
+       double mt = sqrt(  2* ( METPt*TauLorVec->at(i).Pt() -( METPt*cos(METPhi)*TauLorVec->at(i).Pt()*cos(TauLorVec->at(i).Phi()) + METPt*sin(METPhi)*TauLorVec->at(i).Pt()*sin(TauLorVec->at(i).Phi()) ) ) );
 
-       if(TauIdVecbyTightCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
-          TauIdVecbyTightPileupWeightedIsolation3Hits->at(i)==1)map_[1144]++;
+       if(mt<100.){
+
+         if(TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits->at(i)==1)map_[1121]++;
+
+         if(TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1)map_[1131]++;
+
+         if(TauIdVecbyLooseCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+            TauIdVecbyTightPileupWeightedIsolation3Hits->at(i)==1)map_[1124]++;
+
+         if(TauIdVecbyMediumCombinedIsolationDeltaBetaCorr3Hits->at(i)==1&&
+            TauIdVecbyTightPileupWeightedIsolation3Hits->at(i)==1)map_[1134]++;
+       }
+
      }
      return map_;
    }

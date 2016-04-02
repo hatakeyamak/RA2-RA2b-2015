@@ -886,7 +886,7 @@ using namespace std;
             //////loop over cut names and fill the histograms
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
-  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),evt->nTauMap()[1124],evt->nTauMap()[1134],evt->nTauMap()[1144],1,1)==true){
+  if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion(),evt->nTauMap()[1121],evt->nTauMap()[1131],evt->nTauMap()[1124],evt->nTauMap()[1134],1,1)==true){
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
                 map_map_search[itt->first][ite->first][0].Fill(binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eveinfvec[0]);//searchH_
                 map_map_search[itt->first][ite->first][1].Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],eveinfvec[0]);//searchH_b_

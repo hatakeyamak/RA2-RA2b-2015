@@ -6,7 +6,7 @@ using namespace std;
 
 
 
-Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso", 
+Plot_TauId(string histname="searchH_b_", string cutname="tauId1124_iso", 
 		   double lumi=10., double lumiControl=10.,
 		   bool normalize=false, int rebin=0
 		   ){
@@ -47,7 +47,7 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-  int W = 600;
+  int W = 900;
   int H = 600;
   int H_ref = 600;
   int W_ref = 800;
@@ -74,21 +74,21 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"Main/results_filelist_Spring15_T1qqqq_1000_800_.root");
+  sprintf(tempname,"Main/results_filelist_Spring15_T1qqqq_1000_800_00-March31_00.root");
   TFile * ExpSignal1 = new TFile(tempname,"R");
-  sprintf(tempname,"Main/results_filelist_Spring15_T1bbbb_1500_100_.root");
+  sprintf(tempname,"Main/results_filelist_Spring15_T1bbbb_1500_100_00-March31_00.root");
   TFile * ExpSignal2 = new TFile(tempname,"R");
-  sprintf(tempname,"Main/results_filelist_Spring15_T1bbbb_1000_900_.root");
+  sprintf(tempname,"Main/results_filelist_Spring15_T1bbbb_1000_900_00-March31_00.root");
   TFile * ExpSignal3 = new TFile(tempname,"R");
-  sprintf(tempname,"Main/results_filelist_Spring15_T1tttt_1200_800_.root");
+  sprintf(tempname,"Main/results_filelist_Spring15_T1tttt_1200_800_00-March31_00.root");
   TFile * ExpSignal4 = new TFile(tempname,"R");
-  sprintf(tempname,"Main/results_filelist_Spring15_T1tttt_1500_100_.root");
+  sprintf(tempname,"Main/results_filelist_Spring15_T1tttt_1500_100_00-March31_00.root");
   TFile * ExpSignal5 = new TFile(tempname,"R");
-  TFile * ExpTT = new TFile("Main/Stack/results_filelist_Spring15_TTbar_stacked.root","R");
-  TFile * ExpWJ = new TFile("Main/Stack/results_filelist_Spring15_WJet_stacked.root","R");
-  TFile * ExpT  = new TFile("Main/Stack/results_filelist_Spring15_T_stacked.root","R");
-  TFile * ExpZJ = new TFile("Main/Stack/results_filelist_Spring15_ZJet_stacked.root","R");
-  TFile * ExpQCD = new TFile("Main/Stack/results_filelist_Spring15_QCD_stacked.root","R");
+  TFile * ExpTT = new TFile("Main/results_filelist_Spring15_TTbar_March31.root","R");
+  TFile * ExpWJ = new TFile("Main/results_filelist_Spring15_WJet_March31.root","R");
+  TFile * ExpT  = new TFile("Main/results_filelist_Spring15_SingleT_March31.root","R");
+  TFile * ExpZJ = new TFile("Main/results_filelist_Spring15_ZJet_March31.root","R");
+  TFile * ExpQCD = new TFile("Main/results_filelist_Spring15_QCD_March31.root","R");
   
   //
   // Define legend
@@ -186,17 +186,12 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
   //hPreWJ46=(TH1D*) PreWJ46->Get(tempname)->Clone();
   //hPreWJ6I=(TH1D*) PreWJ6I->Get(tempname)->Clone();
 
-  sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-  stackTT=(THStack*)ExpTT->Get(tempname)->Clone("ExpTT");
-  hExpTT=(TH1D*) stackTT->GetStack()->Last();
-  stackWJ=(THStack*)ExpWJ->Get(tempname)->Clone("ExpWJ");   
-  hExpWJ=(TH1D*) stackWJ->GetStack()->Last();
-  stackT=(THStack*)ExpT->Get(tempname)->Clone("ExpT");   
-  hExpT=(TH1D*) stackT->GetStack()->Last();
-  stackZJ=(THStack*)ExpZJ->Get(tempname)->Clone("ExpZJ");   
-  hExpZJ=(TH1D*) stackZJ->GetStack()->Last();
-  stackQCD=(THStack*)ExpQCD->Get(tempname)->Clone("ExpQCD");   
-  hExpQCD=(TH1D*) stackQCD->GetStack()->Last();
+  sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
+  hExpTT=(TH1D*) ExpTT->Get(tempname)->Clone("ExpTT"); 
+  hExpWJ=(TH1D*) ExpWJ->Get(tempname)->Clone("ExpWJ");   
+  hExpT=(TH1D*) ExpT->Get(tempname)->Clone("ExpT");
+  hExpZJ=(TH1D*) ExpZJ->Get(tempname)->Clone("ExpZJ");
+  hExpQCD=(TH1D*) ExpQCD->Get(tempname)->Clone("ExpQCD");
 
   double scaleSig=1.;
   TH1D * hSignal1 = static_cast<TH1D*>(hExpSignal1->Clone("hSignal1"));
@@ -219,9 +214,8 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
  // hSignal1->SetMarkerSize(1.2);
  // hSignal1->SetMarkerStyle(20);
 
-  printf("data prediction: %8.2f\n",hSignal1->GetSumOfWeights());
+  printf("Total signal: %8.2f\nTotal Background:  %8.2f\n",hSignal1->GetSumOfWeights(),hExp_forScale->GetSumOfWeights());
   //printf("Bin content: %g Stat error: %g \n ",hPreData_StatError->GetBinContent(1)/trigEff,hPreData_StatError->GetBinError(1));
-  printf("MC expectation:  %8.2f\n",hExp_forScale->GetSumOfWeights());
   //printf("scale to match exp to pre = %10.5f, and %10.5f from lumi info\n",scale,lumi/(3.));
   
   hExpTT->SetFillColor(kBlue);
@@ -255,7 +249,7 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
   hSignal1->GetXaxis()->SetTitleSize(0.04);
   hSignal1->GetXaxis()->SetTitleOffset(0.8);
   hSignal1->GetXaxis()->SetTitleFont(42);
-  hSignal1->GetXaxis()->SetLabelSize(0.015);
+  hSignal1->GetXaxis()->SetLabelSize(0.03);
   hSignal1->GetXaxis()->SetLabelOffset(0.01);
   //hSignal1->GetYaxis()->SetLabelFont(42);
   //hSignal1->GetYaxis()->SetLabelOffset(0.007);
@@ -263,7 +257,7 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
   hSignal1->GetYaxis()->SetTitleSize(0.04);
   hSignal1->GetYaxis()->SetTitleOffset(0.7);
   hSignal1->GetYaxis()->SetTitleFont(42);
-  hSignal1->GetYaxis()->SetLabelSize(0.02);
+  hSignal1->GetYaxis()->SetLabelSize(0.03);
 
   hSignal1->GetXaxis()->SetTitle(xtitlename);
   hSignal1->GetYaxis()->SetTitle(ytitlename);
@@ -341,7 +335,7 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
   //  ttext->Draw();
 */
   gPad->RedrawAxis(); 
-  
+  if(histname=="searchH_b_"){
      TLine *tl_njet = new TLine();
     tl_njet->SetLineStyle(2);
     tl_njet->DrawLine(25.-0.5,ymin_top,25.-0.5,ymax_top); 
@@ -382,7 +376,23 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
     ttext_nb->DrawLatex(10.-0.5 , ymax_top/170. , "1");
     ttext_nb->DrawLatex(16.-0.5 , ymax_top/170. , "2");
     ttext_nb->DrawLatex(22.-0.5 , ymax_top/170. , "#geq 3");
-  
+  }
+  else if(histname=="searchH_"){
+    TLine *tl_njet = new TLine();
+    tl_njet->SetLineStyle(2);
+    tl_njet->DrawLine(7.,ymin_top,7.,ymax_top/10.); 
+    tl_njet->DrawLine(13.,ymin_top,13.,ymax_top/10.); 
+
+    // Njet labels
+    TLatex * ttext_njet = new TLatex();
+    ttext_njet->SetTextFont(42);
+    //ttext_njet->SetTextSize(0.060);
+    ttext_njet->SetTextSize(0.040);
+    ttext_njet->SetTextAlign(22);
+    ttext_njet->DrawLatex(4. , ymax_top/100. , "4 #leq N_{#scale[0.2]{ }jet} #leq 6");
+    ttext_njet->DrawLatex(10. , ymax_top/100. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
+    ttext_njet->DrawLatex(17. , ymax_top/100. , "N_{#scale[0.2]{ }jet} #geq 9");
+  }
   
   
   
@@ -452,7 +462,7 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
 
   hPreOverExp->Print("all");
   */
-  sprintf(tempname,"192tauId_SignalVsBG_%s_Plot.pdf",histname.c_str());
+  sprintf(tempname,"tauId_SignalVsBG_%s_%s_Plot.pdf",cutname.c_str(),histname.c_str());
   canvas->Print(tempname);
  
    printf(" ####### \n bin  background  signal1 Q1 signal2 Q2 signal3 Q3 signla4 Q4 signal5 Q5 \n ");
@@ -469,7 +479,8 @@ Plot_TauId(string histname="searchH_", string cutname="tauId1124_iso",
            double q4 = 2*(sqrt(s4+b)-sqrt(b));
            double q5 = 2*(sqrt(s5+b)-sqrt(b));
 
-	   printf("  %d, %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f, \n ",i,b,s1,q1,s2,q2,s3,q3,s4,q4,s5,q5);
+	   //printf("  %d, %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f,  %5.2f, \n ",i,b,s1,q1,s2,q2,s3,q3,s4,q4,s5,q5);
+          printf("  %d, %5.2f,  %5.2f,  %5.2f, \n ",i,b,s1,q1);
 	  
    }
   

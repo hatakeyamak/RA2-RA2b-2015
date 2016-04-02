@@ -10,12 +10,14 @@
     cutname[0]="PreSel";cutname[1]="nolep";cutname[2]="Njet_4";cutname[3]="ht_500";
     cutname[4]="mht_200";cutname[5]="isoMu";cutname[6]="isoElec";cutname[7]="delphi";
     cutname[8]="isoPion";
-    cutname[9]="tauId1124";
-    cutname[10]="tauId1134";
-    cutname[11]="tauId1144";
-    cutname[12]="tauId1124_iso";
-    cutname[13]="tauId1134_iso";
-    cutname[14]="tauId1144_iso";
+    cutname[9]="tauId1121";
+    cutname[10]="tauId1131";
+    cutname[11]="tauId1124";
+    cutname[12]="tauId1134";
+    cutname[13]="tauId1121_iso";
+    cutname[14]="tauId1131_iso";
+    cutname[15]="tauId1124_iso";
+    cutname[16]="tauId1134_iso";
  
     //cutname[9]="low_Dphi";
     //cutname[10]="delphi_NoIso"; cutname[11]="mht_500";
@@ -46,7 +48,7 @@
   ///apply the cuts here
 
 
-  bool Selection::checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_,int nTaus_1124, int nTaus_1134,int nTaus_1144, int nTaus_4, int nTaus_5){
+  bool Selection::checkcut(string ss,double ht_,double mht_,double dphi0,double dphi1,double dphi2,double dphi3,int nJets_,int nBtags_,int nLeptons_,int nElecIso_,int nMuIso_,int nPionIso_,int nTaus_1121, int nTaus_1131,int nTaus_1124,int nTaus_1134,int nTaus_4, int nTaus_5){
 
     if(ss == cutname[0])return true;
     if(ss== cutname[1]){if(nolep( nLeptons_))return true;}
@@ -57,12 +59,15 @@
     if(ss== cutname[6]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_))return true;}
     if(ss== cutname[7]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
     if(ss== cutname[8]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&PionIsoTrk(nPionIso_))return true;}
-    if(ss== cutname[9]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1124))return true;}
-    if(ss== cutname[10]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1134))return true;}
-    if(ss== cutname[11]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1144))return true;}
-    if(ss== cutname[12]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1124)&&PionIsoTrk(nPionIso_))return true;}
-    if(ss== cutname[13]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1134)&&PionIsoTrk(nPionIso_))return true;}
-    if(ss== cutname[14]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1144)&&PionIsoTrk(nPionIso_))return true;}
+    if(ss== cutname[9]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1121))return true;}
+    if(ss== cutname[10]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1131))return true;}
+    if(ss== cutname[11]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1124))return true;}
+    if(ss== cutname[12]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1134))return true;}
+    if(ss== cutname[13]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1121)&&PionIsoTrk(nPionIso_))return true;}
+    if(ss== cutname[14]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1131)&&PionIsoTrk(nPionIso_))return true;}
+    if(ss== cutname[15]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1124)&&PionIsoTrk(nPionIso_))return true;}
+    if(ss== cutname[16]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&dphi( dphi0,dphi1,dphi2,dphi3)&&notau(nTaus_1134)&&PionIsoTrk(nPionIso_))return true;}
+
     //if(ss== cutname[9]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&MuIsoTrk( nMuIso_)&&ElecIsoTrk(nElecIso_)&&PionIsoTrk(nPionIso_)&&low_dphi( dphi0,dphi1,dphi2,dphi3))return true;}
     //if(ss== cutname[10]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_200( mht_)&&dphi( dphi0,dphi1,dphi2,dphi3))return true;}
     //if(ss== cutname[11]){if(nolep( nLeptons_)&&Njet_4( nJets_)&&ht_500( ht_)&&mht_500( mht_))return true;}
