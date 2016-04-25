@@ -41,7 +41,7 @@ public:
 
 
   bool nolep(int nLeptons_){if(nLeptons_==0)return true; return false;}
-  bool Njet_4(int nJets_){if(nJets_ >= 4)return true; return false;}
+  bool Njet_4(int nJets_){if(nJets_ >= 2)return true; return false;}
   bool Njet_4_6(int nJets_){if(nJets_ >= 4 && nJets_ <= 6)return true; return false;}
   bool Njet_7_8(int nJets_){if(nJets_ >= 7 && nJets_ <= 8)return true; return false;}
   bool Njet_9(int nJets_){if(nJets_ >= 9)return true; return false;}

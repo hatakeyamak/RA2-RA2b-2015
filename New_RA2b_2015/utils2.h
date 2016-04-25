@@ -222,7 +222,7 @@ namespace utils2{
       std::string findBin_ForIso(int njet,double ht,double mht){
         std::ostringstream binS;
         int bNjet, bHtMht, bHtMht2;
-        if(njet == 4)bNjet=1;
+        if(njet <= 4)bNjet=1;
         else if(njet == 5)bNjet=2;
         else if(njet == 6)bNjet=3;
         else if(njet >= 7 && njet <=8)bNjet=4;
