@@ -537,7 +537,7 @@ using namespace std;
       double muPt=-99;
 
       //we want to consider events that pass the baseline cuts
-      if( evt->ht() >=500 && evt->mht() >=200 && evt->nJets() >=4 ){
+      if( sel->ht_500(evt->ht()) && sel->mht_200(evt->mht()) && sel->Njet_4(evt->nJets()) ){
 
         if(verbose!=0)printf("============================================================= \n eventN: %d \n ",eventN);
         if(verbose!=0 && eleN==0 && muN==1)printf("#####################\nNo elec and 1 muon event \n eventN: %d \n ",eventN);
@@ -819,7 +819,7 @@ using namespace std;
       // Fill QCD histogram
       if(pass3){
         // Fill the histogram in the inverted delta phi region
-        if(evt->ht()>=500.&&evt->mht()>=200. && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3) && evt->nJets() >= 4){
+        if(sel->ht_500(evt->ht()) && sel->mht_200(evt->mht()) && sel->Njet_4(evt->nJets()) && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3) ){
           // Fill QCD histograms
           if(passIso){
 
