@@ -87,16 +87,20 @@ namespace utils2{
 
 
 //###############################################################################################################
-// Full 72 search bins
-//
+// Full 108 search bins
 
   // find appropriate bin number for the given (Njet,Nbtag,ht,mht)
       std::string findBin(int njet,int nbtag,double ht,double mht){
 
         std::ostringstream binS;
         int bNjet, bNbtag, bHtMht;
-        if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;else bNjet=9;
-        if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
+        if(njet >= 4 && njet <=6)bNjet=1;else if(njet >= 7 && njet <=8)bNjet=2;else if(njet >= 9)bNjet=3;
+        else if(njet == 2)bNjet=4; else if(njet == 3)bNjet=5; else bNjet=9;
+        if(njet !=2 && njet !=3){
+          if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
+        }else{
+          if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag >= 2)bNbtag=3;else bNbtag=9;
+        }
         if(ht >= 500 && ht <800 && mht>=200 && mht<500)bHtMht=1;else if(ht >= 800 && ht <1200 && mht>=200 && mht<500)bHtMht=2;else if(ht >= 1200 && mht>=200 && mht<500)bHtMht=3;
         else if(ht >= 500 && ht <1200 && mht>=500 && mht<750)bHtMht=4;else if(ht >=1200 && mht>=500 && mht<750)bHtMht=5;else if(ht >=800 && mht>=750)bHtMht=6; else bHtMht=9;
         binS << 100*bNjet+10*bNbtag+bHtMht ;
@@ -120,9 +124,21 @@ namespace utils2{
           }
         }
       }
+
+      for(int bNjet=4; bNjet<=5;  bNjet++){
+        for(int bNbtag=1; bNbtag<=3; bNbtag++){
+          for(int bHtMht=1; bHtMht<=6; bHtMht++){
+              std::ostringstream binS;
+              binS << 100*bNjet+10*bNbtag+bHtMht;
+              binN++;
+              binMap[binS.str()]=binN;
+              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+          }
+        }
+      }
+
     return binMap;
   }
-
 
 //############################################################################################
 // Search bins integrated over nbtags
