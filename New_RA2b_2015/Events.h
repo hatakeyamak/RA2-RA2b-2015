@@ -32,6 +32,9 @@ using namespace std;
    // Study Tau ID
    bool StudyTauId;
 
+   //fastsim
+   bool fastsim;
+
    // Declaration of leaf types
    //UChar_t         GoodVtx;
    Int_t           NumInteractions;

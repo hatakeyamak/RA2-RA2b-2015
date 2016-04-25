@@ -278,7 +278,7 @@ using namespace std;
     hSearchBinCorrNb->Sumw2();  
     //KH-Feb2016-ends
 
-    //     
+    ////     
 
     // vector of search and QCD histograms
     TH1D searchH_ = TH1D("searchH_","search bin histogram",totNbins,1,totNbins+1); 
@@ -405,7 +405,7 @@ using namespace std;
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
-      sample_AUX = new TChain("tree");
+      //sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
       if(skimInput.size()!=5){
@@ -418,6 +418,13 @@ using namespace std;
       "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
       skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
+      skimfile = new TFile(tempname,"R");
+      if(!skimfile->IsOpen()){
+        cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
+        sprintf(tempname,
+        "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+        skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
+      }
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << tempname << endl;
@@ -439,7 +446,7 @@ using namespace std;
     
     double fastsimWeight =1.0;
     if(subSampleKey.find("fast")!=string::npos){
-      if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
+      //if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
       //
       //
       btagcorr.SetEffs(skimfile);
@@ -468,7 +475,12 @@ using namespace std;
         }
       } 
       XSfile.close();
-      fastsimWeight = (3000 * SampleXS)/evt->TotNEve() ;
+      int TotNEve = evt->TotNEve();
+      if(subSampleKey.find("T2tt_170_1_2bdfast")!=string::npos)TotNEve=1932026;
+      else if(subSampleKey.find("T2tt_170_1_fast")!=string::npos)TotNEve=1931165;
+      else if(subSampleKey.find("T2tt_172_1_fast")!=string::npos)TotNEve=1890447;
+      else if(subSampleKey.find("T2tt_173_1_fast")!=string::npos)TotNEve=1912169;
+      fastsimWeight = (3000 * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
 
@@ -1381,7 +1393,7 @@ using namespace std;
               Iso_error_Arne = hMuIsoPTActivity_Arne->GetBinError(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
 
-              if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
                 // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
                 Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]); 
               }else{
@@ -1393,7 +1405,7 @@ using namespace std;
               double AccSysPlus, AccSysMinus, AccSysPlus_lowDphi, AccSysMinus_lowDphi, ScaleAccSysPlus, ScaleAccSysMinus, ScaleAccSysPlus_lowDphi, ScaleAccSysMinus_lowDphi;
               double IsoSFUp, IsoSFDw, IdSFUp,IdSFDw;
 
-              if(newNJet>=4 && newHT >= 500 && newMHT >= 200){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
                 // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
                 Acc = hAcc->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
@@ -1409,8 +1421,8 @@ using namespace std;
               }
 
 
-              if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-              if(verbose==2 && newNJet>=4 && newHT >= 500 && newMHT >= 200)printf("Eff_Arne: %g \n" ,Eff_Arne);
+              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff_Arne: %g \n" ,Eff_Arne);
 
               if(Acc==0){Acc=0.9;cout << " Warning! Acc==0 \n ";}
               if(Acc_lowDphi==0)Acc_lowDphi=0.9;
@@ -1636,7 +1648,7 @@ using namespace std;
             
 
               // Apply low delta phi region
-              if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && newNJet >= 4   ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && sel->Njet_4(newNJet)  ){
                 if(!utils2::bootstrap){
                   // Non W muons calculation
                   if(!isData){
@@ -1649,7 +1661,7 @@ using namespace std;
 
 
               // Apply baseline cuts
-              if(newHT>=500. && newMHT >= 200. && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && newNJet >= 4   ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && sel->Njet_4(newNJet) ){
 
                 if(!utils2::bootstrap){
                   // The followings doesn't make sense if bootstrap is on!
@@ -1745,7 +1757,7 @@ using namespace std;
 
               // Fill QCD histogram
               // Fill the histogram in the inverted delta phi region
-              if(newHT>=500. && newMHT >= 200. && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && newNJet >= 4   ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)  ){
                 double searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
                 // applyIsoTrk here 

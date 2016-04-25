@@ -49,7 +49,7 @@ void WrapUpSignalContamination(string type="T1bbbb"){
   while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
   for(unsigned int in=0; in<filesVec.size(); in++){
     sprintf(tempname,"%s",filesVec.at(in).c_str());
-    sprintf(filenames,"TauHad2Multiple/HadTauEstimation_%s-March09_00.root",filesVec.at(in).c_str());  
+    sprintf(filenames,"TauHad2Multiple/HadTauEstimation_%s-Apr22_00.root",filesVec.at(in).c_str());  
     TFile * infile = new TFile(filenames,"READ");
     if(!infile->IsOpen()){
       printf(" file: %s is not open \n",filesVec.at(in).c_str());

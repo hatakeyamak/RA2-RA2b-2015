@@ -72,13 +72,15 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   // Various vertical line coordinates
   float ymax_top = 40000.;
-  float ymin_top = 0.015;
+//  float ymin_top = 0.015;
+    float ymin_top = 0.002;
 
   float ymax2_top = 1000.;
   float ymax3_top = 200.;
   float ymax4_top = 30.;
 
-  float ymax_bottom = 1.99;
+//  float ymax_bottom = 1.99;
+  float ymax_bottom = 3.5;
   float ymin_bottom = 0.01;
 
   float ymax2_bottom = 2.15;
@@ -120,8 +122,10 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   Float_t legendX1 = .65; //.50;
   Float_t legendX2 = .95; //.70;
-  Float_t legendY1 = .50; //.65;
-  Float_t legendY2 = .75;
+//  Float_t legendY1 = .50; //.65;
+  Float_t legendY1 = .54;
+//  Float_t legendY2 = .75;
+  Float_t legendY2 = .79;
 
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   //catLeg1->SetTextSize(0.060);
@@ -321,8 +325,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   int iPos=0;
     
   writeExtraText = true;
-  //extraText   = "        Simulation";
-  extraText   = "        Supplementary";
+  extraText   = "        Simulation";
+  //extraText   = "        Supplementary";
 
 
   //float extraTextFont = 52;  // default is helvetica-italics

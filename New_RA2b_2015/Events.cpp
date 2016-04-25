@@ -9,8 +9,10 @@
     DataBool=false;
     
     // Study Tau ID
-    StudyTauId=true;
+    StudyTauId=false;
 
+    // fastsim
+    fastsim=true;
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -127,11 +129,13 @@
      fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4);
      fChain->SetBranchAddress("JetID", &JetID);
      //fChain->SetBranchAddress("JetIDloose", &JetIDloose);
-     fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
-     fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter);
-     fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
-     fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
-     fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
+     if(!fastsim){
+       fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter);
+       fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter);
+       fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
+       fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
+       fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
+     }
      if(!DataBool){
        fChain->SetBranchAddress("GenMus", &GenMus);
        fChain->SetBranchAddress("GenMu_GenMuFromTau", &GenMu_GenMuFromTau);
