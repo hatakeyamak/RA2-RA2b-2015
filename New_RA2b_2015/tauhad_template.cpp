@@ -661,7 +661,7 @@ using namespace std;
       // with muons at generator level
       // apply the baseline selection
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
         hAccAll->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
         if(CalcAccSys){
@@ -686,7 +686,7 @@ using namespace std;
       }
       // Acceptance for low_Dphi region
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
+           &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
         ){
         hAccAll_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if(CalcAccSys){
@@ -753,7 +753,7 @@ using namespace std;
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&(evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3)
+           &&sel->mht_200(evt->mht())&&sel->low_dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
           ){
           Iso_all_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
@@ -762,7 +762,7 @@ using namespace std;
 
         // Apply baseline cuts
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
-           &&sel->mht_200(evt->mht())&&sel->dphi(evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()) 
+           &&sel->mht_200(evt->mht())&&sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()) 
           ){
 
           // calculate trigger efficiency 
@@ -819,7 +819,7 @@ using namespace std;
       // Fill QCD histogram
       if(pass3){
         // Fill the histogram in the inverted delta phi region
-        if(sel->ht_500(evt->ht()) && sel->mht_200(evt->mht()) && sel->Njet_4(evt->nJets()) && (evt->deltaPhi1()<=0.5 || evt->deltaPhi2()<=0.5 || evt->deltaPhi3()<=0.3 || evt->deltaPhi4()<=0.3) ){
+        if(sel->ht_500(evt->ht()) && sel->mht_200(evt->mht()) && sel->Njet_4(evt->nJets()) && sel->low_dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()) ){
           // Fill QCD histograms
           if(passIso){
 

@@ -788,7 +788,7 @@ using namespace std;
 
 
 
-      //if(eventN>2000)break;
+      if(eventN>20000)break;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1648,7 +1648,7 @@ using namespace std;
             
 
               // Apply low delta phi region
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3) && sel->Njet_4(newNJet)  ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4) && sel->Njet_4(newNJet)  ){
                 if(!utils2::bootstrap){
                   // Non W muons calculation
                   if(!isData){
@@ -1661,7 +1661,7 @@ using namespace std;
 
 
               // Apply baseline cuts
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && sel->Njet_4(newNJet) ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4) && sel->Njet_4(newNJet) ){
 
                 if(!utils2::bootstrap){
                   // The followings doesn't make sense if bootstrap is on!
@@ -1757,7 +1757,7 @@ using namespace std;
 
               // Fill QCD histogram
               // Fill the histogram in the inverted delta phi region
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)  ){
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet) && sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4)  ){
                 double searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
                 // applyIsoTrk here 
@@ -1951,16 +1951,16 @@ using namespace std;
                       if(ite->first=="isoPion"){
                         if(utils2::applyIsoTrk){
                           eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
-                          if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
+                          if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
                         }
                         else{
                           eveinfvec[0] = totWeightMap[itt->first];
-                          if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first];
+                          if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                         }
                       }
                       if(ite->first=="mht_200" || ite->first=="mht_500" || ite->first=="J46_HT5001200_MHT500750"){
                         eveinfvec[0] = totWeightMap[itt->first];
-                        if(newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)eveinfvec[0] = totWeightMap_lowDphi[itt->first];
+                        if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
 
                       if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){

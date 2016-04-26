@@ -33,8 +33,19 @@ public:
   bool mht_500_750(double mht_){if(mht_>=500 && mht_<750)return true; return false;}
   bool mht_750(double mht_){if(mht_>=750)return true; return false;}
 
-  bool dphi(double dPhi0, double dPhi1, double dPhi2, double dPhi3){if(dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3 && dPhi3>0.3)return true; return false;}
-  bool low_dphi(double dPhi0, double dPhi1, double dPhi2, double dPhi3){if(!(dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3 && dPhi3>0.3))return true; return false;}
+  bool dphi(int njet,double dPhi0, double dPhi1, double dPhi2, double dPhi3){
+    if(njet>=4 && dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3 && dPhi3>0.3)return true; 
+    if(njet==3 && dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3)return true;
+    if(njet==2 && dPhi0>0.5 && dPhi1>0.5)return true;
+    return false;
+  }
+  bool low_dphi(int njet,double dPhi0, double dPhi1, double dPhi2, double dPhi3){
+    if(njet>=4 && !(dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3 && dPhi3>0.3))return true;
+    if(njet==3 && !(dPhi0>0.5 && dPhi1>0.5 && dPhi2>0.3))return true;
+    if(njet==2 && !(dPhi0>0.5 && dPhi1>0.5))return true;
+    return false;
+  }
+
 //  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 6.)return true; return false;}
 //  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;} // Ahmad33
 
