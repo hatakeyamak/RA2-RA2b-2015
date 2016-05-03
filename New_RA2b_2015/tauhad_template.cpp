@@ -3,7 +3,6 @@
 #include "Selection.h"
 #include "utils.h"
 #include "utils2.h"
-
 #include "TTree.h"
 #include <cmath>
 #include <string>
@@ -204,8 +203,8 @@ using namespace std;
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso();
     int totNbins_ForIso=binMap_ForIso.size();
 
-    map<string,int> binMap_ForIso_temp = utils2::BinMap_ForIso_temp();
-    int totNbins_ForIso_temp=binMap_ForIso_temp.size();
+    map<string,int> binMap_ForAcc = utils2::BinMap_ForAcc();
+    int totNbins_ForAcc=binMap_ForAcc.size();
 
     // Inroduce two histogram to understand the probability of a muon coming from tau.
     TH1D * hW_mu = new TH1D("hW_mu","mu from W -- search bin",totNbins,1,totNbins+1);
@@ -222,13 +221,13 @@ using namespace std;
     // calculate the acceptance
     map<string,int> binMap_mht_nj = utils2::BinMap_mht_nj();
     int totNbins_mht_nj=binMap_mht_nj.size();
-    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_ForIso,1,totNbins_ForIso+1);
-    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* hAccAll = new TH1D("hAccAll","Acceptance -- All",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
     hAccAll->Sumw2();
     hAccPass->Sumw2();
 
-    TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_ForIso,1,totNbins_ForIso+1);
-    TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
     hAccAll_lowDphi->Sumw2();
     hAccPass_lowDphi->Sumw2();
 
@@ -253,10 +252,6 @@ using namespace std;
     TH1* Iso_pass = new TH1D("Iso_pass","Isolated Trk efficiency -- pass ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_pass->Sumw2();
 
-    TH1* Iso_all_temp = new TH1D("Iso_all_temp","Isolated Trk efficiency -- all ",totNbins_ForIso_temp,1,totNbins_ForIso_temp+1);
-    Iso_all_temp->Sumw2();
-    TH1* Iso_pass_temp = new TH1D("Iso_pass_temp","Isolated Trk efficiency -- pass ",totNbins_ForIso_temp,1,totNbins_ForIso_temp+1);
-    Iso_pass_temp->Sumw2();
 
     TH1* Iso_all_lowDphi = new TH1D("Iso_all_lowDphi","Isolated Trk efficiency -- all ",totNbins_ForIso,1,totNbins_ForIso+1);
     Iso_all_lowDphi->Sumw2();
@@ -663,23 +658,23 @@ using namespace std;
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
            &&sel->mht_200(evt->mht())&&sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
-        hAccAll->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
+        hAccAll->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
         if(CalcAccSys){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-          hAccAllVec.at(iacc)->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+          hAccAllVec.at(iacc)->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
         }
         for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-          hScaleAccAllVec.at(iacc)->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+          hScaleAccAllVec.at(iacc)->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
         }
         }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
-          hAccPass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          hAccPass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
           if(CalcAccSys){
           for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-             hAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+             hAccPassVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
           }
           for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-            hScaleAccPassVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+            hScaleAccPassVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
           }
           }
         } 
@@ -688,23 +683,23 @@ using namespace std;
       if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
            &&sel->mht_200(evt->mht())&& !(sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4()))
         ){
-        hAccAll_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+        hAccAll_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if(CalcAccSys){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-          hAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+          hAccAll_lowDphiVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
         }
         for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-         hScaleAccAll_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+         hScaleAccAll_lowDphiVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
         }
         }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
-          hAccPass_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          hAccPass_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
             if(CalcAccSys){
             for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
-              hAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
+              hAccPass_lowDphiVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
             }
             for(int iacc=0; iacc < evt->ScaleWeights_()->size(); iacc++){
-              hScaleAccPass_lowDphiVec[iacc]->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
+              hScaleAccPass_lowDphiVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->ScaleWeights_()->at(iacc));
             }
           }
         }
@@ -777,8 +772,6 @@ using namespace std;
           if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           Iso_all->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass->Fill( binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          Iso_all_temp->Fill( binMap_ForIso_temp[utils2::findBin_ForIso_temp(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)Iso_pass_temp->Fill( binMap_ForIso_temp[utils2::findBin_ForIso_temp(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
@@ -1035,8 +1028,6 @@ using namespace std;
     TH1* IsoEff2 = static_cast<TH1*>(Iso_pass2->Clone("IsoEff2"));
     IsoEff2->Divide(Iso_pass2,Iso_all2,1,1,"B");   
 
-    TH1* IsoEff_temp = static_cast<TH1*>(Iso_pass_temp->Clone("IsoEff_temp"));
-    IsoEff_temp->Divide(Iso_pass_temp,Iso_all_temp,1,1,"B");
 
  
     sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
@@ -1060,10 +1051,6 @@ using namespace std;
     Iso_pass2->Write();
     Iso_all2->Write();
     
-
-    IsoEff_temp->Write();
-    Iso_pass_temp->Write();
-    Iso_all_temp->Write();
 
     outFile3.Close();
 

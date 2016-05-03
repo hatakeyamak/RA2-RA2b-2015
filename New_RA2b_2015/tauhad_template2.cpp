@@ -201,6 +201,10 @@ using namespace std;
     map<string,int> binMap_ForIso = utils2::BinMap_ForIso(); 
     int totNbins_ForIso=binMap_ForIso.size();
 
+    // Introduce the bins for Acc
+    map<string,int> binMap_ForAcc = utils2::BinMap_ForAcc();
+    int totNbins_ForAcc=binMap_ForAcc.size();
+
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
@@ -622,10 +626,8 @@ using namespace std;
     // Acceptance and efficiencies
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
-    //TFile * MuAcc_file = new TFile("TauHad/LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog387_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog398_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog427_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
@@ -788,7 +790,7 @@ using namespace std;
 
 
 
-      if(eventN>20000)break;
+      //if(eventN>2000)break;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1408,20 +1410,20 @@ using namespace std;
               if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
                 // Acc = hAcc->GetBinContent(binMap_b[utils2::findBin_b(newNJet,NewNB,newHT,newMHT)]);
                 // Acc = hAcc->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]);
-                Acc = hAcc->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccError = hAcc->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]); 
-                Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                Acc = hAcc->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                AccError = hAcc->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]); 
+                Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
                 // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
                 // Or use recomputed ht mht ... when making Acc. 
-                //Acc = hAcc->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(evt->nJets(),evt->ht(),evt->mht())]);
+                //Acc = hAcc->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht())]);
               }else{
                 Acc=0.9;
                 Acc_lowDphi=0.9;
               }
 
 
-              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
               if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff_Arne: %g \n" ,Eff_Arne);
 
               if(Acc==0){Acc=0.9;cout << " Warning! Acc==0 \n ";}
@@ -1462,14 +1464,14 @@ using namespace std;
                 //printf(" muPt: %g muEta: %g IsoSFUp: %g IsoSFDw: %g IdSFUp: %g IdSFDw: %g \n",muPt,muEta,IsoSFUp,IsoSFDw,IdSFUp,IdSFDw);
                 
 /*
-                AccSysPlus = Acc + hAccSysMax->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysMinus = Acc - hAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysPlus_lowDphi = Acc_lowDphi + hAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                AccSysMinus_lowDphi = Acc_lowDphi - hAccSysMin_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                ScaleAccSysPlus = Acc + hScaleAccSysMax->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                ScaleAccSysMinus = Acc - hScaleAccSysMin->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                ScaleAccSysPlus_lowDphi = Acc_lowDphi + hScaleAccSysMax_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
-                ScaleAccSysMinus_lowDphi = Acc_lowDphi - hScaleAccSysMin_lowDphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+                AccSysPlus = Acc + hAccSysMax->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                AccSysMinus = Acc - hAccSysMin->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                AccSysPlus_lowDphi = Acc_lowDphi + hAccSysMax_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                AccSysMinus_lowDphi = Acc_lowDphi - hAccSysMin_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                ScaleAccSysPlus = Acc + hScaleAccSysMax->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                ScaleAccSysMinus = Acc - hScaleAccSysMin->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                ScaleAccSysPlus_lowDphi = Acc_lowDphi + hScaleAccSysMax_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+                ScaleAccSysMinus_lowDphi = Acc_lowDphi - hScaleAccSysMin_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
 */
               }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 

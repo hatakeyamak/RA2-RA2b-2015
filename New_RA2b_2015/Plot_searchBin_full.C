@@ -198,7 +198,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   double MHT_x_max=1000.;
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
-  double search_x_max=73.-0.5;
+  double search_x_max=108.-0.5;//73.-0.5;
   if(histname.find("QCD")!=string::npos)search_x_max=224.;
   double search_x_min=1.-0.5;
 
