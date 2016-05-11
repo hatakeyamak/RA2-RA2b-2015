@@ -271,6 +271,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
 
+/*
   histname.clear();
   histname[0]="IsoEff_temp";
   histname[1]="Iso_pass_temp";
@@ -304,6 +305,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff_temp");
   temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
+*/
 
   file->Close();
   printf("T IsoTrks calculated. \n ");
@@ -951,6 +953,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
 
+/*
   histname.clear();
   histname[0]="IsoEff_temp";
   histname[1]="Iso_pass_temp";
@@ -984,6 +987,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff_temp");
   temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
+*/
 
   file->Close();
   printf("WJet IsoTrks calculated. \n ");
@@ -1536,7 +1540,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
 
-
+/*
   histname.clear();
   histname[0]="IsoEff_temp";
   histname[1]="Iso_pass_temp";
@@ -1570,7 +1574,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff_temp");
   temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
-
+*/
 
   file->Close();
   printf("TTbar IsoTrks calculated. \n ");
@@ -2021,7 +2025,6 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   file2->Close();
 
 
-
 // ........................................... //
 // Calcualte IsoTrk
 // ........................................... //
@@ -2058,6 +2061,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   }
 
+/*
   histname.clear();
   histname[0]="Iso_pass_temp";
   histname[1]="Iso_all_temp";
@@ -2076,6 +2080,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Write();
 
   }
+*/
 
   histname.clear();
   histname[0]="Iso_pass_lowDphi";
@@ -2116,7 +2121,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Write();
 
 
-
+/*
   sprintf(tempname,"Iso_pass_temp");
   temphist = (TH1D *) file->Get(tempname)->Clone();
   sprintf(tempname,"Iso_all_temp");
@@ -2125,7 +2130,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->SetName("IsoEff_temp");
   temphist->SetTitle("IsoEff_temp");
   temphist->Write();
-
+*/
 
   sprintf(tempname,"Iso_pass_lowDphi");
   temphist = (TH1D *) file->Get(tempname)->Clone();
