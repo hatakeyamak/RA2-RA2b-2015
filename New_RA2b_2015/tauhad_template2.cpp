@@ -1106,13 +1106,17 @@ using namespace std;
             Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
             // New ht and mht 
-            vector<TVector3> HT3JetVec,MHT3JetVec;
+            vector<TVector3> HT3JetVec,MHT3JetVec,GenHT3JetVec,GenMHT3JetVec;
             HT3JetVec.clear();
             MHT3JetVec.clear();
+            GenHT3JetVec.clear();
+            GenMHT3JetVec.clear();
             TVector3 temp3Vec;
             int slimJetIdx=-1;
+            int GenJetIdx=-1;
             MuJet_all->Fill(muPt,eventWeight);
             utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+            utils->findMatchedObject(GenJetIdx,muEta,muPhi,evt->GenJetPtVec_(),evt->GenJetEtaVec_(), evt->GenJetPhiVec_(),deltaRMax,verbose);
 /*
             printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
             printf(" pT: %g eta: %g phi: %g delR: %g \n "
@@ -1152,6 +1156,14 @@ using namespace std;
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
+
+            if(GenJetIdx==-1){
+
+              NewTauJet3Vec=SimTauJet3Vec;
+              if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)GenHT3JetVec.push_back(NewTauJet3Vec);
+              if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)GenMHT3JetVec.push_back(NewTauJet3Vec);
+            }
+
             for(int i=0;i<evt->slimJetPtVec_().size();i++){
               if(i!=slimJetIdx){
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
@@ -1168,13 +1180,30 @@ using namespace std;
               
             }
 
+            for(int i=0;i<evt->GenJetPtVec_().size();i++){
+              if(i!=GenJetIdx){
+                temp3Vec.SetPtEtaPhi(evt->GenJetPtVec_()[i],evt->GenJetEtaVec_()[i],evt->GenJetPhiVec_()[i]);
+                if(evt->GenJetPtVec_()[i]>30. && fabs(evt->GenJetEtaVec_()[i])<2.4)GenHT3JetVec.push_back(temp3Vec);
+                if(evt->GenJetPtVec_()[i]>30. && fabs(evt->GenJetEtaVec_()[i])<5.)GenMHT3JetVec.push_back(temp3Vec);
+              }
+              else if(i==GenJetIdx){
+                temp3Vec.SetPtEtaPhi(evt->GenJetPtVec_()[i],evt->GenJetEtaVec_()[i],evt->GenJetPhiVec_()[i]);
+                NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+                if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)GenHT3JetVec.push_back(NewTauJet3Vec);
+                if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)GenMHT3JetVec.push_back(NewTauJet3Vec);
+              }
+
+            }
+
             // Order the HT3JetVec and MHT3JetVec based on their pT
             HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
             MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
+            GenHT3JetVec = utils->Order_the_Vec(GenHT3JetVec);
+            GenMHT3JetVec = utils->Order_the_Vec(GenMHT3JetVec);
 
 
-            double newHT=0,newMHT=0,newMHTPhi=-1;
-            TVector3 newMHT3Vec;
+            double newHT=0,newMHT=0,newGenHT=0,newGenMHT=0,newMHTPhi=-1,newGenMHTPhi=-1;
+            TVector3 newMHT3Vec,newGenMHT3Vec;
             for(int i=0;i<HT3JetVec.size();i++){
               newHT+=HT3JetVec[i].Pt();
             }        
@@ -1184,7 +1213,16 @@ using namespace std;
             newMHT=newMHT3Vec.Pt();
             newMHTPhi=newMHT3Vec.Phi();
 
-            if(verbose==1)printf("newHT: %g newMHT: %g newMHTPhi: %g \n ",newHT,newMHT,newMHTPhi);
+            for(int i=0;i<GenHT3JetVec.size();i++){
+              newGenHT+=GenHT3JetVec[i].Pt();
+            }
+            for(int i=0;i<GenMHT3JetVec.size();i++){
+              newGenMHT3Vec-=GenMHT3JetVec[i];
+            }
+            newGenMHT=newGenMHT3Vec.Pt();
+            newGenMHTPhi=newGenMHT3Vec.Phi();
+
+            if(verbose==1)printf("newHT: %g newMHT: %g newMHTPhi: %g newGenHT: %g newGenMHT: %g newGenMHTPhi: %g \n ",newHT,newMHT,newMHTPhi,newGenHT,newGenMHT,newGenMHTPhi);
 
     //######################################################################
 
@@ -1668,7 +1706,7 @@ using namespace std;
 
 
               // Apply baseline cuts
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && sel->Njet_4(newNJet) ){
+              if(sel->ht_500(newGenHT) && sel->mht_200(newGenMHT) && newDphi1>0.5 && newDphi2>0.5 && newDphi3>0.3 && newDphi4>0.3 && sel->Njet_4(newNJet) ){
 
                 if(!utils2::bootstrap){
                   // The followings doesn't make sense if bootstrap is on!
@@ -1708,14 +1746,14 @@ using namespace std;
                   if(Pass_MuMomForMT)searchH_evt->Fill( binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()],searchWeight);
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
-                      searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
+                      searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight*prob[iii]);
                       // Fill QCD histograms
-                      QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
+                      QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight*prob[iii]);
                     }
                   }
                   else{
 
-        searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+        searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight);
 
         //KH-Feb2016-starts
         double newHT_tmp,newMHT_tmp,newNJet_tmp,NewNB_tmp;
@@ -1731,7 +1769,7 @@ using namespace std;
         //KH-Feb2016-ends
 
         // Fill QCD histograms
-        QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+        QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight);
                   }
                   if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);  
                   if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
@@ -1754,7 +1792,7 @@ using namespace std;
                   hCorMHT_noW_evt->Fill(evt->mht(),newMHT);
                   hCorNJet_noW_evt->Fill(evt->nJets(),newNJet);
                   hCorNBtag_noW_evt->Fill(evt->nBtags(),NewNB);
-                  searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
+                  searchH_b_noWeight_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newGenHT,newGenMHT).c_str()]);
                   hCorSearch_b_noW_evt->Fill(binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()]);
 
                 } // passIso2
@@ -1764,7 +1802,7 @@ using namespace std;
 
               // Fill QCD histogram
               // Fill the histogram in the inverted delta phi region
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)  ){
+              if(sel->ht_500(newGenHT) && sel->mht_200(newGenMHT) && sel->Njet_4(newNJet) && (newDphi1<=0.5 || newDphi2<=0.5 || newDphi3<=0.3 || newDphi4<=0.3)  ){
                 double searchWeight = totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_mu_lowDelphi)*mtWeight/mtWeight_lowDphi;
 
                 // applyIsoTrk here 
@@ -1790,10 +1828,10 @@ using namespace std;
                   // Fill QCD histograms
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
-                      QCD_Low_evt->Fill(binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[0]);
+                      QCD_Low_evt->Fill(binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight*prob[0]);
                     }
                   }
-                  else QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                  else QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newGenHT,newGenMHT).c_str()],searchWeight);
                 }
 
               }

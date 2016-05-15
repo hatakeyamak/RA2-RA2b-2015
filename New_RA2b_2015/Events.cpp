@@ -470,6 +470,7 @@
 
    vector<TLorentzVector> * Events::slimJetJECdown_() const {return slimJetJECdown;}
    vector<TLorentzVector> * Events::slimJetJECup_() const {return slimJetJECup;}
+
    vector<double>  Events::slimJetPtVec_() const { 
      vector<double> vec;
      for(int i=0;i < slimJet->size();i++){
@@ -488,6 +489,28 @@
      vector<double> vec;
      for(int i=0;i < slimJet->size();i++){
        vec.push_back(slimJet->at(i).Phi());
+     }
+     return vec;
+   }
+
+   vector<double>  Events::GenJetPtVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenJets->size();i++){
+       vec.push_back(GenJets->at(i).Pt());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenJetEtaVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenJets->size();i++){
+       vec.push_back(GenJets->at(i).Eta());
+     }
+     return vec;
+   }
+   vector<double>  Events::GenJetPhiVec_() const {
+     vector<double> vec;
+     for(int i=0;i < GenJets->size();i++){
+       vec.push_back(GenJets->at(i).Phi());
      }
      return vec;
    }

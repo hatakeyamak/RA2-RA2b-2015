@@ -182,6 +182,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   bool DataBool_() const;
 
   bool Cut() const;
+
    vector<double>  GenMuPtVec_() const;
    vector<double>  GenMuEtaVec_() const;
    vector<double>  GenMuPhiVec_() const;
@@ -227,6 +228,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;
    vector<double>  slimJetPhiVec_() const;
+   vector<double>  GenJetPtVec_() const;
+   vector<double>  GenJetEtaVec_() const;
+   vector<double>  GenJetPhiVec_() const;
    vector<int>    * Jets_partonFlavor_() const;
    vector<bool>   * HTJetsMask_() const;
 
