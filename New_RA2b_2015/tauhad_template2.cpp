@@ -405,7 +405,10 @@ using namespace std;
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
-      //sample_AUX = new TChain("tree");
+      if(subSampleKey.find("T2tt_170_1")==string::npos &&
+         subSampleKey.find("T2tt_172_1")==string::npos &&
+         subSampleKey.find("T2tt_173_1")==string::npos
+        )sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
       if(skimInput.size()!=5){
@@ -806,7 +809,11 @@ using namespace std;
         }
         
       }
-      
+
+
+      // apply filter on bad jets if fastsim is on
+      if(fastsim && evt->Cut())continue;
+     
       cutflow_preselection->Fill(1.,eventWeight);
       if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);

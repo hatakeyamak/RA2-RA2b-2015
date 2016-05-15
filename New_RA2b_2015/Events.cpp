@@ -13,6 +13,7 @@
 
     // fastsim
     fastsim=true;
+    GenJets = 0;
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -135,6 +136,8 @@
        fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
        fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
        fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
+     }else{
+      fChain->SetBranchAddress("GenJets", &GenJets);
      }
      if(!DataBool){
        fChain->SetBranchAddress("GenMus", &GenMus);
@@ -216,7 +219,7 @@
 
   // A function to make events available
   bool Events::loadNext() {
-
+  
     if( currentEntry_ < 0 ) {
       std::cout << "Processing " << template_Entries << " events" << std::endl;
     }
@@ -436,6 +439,20 @@
    vector<int> *Events::Jets_partonFlavor_() const { return Jets_partonFlavor;}
    vector<bool> *Events::HTJetsMask_() const { return HTJetsMask;}
 
+   bool Events::Cut() const{
+    for(unsigned j = 0; j < Jets->size(); ++j){
+      if(Jets->at(j).Pt() <= 30 || fabs(Jets->at(j).Eta())>=2.5) continue;
+      bool genMatched = false;
+      for(unsigned g = 0; g < GenJets->size(); ++g){
+        if(GenJets->at(g).DeltaR(Jets->at(j)) < 0.3) {
+          genMatched = true;
+          break;
+        }
+      }
+      if(!genMatched && Jets_chargedHadronEnergyFraction->at(j) < 0.1) return true;
+    }
+    return false;
+   }
 
    vector<double>  Events::csvVec() const { return *Jets_bDiscriminatorCSV;}
    vector<double>  Events::Jets_chargedEmEnergyFraction_() const { return *Jets_chargedEmEnergyFraction;}

@@ -85,6 +85,7 @@ using namespace std;
    vector<double>  *PDFweights;
    vector<double>  *ScaleWeights;
    vector<TLorentzVector> *Jets;
+   vector<TLorentzVector> *GenJets;
    vector<int>     *Jets_partonFlavor;
    vector<bool>    *HTJetsMask;
    vector<double>  *Jets_bDiscriminatorCSV;
@@ -180,6 +181,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
 
   bool DataBool_() const;
 
+  bool Cut() const;
    vector<double>  GenMuPtVec_() const;
    vector<double>  GenMuEtaVec_() const;
    vector<double>  GenMuPhiVec_() const;
