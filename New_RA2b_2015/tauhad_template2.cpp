@@ -407,7 +407,13 @@ using namespace std;
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
       if(subSampleKey.find("T2tt_170_1")==string::npos &&
          subSampleKey.find("T2tt_172_1")==string::npos &&
-         subSampleKey.find("T2tt_173_1")==string::npos
+         subSampleKey.find("T2tt_173_1")==string::npos &&
+         subSampleKey.find("T2tt_175_1")==string::npos &&
+         subSampleKey.find("T2tt_200_25")==string::npos &&
+         subSampleKey.find("T2tt_225_50")==string::npos &&
+         subSampleKey.find("T2tt_250_75")==string::npos &&
+         subSampleKey.find("T2tt_275_100")==string::npos &&
+         subSampleKey.find("T2tt_300_125")==string::npos 
         )sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
