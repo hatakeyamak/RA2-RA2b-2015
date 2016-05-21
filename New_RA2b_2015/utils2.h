@@ -112,21 +112,21 @@ namespace utils2{
   // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
   std::map <std::string,int> BinMap(){
       int binN=0;
+      std::cout << "--------------------------------------------BinMap Function Printed------------------------------------------"<< std::endl;
       std::map <std::string , int> binMap;
-      for(int bNjet=3; bNjet<=5;  bNjet++){
-        for(int bNbtag=1; bNbtag<=4; bNbtag++){
+      for(int bNjet=1; bNjet<=2;  bNjet++){
+        for(int bNbtag=1; bNbtag<=3; bNbtag++){
           for(int bHtMht=1; bHtMht<=6; bHtMht++){
-              std::ostringstream binS;
-              binS << 100*bNjet+10*bNbtag+bHtMht;
-              binN++;
-              binMap[binS.str()]=binN;
-              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+	    std::ostringstream binS;
+	    binS << 100*bNjet+10*bNbtag+bHtMht;
+	    binN++;
+	    binMap[binS.str()]=binN;
+	    std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
           }
         }
       }
-
-      for(int bNjet=1; bNjet<=2;  bNjet++){
-        for(int bNbtag=1; bNbtag<=3; bNbtag++){
+      for(int bNjet=3; bNjet<=5;  bNjet++){
+        for(int bNbtag=1; bNbtag<=4; bNbtag++){
           for(int bHtMht=1; bHtMht<=6; bHtMht++){
               std::ostringstream binS;
               binS << 100*bNjet+10*bNbtag+bHtMht;
