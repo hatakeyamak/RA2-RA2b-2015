@@ -441,7 +441,7 @@ using namespace std;
       }
 
       //if(eventN>100000)break;
-      //if(eventN>20000)break;
+      //if(eventN>1000)break;
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
@@ -469,11 +469,11 @@ using namespace std;
       }
 
       cutflow_preselection->Fill(1.,eventWeight);
-      if(evt->HBHEIsoNoiseFilter_()==0)continue;
+      //if(evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
-      if(evt->eeBadScFilter_()==0)continue;
+      //if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->HBHENoiseFilter_()==0)continue;
+      //if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight);
@@ -741,6 +741,13 @@ using namespace std;
       else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
       Visible3Vec=Tau3Vec-TauNu3Vec;
 
+      //int newNJet;
+      //int NewNB;
+      //double newHT;
+      //double newMHT;
+      //int binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()];
+      //printf("njet: %d nb: %d ht: %g mht: %g bin#: %d \n",evt->nJets(),evt->nBtags(),evt->ht(),evt->mht(),binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()]);
+      printf("njet: %d nb: %d ht: %g mht: %g bin#: %d bin string %s \n",evt->nJets(),evt->nBtags(),evt->ht(),evt->mht(),binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str());
 
 
       if(pass3){
@@ -800,7 +807,9 @@ using namespace std;
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
               QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
               searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
-              if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
+              
+
+	      if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               if(evt->nBtags() >0)hPredHTMHTwb->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               hPredNJetBins->Fill(evt->nJets(),totWeight);
               hPredNbBins->Fill( evt->nBtags(),totWeight);
