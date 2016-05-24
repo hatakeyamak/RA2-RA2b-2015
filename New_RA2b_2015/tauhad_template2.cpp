@@ -806,11 +806,11 @@ using namespace std;
       }
       
       cutflow_preselection->Fill(1.,eventWeight);
-      //if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
+      if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
-      //if( !fastsim && evt->eeBadScFilter_()==0)continue;
+      if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      //if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
+      if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
       if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;

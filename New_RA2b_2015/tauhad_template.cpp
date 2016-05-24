@@ -469,11 +469,11 @@ using namespace std;
       }
 
       cutflow_preselection->Fill(1.,eventWeight);
-      //if(evt->HBHEIsoNoiseFilter_()==0)continue;
+      if(evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
-      //if(evt->eeBadScFilter_()==0)continue;
+      if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      //if(evt->HBHENoiseFilter_()==0)continue;
+      if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight);
