@@ -412,8 +412,7 @@ using namespace std;
          subSampleKey.find("T2tt_200_25")==string::npos &&
          subSampleKey.find("T2tt_225_50")==string::npos &&
          subSampleKey.find("T2tt_250_75")==string::npos &&
-         subSampleKey.find("T2tt_275_100")==string::npos &&
-         subSampleKey.find("T2tt_300_125")==string::npos 
+         subSampleKey.find("T2tt_275_100")==string::npos && subSampleKey.find("T2tt_300_125")==string::npos 
         )sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
@@ -424,14 +423,14 @@ using namespace std;
       //
       sprintf(tempname,
       //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+      "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
       skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){
         cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
         sprintf(tempname,
-        "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+        "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
         skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       }
       skimfile = new TFile(tempname,"R");
@@ -788,8 +787,8 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-
       eventWeight = evt->weight();
+      if(fastsim)eventWeight =1.;
       //eventWeight = evt->weight()/evt->puweight();
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
