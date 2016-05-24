@@ -409,15 +409,7 @@ using namespace std;
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
-      if(subSampleKey.find("T2tt_170_1")==string::npos &&
-         subSampleKey.find("T2tt_172_1")==string::npos &&
-         subSampleKey.find("T2tt_173_1")==string::npos &&
-         subSampleKey.find("T2tt_175_1")==string::npos &&
-         subSampleKey.find("T2tt_200_25")==string::npos &&
-         subSampleKey.find("T2tt_225_50")==string::npos &&
-         subSampleKey.find("T2tt_250_75")==string::npos &&
-         subSampleKey.find("T2tt_275_100")==string::npos && subSampleKey.find("T2tt_300_125")==string::npos 
-        )sample_AUX = new TChain("tree");
+      //sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
       if(skimInput.size()!=5){
@@ -427,14 +419,14 @@ using namespace std;
       //
       sprintf(tempname,
       //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-      "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
       skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){
         cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
         sprintf(tempname,
-        "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+        "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
         skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       }
       skimfile = new TFile(tempname,"R");
@@ -785,8 +777,8 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
+
       eventWeight = evt->weight();
-      if(fastsim)eventWeight =1.;
       //eventWeight = evt->weight()/evt->puweight();
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
@@ -794,7 +786,7 @@ using namespace std;
 
 
 
-      //if(eventN>2000)break;
+      //if(eventN>1000)break;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -812,11 +804,7 @@ using namespace std;
         }
         
       }
-
-
-      // apply filter on bad jets if fastsim is on
-      if(fastsim && evt->Cut())continue;
-     
+      
       cutflow_preselection->Fill(1.,eventWeight);
       if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
@@ -1514,19 +1502,19 @@ using namespace std;
               if(fastsim){
                 totWeight *= fastsimWeight*0.99; // 0.99 is the jet id efficiency correction. 
                 double puWeight = 
-		  puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->TrueNumInteractions_(),puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
-		//puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+      puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->TrueNumInteractions_(),puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+    //puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
                 double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
                 totWeight*=isrWeight;
                 //
                 prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
-		//
-		if (totWeight>1. && l==1 && m==0) {
-		  printf("puWeight=%8.1f, isrWeight=%8.1f, nvtx=%8d, trueNint=%5.1f, Nint=%5d\n",
-			 puWeight,isrWeight,evt->NVtx_(),evt->TrueNumInteractions_(),evt->NumInteractions_());
-		}
+    //
+    if (totWeight>1. && l==1 && m==0) {
+      printf("puWeight=%8.1f, isrWeight=%8.1f, nvtx=%8d, trueNint=%5.1f, Nint=%5d\n",
+       puWeight,isrWeight,evt->NVtx_(),evt->TrueNumInteractions_(),evt->NumInteractions_());
+    }
               }
 
               weightEffAcc = totWeight;
@@ -2340,4 +2328,6 @@ using namespace std;
   }
 
   
+
+
 

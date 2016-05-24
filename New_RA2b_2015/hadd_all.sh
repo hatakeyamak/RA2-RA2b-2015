@@ -20,8 +20,8 @@ for i in  t_top tW_top t_antitop tW_antitop ; do
   cp HadTauEstimation_${i}_.root ../TauHad2
 
 
-#  hadd Probability_Tau_mu_${i}_.root `ls Probability_Tau_mu_${i}*00.root `
-#  cp Probability_Tau_mu_${i}_.root ../TauHad2
+#  hadd Probability_Tau_mu_WJet_${i}_.root `ls Probability_Tau_mu_WJet_${i}*00.root `
+#  cp Probability_Tau_mu_WJet_${i}_.root ../TauHad2
 
 done
 
@@ -34,8 +34,6 @@ cp HadTauEstimation_TTbar_.root ../TauHad2
 
 cd ..
 
-<<<<<<< HEAD
-=======
 #root -l -b -q Scale_ByLumi.C
 
 echo " hadd done. Stacking... " 
@@ -46,7 +44,6 @@ cd TauHad2/Stack/
 
 cd ../../
 
->>>>>>> 93e43741925bf78fef284a6fdebafbb8a58fcf62
 
 # for expectation
 
@@ -71,44 +68,16 @@ for i in  t_top tW_top t_antitop tW_antitop ; do
   cp GenInfo_HadTauEstimation_${i}_.root ../TauHad
 done
 
-#for i in  t_top tW_top t_antitop tW_antitop ; do hadd IsoEfficiencies_${i}_.root IsoEfficiencies_${i}*00.root; cp IsoEfficiencies_${i}_.root ../TauHad/; done
-#hadd IsoEfficiencies_TTbar_.root IsoEfficiencies_TTbar*00.root; cp IsoEfficiencies_TTbar_.root ../TauHad/;
-#for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do hadd IsoEfficiencies_WJet_${i}_.root IsoEfficiencies_WJet_${i}*00.root; cp IsoEfficiencies_WJet_${i}_.root ../TauHad/; done
-
-########
-#hadd LostLepton2_MuonEfficienciesFromTTbar_.root LostLepton2_MuonEfficienciesFromTTbar*00.root; cp LostLepton2_MuonEfficienciesFromTTbar_.root ../TauHad/;
-#for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do hadd LostLepton2_MuonEfficienciesFromWJet_${i}_.root LostLepton2_MuonEfficienciesFromWJet_${i}*00.root; cp LostLepton2_MuonEfficienciesFromWJet_${i}_.root ../TauHad/; done
-#for i in  t_top tW_top t_antitop tW_antitop ; do hadd LostLepton2_MuonEfficienciesFrom${i}_.root LostLepton2_MuonEfficienciesFrom${i}*00.root; cp LostLepton2_MuonEfficienciesFrom${i}_.root ../TauHad/; done
-
-
-
 cd ..
-<<<<<<< HEAD
-#root -l -b -q Scale_ByLumi.C
-
-echo " hadd done. Stacking... " 
-
-cd TauHad2/Stack/
-
-./Stack "10000"
-
-cd ../../TauHad/Stack/
-=======
 
 cd TauHad/Stack/
->>>>>>> 93e43741925bf78fef284a6fdebafbb8a58fcf62
 
 ./Stack "10000"
 
 cd ../..
 
 echo " Making the plots \n\n\n" 
-<<<<<<< HEAD
-#./makeplots.sh 1 1 1 1 
-
-
-
-=======
 ./makeplots.sh 1 1 1 1 
->>>>>>> 93e43741925bf78fef284a6fdebafbb8a58fcf62
+
+
 
