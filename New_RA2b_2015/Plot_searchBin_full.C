@@ -394,8 +394,10 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     // Njet separation lines
     TLine *tl_njet = new TLine();
     tl_njet->SetLineStyle(2);
-    tl_njet->DrawLine(25.-0.5,ymin_top,25.-0.5,ymax_top); 
-    tl_njet->DrawLine(49.-0.5,ymin_top,49.-0.5,ymax_top); 
+    tl_njet->DrawLine(19.-0.5,ymin_top,19.-0.5,ymax_top); 
+    tl_njet->DrawLine(37.-0.5,ymin_top,37.-0.5,ymax_top); 
+    tl_njet->DrawLine(61.-0.5,ymin_top,61.-0.5,ymax_top);
+    tl_njet->DrawLine(85.-0.5,ymin_top,85.-0.5,ymax_top);
 
     // Njet labels
     TLatex * ttext_njet = new TLatex();
@@ -403,23 +405,28 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     //ttext_njet->SetTextSize(0.060);
     ttext_njet->SetTextSize(0.040);
     ttext_njet->SetTextAlign(22);
-    ttext_njet->DrawLatex(13.-0.5 , ymax_top/4. , "4 #leq N_{#scale[0.2]{ }jet} #leq 6");
-    ttext_njet->DrawLatex(37.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
-    ttext_njet->DrawLatex(61.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
+    ttext_njet->DrawLatex(10.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} = 2");
+    ttext_njet->DrawLatex(28.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} = 3");
+    ttext_njet->DrawLatex(49.-0.5 , ymax_top/4. , "4 #leq N_{#scale[0.2]{ }jet} #leq 6");
+    ttext_njet->DrawLatex(73.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
+    ttext_njet->DrawLatex(97.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
 
     // Nb separation lines
     TLine *tl_nb = new TLine();
     tl_nb->SetLineStyle(3);
     tl_nb->DrawLine( 7.-0.5,ymin_top, 7.-0.5,ymax2_top); 
     tl_nb->DrawLine(13.-0.5,ymin_top,13.-0.5,ymax2_top); 
-    tl_nb->DrawLine(19.-0.5,ymin_top,19.-0.5,ymax2_top); 
+    tl_nb->DrawLine(25.-0.5,ymin_top,25.-0.5,ymax2_top); 
     tl_nb->DrawLine(31.-0.5,ymin_top,31.-0.5,ymax3_top); 
-    tl_nb->DrawLine(37.-0.5,ymin_top,37.-0.5,ymax3_top); 
-    tl_nb->DrawLine(43.-0.5,ymin_top,43.-0.5,ymax3_top); 
+    tl_nb->DrawLine(43.-0.5,ymin_top,43.-0.5,ymax3_top);
+    tl_nb->DrawLine(49.-0.5,ymin_top,49.-0.5,ymax3_top); 
     tl_nb->DrawLine(55.-0.5,ymin_top,55.-0.5,ymax4_top); 
-    tl_nb->DrawLine(61.-0.5,ymin_top,61.-0.5,ymax4_top); 
     tl_nb->DrawLine(67.-0.5,ymin_top,67.-0.5,ymax4_top); 
-    
+    tl_nb->DrawLine(73.-0.5,ymin_top,73.-0.5,ymax4_top);
+    tl_nb->DrawLine(79.-0.5,ymin_top,79.-0.5,ymax4_top);
+    tl_nb->DrawLine(91.-0.5,ymin_top,91.-0.5,ymax4_top);
+    tl_nb->DrawLine(97.-0.5,ymin_top,97.-0.5,ymax4_top);
+    tl_nb->DrawLine(103.-0.5,ymin_top,103.-0.5,ymax4_top);
     // Nb labels
     TLatex * ttext_nb = new TLatex();
     ttext_nb->SetTextFont(42);
@@ -430,8 +437,27 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     ttext_nb->DrawLatex( 4.-0.5 , ymax_top/12. , "N_{#scale[0.2]{ }b-jet}");
     ttext_nb->DrawLatex( 4.-0.5 , ymax_top/40. , "0");
     ttext_nb->DrawLatex(10.-0.5 , ymax_top/40. , "1");
-    ttext_nb->DrawLatex(16.-0.5 , ymax_top/40. , "2");
-    ttext_nb->DrawLatex(22.-0.5 , ymax_top/40. , "#geq 3");
+    ttext_nb->DrawLatex(16.-0.5 , ymax_top/40. , "#geq 2");
+
+    ttext_nb->DrawLatex(22.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(28.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(34.-0.5 , ymax_top/40. , "#geq 2");
+
+    ttext_nb->DrawLatex(40.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(46.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(52.-0.5 , ymax_top/40. , "2");
+    ttext_nb->DrawLatex(58.-0.5 , ymax_top/40. , "#geq 3");
+
+    ttext_nb->DrawLatex(64.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(70.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(76.-0.5 , ymax_top/40. , "2");
+    ttext_nb->DrawLatex(82.-0.5 , ymax_top/40. , "#geq 3");
+
+    ttext_nb->DrawLatex(88.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(94.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(100.-0.5 , ymax_top/40. , "2");
+    ttext_nb->DrawLatex(106.-0.5 , ymax_top/40. , "#geq 3");
+
 
     //
   } else {
@@ -669,24 +695,28 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
       // Njet separation lines
       TLine *tl_njet = new TLine();
       tl_njet->SetLineStyle(2);
-      tl_njet->DrawLine( 25.-0.5,ymin_bottom, 25.-0.5,ymax_bottom); 
-      tl_njet->DrawLine( 49.-0.5,ymin_bottom, 49.-0.5,ymax_bottom); 
+      tl_njet->DrawLine( 19.-0.5,ymin_bottom, 19.-0.5,ymax_bottom); 
+      tl_njet->DrawLine( 37.-0.5,ymin_bottom, 37.-0.5,ymax_bottom); 
+      tl_njet->DrawLine( 61.-0.5,ymin_bottom, 61.-0.5,ymax_bottom);
+      tl_njet->DrawLine( 85.-0.5,ymin_bottom, 85.-0.5,ymax_bottom);
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
       tl_nb->SetLineStyle(3);
       tl_nb->DrawLine( 7.-0.5,ymin_bottom, 7.-0.5,ymax2_bottom); 
       tl_nb->DrawLine(13.-0.5,ymin_bottom,13.-0.5,ymax2_bottom); 
-      tl_nb->DrawLine(19.-0.5,ymin_bottom,19.-0.5,ymax2_bottom); 
-      
+      tl_nb->DrawLine(25.-0.5,ymin_bottom,25.-0.5,ymax2_bottom); 
       tl_nb->DrawLine(31.-0.5,ymin_bottom,31.-0.5,ymax2_bottom); 
-      tl_nb->DrawLine(37.-0.5,ymin_bottom,37.-0.5,ymax2_bottom); 
       tl_nb->DrawLine(43.-0.5,ymin_bottom,43.-0.5,ymax2_bottom); 
-      
+      tl_nb->DrawLine(49.-0.5,ymin_bottom,49.-0.5,ymax2_bottom);
       tl_nb->DrawLine(55.-0.5,ymin_bottom,55.-0.5,ymax2_bottom); 
-      tl_nb->DrawLine(61.-0.5,ymin_bottom,61.-0.5,ymax2_bottom); 
       tl_nb->DrawLine(67.-0.5,ymin_bottom,67.-0.5,ymax2_bottom); 
-
+      tl_nb->DrawLine(73.-0.5,ymin_bottom,73.-0.5,ymax2_bottom);
+      tl_nb->DrawLine(79.-0.5,ymin_bottom,79.-0.5,ymax2_bottom);
+      tl_nb->DrawLine(91.-0.5,ymin_bottom,91.-0.5,ymax2_bottom);
+      tl_nb->DrawLine(97.-0.5,ymin_bottom,97.-0.5,ymax2_bottom);
+      tl_nb->DrawLine(103.-0.5,ymin_bottom,103.-0.5,ymax2_bottom);
+      
       } else {
 	
       // Njet separation lines
