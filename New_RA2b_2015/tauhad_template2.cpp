@@ -1559,7 +1559,7 @@ using namespace std;
               mtWeightError = hMT->GetBinError(binNum_MT);
               double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
               mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
-
+              if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
 
               // Apply MT efficiency
               if(utils2::applyMT){
