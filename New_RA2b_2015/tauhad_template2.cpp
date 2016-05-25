@@ -45,6 +45,7 @@ using namespace std;
       (*b_hist).Fill(*a);
       for(int i=1; i<=Nhists ; i++){
         (*(b_hist+i)).Fill(*(a+i),*a);
+        cout << "hist#: " << i << " value: " << *(a+i) <<  " weight: " << *a << endl;
       }
     }
   };
@@ -777,6 +778,11 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
+//Ahmad33
+//if(evt->Evtnum() != 13587513 && evt->Evtnum() !=25309822 && evt->Evtnum() != 53292217&& evt->Evtnum() !=9431821 && evt->Evtnum() !=17249996)continue;
+if(evt->Evtnum() != 25309822)continue; // this is problematic
+else printf("###########\n Evtnum: %d origHT: %g origMHT: %g origNJ: %d origNB: %d \n ", evt->Evtnum(),evt->ht(),evt->mht(),evt->nJets(),evt->nBtags());
+//Ahmad33
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
@@ -786,7 +792,7 @@ using namespace std;
 
 
 
-      //if(eventN>1000)break;
+      //if(eventN>10000)break;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1496,7 +1502,6 @@ using namespace std;
               if(TauHadModel>=3){
                 if(utils2::IsoTrkModel==0){totWeight*= 1./1.02;totWeight_lowDphi*= 1./1.02;}
               }
-
               // if fastsim
               vector<double> prob;
               if(fastsim){
@@ -1543,8 +1548,12 @@ using namespace std;
               double mtWeightError, mtWeightPlus, mtWeightMinus, mtWeightError_lowDphi, mtWeightPlus_lowDphi, mtWeightMinus_lowDphi;
               double mtWeight = hMT->GetBinContent(binNum_MT);
               mtWeightError = hMT->GetBinError(binNum_MT);
+//Ahmad33
+cout << " binNum_MT: " << binNum_MT << endl;
+//Ahmad33
               double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
               mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
+              if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
 
 
               // Apply MT efficiency
@@ -1562,6 +1571,9 @@ using namespace std;
                 else if(eventN < 100000 ) cout<< "warning! MT is not being applied. Turn off CalcMT in utils2\n";
 
               }
+//Ahmad33 
+cout << " totWeight_lowDphi5: " << totWeight_lowDphi << " mtWeight_lowDphi: " << mtWeight_lowDphi << endl; 
+//Ahmad33
 
               if (l==1 && m==0){                 // Fill this only once per event l=[1,nLoops] m=[0,1]
                 cutflow_preselection->Fill(9.,eventWeight); // All preselection
@@ -1630,6 +1642,9 @@ using namespace std;
                 PassIso2=true;
               }
 
+//Ahmad33
+printf(" eventN: %d origHT: %g origMHT: %g origNJ: %d origNB: %d ht: %g mht %g njet: %d nb: %g weight: %g \n ", eventN,evt->ht(),evt->mht(),evt->nJets(),evt->nBtags(),newHT,newMHT,newNJet,NewNB,totWeight);
+//Ahmad33
 
 
               //We would like to know whether in low/delPhi region
@@ -1894,7 +1909,6 @@ using namespace std;
 
                 }
 
-
               //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
               double eveinfvec[] = {totWeight, 1. , newHT, newHT, evt->ht(), newMHT,newMHT, evt->mht()
                                    ,newMet, evt->met(), mindpn,newDphi1, newDphi2, newDphi3, newDphi4
@@ -1921,9 +1935,11 @@ using namespace std;
                       //if(subSampleKey.find("template")!=string::npos && (ite->first!="delphi" && ite->first!="low_Dphi" ))continue; 
 
                       //To save cpu we neglect some of early selections
+                      /*
                       if(ite->first=="PreSel" || ite->first=="nolep" || ite->first=="ht_500" 
                           || ite->first=="Njet_4" || ite->first=="isoElec" || ite->first=="isoMu" || ite->first=="nolep"
                         )continue;
+                      */
 
                       // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
                       if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" 
@@ -1961,10 +1977,15 @@ using namespace std;
                         if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
 
+//Ahmad33
+if(itt->second[ite->first][2].GetSumOfWeights()<0.)printf("sumofweight: %g \n eventN: %d ht: %g mht: %g njet: %d nb: %g weight: %g \n ",itt->second[ite->first][2].GetSumOfWeights(),eventN,newHT,newMHT,newNJet,NewNB,totWeight);
+
+cout<< " ======== \n " << ite->first << endl;
+cout << " totWeightMap " << totWeightMap[itt->first] << " totWeightMap_lowDphi: " <<totWeightMap_lowDphi[itt->first] << endl;
+//Ahmad33
                       if(sel->checkcut_HadTau(ite->first,newHT,newMHT,newDphi1,newDphi2,newDphi3,newDphi4,newNJet,NewNB,evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
 
                         histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
-
                         map_map_evt_search[itt->first][ite->first][0].Fill(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],eveinfvec[0]);//searchH_
                         map_map_evt_search[itt->first][ite->first][1].Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],eveinfvec[0]);//searchH_b_
                         map_map_evt_search[itt->first][ite->first][2].Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],eveinfvec[0]);  // QCD_
@@ -2278,9 +2299,11 @@ using namespace std;
               //if(subSampleKey.find("template")!=string::npos && (it->first!="delphi" && it->first!="low_Dphi" ))continue;
 
               //To save cpu we neglect some of early selections
+              /*
               if(it->first=="PreSel" || it->first=="nolep" || it->first=="ht_500" 
                  || it->first=="Njet_4" || it->first=="isoElec" || it->first=="isoMu" || it->first=="nolep"
                 )continue;
+              */
 
               if (sel->cutName()[i]==it->first){
                 cdtoit = cdtoitt->mkdir((it->first).c_str());
