@@ -79,8 +79,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   float ymax3_top = 200.;
   float ymax4_top = 30.;
 
-//  float ymax_bottom = 1.99;
-  float ymax_bottom = 3.5;
+  float ymax_bottom = 1.99;
+//  float ymax_bottom = 3.5;
   float ymin_bottom = 0.01;
 
   float ymax2_bottom = 2.15;
