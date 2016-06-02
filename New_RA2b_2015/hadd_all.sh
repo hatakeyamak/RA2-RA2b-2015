@@ -27,7 +27,7 @@ done
 
 rm HadTauEstimation_TTbar_.root
 hadd HadTauEstimation_TTbar_.root  `ls HadTauEstimation_TTbar_*00.root `
-cp HadTauEstimation_TTbar_.root ../TauHad2
+cp HadTauEstimation_TTbar_.root ../TauHad2/
 
 #hadd Probability_Tau_mu_TTbar_.root `ls Probability_Tau_mu_TTbar*00.root `
 #cp Probability_Tau_mu_TTbar_.root ../TauHad2
@@ -78,6 +78,4 @@ cd ../..
 
 echo " Making the plots \n\n\n" 
 ./makeplots.sh 1 1 1 1 
-
-
 

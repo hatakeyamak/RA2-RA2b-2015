@@ -428,7 +428,6 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
-
       if(evt->PDFweights_()->size()!= PDFsize){
         cout << " PDFweights_()->size(): " << evt->PDFweights_()->size() << endl;
         cout << " Please fix the value of the variable \"PDFsize\". \n Turning off the AccSys calculation \n " ;
@@ -441,7 +440,7 @@ using namespace std;
       }
 
       //if(eventN>100000)break;
-      //if(eventN>1000)break;
+      //if(eventN>5000)break;
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
@@ -568,6 +567,7 @@ using namespace std;
       HadTauPhiVec.clear();
      
       if(TauHadModel>=4){
+	//std::cout << evt->GenTauHadVec_().size() << std::endl;
         for(int i=0; i<evt->GenTauHadVec_().size();i++){
           if(evt->GenTauHadVec_()[i]==1){
             double pt=evt->GenTauPtVec_()[i];
@@ -604,6 +604,8 @@ using namespace std;
         }
       }
       if(HadTauPtVec.size()>0)hadTau=true;
+
+      //std::cout << "eventN:1 " << eventN << std::endl;
 
       if(verbose!=0){      
         for(int i=0; i<evt->GenTauPtVec_().size();i++){
@@ -705,6 +707,8 @@ using namespace std;
         }
       }      
 
+      //std::cout << "eventN:2 " << eventN << std::endl;
+
       // Total weight
       double totWeight = ( eventWeight )*1.;
       //double totWeight = 1.;
@@ -741,13 +745,6 @@ using namespace std;
       else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
       Visible3Vec=Tau3Vec-TauNu3Vec;
 
-      //int newNJet;
-      //int NewNB;
-      //double newHT;
-      //double newMHT;
-      //int binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()];
-      //printf("njet: %d nb: %d ht: %g mht: %g bin#: %d \n",evt->nJets(),evt->nBtags(),evt->ht(),evt->mht(),binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()]);
-      printf("njet: %d nb: %d ht: %g mht: %g bin#: %d bin string %s \n",evt->nJets(),evt->nBtags(),evt->ht(),evt->mht(),binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str());
 
 
       if(pass3){
@@ -784,6 +781,8 @@ using namespace std;
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
 
+	  //std::cout << "eventN:3 " << eventN << std::endl;
+
           // Match directly to IsoTrk. But this wouldn't capture all 
           utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
           // 
@@ -807,9 +806,7 @@ using namespace std;
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
               QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
               searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
-              
-
-        if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
+              if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               if(evt->nBtags() >0)hPredHTMHTwb->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               hPredNJetBins->Fill(evt->nJets(),totWeight);
               hPredNbBins->Fill( evt->nBtags(),totWeight);
@@ -975,6 +972,8 @@ using namespace std;
       // ("tau response template") for hadronically decaying taus
       for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
         // Select tau jet
+	//std::cout<<"eventN "<<eventN<<"jetid "<<jetIdx<<"tauJetPt "<<evt->slimJetPtVec_().at(jetIdx)<<"tauJetPtUp "<<evt->slimJetJECup_()->at(jetIdx).Pt()<<"tauJetPtDown "<<evt->slimJetJECdown_()->at(jetIdx).Pt()<<std::endl;
+
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
           //printf(" slimSize: %d UpSize: %d DownSize: %d \n ",evt->slimJetPtVec_().size(),evt->slimJetJECup_()->size(),evt->slimJetJECdown_()->size());
@@ -982,6 +981,7 @@ using namespace std;
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
           const double tauJetPtUp = evt->slimJetJECup_()->at(jetIdx).Pt();
           const double tauJetPtDown = evt->slimJetJECdown_()->at(jetIdx).Pt();
+	  //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
 
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
@@ -1326,7 +1326,5 @@ using namespace std;
     tau_GenJetPhi->Write();
 
   }// end of main
-
-
 
 
