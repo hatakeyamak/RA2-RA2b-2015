@@ -824,7 +824,8 @@ using namespace std;
 
       // Trigger check
       bool trigPass=false;
-      if(isData){
+      if(isData && 2==1){
+        cout << " hehe \n " ;
         string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_v";
         if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_v";
         bool trigfound=false;
