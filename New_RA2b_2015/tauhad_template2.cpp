@@ -606,7 +606,7 @@ using namespace std;
 
     // Rate of bTagged tau jet
     //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
-    TFile * bRateFile = new TFile("TauHad/Stack/Elog431_TauBtaggedRate_stacked.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/Elog431_TauBtaggedRate_WJet_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     sprintf(histname,"TauBtaggedRate");
