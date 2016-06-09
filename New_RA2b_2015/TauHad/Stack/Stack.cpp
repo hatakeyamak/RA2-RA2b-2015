@@ -233,7 +233,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[2]="Iso_all";
   histname[3]="Iso_pass_lowDphi";
   histname[4]="Iso_all_lowDphi";
-
+  std::cout<< " Before looping"<< std::endl;
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
@@ -246,7 +246,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
       else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
-
+      std::cout<< " looping over ht bins"<< std::endl;
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
@@ -259,6 +259,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     tempstack = new THStack("stack","Binned Sample Stack");
 
   }
+  std::cout<< " new THStack declared"<< std::endl;
   temphistIII = static_cast<TH1D*>(temphistI->Clone("IsoEff"));
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
   temphistIII->SetName("IsoEff");
@@ -271,26 +272,40 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
 
-  histname.clear();
-  histname[0]="IsoEff_temp";
-  histname[1]="Iso_pass_temp";
-  histname[2]="Iso_all_temp";
+  //histname.clear();
+  //histname[0]="IsoEff_temp";
+  //histname[1]="Iso_pass_temp";
+  //histname[2]="Iso_all_temp";
+
 
   for(int j=0; j<histname.size(); j++){
-
+    std::cout<<"j "<< j<< " Loop over HT hists"<<std::endl;
     if(j==0)continue; // Stacking probability histograms has no meaning.
     sprintf(tempname,"%s",(histname[j]).c_str());
+    std::cout << "tempname " << tempname << std::endl;
 
     for(int i=0; i<tnHT ; i++){ // loop over different HT bins
-
+      std::cout<<"i "<<i<<" Loop over HT bins"<<std::endl;
+      int size;
+      size=0;
+      std::cout<< "T_inputfilevec_size "<<T_inputfilevec.size()<<std::endl;
+      
       temphist = (TH1D *) T_inputfilevec.at(i)->Get(tempname)->Clone();
-      if (luminosity>0&&doScale) temphist->Scale(T_scalevec[i]);
-      else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
+      std::cout<<"luminosity "<<luminosity <<endl;
+      if (luminosity>0&&doScale){
+	std::cout<<" doScale true "<<std::endl;
+	temphist->Scale(T_scalevec[i]);
+      }
+      else if (luminosity>0&&!doScale){
+	std::cout<<" doScale false "<<std::endl;
+	temphist->Scale(scalefactor);
+      }
       temphist->SetFillColor(i+2);
+      std::cout<<" Adds hist to stack"<<std::endl;
       tempstack->Add(temphist);
-
+      std::cout<<"i over "<<std::endl;
     }//end of loop over HTbins 1..7
-
+    std::cout<<"End of loop over HT bins"<<std::endl;
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
@@ -304,7 +319,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff_temp");
   temphistIII->SetTitle("IsoEff_temp");
   temphistIII->Write();
-
+  std::cout<<" Before file closing"<<std::endl;
   file->Close();
   printf("T IsoTrks calculated. \n ");
 
@@ -389,6 +404,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
     }//end of loop over HTbins 1..7
 
+    std::cout<<" Under acceptance_end of loop over Htbins"<<std::endl;
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
@@ -952,9 +968,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->Write();
 
   histname.clear();
-  histname[0]="IsoEff_temp";
-  histname[1]="Iso_pass_temp";
-  histname[2]="Iso_all_temp";
+  //histname[0]="IsoEff_temp";
+  //histname[1]="Iso_pass_temp";
+  //histname[2]="Iso_all_temp";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -1537,10 +1553,10 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->Write();
 
 
-  histname.clear();
-  histname[0]="IsoEff_temp";
-  histname[1]="Iso_pass_temp";
-  histname[2]="Iso_all_temp";
+  //histname.clear();
+  //histname[0]="IsoEff_temp";
+  //histname[1]="Iso_pass_temp";
+  //histname[2]="Iso_all_temp";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -2058,9 +2074,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
   }
 
-  histname.clear();
-  histname[0]="Iso_pass_temp";
-  histname[1]="Iso_all_temp";
+  //histname.clear();
+  //histname[0]="Iso_pass_temp";
+  //histname[1]="Iso_all_temp";
 
 
   for(int j=0; j<histname.size(); j++){
@@ -2116,7 +2132,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Write();
 
 
-
+  /*
   sprintf(tempname,"Iso_pass_temp");
   temphist = (TH1D *) file->Get(tempname)->Clone();
   sprintf(tempname,"Iso_all_temp");
@@ -2125,7 +2141,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->SetName("IsoEff_temp");
   temphist->SetTitle("IsoEff_temp");
   temphist->Write();
-
+*/
 
   sprintf(tempname,"Iso_pass_lowDphi");
   temphist = (TH1D *) file->Get(tempname)->Clone();

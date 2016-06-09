@@ -3,7 +3,7 @@
 using namespace std;
 
 
-CalcMtEff(string outStr=""){
+CalcMtEff(string Elog="Elog431_",string outStr=""){
 gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
 char tempname[200];
 int W = 600;
@@ -46,12 +46,18 @@ TH1D * thist_tt2, * thist_wj2;
 TH1D * thist_t, * thist_t2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * after_t = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_T_stacked.root","R");
-TFile * before_t = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_T_stacked.root","R");
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
+TFile * after_tt = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
+TFile * before_tt = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
+TFile * after_wj = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
+TFile * before_wj = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_T_stacked.root",Elog.c_str());
+TFile * after_t = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_T_stacked.root",Elog.c_str());
+TFile * before_t = new TFile(tempname,"R");
 
 sprintf(tempname,"MtEff_%s_.root",outStr.c_str());
 TFile * outFile = new TFile(tempname,"RECREATE");

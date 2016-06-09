@@ -35,11 +35,11 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
 
   bool doScale = false;
   Selection * sel = new Selection();
-  //cutname = sel->cutName();
+  cutname = sel->cutName();
 
-  cutname[0]="mht_200";cutname[1]="isoPion";cutname[2]="delphi"; cutname[3]="low_Dphi";
-  cutname[4]="mht_500";cutname[5]="J46_HT5001200_MHT500750";cutname[6]="delphi_NoIso";
-  cutname[7]="Njet_9";
+  //cutname[0]="mht_200";cutname[1]="isoPion";cutname[2]="delphi"; cutname[3]="low_Dphi";
+  //cutname[4]="mht_500";cutname[5]="J46_HT5001200_MHT500750";cutname[6]="delphi_NoIso";
+  //cutname[7]="Njet_9";
 
   //cutname[0]="delphi";
 

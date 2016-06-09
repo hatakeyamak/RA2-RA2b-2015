@@ -605,17 +605,16 @@ using namespace std;
 
 
     // Rate of bTagged tau jet
-//    TFile * bRateFile = new TFile("TauHad/TauBtaggedRate_TTbar_Elog195.root","R");
-//    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog269.root","R");
-    TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
+    //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/Elog431_TauBtaggedRate_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root","R");
-    //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog429_Probability_Tau_mu_stacked.root","R");
+    //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog431_Probability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
     sprintf(histname,"hProb_Tau_mu_lowDelphi");
@@ -625,22 +624,23 @@ using namespace std;
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
     //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog427_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog427_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog431_LostLepton2_MuonEfficienciesFromstacked.root","R");
 
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     TH1D * hAcc_lowDphi =(TH1D *) MuAcc_file->Get("hAcc_lowDphi")->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
-//    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Arne.root","R");
-    TFile * MuIsoEff_Arne = new TFile("TauHad/New_Efficiencies_Arne.root","R");
+    //TFile * MuIsoEff_Arne = new TFile("TauHad/New_Efficiencies_Arne.root","R");
+    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoActivityPT/MuRecoActivityPT");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoActivityPT/MuIsoActivityPT");
 
 
     // Get IsoTrk efficiencies
-    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
-    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog428_IsoEfficiencies_stacked.root","R");
+    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog431_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
 
@@ -648,10 +648,8 @@ using namespace std;
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
-    //TFile * MtFile = new TFile("TauHad2/MtEff_TTbar_Elog227.root","R");
-    //TFile * MtFile = new TFile("TauHad2/Elog335_MtEff.root","R");
-    //TFile * MtFile = new TFile("TauHad2/Elog377_MtEff.root","R");
-    TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
+    //TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
+    TFile * MtFile = new TFile("TauHad2/Elog431_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
 
@@ -676,8 +674,8 @@ using namespace std;
 
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
-    //TFile * resp_file = new TFile("TauHad/Stack/HadTau_TauResponseTemplates_stacked_Elog327.root","R");
-    TFile * resp_file = new TFile("TauHad/Stack/Elog404_WithJECUpDown_HadTau_TauResponseTemplates_stacked.root","R");
+    //TFile * resp_file = new TFile("TauHad/Stack/Elog404_WithJECUpDown_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file = new TFile("TauHad/Stack/Elog431_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
       vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -1095,6 +1093,7 @@ using namespace std;
             // 3Vec of muon and scaledMu 
             TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
             double NewTauJetPt=0.0;
+	    double NewTauJetEta=0.0;
             SimTauJet3Vec.SetPtEtaPhi(simTauJetPt_xy,simTauJetEta,simTauJetPhi_xy);
             Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
@@ -1151,6 +1150,7 @@ using namespace std;
               MuJet_fail->Fill(muPt,eventWeight);
               NewTauJet3Vec=SimTauJet3Vec;
               NewTauJetPt = NewTauJet3Vec.Pt();
+	      NewTauJetEta = NewTauJet3Vec.Eta();
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
@@ -1164,6 +1164,7 @@ using namespace std;
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
                 NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
                 NewTauJetPt = NewTauJet3Vec.Pt();
+		NewTauJetEta = NewTauJet3Vec.Eta();
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
               }
@@ -1206,6 +1207,7 @@ using namespace std;
               
               // New #b
               double NewNB=evt->nBtags();
+	      //std::cout<<"Number of b tags "<<NewNB<<std::endl;
               // get the rate of tau jet mistagging as a function of pT.
               double bRateError_stat, bRatePlus_stat, bRateMinus_stat;
               double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
@@ -1373,7 +1375,7 @@ using namespace std;
              
               double simTauJetPhi_ForPlotting=-99.0;
               double tauJet_mht_dlePhi_forPlotting=-99.0;
-              if( NewTauJetPt > 30.){
+              if( NewTauJetPt > 30.&& fabs(NewTauJetEta) < 2.4){
                 simTauJetPhi_ForPlotting = simTauJetPhi_xy; 
                 tauJet_mht_dlePhi_forPlotting = fabs(TVector2::Phi_mpi_pi( simTauJetPhi_ForPlotting - newMHTPhi ));
                 //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tauJet_mht_dlePhi_forPlotting,simTauJetPt_xy,muPt);

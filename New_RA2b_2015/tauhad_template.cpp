@@ -381,6 +381,8 @@ using namespace std;
     }
 
     // For each selection, cut, make a vector containing the same histograms as those in vec
+    //std::cout<<"cutName_size"<<cutName().size()<<endl;
+
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
     }
@@ -832,14 +834,17 @@ using namespace std;
 
       // for plotting purposes
       double tauPt_forPlotting=0.0; 
+      double tauEta_forPlotting=0.0;
       double tauPhi_forPlotting=-99.0;
       double tau_mht_dlephi_forPlotting=-99.0;
       int tauJetIdx_forPlotting = -1;
       double deltaRMax_forPlotting = genTauPt < 50. ? 0.2 : 0.1;
       if( utils->findMatchedObject(tauJetIdx_forPlotting,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax_forPlotting,verbose) ){
         tauPt_forPlotting = evt->slimJetPtVec_().at(tauJetIdx_forPlotting);
-        if(tauPt_forPlotting>30.){
-          tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
+	tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);       
+        if(tauPt_forPlotting>30.&& abs(tauEta_forPlotting) < 2.4){
+          //tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);
+	  tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
           tau_mht_dlephi_forPlotting = fabs(TVector2::Phi_mpi_pi( tauPhi_forPlotting - evt->mhtphi()  ));
 
           //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_dlephi_forPlotting,tauPt_forPlotting,genTauPt);

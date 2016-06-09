@@ -33,7 +33,7 @@ Input arguments:
 
  */
 
-Plot_Commissioning(string histname="HT2", string cutname="delphi", 
+Plot_Commissioning(string histname="NJet", string cutname="delphi", 
 		   //double lumi=2.26198, double lumiControl=2.24572,
 		   double lumi=0.210711, double lumiControl=0.210711,
 		   string PDname="SingleMuon",
@@ -72,7 +72,7 @@ Plot_Commissioning(string histname="HT2", string cutname="delphi",
 
   TString line = "";
   char tempname[200];
-  sprintf(tempname,"%8.3f",lumi);
+  sprintf(tempname,"%8.1f",lumi);
   line+=tempname;
   line+=" fb^{-1} (13 TeV)";
   TString lumi_sqrtS = line;
@@ -327,7 +327,7 @@ Plot_Commissioning(string histname="HT2", string cutname="delphi",
     ymin_top = 0.15;
     xmax = 2000.;
     //if (cutname=="delphi") xmax = 1500.;
-    xmin = 250.;
+    xmin = 200;
 	xlatex=1466.973;ylatex=14.62075;
     sprintf(xtitlename,"H_{T} [GeV]");
     sprintf(ytitlename,"Events / 100 GeV");
@@ -341,7 +341,7 @@ Plot_Commissioning(string histname="HT2", string cutname="delphi",
     xmax = 2000.;
     //if (cutname=="delphi") xmax = 1500.;
     //xmax = 1200.;
-    xmin = 250.;
+    xmin = 200;
     sprintf(xtitlename,"H_{T} [GeV]");
     sprintf(ytitlename,"Events / bin");
     gPad->SetLogy();
@@ -424,8 +424,6 @@ Plot_Commissioning(string histname="HT2", string cutname="delphi",
     //sprintf(tempname,"#tau_{h} MC expectation from single top");
     sprintf(tempname,"MC: single top");
     catLeg1->AddEntry(hExpT,tempname,"f");
-  }
-  if (!skipRare) {
     sprintf(tempname,"MC: Other");
     catLeg1->AddEntry(hExpRare,tempname,"f");
   }
