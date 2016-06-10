@@ -21,7 +21,7 @@ public:
   map<int, string> cutName() const;
 
   //define different cuts here
-  bool ht_500(double ht_){if(ht_>=250) return true; return false;}
+  bool ht_500(double ht_){if(ht_>=300) return true; return false;}
   bool ht_500_800(double ht_){if(ht_>=500 && ht_<800) return true; return false;}
   bool ht_500_1200(double ht_){if(ht_>=500 && ht_<1200)return true; return false;}
   bool ht_800_1200(double ht_){if(ht_>=800 && ht_<1200)return true; return false;}
@@ -52,7 +52,7 @@ public:
 
 
   bool nolep(int nLeptons_){if(nLeptons_==0)return true; return false;}
-  bool Njet_4(int nJets_){if(nJets_ >= 2)return true; return false;}
+  bool Njet_4(int nJets_){if(nJets_ >= 3)return true; return false;}
   bool Njet_2(int nJets_){if(nJets_ == 2)return true; return false;}
   bool Njet_4_6(int nJets_){if(nJets_ >= 4 && nJets_ <= 6)return true; return false;}
   bool Njet_7_8(int nJets_){if(nJets_ >= 7 && nJets_ <= 8)return true; return false;}

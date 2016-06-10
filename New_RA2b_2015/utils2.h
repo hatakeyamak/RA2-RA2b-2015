@@ -142,6 +142,7 @@ namespace utils2{
         int bNjet, bHtMht;
         if(njet >= 3 && njet <=4)bNjet=1;else if(njet >= 5 && njet <=6)bNjet=2;else if(njet >= 7 && njet <=8)bNjet=3;else if(njet >= 9)bNjet=4; else bNjet=9;
 
+
         if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=2;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=3;
         else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=4;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=5;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=6;
         else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=8;

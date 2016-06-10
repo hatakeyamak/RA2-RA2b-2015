@@ -208,11 +208,11 @@ using namespace std;
     // Introduce search bin histogram
     map<string,int> binMap = utils2::BinMap_NoB();
     int totNbins=binMap.size();
-    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* searchH = new TH1D("searchH","search bin histogram",totNbins,1,totNbins+1);
     searchH->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * searchH_evt = static_cast<TH1D*>(searchH->Clone("searchH_evt")); 
-    TH1* searchH_lowDphi = new TH1D("searchH_lowDphi","search bin histogram",totNbins_ForIso,1,totNbins_ForIso+1);
+    TH1* searchH_lowDphi = new TH1D("searchH_lowDphi","search bin histogram",totNbins,1,totNbins+1);
     searchH_lowDphi->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * searchH_evt_lowDphi = static_cast<TH1D*>(searchH_lowDphi->Clone("searchH_evt_lowDphi"));
@@ -1710,7 +1710,7 @@ using namespace std;
                   // the if condition will be effective only if 
                   // MTCalc is on and mu is from nonW mom
                   // otherwise it always pass
-                  if(Pass_MuMomForMT)searchH_evt->Fill( binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()],searchWeight);
+                  if(Pass_MuMomForMT)searchH_evt->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
                       searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[iii]);
@@ -1791,7 +1791,7 @@ using namespace std;
                   // the if condition will be effective only if
                   // MTCalc is on and mu is from nonW mom
                   // otherwise it always pass
-                  if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()],searchWeight);
+                  if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
                   // Fill QCD histograms
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
