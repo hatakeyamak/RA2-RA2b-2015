@@ -225,6 +225,14 @@ using namespace std;
     TH1* hAccPass = new TH1D("hAccPass","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
     hAccAll->Sumw2();
     hAccPass->Sumw2();
+    TH1* hAcc_0b_All = new TH1D("hAcc_0b_All","Acceptance -- All",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    TH1* hAcc_0b_Pass = new TH1D("hAcc_0b_Pass","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    hAcc_0b_All->Sumw2();
+    hAcc_0b_Pass->Sumw2();
+    TH1* hAcc_non0b_All = new TH1D("hAcc_non0b_All","Acceptance -- All",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    TH1* hAcc_non0b_Pass = new TH1D("hAcc_non0b_Pass","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    hAcc_non0b_All->Sumw2();
+    hAcc_non0b_Pass->Sumw2();
 
     TH1* hAccAll_lowDphi = new TH1D("hAccAll_lowDphi","Acceptance -- All",totNbins_ForAcc,1,totNbins_ForAcc+1);
     TH1* hAccPass_lowDphi = new TH1D("hAccPass_lowDphi","Acceptance -- Pass",totNbins_ForAcc,1,totNbins_ForAcc+1);
@@ -663,6 +671,8 @@ using namespace std;
            &&sel->mht_200(evt->mht())&&sel->dphi(evt->nJets(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4())
         ){
         hAccAll->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
+        if(evt->nBtags()==0)hAcc_0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+        if(evt->nBtags()>0)hAcc_non0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if(CalcAccSys){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
           hAccAllVec.at(iacc)->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
@@ -673,6 +683,8 @@ using namespace std;
         }
         if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
           hAccPass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          if(evt->nBtags()==0)hAcc_0b_Pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
+          if(evt->nBtags()>0)hAcc_non0b_Pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
           if(CalcAccSys){
           for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
              hAccPassVec[iacc]->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
@@ -1071,6 +1083,11 @@ using namespace std;
     // Compute acceptance
     TH1* hAcc = static_cast<TH1*>(hAccPass->Clone("hAcc"));
     hAcc->Divide(hAccPass,hAccAll,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
+    TH1* hAcc_0b_ = static_cast<TH1*>(hAcc_0b_Pass->Clone("hAcc_0b_"));
+    hAcc_0b_->Divide(hAcc_0b_Pass,hAcc_0b_All,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
+    TH1* hAcc_non0b_ = static_cast<TH1*>(hAcc_non0b_Pass->Clone("hAcc_non0b_"));
+    hAcc_non0b_->Divide(hAcc_non0b_Pass,hAcc_non0b_All,1,1,"B");// we use B option here because the two histograms are correlated. see TH1 page in the root manual.
+
     TH1* hAcc_lowDphi = static_cast<TH1*>(hAccPass_lowDphi->Clone("hAcc_lowDphi"));
     hAcc_lowDphi->Divide(hAccPass_lowDphi,hAccAll_lowDphi,1,1,"B");
     // some temporary histograms for acceptance systematics
@@ -1150,6 +1167,11 @@ using namespace std;
     hAcc->Write();
     hAccAll->Write();
     hAccPass->Write();
+    hAcc_0b_All->Write();
+    hAcc_0b_Pass->Write();
+    hAcc_non0b_All->Write();
+    hAcc_non0b_Pass->Write();
+
     hAcc_lowDphi->Write();
     hAccAll_lowDphi->Write();
     hAccPass_lowDphi->Write();
