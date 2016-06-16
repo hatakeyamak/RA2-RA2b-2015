@@ -3,7 +3,7 @@
 using namespace std;
 
 
-CalcMtEff(string Elog="Elog431_",string outStr=""){
+CalcMtEff(string Elog="Elog433_",string outStr=""){
 gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
 char tempname[200];
 int W = 600;
@@ -48,17 +48,18 @@ THStack * stack;
 
 sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
 TFile * after_tt = new TFile(tempname,"R");
-sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
 TFile * before_tt = new TFile(tempname,"R");
 sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
 TFile * after_wj = new TFile(tempname,"R");
-sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
 TFile * before_wj = new TFile(tempname,"R");
+/*
 sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_T_stacked.root",Elog.c_str());
 TFile * after_t = new TFile(tempname,"R");
-sprintf(tempname,"Stack/%sBeoreMT_HadTauEstimation_T_stacked.root",Elog.c_str());
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_T_stacked.root",Elog.c_str());
 TFile * before_t = new TFile(tempname,"R");
-
+*/
 sprintf(tempname,"MtEff_%s_.root",outStr.c_str());
 TFile * outFile = new TFile(tempname,"RECREATE");
 
@@ -120,6 +121,7 @@ MtCutEff_wj->Write();
 ////////
 // single top
 ////////
+/*
 stack = (THStack *) after_t->Get("searchH")->Clone("after");
 thist_t = (TH1D *) stack->GetStack()->Last();
 stack = (THStack *) before_t->Get("searchH")->Clone("before");
@@ -130,7 +132,7 @@ MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
 MtCutEff_t->SetLineColor(2);
 MtCutEff_t->Draw("same");
 MtCutEff_t->Write();
-
+*/
 
 ////////
 // tt+wj
@@ -241,6 +243,7 @@ MtCutEff_wj->Write();
 ////////
 // top
 ////////
+/*
 stack = (THStack *) after_t->Get("searchH_lowDphi")->Clone("after");
 thist_t = (TH1D *) stack->GetStack()->Last();
 stack = (THStack *) before_t->Get("searchH_lowDphi")->Clone("before");
@@ -251,16 +254,16 @@ MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
 MtCutEff_t->SetLineColor(2);
 MtCutEff_t->Draw("same");
 MtCutEff_t->Write();
-
+*/
 ////////
 // tt+wj
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot_lowDphi"));
 thist_tot->Add(thist_wj);
-thist_tot->Add(thist_t);
+//thist_tot->Add(thist_t);
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2_lowDphi"));
 thist_tot2->Add(thist_wj2);
-thist_tot2->Add(thist_t2);
+//thist_tot2->Add(thist_t2);
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff_lowDphi"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
