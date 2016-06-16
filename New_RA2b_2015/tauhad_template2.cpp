@@ -784,10 +784,9 @@ using namespace std;
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
-
-
-
+      if(eventN>10000)break;
       //if(eventN>5000)break;
+
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1801,6 +1800,14 @@ using namespace std;
                   // MTCalc is on and mu is from nonW mom
                   // otherwise it always pass
                   if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+		  std::cout << eventWeight << " " << searchWeight << " " 
+			    << (1-Prob_Tau_mu)  << " " 
+			    << mtWeight_lowDphi << " " 
+			    << Acc_lowDphi      << " "
+			    << newHT << " " 
+			    << newMHT << " " 
+			    << newNJet << " " 
+			    << std::endl;
                   // Fill QCD histograms
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){

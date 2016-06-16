@@ -26,14 +26,14 @@ namespace utils2{
   // Do the bootstrapping?
   bool bootstrap = true;
 
-  bool applyMT = true;
+  bool applyMT = false;
   // We calculate MTEff in the same code where it is also being used. 
   // So, it doesn't make sense to apply MT weight when calculating it.
   // To calc. MT eff. first turn off applyMT and applyIsoTrk but turn on bootstrap and 
   // CalcMT. Save the search bin histogram. Next turn on applyMT and run again. Divide 
   // the two search bin histograms, after and before applyMT. 
   // At the end, turn off CalcMT.
-  bool CalcMT =false;
+  bool CalcMT = true;
 
 
   bool applyTrig = false;
