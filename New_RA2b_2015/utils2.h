@@ -16,29 +16,28 @@ namespace utils2{
 
 
   // Determine which model to work with
-    // 0: The most simple model
-    // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
-    // 2: 1 but for veto(in the prediction code) reco objects are used and not gen ones 
-    // 3: 2 but in prediction everything reco. Efficiency used
-    // 4: 3 but Acceptance added
-    int TauHadModel=4;
+  // 0: The most simple model
+  // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
+  // 2: 1 but for veto(in the prediction code) reco objects are used and not gen ones 
+  // 3: 2 but in prediction everything reco. Efficiency used
+  // 4: 3 but Acceptance added
+  int TauHadModel=4;
 
   // Do the bootstrapping?
-  bool bootstrap = true;
+  bool bootstrap = true; // default true
 
-  bool applyMT = true;
+  bool applyMT = true; // default true
   // We calculate MTEff in the same code where it is also being used. 
   // So, it doesn't make sense to apply MT weight when calculating it.
   // To calc. MT eff. first turn off applyMT and applyIsoTrk but turn on bootstrap and 
   // CalcMT. Save the search bin histogram. Next turn on applyMT and run again. Divide 
   // the two search bin histograms, after and before applyMT. 
   // At the end, turn off CalcMT.
-  bool CalcMT =false;
-
+  bool CalcMT = false; // default false
 
   bool applyTrig = false;
 
-  bool applyIsoTrk =true;
+  bool applyIsoTrk =true; // default true
 //###############################################################################################################
 
   // get the total # of events for normalization purposes
