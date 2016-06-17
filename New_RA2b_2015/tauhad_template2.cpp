@@ -1573,18 +1573,13 @@ using namespace std;
               }
 
               int binNum_MT = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
-<<<<<<< HEAD
         //if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
-=======
->>>>>>> dd9c554d156924ce37a240d77a83997269c0539b
               double mtWeightError, mtWeightPlus, mtWeightMinus, mtWeightError_lowDphi, mtWeightPlus_lowDphi, mtWeightMinus_lowDphi;
               double mtWeight = hMT->GetBinContent(binNum_MT);
               mtWeightError = hMT->GetBinError(binNum_MT);
               double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
               mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
-<<<<<<< HEAD
         if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
-=======
 
 	      if(binNum_MT==0){ // protection in case the bin is not defined.
 		mtWeight        =0.9;mtWeightError=0.;
@@ -1596,7 +1591,6 @@ using namespace std;
 		mtWeight = 1.;mtWeightError=0.;
 		mtWeight_lowDphi = 1.;mtWeightError_lowDphi=0.;	
 	      }	      
->>>>>>> dd9c554d156924ce37a240d77a83997269c0539b
 
               // Apply MT efficiency
               if(utils2::applyMT){
