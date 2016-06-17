@@ -785,10 +785,9 @@ using namespace std;
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
-
-
-
+      //if(eventN>10000)break;
       //if(eventN>5000)break;
+
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
       if(!evt->DataBool_()){
@@ -1515,6 +1514,16 @@ using namespace std;
       //Ahmad33
               if(TauHadModel < 1)Prob_Tau_mu=0; 
 
+
+              int binNum_ProbTauMu = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
+	      if(binNum_ProbTauMu==0){ // protection in case the bin is not defined.
+		Prob_Tau_mu=0.1; Prob_Tau_muError=0.0; 
+		Prob_Tau_mu_lowDelphi=0.1; Prob_Tau_muError_lowDelphi=0.0; 
+	      }
+	      if(Prob_Tau_mu==1){Prob_Tau_mu=0.1;cout << " Warning! Prob_Tau_mu==1 \n ";}
+	      if(Prob_Tau_mu_lowDelphi==1)Prob_Tau_mu_lowDelphi=0.1;
+
+
               double totWeight=( eventWeight )*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
               double totWeight_lowDphi=eventWeight*1*0.64*(1/(Acc_lowDphi*Eff_Arne))*(1-Prob_Tau_mu_lowDelphi);
               // dilepton contamination
@@ -1563,25 +1572,26 @@ using namespace std;
                 totWeight_lowDphi*=Prob_Btag;
               }
 
-
               int binNum_MT = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
-	      //if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
               double mtWeightError, mtWeightPlus, mtWeightMinus, mtWeightError_lowDphi, mtWeightPlus_lowDphi, mtWeightMinus_lowDphi;
               double mtWeight = hMT->GetBinContent(binNum_MT);
               mtWeightError = hMT->GetBinError(binNum_MT);
               double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
               mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
-<<<<<<< HEAD
-	      if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
-=======
-              if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
->>>>>>> 8af9d6c4d6ab0dd34f03863df89641cd5bf89587
+
+	      if(binNum_MT==0){ // protection in case the bin is not defined.
+		mtWeight        =0.9;mtWeightError=0.;
+		mtWeight_lowDphi=0.9;mtWeightError_lowDphi=0.;
+	      }
+	      if(mtWeight==0){mtWeight=0.9;cout << " Warning! mtWeight==0 \n ";}
+	      if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
+              if(utils2::CalcMT){
+		mtWeight = 1.;mtWeightError=0.;
+		mtWeight_lowDphi = 1.;mtWeightError_lowDphi=0.;	
+	      }	      
 
               // Apply MT efficiency
               if(utils2::applyMT){
-
-                if(mtWeight==0){mtWeight=0.9;cout << " Warning! mtWeight==0 \n ";}
-                if(mtWeight_lowDphi==0)mtWeight_lowDphi=0.9;
 
                 mtWeightPlus=mtWeight+mtWeightError;
                 mtWeightMinus=mtWeight-mtWeightError;
@@ -1659,7 +1669,6 @@ using namespace std;
                 searchWeight = totWeight; 
                 PassIso2=true;
               }
-
 
 
               //We would like to know whether in low/delPhi region
@@ -1808,6 +1817,17 @@ using namespace std;
                   // MTCalc is on and mu is from nonW mom
                   // otherwise it always pass
                   if(Pass_MuMomForMT)searchH_evt_lowDphi->Fill( binMap[utils2::findBin_NoB(newNJet,newHT,newMHT).c_str()],searchWeight);
+		  if (searchWeight>10000.){
+		    std::cout << "searchWeight is too large." << std::endl;
+		    std::cout << eventWeight << " " << searchWeight << " " 
+			      << (1-Prob_Tau_mu)  << " " 
+			      << mtWeight_lowDphi << " " 
+			      << Acc_lowDphi      << " "
+			      << newHT << " " 
+			      << newMHT << " " 
+			      << newNJet << " " 
+			    << std::endl;
+		  }
                   // Fill QCD histograms
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
