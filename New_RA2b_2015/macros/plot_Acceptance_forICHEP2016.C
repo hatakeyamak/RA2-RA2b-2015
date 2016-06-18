@@ -55,7 +55,8 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
   //
   
   //TFile *file = new TFile("LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R"); 
-  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
+  //sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked_LowStatBinNotcorrected.root",elogForPlot.c_str());
   TFile *file   = new TFile(tempname,"R");
 
   sprintf(tempnameMod,"TauHad/Stack/%smodifiedLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
@@ -194,5 +195,9 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
   thist->Write();
   TH1D *thist_lowDphi = (TH1D*)file->Get("hAcc_lowDphi")->Clone();
   thist_lowDphi->Write();
+  TH1D *this_hAcc_0b = (TH1D*)file->Get("hAcc_0b_")->Clone();
+  this_hAcc_0b->Write();
+  TH1D *this_hAcc_non0b = (TH1D*)file->Get("hAcc_non0b_")->Clone();
+  this_hAcc_non0b->Write();
 
 }
