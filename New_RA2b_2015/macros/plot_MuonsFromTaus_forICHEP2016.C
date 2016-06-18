@@ -75,7 +75,7 @@ void plot_MuonsFromTaus_forICHEP2016(){
   //sprintf(tempname,"TauHad2/Stack/Probability_Tau_mu_stacked.root");
   //sprintf(tempname,"TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root");
   sprintf(tempname,"TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root"); 
-
+  std::cout<<" tempname received "<<endl;
   TFile *file   = new TFile(tempname,"R");
   sprintf(tempnameMod,"TauHad2/Stack/Elog433_modifiedProbability_Tau_mu_stacked.root");
   TFile *file2   = new TFile(tempnameMod,"RECREATE");
@@ -114,11 +114,11 @@ void plot_MuonsFromTaus_forICHEP2016(){
 
     }
   }
-
+  std::cout<<" Before calling shift_bin "<<endl;
   thist_input = static_cast<TH1D*>(thist->Clone("thist_input"));
   shift_bin(thist_input,thist);
   thist_fixed = static_cast<TH1D*>(thist->Clone("thist_fixed"));
-
+  std::cout<<" shift_bin called "<<endl;
   /*
   TH1F *thist_fixed = new TH1F("thist_fixed","thist_fixed",18,1.,19.);
   for (int ibin=0;ibin<18;ibin++){
@@ -149,7 +149,7 @@ void plot_MuonsFromTaus_forICHEP2016(){
   thist_fixed->GetYaxis()->SetTitleFont(42);
 
   //KH adhoc
-  thist_fixed->SetBinContent(18,0.2);
+  //  thist_fixed->SetBinContent(18,0.2);
   
   thist_fixed->GetYaxis()->SetTitle("Fraction of muons from #tau decays");
   thist_fixed->GetXaxis()->SetTitle("Bin number");
@@ -246,14 +246,18 @@ void plot_MuonsFromTaus_forICHEP2016(){
   thist->Write();
   TH1D *thist_lowDphi = (TH1D*)file->Get("hProb_Tau_mu_lowDelphi")->Clone();
   thist_lowDphi->Write();
-
+  
 }
 
 void shift_bin(TH1* input, TH1* output){
 
   char tempname[200];  
-  char temptitle[200];  
+  char temptitle[200];
+  sprintf(tempname, "%s", output->GetName());  
+  cout << "shiftbin hname " << tempname << std::endl;
   output->SetName(tempname);
+  sprintf(temptitle, "%s", output->GetTitle());  
+  cout << "shiftbin htitle " << temptitle << std::endl;
   output->SetTitle(temptitle);
   output->SetBins(input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5);
   //input->Print("all");
