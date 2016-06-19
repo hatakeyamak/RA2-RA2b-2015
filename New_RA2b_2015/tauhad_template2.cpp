@@ -443,7 +443,11 @@ using namespace std;
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
     cout<< "\nProcessing " << subSampleKey << " ... " << endl;
-    for(unsigned int in=0; in<filesVec.size(); in++){ sample_AUX->Add(filesVec.at(in).c_str()); }
+
+    for(unsigned int in=0; in<filesVec.size(); in++){ 
+      sample_AUX->Add(filesVec.at(in).c_str()); 
+      //cout<<" filename "<< filesVec.at(in).c_str()<<std::endl;
+    }
 
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
@@ -503,7 +507,7 @@ using namespace std;
 
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
-
+    //std::cout<<" Instance of selection "<< std::endl;
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
@@ -606,6 +610,7 @@ using namespace std;
 
     // Rate of bTagged tau jet
     //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
+    //    std::cout<<" bRateFile is read "<<std::endl;
     TFile * bRateFile = new TFile("TauHad/Stack/Elog433_TauBtaggedRate_WJet_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
@@ -621,6 +626,7 @@ using namespace std;
     TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
+    //std::cout<<" acceptance file is read "<<std::endl;
     TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
 
     //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
@@ -642,6 +648,7 @@ using namespace std;
 
     // Get IsoTrk efficiencies
     //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
+    //std::cout<<" IsoEfficiency file is read "<<std::endl;
     TFile * IsoEffFile = new TFile("TauHad/Stack/Elog433_IsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
@@ -651,6 +658,7 @@ using namespace std;
 
     // Get MT efficiency that is calculated here in this code
     //TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
+    //std::cout<<" MTFile is read "<<std::endl;
     TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
@@ -786,7 +794,7 @@ using namespace std;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
       //if(eventN>10000)break;
-      //if(eventN>5000)break;
+      //      if(eventN>5000)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       

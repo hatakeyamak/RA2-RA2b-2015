@@ -93,7 +93,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   //
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
-  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
+  //  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
+  double lumi     = 3.0;
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
@@ -249,7 +250,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   TH1D * histTemplate;
 
   double HT_x_max=2500.;
-  double HT_x_min=400.;
+  //double HT_x_min=400.;
+  double HT_x_min=300.;
   double MHT_x_max=1000.;
   double NJet_x_max=11.;
   double NBtag_x_max=3.5;
@@ -626,14 +628,14 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 //  ttext->Draw();
 
   
-  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
-  tex->SetTextColor(4);
-  tex->SetTextFont(61);
-  tex->SetTextSize(0.045);
-  tex->SetLineColor(4);
-  tex->SetLineWidth(2);
-  //tex->Draw();
-  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
+//  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+//  tex->SetTextColor(4);
+//  tex->SetTextFont(61);
+//  tex->SetTextSize(0.045);
+//  tex->SetLineColor(4);
+//  tex->SetLineWidth(2);
+//  //tex->Draw();
+//  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
   gPad->RedrawAxis();
 
   //
