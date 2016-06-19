@@ -79,9 +79,9 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   float ymax3_top = 200.;
   float ymax4_top = 30.;
 
-  float ymax_bottom = 1.5;
+  float ymax_bottom = 1.99;
   //  float ymax_bottom = 3.5;
-  float ymin_bottom = 0.5;
+  float ymin_bottom = 0.01;
 
   float ymax2_bottom = 2.15;
   float ymax3_bottom = 2.15;
@@ -304,7 +304,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   EstHist_Normalize->DrawCopy("e2same");
   ////EstHist_Normalize->DrawCopy("esame");
   TH1D *EstHist_Normalize_Clone = (TH1D*)EstHist_Normalize->Clone(); 
-  for(int i=1; i<72; i++) {
+  for(int i=1; i<EstHist_Normalize_Clone->GetNbinsX(); i++) {
     EstHist_Normalize_Clone->SetBinError(i,0);
   } 
   EstHist_Normalize_Clone->SetFillColor(kWhite);
