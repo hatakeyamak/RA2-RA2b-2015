@@ -80,9 +80,9 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
   sprintf(tempNum,"Iso_pass");
   sprintf(tempDen,"Iso_all");
 
-  thist = (TH1D*)file->Get(tempname)->Clone();
-  histNum = (TH1D*)file->Get(tempNum)->Clone();
-  histDen = (TH1D*)file->Get(tempDen)->Clone();
+  TH1D* thist = (TH1D*)file->Get(tempname)->Clone();
+  TH1D* histNum = (TH1D*)file->Get(tempNum)->Clone();
+  TH1D* histDen = (TH1D*)file->Get(tempDen)->Clone();
 
   int nbins=histNum->GetNbinsX();
   std::cout<<"nbins "<<nbins<<endl;
@@ -115,9 +115,9 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
 
   std::cout << "thist name " << thist->GetName() << std::endl;
 
-  thist_input = static_cast<TH1D*>(thist->Clone("thist_input"));
+  TH1D* thist_input = static_cast<TH1D*>(thist->Clone("thist_input"));
   shift_bin(thist_input,thist);
-  thist_fixed = static_cast<TH1D*>(thist->Clone("thist_fixed"));
+  TH1D* thist_fixed = static_cast<TH1D*>(thist->Clone("thist_fixed"));
 
   thist->SetLineColor(1);
   thist->SetLineWidth(3);
@@ -244,6 +244,23 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
   thist->Write();
   TH1D *thist_lowDphi = (TH1D*)file->Get("IsoEff_lowDphi")->Clone();
   thist_lowDphi->Write();
+
+  //KH: keep the efficiency inputs for record
+  histNum->Write();
+  histDen->Write();
+  
+  //KH: Nb-dependence
+  sprintf(tempname,"IsoEff_NbNjet34"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet56"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet78"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet9");  thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+
+  sprintf(tempname,"IsoEff_NbNjet34_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet56_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet78_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+  sprintf(tempname,"IsoEff_NbNjet9_lowDphi");  thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
+
+  file2->Close();
 
 }
 
