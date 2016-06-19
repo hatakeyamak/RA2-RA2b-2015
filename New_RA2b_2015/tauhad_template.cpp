@@ -628,7 +628,7 @@ using namespace std;
       HadTauPhiVec.clear();
      
       if(TauHadModel>=4){
-	//std::cout << evt->GenTauHadVec_().size() << std::endl;
+  //std::cout << evt->GenTauHadVec_().size() << std::endl;
         for(int i=0; i<evt->GenTauHadVec_().size();i++){
           if(evt->GenTauHadVec_()[i]==1){
             double pt=evt->GenTauPtVec_()[i];
@@ -813,7 +813,7 @@ using namespace std;
 
 
       if(pass3){
-  cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
+	cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -835,7 +835,6 @@ using namespace std;
 	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78_lowDphi->Fill( evt->nBtagBin(),eventWeight );
 	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9_lowDphi->Fill(  evt->nBtagBin(),eventWeight );
 	  }
-
         }
 
         // Apply baseline cuts
@@ -874,16 +873,16 @@ using namespace std;
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
 
-	  //std::cout << "eventN:3 " << eventN << std::endl;
+    //std::cout << "eventN:3 " << eventN << std::endl;
 
           // Match directly to IsoTrk. But this wouldn't capture all 
           utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
           // 
           int JetIndex=-1;
           utils->findMatchedObject(JetIndex,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
-	  //printf("IsoElecIdx: %d \n ",IsoElecIdx);
+    //printf("IsoElecIdx: %d \n ",IsoElecIdx);
           if(JetIndex!=-1)utils->findMatchedObject(IsoElecIdx,evt->slimJetEtaVec_()[JetIndex],evt->slimJetPhiVec_()[JetIndex],evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
-	  //printf("IsoElecIdx: %d \n ",IsoElecIdx);
+    //printf("IsoElecIdx: %d \n ",IsoElecIdx);
 
           utils->findMatchedObject(IsoMuIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoMuPtVec_(),evt->IsoMuEtaVec_(),evt->IsoMuPhiVec_(),0.4,verbose);
           utils->findMatchedObject(IsoPionIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
@@ -928,10 +927,10 @@ using namespace std;
       double deltaRMax_forPlotting = genTauPt < 50. ? 0.2 : 0.1;
       if( utils->findMatchedObject(tauJetIdx_forPlotting,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax_forPlotting,verbose) ){
         tauPt_forPlotting = evt->slimJetPtVec_().at(tauJetIdx_forPlotting);
-	tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);       
+  tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);       
         if(tauPt_forPlotting>30.&& abs(tauEta_forPlotting) < 2.4){
           //tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);
-	  tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
+    tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
           tau_mht_dlephi_forPlotting = fabs(TVector2::Phi_mpi_pi( tauPhi_forPlotting - evt->mhtphi()  ));
 
           //printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_dlephi_forPlotting,tauPt_forPlotting,genTauPt);
@@ -1064,7 +1063,7 @@ using namespace std;
       // ("tau response template") for hadronically decaying taus
       for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
         // Select tau jet
-	//std::cout<<"eventN "<<eventN<<"jetid "<<jetIdx<<"tauJetPt "<<evt->slimJetPtVec_().at(jetIdx)<<"tauJetPtUp "<<evt->slimJetJECup_()->at(jetIdx).Pt()<<"tauJetPtDown "<<evt->slimJetJECdown_()->at(jetIdx).Pt()<<std::endl;
+  //std::cout<<"eventN "<<eventN<<"jetid "<<jetIdx<<"tauJetPt "<<evt->slimJetPtVec_().at(jetIdx)<<"tauJetPtUp "<<evt->slimJetJECup_()->at(jetIdx).Pt()<<"tauJetPtDown "<<evt->slimJetJECdown_()->at(jetIdx).Pt()<<std::endl;
 
         if( jetIdx == tauJetIdx ) {
           // Get the response pt bin for the tau
@@ -1073,7 +1072,7 @@ using namespace std;
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
           const double tauJetPtUp = evt->slimJetJECup_()->at(jetIdx).Pt();
           const double tauJetPtDown = evt->slimJetJECdown_()->at(jetIdx).Pt();
-	  //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
+    //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
 
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
@@ -1491,5 +1490,6 @@ using namespace std;
     tau_GenJetPhi->Write();
 
   }// end of main
+
 
 
