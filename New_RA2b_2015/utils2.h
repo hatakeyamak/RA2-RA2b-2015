@@ -135,45 +135,6 @@ namespace utils2{
 // Search bins integrated over nbtags
 
   // find appropriate bin number for the given (Njet,ht,mht) (and no Btag)
-/*
-      std::string findBin_NoB(int njet,double ht,double mht){
-        std::ostringstream binS;
-        int bNjet, bHtMht;
-        if(njet >= 3 && njet <=4)bNjet=1;else if(njet >= 5 && njet <=6)bNjet=2;else if(njet >= 7 && njet <=8)bNjet=3;else if(njet >= 9)bNjet=4; else bNjet=9;
-
-
-        if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=2;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=3;
-        else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=4;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=5;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=6;
-        else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=8;
-        else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=9;
-        else if(ht >= 1500 && mht>=750)bHtMht=10;
-        else bHtMht=99;
-
-
-        binS << 100*bNjet+bHtMht;
-
-        return binS.str();
-      }
-
-
-  // A map is needed between strings like "15" or "24" that specify the search bins ( without Btag)
-  // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
-  std::map <std::string,int> BinMap_NoB(){
-      int binN=0;
-      std::map <std::string , int> binMap_NoB;
-      for(int bNjet=1; bNjet<=4;  bNjet++){
-          for(int bHtMht=1; bHtMht<=10; bHtMht++){
-              std::ostringstream binS;
-              binS << 100*bNjet+bHtMht;
-              binN++;
-              binMap_NoB[binS.str()]=binN;
-              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
-          }
-      }
-    return binMap_NoB;
-  }
-*/
-
 
       std::string findBin_NoB(int njet,double ht,double mht){
         std::ostringstream binS;
@@ -287,8 +248,6 @@ namespace utils2{
       }
     return binMap_mht_nj;
   }
-
-
 
 //############################################################################################
 // Bins defined by Njet, HT, MHT (no b-tag) used for Iso-track veto parametrization
@@ -484,12 +443,13 @@ namespace utils2{
   }
 
 
+  int findBin_NBtag(int nbtag){
+    int nbtagbin = nbtag;
+    if (nbtagbin>=4) nbtagbin=3;
+    return nbtagbin; 
+  }
 
 
-
-
-
-
-}
+} // util2
 
 

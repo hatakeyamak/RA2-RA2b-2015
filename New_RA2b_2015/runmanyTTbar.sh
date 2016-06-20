@@ -37,11 +37,11 @@ for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf Inclusive
 
     if [ $type -eq 1 ]; then
 
-      if [ -e TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root ]; then
+      if [ -e TauHadMultiple/GenInfo_HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root ]; then
         echo warning !
-        echo exist TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root
+        echo exist TauHadMultiple/GenInfo_HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root
       else
-        echo submitting TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root
+        echo submitting TauHadMultiple/GenInfo_HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root
         qsub -l walltime=12:00:00 -N TTbar_$TTbarStr_$outStr -o qsub/ -e qsub/ -V $submitscript1  
       fi
 

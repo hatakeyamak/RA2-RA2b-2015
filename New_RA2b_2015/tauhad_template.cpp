@@ -145,9 +145,9 @@ using namespace std;
                                          11,0.,11.);
     cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
     cutflow_preselection->GetXaxis()->SetBinLabel(2,"Sample based gen-selection");
-    cutflow_preselection->GetXaxis()->SetBinLabel(3,"HBHEIsoNoiseFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(3,"HBHE(Iso)NoiseFilter");
     cutflow_preselection->GetXaxis()->SetBinLabel(4,"eeBadScFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(5,"HBHENoiseFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"CSCTightHalo/EcalDeadCellTriggerPrimitive");
     cutflow_preselection->GetXaxis()->SetBinLabel(6,"GoodVtx");
     cutflow_preselection->GetXaxis()->SetBinLabel(7,"JetID Cleaning");
     cutflow_preselection->GetXaxis()->SetBinLabel(8,"Hadronic tau");
@@ -271,6 +271,7 @@ using namespace std;
     Iso_pass2->Sumw2();
 
     // isotrack veto efficiency nb dependence
+    /*
     TH1* Iso_all_nb = new TH1D("Iso_all_nb","Isolated Trk efficiency -- all nb",4,-0.5,3.5);
     Iso_all_nb->Sumw2();
     TH1* Iso_pass_nb = new TH1D("Iso_pass_nb","Isolated Trk efficiency -- pass nb",4,-0.5,3.5);
@@ -280,6 +281,7 @@ using namespace std;
     Iso_all_nb_lowDphi->Sumw2();
     TH1* Iso_pass_nb_lowDphi = new TH1D("Iso_pass_nb_lowDphi","Isolated Trk efficiency -- pass nb_lowDphi",4,-0.5,3.5);
     Iso_pass_nb_lowDphi->Sumw2();
+    */
 
     TH1* Iso_all_nb_njet34 = new TH1D("Iso_all_nb_njet34","Isolated Trk efficiency -- all nb_njet34",4,-0.5,3.5);
     Iso_all_nb_njet34->Sumw2();
@@ -300,6 +302,27 @@ using namespace std;
     Iso_all_nb_njet9->Sumw2();
     TH1* Iso_pass_nb_njet9 = new TH1D("Iso_pass_nb_njet9","Isolated Trk efficiency -- pass nb_njet9",4,-0.5,3.5);
     Iso_pass_nb_njet9->Sumw2();
+        
+    //
+    TH1* Iso_all_nb_njet34_lowDphi = new TH1D("Iso_all_nb_njet34_lowDphi","Isolated Trk efficiency -- all nb_njet34_lowDphi",4,-0.5,3.5);
+    Iso_all_nb_njet34_lowDphi->Sumw2();
+    TH1* Iso_pass_nb_njet34_lowDphi = new TH1D("Iso_pass_nb_njet34_lowDphi","Isolated Trk efficiency -- pass nb_njet34_lowDphi",4,-0.5,3.5);
+    Iso_pass_nb_njet34_lowDphi->Sumw2();
+
+    TH1* Iso_all_nb_njet56_lowDphi = new TH1D("Iso_all_nb_njet56_lowDphi","Isolated Trk efficiency -- all nb_njet56_lowDphi",4,-0.5,3.5);
+    Iso_all_nb_njet56_lowDphi->Sumw2();
+    TH1* Iso_pass_nb_njet56_lowDphi = new TH1D("Iso_pass_nb_njet56_lowDphi","Isolated Trk efficiency -- pass nb_njet56_lowDphi",4,-0.5,3.5);
+    Iso_pass_nb_njet56_lowDphi->Sumw2();
+
+    TH1* Iso_all_nb_njet78_lowDphi = new TH1D("Iso_all_nb_njet78_lowDphi","Isolated Trk efficiency -- all nb_njet78_lowDphi",4,-0.5,3.5);
+    Iso_all_nb_njet78_lowDphi->Sumw2();
+    TH1* Iso_pass_nb_njet78_lowDphi = new TH1D("Iso_pass_nb_njet78_lowDphi","Isolated Trk efficiency -- pass nb_njet78_lowDphi",4,-0.5,3.5);
+    Iso_pass_nb_njet78_lowDphi->Sumw2();
+
+    TH1* Iso_all_nb_njet9_lowDphi = new TH1D("Iso_all_nb_njet9_lowDphi","Isolated Trk efficiency -- all nb_njet9_lowDphi",4,-0.5,3.5);
+    Iso_all_nb_njet9_lowDphi->Sumw2();
+    TH1* Iso_pass_nb_njet9_lowDphi = new TH1D("Iso_pass_nb_njet9_lowDphi","Isolated Trk efficiency -- pass nb_njet9_lowDphi",4,-0.5,3.5);
+    Iso_pass_nb_njet9_lowDphi->Sumw2();
         
     // They are filled for different bins in generated tau-lepton pt.
     std::vector<TH1*> hTauResp(utils->TauResponse_nBins_());
@@ -505,10 +528,12 @@ using namespace std;
 
       cutflow_preselection->Fill(1.,eventWeight);
       if(evt->HBHEIsoNoiseFilter_()==0)continue;
+      if(evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->HBHENoiseFilter_()==0)continue;
+      if(evt->CSCTightHaloFilter_()==0)continue;
+      if(evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight);
@@ -788,7 +813,7 @@ using namespace std;
 
 
       if(pass3){
-  cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
+	cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
 
         // Apply low delphi region
         if(sel->nolep(evt->nLeptons())&&sel->Njet_4(evt->nJets())&&sel->ht_500(evt->ht())
@@ -796,13 +821,20 @@ using namespace std;
           ){
 
           Iso_all_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
-          Iso_all_nb_lowDphi->Fill( evt->nBtagBin(),eventWeight );
+          //Iso_all_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=9                   ) Iso_all_nb_njet9_lowDphi->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
-      Iso_pass_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-      Iso_pass_nb_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-    }
-
+	    Iso_pass_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+	    //Iso_pass_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9_lowDphi->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	  }
         }
 
         // Apply baseline cuts
@@ -822,19 +854,20 @@ using namespace std;
           if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
 
           Iso_all->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          Iso_all_nb->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=9                   ) Iso_all_nb_njet9->Fill(  evt->nBtagBin(),eventWeight );
+          //Iso_all_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=9                   ) Iso_all_nb_njet9->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
-      Iso_pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-      Iso_pass_nb->Fill( evt->nBtagBin(),eventWeight );
-      if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34->Fill( evt->nBtagBin(),eventWeight );
-      if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56->Fill( evt->nBtagBin(),eventWeight );
-      if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( evt->nBtagBin(),eventWeight );
-      if (evt->nJets()>=9                   ) Iso_pass_nb_njet9->Fill(  evt->nBtagBin(),eventWeight );
-    }          
+	    Iso_pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
+	    //Iso_pass_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	  }          
 
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
@@ -1097,24 +1130,39 @@ using namespace std;
 
     // isotrack veto efficiencies - nb dependence 
     // rescaled to center around unity because they will be applied on top of already applied isotrk veto efficiency
+    /*
     TH1* IsoNbEff = static_cast<TH1*>(Iso_pass_nb->Clone("IsoNbEff"));
     IsoNbEff->Divide(Iso_pass_nb,Iso_all_nb,1,1,"B");
     if (Iso_pass_nb->GetSumOfWeights()>0.) IsoNbEff->Scale(Iso_all_nb->GetSumOfWeights()/Iso_pass_nb->GetSumOfWeights()); 
     TH1* IsoNbEff_lowDphi = static_cast<TH1*>(Iso_pass_nb_lowDphi->Clone("IsoNbEff_lowDphi"));
     IsoNbEff_lowDphi->Divide(Iso_pass_nb_lowDphi,Iso_all_nb_lowDphi,1,1,"B");
     if (Iso_pass_nb_lowDphi->GetSumOfWeights()>0.) IsoNbEff_lowDphi->Scale(Iso_all_nb_lowDphi->GetSumOfWeights()/Iso_pass_nb_lowDphi->GetSumOfWeights());
-    TH1* IsoNbNjet34Eff = static_cast<TH1*>(Iso_pass_nb_njet34->Clone("IsoNbNjet34Eff"));
-    IsoNbNjet34Eff->Divide(Iso_pass_nb_njet34,Iso_all_nb_njet34,1,1,"B");
-    if (Iso_pass_nb_njet34->GetSumOfWeights()>0.) IsoNbNjet34Eff->Scale(Iso_all_nb_njet34->GetSumOfWeights()/Iso_pass_nb_njet34->GetSumOfWeights());
-    TH1* IsoNbNjet56Eff = static_cast<TH1*>(Iso_pass_nb_njet56->Clone("IsoNbNjet56Eff"));
-    IsoNbNjet56Eff->Divide(Iso_pass_nb_njet56,Iso_all_nb_njet56,1,1,"B");
-    if (Iso_pass_nb_njet56->GetSumOfWeights()>0.) IsoNbNjet56Eff->Scale(Iso_all_nb_njet56->GetSumOfWeights()/Iso_pass_nb_njet56->GetSumOfWeights());
-    TH1* IsoNbNjet78Eff = static_cast<TH1*>(Iso_pass_nb_njet78->Clone("IsoNbNjet78Eff"));
-    IsoNbNjet78Eff->Divide(Iso_pass_nb_njet78,Iso_all_nb_njet78,1,1,"B");
-    if (Iso_pass_nb_njet78->GetSumOfWeights()>0.) IsoNbNjet78Eff->Scale(Iso_all_nb_njet78->GetSumOfWeights()/Iso_pass_nb_njet78->GetSumOfWeights());
-    TH1* IsoNbNjet9Eff = static_cast<TH1*>(Iso_pass_nb_njet9->Clone("IsoNbNjet9Eff"));
-    IsoNbNjet9Eff->Divide(Iso_pass_nb_njet9,Iso_all_nb_njet9,1,1,"B");
-    if (Iso_pass_nb_njet9->GetSumOfWeights()>0.) IsoNbNjet9Eff->Scale(Iso_all_nb_njet9->GetSumOfWeights()/Iso_pass_nb_njet9->GetSumOfWeights());
+    */
+    TH1* IsoEff_NbNjet34 = static_cast<TH1*>(Iso_pass_nb_njet34->Clone("IsoEff_NbNjet34"));
+    IsoEff_NbNjet34->Divide(Iso_pass_nb_njet34,Iso_all_nb_njet34,1,1,"B");
+    if (Iso_pass_nb_njet34->GetSumOfWeights()>0.) IsoEff_NbNjet34->Scale(Iso_all_nb_njet34->GetSumOfWeights()/Iso_pass_nb_njet34->GetSumOfWeights());
+    TH1* IsoEff_NbNjet56 = static_cast<TH1*>(Iso_pass_nb_njet56->Clone("IsoEff_NbNjet56"));
+    IsoEff_NbNjet56->Divide(Iso_pass_nb_njet56,Iso_all_nb_njet56,1,1,"B");
+    if (Iso_pass_nb_njet56->GetSumOfWeights()>0.) IsoEff_NbNjet56->Scale(Iso_all_nb_njet56->GetSumOfWeights()/Iso_pass_nb_njet56->GetSumOfWeights());
+    TH1* IsoEff_NbNjet78 = static_cast<TH1*>(Iso_pass_nb_njet78->Clone("IsoEff_NbNjet78"));
+    IsoEff_NbNjet78->Divide(Iso_pass_nb_njet78,Iso_all_nb_njet78,1,1,"B");
+    if (Iso_pass_nb_njet78->GetSumOfWeights()>0.) IsoEff_NbNjet78->Scale(Iso_all_nb_njet78->GetSumOfWeights()/Iso_pass_nb_njet78->GetSumOfWeights());
+    TH1* IsoEff_NbNjet9 = static_cast<TH1*>(Iso_pass_nb_njet9->Clone("IsoEff_NbNjet9"));
+    IsoEff_NbNjet9->Divide(Iso_pass_nb_njet9,Iso_all_nb_njet9,1,1,"B");
+    if (Iso_pass_nb_njet9->GetSumOfWeights()>0.) IsoEff_NbNjet9->Scale(Iso_all_nb_njet9->GetSumOfWeights()/Iso_pass_nb_njet9->GetSumOfWeights());
+
+    TH1* IsoEff_NbNjet34_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet34_lowDphi->Clone("IsoEff_NbNjet34_lowDphi"));
+    IsoEff_NbNjet34_lowDphi->Divide(Iso_pass_nb_njet34_lowDphi,Iso_all_nb_njet34_lowDphi,1,1,"B");
+    if (Iso_pass_nb_njet34_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet34_lowDphi->Scale(Iso_all_nb_njet34_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet34_lowDphi->GetSumOfWeights());
+    TH1* IsoEff_NbNjet56_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet56_lowDphi->Clone("IsoEff_NbNjet56_lowDphi"));
+    IsoEff_NbNjet56_lowDphi->Divide(Iso_pass_nb_njet56_lowDphi,Iso_all_nb_njet56_lowDphi,1,1,"B");
+    if (Iso_pass_nb_njet56_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet56_lowDphi->Scale(Iso_all_nb_njet56_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet56_lowDphi->GetSumOfWeights());
+    TH1* IsoEff_NbNjet78_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet78_lowDphi->Clone("IsoEff_NbNjet78_lowDphi"));
+    IsoEff_NbNjet78_lowDphi->Divide(Iso_pass_nb_njet78_lowDphi,Iso_all_nb_njet78_lowDphi,1,1,"B");
+    if (Iso_pass_nb_njet78_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet78_lowDphi->Scale(Iso_all_nb_njet78_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet78_lowDphi->GetSumOfWeights());
+    TH1* IsoEff_NbNjet9_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet9_lowDphi->Clone("IsoEff_NbNjet9_lowDphi"));
+    IsoEff_NbNjet9_lowDphi->Divide(Iso_pass_nb_njet9_lowDphi,Iso_all_nb_njet9_lowDphi,1,1,"B");
+    if (Iso_pass_nb_njet9_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet9_lowDphi->Scale(Iso_all_nb_njet9_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet9_lowDphi->GetSumOfWeights());
  
     sprintf(tempname,"%s/IsoEfficiencies_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile3(tempname,"RECREATE");
@@ -1136,24 +1184,38 @@ using namespace std;
     IsoEff2->Write();
     Iso_pass2->Write();
     Iso_all2->Write();
+    /*
     IsoNbEff->Write();
     Iso_pass_nb->Write();
     Iso_all_nb->Write();
     IsoNbEff_lowDphi->Write();
     Iso_pass_nb_lowDphi->Write();
     Iso_all_nb_lowDphi->Write();
-    IsoNbNjet34Eff->Write();
+    */
+    IsoEff_NbNjet34->Write();
     Iso_pass_nb_njet34->Write();
     Iso_all_nb_njet34->Write();
-    IsoNbNjet56Eff->Write();
+    IsoEff_NbNjet56->Write();
     Iso_pass_nb_njet56->Write();
     Iso_all_nb_njet56->Write();
-    IsoNbNjet78Eff->Write();
+    IsoEff_NbNjet78->Write();
     Iso_pass_nb_njet78->Write();
     Iso_all_nb_njet78->Write();
-    IsoNbNjet9Eff->Write();    
+    IsoEff_NbNjet9->Write();    
     Iso_pass_nb_njet9->Write();
     Iso_all_nb_njet9->Write();
+    IsoEff_NbNjet34_lowDphi->Write();
+    Iso_pass_nb_njet34_lowDphi->Write();
+    Iso_all_nb_njet34_lowDphi->Write();
+    IsoEff_NbNjet56_lowDphi->Write();
+    Iso_pass_nb_njet56_lowDphi->Write();
+    Iso_all_nb_njet56_lowDphi->Write();
+    IsoEff_NbNjet78_lowDphi->Write();
+    Iso_pass_nb_njet78_lowDphi->Write();
+    Iso_all_nb_njet78_lowDphi->Write();
+    IsoEff_NbNjet9_lowDphi->Write();    
+    Iso_pass_nb_njet9_lowDphi->Write();
+    Iso_all_nb_njet9_lowDphi->Write();
     outFile3.Close();
 
     // Compute acceptance
@@ -1287,7 +1349,6 @@ using namespace std;
 
     }
     outFile2.Close();
-
 
     //open a file to write the histograms
     sprintf(tempname,"%s/GenInfo_HadTauEstimation_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
