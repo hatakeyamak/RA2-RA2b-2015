@@ -184,9 +184,9 @@ using namespace std;
                                          11,0.,11.);
     cutflow_preselection->GetXaxis()->SetBinLabel(1,"All Events");
     cutflow_preselection->GetXaxis()->SetBinLabel(2,"Sample based gen-selection");
-    cutflow_preselection->GetXaxis()->SetBinLabel(3,"HBHEIsoNoiseFilter");
+    cutflow_preselection->GetXaxis()->SetBinLabel(3,"HBHE(Iso)NoiseFilter");
     cutflow_preselection->GetXaxis()->SetBinLabel(4,"eeBadScFilter");
-    cutflow_preselection->GetXaxis()->SetBinLabel(5,"HBHENoiseFilter");   
+    cutflow_preselection->GetXaxis()->SetBinLabel(5,"CSCTightHalo/EcalDeadCellTriggerPrimitive");   
     cutflow_preselection->GetXaxis()->SetBinLabel(6,"GoodVtx"); 
     cutflow_preselection->GetXaxis()->SetBinLabel(7,"JetID Cleaning");
     cutflow_preselection->GetXaxis()->SetBinLabel(8,"1-lepton");
@@ -649,10 +649,22 @@ using namespace std;
     // Get IsoTrk efficiencies
     //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
     //std::cout<<" IsoEfficiency file is read "<<std::endl;
-    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog433_IsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
 
+    TH1D * hIsoEff_NbNjet34 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet34")->Clone();
+    TH1D * hIsoEff_NbNjet34_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet34_lowDphi")->Clone();
+    
+    TH1D * hIsoEff_NbNjet56 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet56")->Clone();
+    TH1D * hIsoEff_NbNjet56_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet56_lowDphi")->Clone();
+    
+    TH1D * hIsoEff_NbNjet78 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet78")->Clone();
+    TH1D * hIsoEff_NbNjet78_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet78_lowDphi")->Clone();
+    
+    TH1D * hIsoEff_NbNjet9 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet9")->Clone();
+    TH1D * hIsoEff_NbNjet9_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet9_lowDphi")->Clone();
+    
     TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
@@ -794,7 +806,7 @@ using namespace std;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
       //if(eventN>10000)break;
-      //      if(eventN>5000)break;
+      //if(eventN>5000)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
       
@@ -816,11 +828,13 @@ using namespace std;
       
       cutflow_preselection->Fill(1.,eventWeight);
       if( !fastsim && evt->HBHEIsoNoiseFilter_()==0)continue;
+      if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
       cutflow_preselection->Fill(2.,eventWeight);
       if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if( !fastsim && evt->HBHENoiseFilter_()==0)continue;
       if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
+      if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
+      if( !fastsim && evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight); 
@@ -1217,7 +1231,7 @@ using namespace std;
               
               // New #b
               double NewNB=evt->nBtags();
-        //std::cout<<"Number of b tags "<<NewNB<<std::endl;
+	      //std::cout<<"Number of b tags "<<NewNB<<std::endl;
               // get the rate of tau jet mistagging as a function of pT.
               double bRateError_stat, bRatePlus_stat, bRateMinus_stat;
               double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
@@ -1334,8 +1348,8 @@ using namespace std;
               if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
 
               // if muon jet is dropped and muon is btagged, #original b shoud reduce by 1
-              // if muon jet is dropped but muon is not btagged, #b shoud stat the same as original one(no increase).
-              // if muon jet is not dropped but is btagged, #b shoud stat the same as original one(no increase).
+              // if muon jet is dropped but muon is not btagged, #b shoud stay the same as original one(no increase).
+              // if muon jet is not dropped but is btagged, #b shoud stay the same as original one(no increase).
               JetIdx=-1;
               utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
               if( (int) HT3JetVec.size() < (int) evt->nJets() ){
@@ -1343,7 +1357,6 @@ using namespace std;
                 else NewNB=evt->nBtags(); 
               }
               else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
-
 
               // New dphi1, dphi2, and dphi3
               double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.,newDphi4=-99.;
@@ -1652,6 +1665,23 @@ using namespace std;
                 if(utils2::IsoTrkModel==0){
                   IsoTrkWeight = hIsoEff->GetBinContent(binNum);
                   IsoTrkWeightError= hIsoEff->GetBinError(binNum);
+
+		  //KH
+		  double IsoTrkVetoEff_Nb;
+		  double IsoTrkVetoEff_Nb_Error;
+		  if (evt->nJets()>=3 && evt->nJets()<=4) IsoTrkVetoEff_Nb = hIsoEff_NbNjet34->GetBinContent( hIsoEff_NbNjet34->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		  if (evt->nJets()>=5 && evt->nJets()<=6) IsoTrkVetoEff_Nb = hIsoEff_NbNjet56->GetBinContent( hIsoEff_NbNjet56->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		  if (evt->nJets()>=7 && evt->nJets()<=8) IsoTrkVetoEff_Nb = hIsoEff_NbNjet78->GetBinContent( hIsoEff_NbNjet78->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		  if (evt->nJets()>=9                   ) IsoTrkVetoEff_Nb = hIsoEff_NbNjet9->GetBinContent(  hIsoEff_NbNjet9->FindBin(  utils2::findBin_NBtag(NewNB) ) );
+		  IsoTrkWeight *= IsoTrkVetoEff_Nb;
+	
+		  /*
+		  std::cout << "hIsoEff_Nb: " << newNJet << " "  
+			    << NewNB << " " 
+			    << utils2::findBin_NBtag(NewNB) << " "
+		            << IsoTrkVetoEff_Nb << std::endl;
+		  */
+
                   if(IsoTrkWeight==0){IsoTrkWeight=0.6; cout << "Warning! IsoTrkWeight==0 \n ";}
                 }
                 else if(utils2::IsoTrkModel==1){
@@ -1667,9 +1697,25 @@ using namespace std;
 
                 IsoTrkWeight_lowDphi = hIsoEff_lowDphi->GetBinContent(binNum);
                 IsoTrkWeightError_lowDphi = hIsoEff_lowDphi->GetBinError(binNum);
+
                 if(IsoTrkWeight_lowDphi==0)IsoTrkWeight_lowDphi=0.6;
                 IsoTrkWeightPlus_lowDphi = IsoTrkWeight_lowDphi + IsoTrkWeightError_lowDphi;
                 IsoTrkWeightMinus_lowDphi = IsoTrkWeight_lowDphi - IsoTrkWeightError_lowDphi;
+
+		double IsoTrkVetoEff_Nb;
+		double IsoTrkVetoEff_Nb_Error;
+		if (evt->nJets()>=3 && evt->nJets()<=4) IsoTrkVetoEff_Nb = hIsoEff_NbNjet34_lowDphi->GetBinContent( hIsoEff_NbNjet34_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		if (evt->nJets()>=5 && evt->nJets()<=6) IsoTrkVetoEff_Nb = hIsoEff_NbNjet56_lowDphi->GetBinContent( hIsoEff_NbNjet56_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		if (evt->nJets()>=7 && evt->nJets()<=8) IsoTrkVetoEff_Nb = hIsoEff_NbNjet78_lowDphi->GetBinContent( hIsoEff_NbNjet78_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
+		if (evt->nJets()>=9                   ) IsoTrkVetoEff_Nb = hIsoEff_NbNjet9_lowDphi->GetBinContent(  hIsoEff_NbNjet9_lowDphi->FindBin(  utils2::findBin_NBtag(NewNB) ) );
+		IsoTrkWeight_lowDphi *= IsoTrkVetoEff_Nb;
+
+		/*
+		std::cout << "hIsoEff_Nb(lowDphi): " << newNJet << " "  
+			  << NewNB << " " 
+			  << utils2::findBin_NBtag(NewNB) << " "
+			  << IsoTrkVetoEff_Nb << std::endl;
+		*/
 
                 searchWeight = totWeight*IsoTrkWeight;
                 weightEffAccForEvt = weightEffAcc*IsoTrkWeight;

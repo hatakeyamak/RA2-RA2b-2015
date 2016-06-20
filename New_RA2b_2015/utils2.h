@@ -443,12 +443,13 @@ namespace utils2{
   }
 
 
+  int findBin_NBtag(int nbtag){
+    int nbtagbin = nbtag;
+    if (nbtagbin>=4) nbtagbin=3;
+    return nbtagbin; 
+  }
 
 
-
-
-
-
-}
+} // util2
 
 

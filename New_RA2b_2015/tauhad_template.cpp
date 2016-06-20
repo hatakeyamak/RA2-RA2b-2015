@@ -821,19 +821,19 @@ using namespace std;
           ){
 
           Iso_all_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
-          //Iso_all_nb_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=9                   ) Iso_all_nb_njet9_lowDphi->Fill(  evt->nBtagBin(),eventWeight );
+          //Iso_all_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=9                   ) Iso_all_nb_njet9_lowDphi->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
 	    Iso_pass_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-	    //Iso_pass_nb_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78_lowDphi->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9_lowDphi->Fill(  evt->nBtagBin(),eventWeight );
+	    //Iso_pass_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9_lowDphi->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	  }
         }
 
@@ -854,19 +854,19 @@ using namespace std;
           if(evt->nIsoPion()==0)IsoPion_pass->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
 
           Iso_all->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-          //Iso_all_nb->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78->Fill( evt->nBtagBin(),eventWeight );
-          if (evt->nJets()>=9                   ) Iso_all_nb_njet9->Fill(  evt->nBtagBin(),eventWeight );
+          //Iso_all_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+          if (evt->nJets()>=9                   ) Iso_all_nb_njet9->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
 	    Iso_pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
-	    //Iso_pass_nb->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( evt->nBtagBin(),eventWeight );
-	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9->Fill(  evt->nBtagBin(),eventWeight );
+	    //Iso_pass_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	  }          
 
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk

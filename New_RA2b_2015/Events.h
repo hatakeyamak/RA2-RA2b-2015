@@ -170,9 +170,9 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   int LumiBlocknum() const;
   int nJets() const;
   int nBtags() const;
-  int nBtagBin() const;
+  //int nBtagBin() const;
   int nLeptons() const;
-//  int nIso() const;
+  //  int nIso() const;
   int nIsoElec() const ;
   int nIsoMu() const ;
   int nIsoPion() const;
