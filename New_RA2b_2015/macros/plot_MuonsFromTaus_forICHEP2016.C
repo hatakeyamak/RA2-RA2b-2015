@@ -74,7 +74,8 @@ void plot_MuonsFromTaus_forICHEP2016(){
   
   //sprintf(tempname,"TauHad2/Stack/Probability_Tau_mu_stacked.root");
   //sprintf(tempname,"TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root");
-  sprintf(tempname,"TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root"); 
+  //    sprintf(tempname,"TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root"); 
+  sprintf(tempname,"TauHad2/Stack/Elog433_Probability_Tau_mu_stacked_LowStatBinsNotCorrected.root");
   std::cout<<" tempname received "<<endl;
   TFile *file   = new TFile(tempname,"R");
   sprintf(tempnameMod,"TauHad2/Stack/Elog433_modifiedProbability_Tau_mu_stacked.root");
@@ -92,7 +93,7 @@ void plot_MuonsFromTaus_forICHEP2016(){
   std::cout<<"nbins "<<nbins<<endl;
 
   for(int j=1;j<=nbins;j++){
-    //std::cout<<"..........................."<<endl;                                                                                                                   
+    //std::cout<<"..........................."<<endl;                                                                                       
     double binvalue=0;
     double ratio=thist->GetBinContent(j);
     double newN=0;
@@ -190,7 +191,7 @@ void plot_MuonsFromTaus_forICHEP2016(){
 
   TLatex * ttext6 = new TLatex(66.25 , ytext , "N_{jets} #geq 9");
   ttext6->SetTextFont(42);
-  ttext6->SetTextSize(0.02);
+  ttext6->SetTextSize(0.05);
   ttext6->SetTextAlign(22);
   ttext6->Draw();
 
@@ -242,6 +243,8 @@ void plot_MuonsFromTaus_forICHEP2016(){
   pt.Draw();
 */
   c1->Print("plot_MuonsFromTaus.png");
+  c1->Print("plot_MuonsFromTaus.pdf");
+
   file2->cd();
   thist->Write();
   TH1D *thist_lowDphi = (TH1D*)file->Get("hProb_Tau_mu_lowDelphi")->Clone();
