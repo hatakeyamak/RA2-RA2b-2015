@@ -75,6 +75,7 @@ using namespace std;
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
 
     char tempname[200];
+    char tempname2[200];
     char histname[200];
     vector<TH1D > vec, vec_search;
     map<int, string> eventType;
@@ -101,9 +102,8 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-    Double_t ht_bins[15] = {
-      0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
-      1000.,1200.,1500.,2000.,5000.};
+    Double_t ht_bins[15] = { 0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
+			     1000.,1200.,1500.,2000.,5000.};
     Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
                              700.,1000.,5000.};
 
@@ -507,7 +507,6 @@ using namespace std;
 
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
-    //std::cout<<" Instance of selection "<< std::endl;
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
@@ -776,7 +775,6 @@ using namespace std;
     
     if(!utils2::bootstrap && StudyErrorPropag)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
 
-
     int sampletype=-1;
     if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
     else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
@@ -798,12 +796,9 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-
       eventWeight = evt->weight();
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
-      //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
-      //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
       //if(eventN>10000)break;
       //if(eventN>5000)break;
@@ -812,15 +807,15 @@ using namespace std;
       
       if(!evt->DataBool_()){
       
-        if(sampletype==0){
+        if(sampletype==0){ // TTbar_Inclusive, use only for all-hadronic && HT<600 GeV
           if(evt->gen_ht()>600||evt->GenElecPtVec_().size()>0||evt->GenMuPtVec_().size()>0||evt->GenTauPtVec_().size()>0)continue;
         }
 
-        if(sampletype==1){
-          if(evt->gen_ht()>600)continue;
+        if(sampletype==1){ // TTbar_Tbar_SingleLep, use only for 1-lepton ttbar && HT<600 GeV
+          if(evt->gen_ht()>600)continue; 
         }
 
-        if(sampletype==2){
+        if(sampletype==2){ // TTbar_DiLept, use only for 1-lepton ttbar && HT<600 GeV
           if(evt->gen_ht()>600)continue;
         }
         
@@ -846,10 +841,13 @@ using namespace std;
 
       // Trigger check
       bool trigPass=false;
-      if(isData && 2==1){
-        cout << " hehe \n " ;
+      bool lowHTSelection=false;      
+      //if(isData && 2==1){
+      if(isData){
+	/*
         string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_v";
         if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_v";
+	*/
         bool trigfound=false;
         if(verbose!=0)
           cout << "############################\n "; 
@@ -858,28 +856,19 @@ using namespace std;
           if(verbose!=0){
             cout << evt->TriggerNames_().at(i) << endl; 
             cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
-          }
+	  }
 
           string trigStr;
-          if(!isData)trigStr="PFHT400";
-          if(isData)trigStr="PFHT350";
-          sprintf(tempname,"HLT_Mu15_IsoVVVL_%s_v",trigStr.c_str());
-          //if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){          
-          if( evt->TriggerNames_().at(i).find(tempname) != string::npos ){
-          //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
-          //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos ){
+          sprintf(tempname,"HLT_Mu15_IsoVVVL_PFHT400_v");
+          sprintf(tempname2,"HLT_Mu15_IsoVVVL_PFHT350_v");
+	  if (lowHTSelection){
+	    sprintf(tempname,"HLT_IsoMu22_v");
+	    sprintf(tempname2,"HLT_IsoMu22_v");
+	  }
 
+          if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
+	      evt->TriggerNames_().at(i).find(tempname2) != string::npos){
 
-
-  //        if( evt->TriggerNames_().at(i).find(tempname) != string::npos
-  //            || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
-  //          ){
-  /*
-          if( evt->TriggerNames_().at(i).find(tempname) != string::npos
-              || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
-              || evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos
-            ){
-  */
             trigfound=true; 
             if(evt->PassTrigger_().at(i)==1)trigPass=true;
           }
@@ -889,7 +878,7 @@ using namespace std;
         if(!trigfound ){
           cout << " ####\n ####\n trigger was not found \n ####\n ";
         }
-        if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
+        //if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
         if(!trigPass)continue;
       }
     
