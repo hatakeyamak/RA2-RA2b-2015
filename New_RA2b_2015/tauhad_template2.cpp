@@ -1117,7 +1117,7 @@ using namespace std;
             // 3Vec of muon and scaledMu 
             TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
             double NewTauJetPt=0.0;
-      double NewTauJetEta=0.0;
+	    double NewTauJetEta=0.0;
             SimTauJet3Vec.SetPtEtaPhi(simTauJetPt_xy,simTauJetEta,simTauJetPhi_xy);
             Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
@@ -1143,19 +1143,41 @@ using namespace std;
             evt->Jets_muonMultiplicity_()[jetIdx]==1)
             {
               //double muFrac = evt->Jets_muonEnergyFraction_()[jetIdx];
-        double jecCorr = evt->Jets_jecFactor_()[jetIdx];
+        double jecCorr = evt->Jets_jecFactor1;2c_()[jetIdx];
               //double muPtModified = (evt->JetsEVec_()[jetIdx]*muFrac/muE)*muPt;
         double muPtModified = jecCorr*muPt;
               //printf(" mu: ==> PtModified: %g Pt: %g muPtModified/muPt: %g \n ",muPtModified,muPt,muPtModified/muPt); 
               if(muPtModified/muPt < 2.)Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
             }
 */
-      if(slimJetIdx!=-1)
-        { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
-    double muPtModified = jecCorr*muPt;
-    Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
-    if(muPtModified/muPt > 2.)std::cout<<"something is wrong"<<std::endl;
-        }
+
+	    if (slimJetIdx==-1){
+	      std::cout << "slimJetIdx: " << slimJetIdx << std::endl;
+	      std::cout << muPt << " " << muEta << " " << muPhi << std::endl;
+	    }
+	    /*
+	    for(int i=0;i<evt->slimJetPtVec_().size();i++){
+                temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+		temp3Vec.Print();
+            }
+	    */
+
+	    if(slimJetIdx!=-1)
+	      { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+		//KH adhoc correction
+		/*
+		if (jecCorr<1.05) jecCorr=1.05;
+		double muPtModified = jecCorr*muPt;
+		Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
+		if(muPtModified/muPt > 2.)std::cout<<"something is wrong"<<std::endl;
+		*/
+		Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
+		/*
+		std::cout << jecCorr << " " 
+			  << evt->JetsPtVec_()[slimJetIdx] << " "
+			  << evt->JetsEtaVec_()[slimJetIdx] << std::endl;
+		*/
+	      }
 
             // If there is no match, add the tau jet as a new one
             if(slimJetIdx==-1){
@@ -1174,7 +1196,7 @@ using namespace std;
               MuJet_fail->Fill(muPt,eventWeight);
               NewTauJet3Vec=SimTauJet3Vec;
               NewTauJetPt = NewTauJet3Vec.Pt();
-        NewTauJetEta = NewTauJet3Vec.Eta();
+	      NewTauJetEta = NewTauJet3Vec.Eta();
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
@@ -1186,10 +1208,13 @@ using namespace std;
               }
               else if(i==slimJetIdx){
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
-                NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+		double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+		if (jecCorr==0.) jecCorr=1.;
+		temp3Vec *= 1./jecCorr; temp3Vec -= Muon3Vec; temp3Vec *= jecCorr;
+                NewTauJet3Vec=temp3Vec+SimTauJet3Vec;
                 NewTauJetPt = NewTauJet3Vec.Pt();
-    NewTauJetEta = NewTauJet3Vec.Eta();
-                if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+		NewTauJetEta = NewTauJet3Vec.Eta();
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
               }
               
