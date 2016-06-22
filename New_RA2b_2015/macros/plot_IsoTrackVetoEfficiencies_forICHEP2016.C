@@ -69,9 +69,9 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
   //
   
   sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked.root",elogForPlot.c_str());
+
   std::cout << "Adjusting " << tempname << std::endl;
   TFile *file   = new TFile(tempname,"R");
-
   sprintf(tempnameMod,"TauHad/Stack/%smodifiedIsoEfficiencies_stacked.root",elogForPlot.c_str());
   std::cout << "Adjusted " << tempnameMod << std::endl;
   TFile *file2   = new TFile(tempnameMod,"RECREATE");
