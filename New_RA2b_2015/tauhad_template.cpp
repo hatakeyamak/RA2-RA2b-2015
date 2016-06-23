@@ -239,6 +239,17 @@ using namespace std;
     hAccAll_lowDphi->Sumw2();
     hAccPass_lowDphi->Sumw2();
 
+    //-----
+    TH1* hAcc4DAll = new TH1D("hAcc4DAll","Acceptance -- All -- Nj-Nb-HTMHT",totNbins_QCD,1,totNbins_QCD+1);
+    TH1* hAcc4DPass = new TH1D("hAcc4DPass","Acceptance -- Pass -- Nj-Nb-HTMHT",totNbins_QCD,1,totNbins_QCD+1);
+    hAcc4DAll->Sumw2();
+    hAcc4DPass->Sumw2();
+
+    TH1* hAcc4DAll_lowDphi = new TH1D("hAcc4DAll_lowDphi","Acceptance -- All -- Nj-Nb-HTMHT",totNbins_QCD,1,totNbins_QCD+1);
+    TH1* hAcc4DPass_lowDphi = new TH1D("hAcc4DPass_lowDphi","Acceptance -- Pass -- Nj-Nb-HTMHT",totNbins_ForAcc,1,totNbins_ForAcc+1);
+    hAcc4DAll_lowDphi->Sumw2();
+    hAcc4DPass_lowDphi->Sumw2();
+
     // calculate isotrack veto efficiencies
     TH1* IsoElec_all = new TH1D("IsoElec_all","Isolated electron efficiency -- all ",totNbins,1,totNbins+1);
     IsoElec_all->Sumw2();

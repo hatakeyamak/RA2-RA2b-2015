@@ -261,6 +261,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   double Delphi1_x_max=3.2;
   //Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.}; 
   Double_t NJ_bins[12]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,11.5,19.5}; 
+  Double_t HT_bins[13]={0.,300.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.};
  
   TH1D * GenHist_Clone;
   
@@ -342,15 +343,33 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 	GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
 	shift_bin(GenHist_input,GenHist);
 	thist=GenHist;
-	if(histname=="NJet")GenHist=(TH1D*)GenHist->Rebin(10,"GenHist",NJ_bins);
-	if(histname=="NJet")thist=(TH1D*) thist->Rebin(10,"thist",NJ_bins);
+	if(histname=="NJet")GenHist=(TH1D*)GenHist->Rebin(11,"GenHist",NJ_bins);
+	if(histname=="NJet")thist=(TH1D*) thist->Rebin(11,"thist",NJ_bins);
       }
       if (i==1){
 	EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
 	shift_bin(EstHist_input,EstHist);
 	thist=EstHist;
-	if(histname=="NJet")EstHist=(TH1D*)EstHist->Rebin(10,"EstHist",NJ_bins);
-	if(histname=="NJet")thist=(TH1D*) thist->Rebin(10,"thist",NJ_bins);
+	if(histname=="NJet")EstHist=(TH1D*)EstHist->Rebin(11,"EstHist",NJ_bins);
+	if(histname=="NJet")thist=(TH1D*) thist->Rebin(11,"thist",NJ_bins);
+      }
+    }
+    if(histname=="HT"){
+      TH1D * GenHist_input;
+      TH1D * EstHist_input;
+      if (i==0){ 
+	//GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
+	//shift_bin(GenHist_input,GenHist);
+	thist=GenHist;
+	if(histname=="HT")GenHist=(TH1D*)GenHist->Rebin(12,"GenHist",HT_bins);
+	if(histname=="HT")thist=(TH1D*) thist->Rebin(12,"thist",HT_bins);
+      }
+      if (i==1){
+	//EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
+	//shift_bin(EstHist_input,EstHist);
+	thist=EstHist;
+	if(histname=="HT")EstHist=(TH1D*)EstHist->Rebin(12,"EstHist",HT_bins);
+	if(histname=="HT")thist=(TH1D*) thist->Rebin(12,"thist",HT_bins);
       }
     }
     //KH
@@ -423,7 +442,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     if(histname=="NBtag"){
       xtext_top = 2.8;
       //y_legend = 3000.;
-      ymax_top = 1400.;
+      //ymax_top = 1400.;
+      ymax_top = 5000.;
       if(cutname=="Njet_9") ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;

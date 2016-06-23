@@ -75,6 +75,7 @@ using namespace std;
     TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
 
     char tempname[200];
+    char tempname2[200];
     char histname[200];
     vector<TH1D > vec, vec_search;
     map<int, string> eventType;
@@ -101,9 +102,8 @@ using namespace std;
     double simTauJetEta;
     double simTauJetPhi,simTauJetPhi_xy;
 
-    Double_t ht_bins[15] = {
-      0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
-      1000.,1200.,1500.,2000.,5000.};
+    Double_t ht_bins[15] = { 0., 100.,200.,300.,400.,500.,600.,700.,800.,900.,
+			     1000.,1200.,1500.,2000.,5000.};
     Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
                              700.,1000.,5000.};
 
@@ -507,7 +507,6 @@ using namespace std;
 
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
-    //std::cout<<" Instance of selection "<< std::endl;
     // For each selection, cut, make a vector containing the same histograms as those in vec
     for(int i=0; i<(int) sel->cutName().size();i++){
       cut_histvec_map[sel->cutName()[i]]=vec;
@@ -776,7 +775,6 @@ using namespace std;
     
     if(!utils2::bootstrap && StudyErrorPropag)cout << " propagation of errors are not handled right when bootstrap is off :( .\n Turn it on or fix me please :) . \n";
 
-
     int sampletype=-1;
     if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
     else if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos || subSampleKey.find("TTbar_T_SingleLep")!=string::npos)sampletype=1;
@@ -798,12 +796,9 @@ using namespace std;
     while( evt->loadNext() ){
       eventN++;
 
-
       eventWeight = evt->weight();
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
-      //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
-      //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
 
       //if(eventN>10000)break;
       //if(eventN>5000)break;
@@ -812,15 +807,15 @@ using namespace std;
       
       if(!evt->DataBool_()){
       
-        if(sampletype==0){
+        if(sampletype==0){ // TTbar_Inclusive, use only for all-hadronic && HT<600 GeV
           if(evt->gen_ht()>600||evt->GenElecPtVec_().size()>0||evt->GenMuPtVec_().size()>0||evt->GenTauPtVec_().size()>0)continue;
         }
 
-        if(sampletype==1){
-          if(evt->gen_ht()>600)continue;
+        if(sampletype==1){ // TTbar_Tbar_SingleLep, use only for 1-lepton ttbar && HT<600 GeV
+          if(evt->gen_ht()>600)continue; 
         }
 
-        if(sampletype==2){
+        if(sampletype==2){ // TTbar_DiLept, use only for 1-lepton ttbar && HT<600 GeV
           if(evt->gen_ht()>600)continue;
         }
         
@@ -846,10 +841,13 @@ using namespace std;
 
       // Trigger check
       bool trigPass=false;
-      if(isData && 2==1){
-        cout << " hehe \n " ;
+      bool lowHTSelection=false;      
+      //if(isData && 2==1){
+      if(isData){
+	/*
         string triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT350_v";
         if (!evt->DataBool_()) triggerNameToBeUsed = "HLT_Mu15_IsoVVVL_PFHT400_v";
+	*/
         bool trigfound=false;
         if(verbose!=0)
           cout << "############################\n "; 
@@ -858,28 +856,19 @@ using namespace std;
           if(verbose!=0){
             cout << evt->TriggerNames_().at(i) << endl; 
             cout << " Pass: " << evt->PassTrigger_().at(i) << " \n+\n";
-          }
+	  }
 
           string trigStr;
-          if(!isData)trigStr="PFHT400";
-          if(isData)trigStr="PFHT350";
-          sprintf(tempname,"HLT_Mu15_IsoVVVL_%s_v",trigStr.c_str());
-          //if( evt->TriggerNames_().at(i).find(triggerNameToBeUsed) != string::npos ){          
-          if( evt->TriggerNames_().at(i).find(tempname) != string::npos ){
-          //if( evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos ){
-          //if( evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos ){
+          sprintf(tempname,"HLT_Mu15_IsoVVVL_PFHT400_v");
+          sprintf(tempname2,"HLT_Mu15_IsoVVVL_PFHT350_v");
+	  if (lowHTSelection){
+	    sprintf(tempname,"HLT_IsoMu22_v");
+	    sprintf(tempname2,"HLT_IsoMu22_v");
+	  }
 
+          if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
+	      evt->TriggerNames_().at(i).find(tempname2) != string::npos){
 
-
-  //        if( evt->TriggerNames_().at(i).find(tempname) != string::npos
-  //            || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
-  //          ){
-  /*
-          if( evt->TriggerNames_().at(i).find(tempname) != string::npos
-              || evt->TriggerNames_().at(i).find("HLT_Mu50_v") != string::npos
-              || evt->TriggerNames_().at(i).find("HLT_Mu15_IsoVVVL_PFHT600_v2") != string::npos
-            ){
-  */
             trigfound=true; 
             if(evt->PassTrigger_().at(i)==1)trigPass=true;
           }
@@ -889,7 +878,7 @@ using namespace std;
         if(!trigfound ){
           cout << " ####\n ####\n trigger was not found \n ####\n ";
         }
-        if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
+        //if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
         if(!trigPass)continue;
       }
     
@@ -1117,7 +1106,7 @@ using namespace std;
             // 3Vec of muon and scaledMu 
             TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
             double NewTauJetPt=0.0;
-      double NewTauJetEta=0.0;
+	    double NewTauJetEta=0.0;
             SimTauJet3Vec.SetPtEtaPhi(simTauJetPt_xy,simTauJetEta,simTauJetPhi_xy);
             Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
@@ -1143,19 +1132,41 @@ using namespace std;
             evt->Jets_muonMultiplicity_()[jetIdx]==1)
             {
               //double muFrac = evt->Jets_muonEnergyFraction_()[jetIdx];
-        double jecCorr = evt->Jets_jecFactor_()[jetIdx];
+        double jecCorr = evt->Jets_jecFactor1;2c_()[jetIdx];
               //double muPtModified = (evt->JetsEVec_()[jetIdx]*muFrac/muE)*muPt;
         double muPtModified = jecCorr*muPt;
               //printf(" mu: ==> PtModified: %g Pt: %g muPtModified/muPt: %g \n ",muPtModified,muPt,muPtModified/muPt); 
               if(muPtModified/muPt < 2.)Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
             }
 */
-      if(slimJetIdx!=-1)
-        { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
-    double muPtModified = jecCorr*muPt;
-    Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
-    if(muPtModified/muPt > 2.)std::cout<<"something is wrong"<<std::endl;
-        }
+
+	    if (slimJetIdx==-1){
+	      std::cout << "slimJetIdx: " << slimJetIdx << std::endl;
+	      std::cout << muPt << " " << muEta << " " << muPhi << std::endl;
+	    }
+	    /*
+	    for(int i=0;i<evt->slimJetPtVec_().size();i++){
+                temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+		temp3Vec.Print();
+            }
+	    */
+
+	    if(slimJetIdx!=-1)
+	      { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+		//KH adhoc correction
+		/*
+		if (jecCorr<1.05) jecCorr=1.05;
+		double muPtModified = jecCorr*muPt;
+		Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
+		if(muPtModified/muPt > 2.)std::cout<<"something is wrong"<<std::endl;
+		*/
+		Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
+		/*
+		std::cout << jecCorr << " " 
+			  << evt->JetsPtVec_()[slimJetIdx] << " "
+			  << evt->JetsEtaVec_()[slimJetIdx] << std::endl;
+		*/
+	      }
 
             // If there is no match, add the tau jet as a new one
             if(slimJetIdx==-1){
@@ -1174,7 +1185,7 @@ using namespace std;
               MuJet_fail->Fill(muPt,eventWeight);
               NewTauJet3Vec=SimTauJet3Vec;
               NewTauJetPt = NewTauJet3Vec.Pt();
-        NewTauJetEta = NewTauJet3Vec.Eta();
+	      NewTauJetEta = NewTauJet3Vec.Eta();
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
@@ -1186,10 +1197,13 @@ using namespace std;
               }
               else if(i==slimJetIdx){
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
-                NewTauJet3Vec=temp3Vec-Muon3Vec+SimTauJet3Vec;
+		double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+		if (jecCorr==0.) jecCorr=1.;
+		temp3Vec *= 1./jecCorr; temp3Vec -= Muon3Vec; temp3Vec *= jecCorr;
+                NewTauJet3Vec=temp3Vec+SimTauJet3Vec;
                 NewTauJetPt = NewTauJet3Vec.Pt();
-    NewTauJetEta = NewTauJet3Vec.Eta();
-                if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+		NewTauJetEta = NewTauJet3Vec.Eta();
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
               }
               

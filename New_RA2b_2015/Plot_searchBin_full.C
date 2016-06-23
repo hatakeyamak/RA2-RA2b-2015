@@ -289,6 +289,165 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   GenHist->GetYaxis()->SetTitle(ytitlename);
   GenHist->Scale(lumi/lumi_ref);
   EstHist->Scale(lumi/lumi_ref);
+
+  bool Adhoc_NjetNbjet=true;
+  if(Adhoc_NjetNbjet){
+    //int Nbins=GenHist->GetNbinX();
+    //std::cout<<"Nbins "<< Nbins <<std::endl;  
+    double Gen_Njet34_nb0=0; double Gen_Njet34_nb1=0;double Gen_Njet34_nb2=0;double Gen_Njet34_nb3=0;double Est_Njet34_nb0=0;double Est_Njet34_nb1=0;double Est_Njet34_nb2=0;double Est_Njet34_nb3=0;
+    double Gen_Njet56_nb0=0; double Gen_Njet56_nb1=0;double Gen_Njet56_nb2=0;double Gen_Njet56_nb3=0;double Est_Njet56_nb0=0;double Est_Njet56_nb1=0;double Est_Njet56_nb2=0;double Est_Njet56_nb3=0;
+    double Gen_Njet78_nb0=0; double Gen_Njet78_nb1=0;double Gen_Njet78_nb2=0;double Gen_Njet78_nb3=0;double Est_Njet78_nb0=0;double Est_Njet78_nb1=0;double Est_Njet78_nb2=0;double Est_Njet78_nb3=0;
+    double Gen_Njet9Above_nb0=0; double Gen_Njet9Above_nb1=0;double Gen_Njet9Above_nb2=0;double Gen_Njet9Above_nb3=0;double Est_Njet9Above_nb0=0;double Est_Njet9Above_nb1=0;double Est_Njet9Above_nb2=0;double Est_Njet9Above_nb3=0;
+    double Correction_Njet34_nb0=0;double Correction_Njet34_nb1=0;double Correction_Njet34_nb2=0;double Correction_Njet34_nb3=0;
+    double Correction_Njet56_nb0=0;double Correction_Njet56_nb1=0;double Correction_Njet56_nb2=0;double Correction_Njet56_nb3=0;
+    double Correction_Njet78_nb0=0;double Correction_Njet78_nb1=0;double Correction_Njet78_nb2=0;double Correction_Njet78_nb3=0;
+    double Correction_Njet9Above_nb0=0;double Correction_Njet9Above_nb1=0;double Correction_Njet9Above_nb2=0;double Correction_Njet9Above_nb3=0;
+
+    int HtMhtBins=10;
+    for(int j=1;j<=160;j++){
+      if(j<=10){
+	Gen_Njet34_nb0 +=GenHist->GetBinContent(j);
+	Est_Njet34_nb0 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>10 && j<=20){
+	Gen_Njet34_nb1 +=GenHist->GetBinContent(j);
+	Est_Njet34_nb1 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>20 && j<=30){
+	Gen_Njet34_nb2 +=GenHist->GetBinContent(j);
+	Est_Njet34_nb2 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>30 && j<=40){
+	Gen_Njet34_nb3 +=GenHist->GetBinContent(j);
+	Est_Njet34_nb3 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>40 && j<=50){
+	Gen_Njet56_nb0 +=GenHist->GetBinContent(j);
+	Est_Njet56_nb0 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>50 && j<=60){
+	Gen_Njet56_nb1 +=GenHist->GetBinContent(j);
+	Est_Njet56_nb1 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>60 && j<=70){
+	Gen_Njet56_nb2 +=GenHist->GetBinContent(j);
+	Est_Njet56_nb2 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>70 && j<=80){
+	Gen_Njet56_nb3 +=GenHist->GetBinContent(j);
+	Est_Njet56_nb3 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>80 && j<=90){
+	Gen_Njet78_nb0 +=GenHist->GetBinContent(j);
+	Est_Njet78_nb0 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>90 && j<=100){
+	Gen_Njet78_nb1 +=GenHist->GetBinContent(j);
+	Est_Njet78_nb1 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>100 && j<=110){
+	Gen_Njet78_nb2 +=GenHist->GetBinContent(j);
+	Est_Njet78_nb2 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>110 && j<=120){
+	Gen_Njet78_nb3 +=GenHist->GetBinContent(j);
+	Est_Njet78_nb3 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>120 && j<=130){
+	Gen_Njet9Above_nb0 +=GenHist->GetBinContent(j);
+	Est_Njet9Above_nb0 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>130 && j<=140){
+	Gen_Njet9Above_nb1 +=GenHist->GetBinContent(j);
+	Est_Njet9Above_nb1 +=EstHist->GetBinContent(j);
+	
+      }
+      else if(j>140 && j<=150){
+	Gen_Njet9Above_nb2 +=GenHist->GetBinContent(j);
+	Est_Njet9Above_nb2 +=EstHist->GetBinContent(j);
+	
+      }
+      else{
+	Gen_Njet9Above_nb3 +=GenHist->GetBinContent(j);
+	Est_Njet9Above_nb3 +=EstHist->GetBinContent(j);
+      }
+      
+    }
+    Correction_Njet34_nb0=Gen_Njet34_nb0/Est_Njet34_nb0;
+    Correction_Njet34_nb1=Gen_Njet34_nb1/Est_Njet34_nb1;
+    Correction_Njet34_nb2=Gen_Njet34_nb2/Est_Njet34_nb2;
+    Correction_Njet34_nb3=Gen_Njet34_nb3/Est_Njet34_nb3;
+
+    Correction_Njet56_nb0=Gen_Njet56_nb0/Est_Njet56_nb0;
+    Correction_Njet56_nb1=Gen_Njet56_nb1/Est_Njet56_nb1;
+    Correction_Njet56_nb2=Gen_Njet56_nb2/Est_Njet56_nb2;
+    Correction_Njet56_nb3=Gen_Njet56_nb3/Est_Njet56_nb3;
+
+    Correction_Njet78_nb0=Gen_Njet78_nb0/Est_Njet78_nb0;
+    Correction_Njet78_nb1=Gen_Njet78_nb1/Est_Njet78_nb1;
+    Correction_Njet78_nb2=Gen_Njet78_nb2/Est_Njet78_nb2;
+    Correction_Njet78_nb3=Gen_Njet78_nb3/Est_Njet78_nb3;
+
+    Correction_Njet9Above_nb0=Gen_Njet9Above_nb0/Est_Njet9Above_nb0;
+    Correction_Njet9Above_nb1=Gen_Njet9Above_nb1/Est_Njet9Above_nb1;
+    Correction_Njet9Above_nb2=Gen_Njet9Above_nb2/Est_Njet9Above_nb2;
+    Correction_Njet9Above_nb3=Gen_Njet9Above_nb3/Est_Njet9Above_nb3;
+
+    std::cout<<" Correction_Njet34_nb0 "<<Correction_Njet34_nb0<<endl;
+    std::cout<<" Correction_Njet34_nb1 "<<Correction_Njet34_nb1<<endl;
+    std::cout<<" Correction_Njet34_nb2 "<<Correction_Njet34_nb2<<endl;
+    std::cout<<" Correction_Njet34_nb3 "<<Correction_Njet34_nb3<<endl;
+    std::cout<<" Correction_Njet56_nb0 "<<Correction_Njet56_nb0<<endl;
+    std::cout<<" Correction_Njet56_nb1 "<<Correction_Njet56_nb1<<endl;
+    std::cout<<" Correction_Njet56_nb2 "<<Correction_Njet56_nb2<<endl;
+    std::cout<<" Correction_Njet56_nb3 "<<Correction_Njet56_nb3<<endl;
+    std::cout<<" Correction_Njet78_nb0 "<<Correction_Njet78_nb0<<endl;
+    std::cout<<" Correction_Njet78_nb1 "<<Correction_Njet78_nb1<<endl;
+    std::cout<<" Correction_Njet78_nb2 "<<Correction_Njet78_nb2<<endl;
+    std::cout<<" Correction_Njet78_nb3 "<<Correction_Njet78_nb3<<endl;
+    std::cout<<" Correction_Njet9Above_nb0 "<<Correction_Njet9Above_nb0<<endl;
+    std::cout<<" Correction_Njet9Above_nb1 "<<Correction_Njet9Above_nb1<<endl;
+    std::cout<<" Correction_Njet9Above_nb2 "<<Correction_Njet9Above_nb2<<endl;
+    std::cout<<" Correction_Njet9Above_nb3 "<<Correction_Njet9Above_nb3<<endl;
+  
+    for(int j=1;j<=160;j++){
+      double oldVal=EstHist->GetBinContent(j);
+      double newVal=0;
+      if(j<=10) newVal=oldVal*Correction_Njet34_nb0;
+      else if(j<=20)newVal=oldVal*Correction_Njet34_nb1;
+      else if(j<=30)newVal=oldVal*Correction_Njet34_nb2;
+      else if(j<=40)newVal=oldVal*Correction_Njet34_nb3;
+      else if(j<=50)newVal=oldVal*Correction_Njet56_nb0;
+      else if(j<=60)newVal=oldVal*Correction_Njet56_nb1;
+      else if(j<=70)newVal=oldVal*Correction_Njet56_nb2;
+      else if(j<=80)newVal=oldVal*Correction_Njet56_nb3;
+      else if(j<=90)newVal=oldVal*Correction_Njet78_nb0;
+      else if(j<=100)newVal=oldVal*Correction_Njet78_nb1;
+      else if(j<=110)newVal=oldVal*Correction_Njet78_nb2;
+      else if(j<=120)newVal=oldVal*Correction_Njet78_nb3;
+      else if(j<=130)newVal=oldVal*Correction_Njet9Above_nb0;
+      else if(j<=140)newVal=oldVal*Correction_Njet9Above_nb1;
+      else if(j<=150)newVal=oldVal*Correction_Njet9Above_nb2;
+      else newVal=oldVal*Correction_Njet9Above_nb3;
+      EstHist->SetBinContent(j,newVal);
+    }
+
+  }
+
+
   TH1D * GenHist_Normalize = static_cast<TH1D*>(GenHist->Clone("GenHist_Normalize"));
   GenHist_Normalize->SetMaximum(ymax_top);
   GenHist_Normalize->SetMinimum(ymin_top);
@@ -314,7 +473,9 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   GenHist->Print("all");
   EstHist->Print("all");
+
   
+
   //
   // Re-draw to have "expectation" on top of "prediction"
   ex1->Draw();

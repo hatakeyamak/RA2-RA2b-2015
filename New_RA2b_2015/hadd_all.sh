@@ -1,5 +1,9 @@
 #! /bin/bash
 
+#
+# for prediction
+#-----------------
+
 cd TauHad2Multiple
 
 for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf ; do 
@@ -46,8 +50,9 @@ cd TauHad2/Stack/
 
 cd ../../
 
-
+#
 # for expectation
+#-----------------
 
 cd TauHadMultiple
 
