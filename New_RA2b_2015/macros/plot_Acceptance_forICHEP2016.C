@@ -190,6 +190,7 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
   tline_5->Draw();
   
   c1->Print("plot_Acceptance.png");
+  c1->Print("plot_Acceptance.pdf");
 
   file2->cd();
   thist->Write();
