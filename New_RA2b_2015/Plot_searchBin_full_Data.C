@@ -92,7 +92,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15cd_.root","R");
   //TFile * EstFile = new TFile("TauHad2/Elog404_HadTauEstimation_data_SingleMuon_v15d_TriggerOn.root","R");
   //  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15d_Elog408V3_V5_.root","R");
-  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v16b_.root","R");
+  //    TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v16b_.root","R");
+    TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v17a_.root","R");
 
   sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
@@ -231,7 +232,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
     GenHistD=(TH1D*) tempstack->GetStack()->Last();
     
   }
-  else{
+  else{Plot_searchBin_full_Data.C
     GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
     GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
   }
@@ -339,7 +340,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //
   
   char lumilabel[200];
-  sprintf(lumilabel,"%8.1f fb^{-1}",lumiTarget);
+  sprintf(lumilabel,"%8.3f fb^{-1}",lumiTarget);
 
   if(histname.find("searchH_b")!=string::npos ){
 	
