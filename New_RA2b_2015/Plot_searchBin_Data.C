@@ -304,6 +304,7 @@ Plot_searchBin_Data(string sample="stacked",string histname="searchH",int choice
   }
 
   sprintf(tempname,"%s_SearchBin_Plot.png",sample.c_str());
+  sprintf(tempname,"%s_SearchBin_Plot.pdf",sample.c_str());
   canvas->Print(tempname);
 
 }

@@ -72,7 +72,7 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
 
   TString line = "";
   char tempname[200];
-  sprintf(tempname,"%8.1f",lumi);
+  sprintf(tempname,"%8.3f",lumi);
   line+=tempname;
   line+=" fb^{-1} (13 TeV)";
   TString lumi_sqrtS = line;
@@ -102,7 +102,8 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
   char xtitlename[200];
   char ytitlename[200];
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v16b_.root",PDname.c_str());
+  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v17a_.root",PDname.c_str()); 
+  //  sprintf(tempname,"TauHad2/HadTauEstimation_data_%s_v16b_.root",PDname.c_str());
   TFile * PreData = new TFile(tempname,"R");
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
@@ -437,7 +438,7 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
   canvas->RedrawAxis();
   //KH canvas->GetFrame()->Draw(); 
 
-  sprintf(tempname,"CMS Preliminary, %.0f fb^{-1}, #sqrt{s} = 13 TeV",lumi);
+  sprintf(tempname,"CMS Preliminary, %.3f fb^{-1}, #sqrt{s} = 13 TeV",lumi);
   TLatex * ttext = new TLatex(xmin, ymax_top*1.3,tempname);
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.050);
