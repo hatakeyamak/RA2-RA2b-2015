@@ -120,7 +120,7 @@ void plot_TauTemplate(string Elog="Elog431_",int icomp=0){
     
     }
   catLeg1->Draw();
-
+  /*
    TLatex *   tex = new TLatex(1.5,0.03,"arXiv:1602.06581");
    tex->SetTextColor(4);
    tex->SetTextFont(61);
@@ -128,7 +128,7 @@ void plot_TauTemplate(string Elog="Elog431_",int icomp=0){
    tex->SetLineColor(4);
    tex->SetLineWidth(2);
    //tex->Draw();
-  
+*/  
   TH1D * thist_km;
   if (icomp==1){
   for(int i=0;i<4;i++){
