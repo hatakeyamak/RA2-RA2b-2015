@@ -442,11 +442,28 @@ namespace utils2{
     return binMap_HTMHT;
   }
 
-
+  // Define the nbtag bin number (used for Nb-dependent isotrack veto correction)
   int findBin_NBtag(int nbtag){
     int nbtagbin = nbtag;
     if (nbtagbin>=4) nbtagbin=3;
     return nbtagbin; 
+  }
+
+  // Define the Njet&nbtag bin number ()
+  int findBin_NJetNBtag(int njet, int nbtag){
+
+    int nbtagbin = nbtag;
+    if (nbtagbin>=4) nbtagbin=3; // nbtagbin:0,1,2,3
+
+    int njetbin = -1;
+    if      (njet>=3&&njet<=4) njet=0;
+    else if (njet>=5&&njet<=6) njet=1;
+    else if (njet>=7&&njet<=8) njet=2;
+    else if (njet>=9)          njet=3;
+
+    int NjetNbtagBin = 4*njet+nbtag;
+    
+    return NjetNbtagBin; 
   }
 
 

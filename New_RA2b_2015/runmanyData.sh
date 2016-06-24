@@ -18,7 +18,7 @@ export outputStr=$outputStr
 echo $filenum
 echo $code 
 
-qsub -N Data -o qsub/ -e qsub/ -V $submitscript 
+qsub -N Data_${i} -o qsub/ -e qsub/ -V $submitscript 
 
 sleep 1
 
