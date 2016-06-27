@@ -35,11 +35,11 @@ Input arguments:
 
 Plot_Commissioning(string histname="NJet", string cutname="delphi", 
 		   //double lumi=2.26198, double lumiControl=2.24572,
-		   double lumi=0.210711, double lumiControl=0.210711,
+		   double lumi=2.584653, double lumiControl=2.585297,
 		   string PDname="SingleMuon",
 		   bool normalize=false, int rebin=0,
 		   double lowPredictionCutOff=0.15,
-		   double trigEff=0.951
+		   double trigEff=1.00
 		   ){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
 
   TString line = "";
   char tempname[200];
-  sprintf(tempname,"%8.3f",lumi);
+  sprintf(tempname,"%8.1f",lumi);
   line+=tempname;
   line+=" fb^{-1} (13 TeV)";
   TString lumi_sqrtS = line;
@@ -108,7 +108,8 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
   TFile * ExpTT = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_TTbar_stacked.root","R");
   TFile * ExpWJ = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_WJet_stacked.root","R");
   TFile * ExpT  = new TFile("TauHad/Stack/GenInfo_HadTauEstimation_T_stacked.root","R");
-  TFile * ExpRare = new TFile("TauHad/GenInfo_HadTauEstimation_Rare_Elog410.root","R");
+  TFile * ExpRare;
+  if (!skipRare) ExpRare = new TFile("TauHad/GenInfo_HadTauEstimation_Rare_Elog410.root","R");
   //
   // Define legend
   //
@@ -184,7 +185,8 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
   ExpStack = new THStack("","");
 
   double HT_x_max=2500.;
-  double HT_x_min=400.;
+  //double HT_x_min=400.;
+  double HT_x_min=200.;
   double MHT_x_max=1000.;
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
@@ -207,7 +209,7 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
   hExpWJ=(TH1D*) stackWJ->GetStack()->Last();
   stackT=(THStack*)ExpT->Get(tempname)->Clone("ExpT");   
   hExpT=(TH1D*) stackT->GetStack()->Last();
-  hExpRare=(TH1D*)ExpRare->Get(tempname)->Clone("EXpRare");
+  if (!skipRare) hExpRare=(TH1D*)ExpRare->Get(tempname)->Clone("EXpRare");
 
   /////TH1D * hPre = static_cast<TH1D*>(hPreTT->Clone("hPre"));
   TH1D * hPre = static_cast<TH1D*>(hPreData->Clone("hPre"));
@@ -265,6 +267,7 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
     TH1D *hExp_Rebin   = hExp->Rebin(12,"hExp_Rebin",mht_bins);
     hPre_Rebin->Print("all");
     hExp_Rebin->Print("all");
+    /*
     hExp_Rebin->SetBinContent(11,hExp->GetBinContent(11)+hExp->GetBinContent(12));
     hExp_Rebin->SetBinError(11,hExp->GetBinError(11)+hExp->GetBinError(12));
     hExp_Rebin->SetBinContent(12,hExp->GetBinContent(13)+hExp->GetBinContent(14)
@@ -277,6 +280,36 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
 				+hPre->GetBinContent(15)+hPre->GetBinContent(16));
     hPre_Rebin->SetBinError(12,hPre->GetBinError(13)+hPre->GetBinError(14)
 				+hPre->GetBinError(15)+hPre->GetBinError(16));
+    */
+    hPre_Rebin->Print("all");
+    hExp_Rebin->Print("all");
+    hPre   = hPre_Rebin;
+    hExp   = hExp_Rebin;
+    hExpTT = hExpTT_Rebin;
+    hExpWJ = hExpWJ_Rebin;
+  }
+  if (histname=="HT"){
+    Double_t HT_bins[14]={0.,100.,300.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.};
+    TH1D *hExpTT_Rebin = hExpTT->Rebin(13,"hExpTT_Rebin",HT_bins);
+    TH1D *hExpWJ_Rebin = hExpWJ->Rebin(13,"hExpWJ_Rebin",HT_bins);
+    TH1D *hPre_Rebin   = hPre->Rebin(13,"hPre_Rebin",HT_bins);
+    TH1D *hExp_Rebin   = hExp->Rebin(13,"hExp_Rebin",HT_bins);
+    hPre_Rebin->Print("all");
+    hExp_Rebin->Print("all");
+    /*
+    hExp_Rebin->SetBinContent(11,hExp->GetBinContent(11)+hExp->GetBinContent(12));
+    hExp_Rebin->SetBinError(11,hExp->GetBinError(11)+hExp->GetBinError(12));
+    hExp_Rebin->SetBinContent(12,hExp->GetBinContent(13)+hExp->GetBinContent(14)
+				+hExp->GetBinContent(15)+hExp->GetBinContent(16));
+    hExp_Rebin->SetBinError(12,hExp->GetBinError(13)+hExp->GetBinError(14)
+				+hExp->GetBinError(15)+hExp->GetBinError(16));
+    hPre_Rebin->SetBinContent(11,hPre->GetBinContent(11)+hPre->GetBinContent(12));
+    hPre_Rebin->SetBinError(11,hPre->GetBinError(11)+hPre->GetBinError(12));
+    hPre_Rebin->SetBinContent(12,hPre->GetBinContent(13)+hPre->GetBinContent(14)
+				+hPre->GetBinContent(15)+hPre->GetBinContent(16));
+    hPre_Rebin->SetBinError(12,hPre->GetBinError(13)+hPre->GetBinError(14)
+				+hPre->GetBinError(15)+hPre->GetBinError(16));
+    */
     hPre_Rebin->Print("all");
     hExp_Rebin->Print("all");
     hPre   = hPre_Rebin;
@@ -322,16 +355,16 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
     gPad->SetLogy();
   }
   if(histname=="HT"){
-    xtext_top = 1800.;
+    xtext_top = 2200.;
     //y_legend  = 2000.;
     ymax_top = 3000.;
     ymin_top = 0.15;
-    xmax = 2000.;
+    xmax = 2500.;
     //if (cutname=="delphi") xmax = 1500.;
-    xmin = 200;
+    xmin = 100;
 	xlatex=1466.973;ylatex=14.62075;
     sprintf(xtitlename,"H_{T} [GeV]");
-    sprintf(ytitlename,"Events / 100 GeV");
+    sprintf(ytitlename,"Events / 200 GeV");
     gPad->SetLogy();
   }
   if(histname=="HT2"){
@@ -426,6 +459,8 @@ Plot_Commissioning(string histname="NJet", string cutname="delphi",
     //sprintf(tempname,"#tau_{h} MC expectation from single top");
     sprintf(tempname,"MC: single top");
     catLeg1->AddEntry(hExpT,tempname,"f");
+  }
+  if (!skipRare){
     sprintf(tempname,"MC: Other");
     catLeg1->AddEntry(hExpRare,tempname,"f");
   }
