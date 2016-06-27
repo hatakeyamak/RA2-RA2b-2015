@@ -24,10 +24,38 @@ root.exe -b -q 'Plot_searchBin_full_Data.C("stacked","hPredNbBins",1.28)'
 
 */
 
+void shift_bin(TH1* input, TH1* output){
+
+  char tempname[200];  
+  char temptitle[200];  
+  output->SetName(tempname);
+  output->SetTitle(temptitle);
+  //  output->SetBins(input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5);
+  output->SetBins(input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5);
+  std::cout<<" input_GetBinLowEdge(0) "<<input->GetBinLowEdge(0)<<" input_GetBinCener(0) "<<input->GetBinCenter(0)<<std::endl;
+  std::cout<<" input_GetNbinsX "<<input->GetNbinsX()<<" input_GetBinLowEdge(1)-0.5 "<<input->GetBinLowEdge(1)-0.5<<" input_GetBinLowEdge(input->GetNbinsX()+1)-0.5 "<<input->GetBinLowEdge(input->GetNbinsX()+1)-0.5<<endl;
+  std::cout<<" output_GetBinLowEdge(1) "<<output->GetBinLowEdge(1)<<std::endl;  
+
+//input->Print("all");
+  //output = new TH1D(tempname,temptitle,input->GetNbinsX(),input->GetBinLowEdge(1)-0.5,input->GetBinLowEdge(input->GetNbinsX()+1)-0.5); 
+  // 0: underflow
+  // 1: first bin [Use the lowedge of this bin]
+  // input->GetNbinsX(): highest bin 
+  // input->GetNbinsX()+1: overflow bin [use the lowedge of this bin]
+  //
+
+  for (int ibin=1;ibin<=input->GetNbinsX();ibin++){
+    output->SetBinContent(ibin,input->GetBinContent(ibin));    
+    output->SetBinError(ibin,input->GetBinError(ibin));    
+    //std::cout << input->GetBinContent(ibin) << std::endl;
+  }
+
+}
+
 Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
 			 //double lumiTarget=2.109271, double lumiControl=2.093663,
-			 double lumiTarget=2.26198, double lumiControl=2.24572,
-			 bool normalize=false,double trigEff=0.951){
+			 double lumiTarget=2.584653, double lumiControl=2.585297,
+			 bool normalize=false,double trigEff=1.0){ // Now trigger efficiency is corrected in the code
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents.
@@ -93,7 +121,7 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //TFile * EstFile = new TFile("TauHad2/Elog404_HadTauEstimation_data_SingleMuon_v15d_TriggerOn.root","R");
   //  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v15d_Elog408V3_V5_.root","R");
   //    TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v16b_.root","R");
-    TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v17a_.root","R");
+  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v17a_.root","R");
 
   sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
@@ -106,9 +134,9 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   // Define legend
   //
   //  Float_t legendX1 = .66; //.50;
-  Float_t legendX1 = .60;
+  Float_t legendX1 = .55;
   //  Float_t legendX2 = .85; //.70;
-  Float_t legendX2 = .95;
+  Float_t legendX2 = .90;
   //  Float_t legendY1 = .80; //.65;
   Float_t legendY1 = .50;
   //  Float_t legendY2 = .92;
@@ -202,6 +230,11 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   EstHist->SetName("h");
   EstHistD->SetName("h");
   EstHistD->SetName("h");
+
+  TH1D * EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
+  TH1D * EstHistD_input = static_cast<TH1D*>(EstHistD->Clone("EstHistD_input"));
+  shift_bin(EstHist_input,EstHist);
+  shift_bin(EstHistD_input,EstHistD);
   
   // Adding extra poisson 0 error term
   for (int ibin=0; ibin<EstHist->GetNbinsX(); ibin++){
@@ -223,7 +256,6 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //EstHistD->Print("all");
   //EstHist_Rectangle->Print("all");
 
-
   sprintf(tempname,"%s",histname.c_str());
   if(sample.find("stacked")!=string::npos){
     tempstack=(THStack*)GenFile->Get(tempname)->Clone(); 
@@ -232,13 +264,18 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
     GenHistD=(TH1D*) tempstack->GetStack()->Last();
     
   }
-  else{Plot_searchBin_full_Data.C
+  else{ 
     GenHist=(TH1D*) GenFile->Get(tempname)->Clone();
     GenHistD=(TH1D*) GenFile->Get(tempname)->Clone();
   }
+
+  TH1D * GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
+  TH1D * GenHistD_input = static_cast<TH1D*>(GenHistD->Clone("GenHistD_input"));
+  shift_bin(GenHist_input,GenHist);
+  shift_bin(GenHistD_input,GenHistD);
   
   // Scale MC to data luminosity or area normaliztion (if normalize is non-zero)
-  double trigEff=0.955; 
+  double trigEff=1.0; 
   double scale = EstHist->GetSumOfWeights()/trigEff/GenHist->GetSumOfWeights(); 
   if (normalize){
     GenHist->Scale(scale);
@@ -318,8 +355,17 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   EstHist_Rectangle->SetFillStyle(3144);
   EstHist_Rectangle->SetFillColor(kRed-10);
   EstHist_Rectangle->DrawCopy("e2 same");
-  EstHist_Normalize->DrawCopy("e0 same");
-  //EstHist_Normalize->DrawCopy("esame");
+  //EstHist_Normalize->DrawCopy("e0 same");
+  EstHist_Normalize->DrawCopy("esame");
+
+  /*
+  TH1D *EstHist_Normalize_Clone = (TH1D*)EstHist_Normalize->Clone(); 
+  for(int i=1; i<EstHist_Normalize_Clone->GetNbinsX(); i++) {
+    EstHist_Normalize_Clone->SetBinError(i,0);
+  } 
+  EstHist_Normalize_Clone->SetFillColor(kWhite);
+  EstHist_Normalize_Clone->Draw("esame"); 
+  */
 
   GenHist->Print("all");
   EstHist->Print("all");
@@ -340,11 +386,10 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //
   
   char lumilabel[200];
-  sprintf(lumilabel,"%8.3f fb^{-1}",lumiTarget);
+  sprintf(lumilabel,"%8.1f fb^{-1}",lumiTarget);
 
   if(histname.find("searchH_b")!=string::npos ){
-	
-    
+	    
     //-----------------------------------------------------------
     // Putting lines and labels explaining search region definitions
     //-----------------------------------------------------------
@@ -368,7 +413,6 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
     ttext_njet->DrawLatex(61.-0.5 , ymax_top/4. , "5 #leq N_{#scale[0.2]{ }jet} #leq 6");
     ttext_njet->DrawLatex(101.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
     ttext_njet->DrawLatex(141.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
-
 
 
     // Nb separation lines
