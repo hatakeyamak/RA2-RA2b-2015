@@ -24,8 +24,8 @@ for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf Inclusive
     export TTbarStr=$TTbarStr
 
     if [ $type -eq 0 ]; then
-
-      if [ -e TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root ]; then
+	echo $filenum
+	if [ -e TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root ]; then
         echo warning !
         echo exist TauHad2Multiple/HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root
       else
@@ -36,7 +36,7 @@ for TTbarStr in DiLept HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf Inclusive
     fi
 
     if [ $type -eq 1 ]; then
-
+	echo $filenum
       if [ -e TauHadMultiple/GenInfo_HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root ]; then
         echo warning !
         echo exist TauHadMultiple/GenInfo_HadTauEstimation_TTbar_${TTbarStr}_${outStr}_${i}_00.root

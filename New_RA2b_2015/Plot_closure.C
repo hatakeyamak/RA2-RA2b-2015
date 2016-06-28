@@ -417,7 +417,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       ymax_top = 300000.;
       ymin_top = 0.2.;
       sprintf(xtitlename,"H_{T} [GeV]");
-      sprintf(ytitlename,"Events / 100 GeV");
+      sprintf(ytitlename,"Events / 200 GeV");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
@@ -443,7 +443,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       xtext_top = 2.8;
       //y_legend = 3000.;
       //ymax_top = 1400.;
-      ymax_top = 5000.;
+      ymax_top = 2000.;
       if(cutname=="Njet_9") ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;

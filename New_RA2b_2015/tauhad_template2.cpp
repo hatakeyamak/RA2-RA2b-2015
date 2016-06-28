@@ -798,7 +798,7 @@ using namespace std;
       //eventWeight = evt->weight()/evt->puweight();
 
       //if(eventN>10000)break;
-      //if(eventN>5000)break;
+      if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
 

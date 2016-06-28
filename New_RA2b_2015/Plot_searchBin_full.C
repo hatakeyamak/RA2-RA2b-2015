@@ -228,6 +228,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     GenHistD_input=(TH1D*) GenFile->Get(tempname)->Clone();
     */
   }
+  std::cout<<" test_one "<<endl;
 
   //GenHist_input->Print("all");
   TH1D * GenHist = static_cast<TH1D*>(GenHist_input->Clone("GenHist"));
@@ -290,10 +291,100 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   GenHist->Scale(lumi/lumi_ref);
   EstHist->Scale(lumi/lumi_ref);
 
-  bool Adhoc_NjetNbjet=true;
-  if(Adhoc_NjetNbjet){
+  //std::cout<<" test_2 "<<endl;
+  
+  bool AdhocQCD_NjetNbjet=true;
+  //if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
+  if(AdhocQCD_NjetNbjet){
+    //    std::cout<<"----------------------------------------- "<<std::endl;
+    std::cout<<" hist name "<<histname<<std::endl;
+    double GenHistHtMht=0.;
+    double EstHistHtMht=0.;
+    double rem=0;
+    double ratio=0;
+    int binHtMht=13; int totbins=208;
+    double Correction_Njet34_nb0=0;double Correction_Njet34_nb1=0;double Correction_Njet34_nb2=0;double Correction_Njet34_nb3=0;
+    double Correction_Njet56_nb0=0;double Correction_Njet56_nb1=0;double Correction_Njet56_nb2=0;double Correction_Njet56_nb3=0;
+    double Correction_Njet78_nb0=0;double Correction_Njet78_nb1=0;double Correction_Njet78_nb2=0;double Correction_Njet78_nb3=0;
+    double Correction_Njet9Above_nb0=0;double Correction_Njet9Above_nb1=0;double Correction_Njet9Above_nb2=0;double Correction_Njet9Above_nb3=0;
+
+    for(int i=1;i<=totbins;i++){
+      GenHistHtMht +=GenHist->GetBinContent(i);
+      EstHistHtMht +=EstHist->GetBinContent(i);
+      rem=i%binHtMht;
+      std::cout<<" i "<<" rem "<<rem<<endl;
+      if(rem==0){
+        ratio=GenHistHtMht/EstHistHtMht;
+	std::cout<<" i "<<i<<" GenHistHtMht "<<GenHistHtMht<<" EstHistHtMht "<<EstHistHtMht<<" ratio "<< ratio <<endl;
+	if(i==13) Correction_Njet34_nb0=ratio;
+	if(i==26) Correction_Njet34_nb1=ratio;
+	if(i==39) Correction_Njet34_nb2=ratio;
+	if(i==52) Correction_Njet34_nb3=ratio;
+	if(i==65) Correction_Njet56_nb0=ratio;
+	if(i==78) Correction_Njet56_nb1=ratio;
+	if(i==91) Correction_Njet56_nb2=ratio;
+	if(i==104) Correction_Njet56_nb3=ratio;
+	if(i==117) Correction_Njet78_nb0=ratio;
+	if(i==130) Correction_Njet78_nb1=ratio;
+	if(i==143) Correction_Njet78_nb2=ratio;
+	if(i==156) Correction_Njet78_nb3=ratio;
+	if(i==169) Correction_Njet9Above_nb0=ratio;
+	if(i==182) Correction_Njet9Above_nb1=ratio;
+	if(i==195) Correction_Njet9Above_nb2=ratio;
+	if(i==208) Correction_Njet9Above_nb3=ratio;
+
+	GenHistHtMht=0;
+        EstHistHtMht=0;
+      }
+      else
+        continue;
+
+    }
+    std::cout<<" Correction_Njet34_nb0 "<<Correction_Njet34_nb0<<endl;
+    std::cout<<" Correction_Njet34_nb1 "<<Correction_Njet34_nb1<<endl;
+    std::cout<<" Correction_Njet34_nb2 "<<Correction_Njet34_nb2<<endl;
+    std::cout<<" Correction_Njet34_nb3 "<<Correction_Njet34_nb3<<endl;
+    std::cout<<" Correction_Njet56_nb0 "<<Correction_Njet56_nb0<<endl;
+    std::cout<<" Correction_Njet56_nb1 "<<Correction_Njet56_nb1<<endl;
+    std::cout<<" Correction_Njet56_nb2 "<<Correction_Njet56_nb2<<endl;
+    std::cout<<" Correction_Njet56_nb3 "<<Correction_Njet56_nb3<<endl;
+    std::cout<<" Correction_Njet78_nb0 "<<Correction_Njet78_nb0<<endl;
+    std::cout<<" Correction_Njet78_nb1 "<<Correction_Njet78_nb1<<endl;
+    std::cout<<" Correction_Njet78_nb2 "<<Correction_Njet78_nb2<<endl;
+    std::cout<<" Correction_Njet78_nb3 "<<Correction_Njet78_nb3<<endl;
+    std::cout<<" Correction_Njet9Above_nb0 "<<Correction_Njet9Above_nb0<<endl;
+    std::cout<<" Correction_Njet9Above_nb1 "<<Correction_Njet9Above_nb1<<endl;
+    std::cout<<" Correction_Njet9Above_nb2 "<<Correction_Njet9Above_nb2<<endl;
+    std::cout<<" Correction_Njet9Above_nb3 "<<Correction_Njet9Above_nb3<<endl;
+
+    for(int j=1;j<=208;j++){
+      double oldVal=EstHist->GetBinContent(j);
+      double newVal=0;
+      if(j<=13) newVal=oldVal*Correction_Njet34_nb0;
+      else if(j<=26)newVal=oldVal*Correction_Njet34_nb1;
+      else if(j<=39)newVal=oldVal*Correction_Njet34_nb2;
+      else if(j<=52)newVal=oldVal*Correction_Njet34_nb3;
+      else if(j<=65)newVal=oldVal*Correction_Njet56_nb0;
+      else if(j<=78)newVal=oldVal*Correction_Njet56_nb1;
+      else if(j<=91)newVal=oldVal*Correction_Njet56_nb2;
+      else if(j<=104)newVal=oldVal*Correction_Njet56_nb3;
+      else if(j<=117)newVal=oldVal*Correction_Njet78_nb0;
+      else if(j<=130)newVal=oldVal*Correction_Njet78_nb1;
+      else if(j<=143)newVal=oldVal*Correction_Njet78_nb2;
+      else if(j<=156)newVal=oldVal*Correction_Njet78_nb3;
+      else if(j<=169)newVal=oldVal*Correction_Njet9Above_nb0;
+      else if(j<=182)newVal=oldVal*Correction_Njet9Above_nb1;
+      else if(j<=195)newVal=oldVal*Correction_Njet9Above_nb2;
+      else newVal=oldVal*Correction_Njet9Above_nb3;
+      EstHist->SetBinContent(j,newVal);
+    }
+
+  }
+
+  bool Adhoc_NjetNbjet=false;
+  if(Adhoc_NjetNbjet && histname.find("searchH_b")!=string::npos){
     //int Nbins=GenHist->GetNbinX();
-    //std::cout<<"Nbins "<< Nbins <<std::endl;  
+    std::cout<<"Nbins "<< 160 <<std::endl;  
     double Gen_Njet34_nb0=0; double Gen_Njet34_nb1=0;double Gen_Njet34_nb2=0;double Gen_Njet34_nb3=0;double Est_Njet34_nb0=0;double Est_Njet34_nb1=0;double Est_Njet34_nb2=0;double Est_Njet34_nb3=0;
     double Gen_Njet56_nb0=0; double Gen_Njet56_nb1=0;double Gen_Njet56_nb2=0;double Gen_Njet56_nb3=0;double Est_Njet56_nb0=0;double Est_Njet56_nb1=0;double Est_Njet56_nb2=0;double Est_Njet56_nb3=0;
     double Gen_Njet78_nb0=0; double Gen_Njet78_nb1=0;double Gen_Njet78_nb2=0;double Gen_Njet78_nb3=0;double Est_Njet78_nb0=0;double Est_Njet78_nb1=0;double Est_Njet78_nb2=0;double Est_Njet78_nb3=0;
