@@ -17,8 +17,8 @@ void combineHighLowHT_QCDBin(TH1* default, TH1* lowHT);
 void makeNjNbCorr_searchBin(TH1* hist);
 void reformat(TH1* input, TH1* output);
 
-void HadTauEstimation_output_format(string elogForData="KHElog424_",            // Data
-				    string elogForData2="KHElog424_",           // Data
+void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Data
+				    string elogForData2="KHElog424_",      // Data
 				    string elogForMCExp="KHElog420_",      // MC expectation
 				    string elogForMCPre="KHElog424_",      // MC prediction
 				    string elogForSys="Elog408_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
@@ -33,10 +33,10 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
 				    string elogForMTStat="Elog433_",       // MT cut efficiency
 				    string elogForAccPDF="Elog408_",       // Acceptance uncertainty due to PDF
 				    string elogForAccScale="Elog408_",     // Acceptance uncertainty due to scale
-				    double trigEff=0.927,
-				    double trigEff2=0.824*0.9,
+				    double trigEff=1.000,
+				    double trigEff2=1.000,
                                     // because 2015C does not have our trigger, we scale 2015D to account for that
-				    double lumiTarget=2.586238,
+				    double lumiTarget=2.584653,
 				    double lumiControl=2.585297, 
 				    int isys==0){
 
@@ -49,10 +49,10 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
   //
   // Open data files
   //
-  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v16b_20160623_v1_hadd.root",elogForData.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_20160624v1_hadd.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
   printf("Opened %s\n",tempname);
-  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_20160623v4_hadd.root",elogForData.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_20160623v4_hadd.root",elogForData2.c_str());
   TFile *DataEstFile_lowHT = TFile::Open(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -371,6 +371,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
   TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
   TH1D * hMT_LowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
 
+  string histname;  
   /*
   sprintf(tempname,"TauHad2/MtEff_%sMTPlus_.root",elogForMTUp.c_str());
   TFile * MtUpFile = new TFile(tempname,"R");
@@ -408,7 +409,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
   effMapStatErrPropagation(QCDBin_LowDphi_MtEff,QCDBin_LowDphi_MtEffStat);
 
   THStack *tempstack;
-  string histname="searchH_b";
+  histname="searchH_b";
   sprintf(tempname,"%s",histname.c_str());
   //tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("searchBin_MTSysUp");  
   tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysUp");       // Template for MTSysUp
@@ -505,16 +506,14 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
     searchBin_nominal_fullstatuncertainty_lowHT->SetBinError(ibin+1,pow(pow(searchBin_nominal_lowHT->GetBinError(ibin+1),2)+pow(0.460255,2),0.5));
   }
 
-  //searchBin_nominal->Print("all");
-  //searchBin_nominal_lowHT->Print("all");
+  /*
   combineHighLowHT_searchBin(searchBin_nominal, searchBin_nominal_lowHT);
-  //searchBin_nominal->Print("all");
   makeNjNbCorr_searchBin(searchBin_nominal);
-  //searchBin_nominal->Print("all");
 
   combineHighLowHT_searchBin(searchBin_nominal_fullstatuncertainty, searchBin_nominal_fullstatuncertainty_lowHT);
   makeNjNbCorr_searchBin(searchBin_nominal_fullstatuncertainty);
-  
+  */
+
   //
   // ----- QCD bin predicitons -----
   //
@@ -552,11 +551,13 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
     QCDBin_LowDphi_nominal_fullstatuncertainty_lowHT->SetBinError(ibin+1,pow(pow(QCDBin_LowDphi_nominal_lowHT->GetBinError(ibin+1),2)+pow(0.460255,2),0.5));
   }
 
+  /*
   combineHighLowHT_QCDBin(QCDBin_HiDphi_nominal, QCDBin_HiDphi_nominal_lowHT);
   combineHighLowHT_QCDBin(QCDBin_LowDphi_nominal,QCDBin_LowDphi_nominal_lowHT);
   combineHighLowHT_QCDBin(QCDBin_HiDphi_nominal_fullstatuncertainty, QCDBin_HiDphi_nominal_fullstatuncertainty_lowHT);
   combineHighLowHT_QCDBin(QCDBin_LowDphi_nominal_fullstatuncertainty, QCDBin_LowDphi_nominal_fullstatuncertainty_lowHT);
-  
+  */
+
   // Some additional variables
   const int NSearchBinArray=161;
   const int NQCDBinArray=209;
@@ -690,86 +691,120 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
   // ---- Closure systematics -----
   // -----------------------------------------------------
 
-  // //
-  // // From MC file
-  // //
-  // TH1D * GenHist, * EstHist, * thist;
-  // TH1D * histTemplate;
+  //
+  // From MC file
+  //
+  TH1D * GenHist, * EstHist, * thist;
+  TH1D * histTemplate;
   
-  // // For closure systematics
-  // histname="searchH_b";
-  // sprintf(tempname,"%s",histname.c_str());
-  // tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
-  // EstHist=(TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
-  // GenHist=(TH1D*) tempstack->GetStack()->Last();
+  // For closure systematics
+  histname="searchH_b";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
+  EstHist=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
+  GenHist=(TH1D*) tempstack->GetStack()->Last();
 
-  // //
-  // // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
-  // //
-  // TH1D * searchBin_closureUncertainty = static_cast<TH1D*>(GenHist->Clone("searchBin_closureUncertainty"));
-  // searchBin_closureUncertainty->SetFillColor(0);
-  // searchBin_closureUncertainty->SetLineColor(1);
-  // searchBin_closureUncertainty->Reset();
+  // reformat
+  TH1D* EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
+  reformat(EstHist_input,EstHist);
+  TH1D* GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
+  reformat(GenHist_input,GenHist);
 
-  // TH1D * closureRatio= static_cast<TH1D*>(GenHist->Clone("closureRatio"));
-  // TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
+  makeNjNbCorr_searchBin(EstHist);
+  
+  EstHist->Print("all");
+  GenHist->Print("all");
 
-  // TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
-  // TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
-  // closureRatio->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction-1 - Non closure
+  double NjNbCorrSys[16]={
+  1.08678, 1.1606, 1.21688, 1.38799,
+  0.99422, 1.03512, 1.09677, 1.15551,
+  0.960125, 0.99264, 1.04157, 1.22838,
+  0.863833, 0.803388, 1.01109, 1.12302};
 
-  // //EstHist_Clone->Print("all");
+  TH1D * searchBin_closureUncertainty_adhoc = static_cast<TH1D*>(GenHist->Clone("searchBin_closureUncertainty_adhoc"));
+  searchBin_closureUncertainty_adhoc->Reset();
+  for (int ibin=1;ibin<=searchBin_closureUncertainty_adhoc->GetNbinsX();ibin++){
+    int index=int((ibin-1)/10);
+    //std::cout << index << " " << ibin << std::endl;
+    searchBin_closureUncertainty_adhoc->SetBinContent(ibin,fabs(NjNbCorrSys[index]-1.));
+  }
+  searchBin_closureUncertainty_adhoc->Print("all");
+  
+  //
+  // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
+  //
+  TH1D * searchBin_closureUncertainty = static_cast<TH1D*>(GenHist->Clone("searchBin_closureUncertainty"));
+  searchBin_closureUncertainty->SetFillColor(0);
+  searchBin_closureUncertainty->SetLineColor(1);
+  searchBin_closureUncertainty->Reset();
 
-  // double searchBin_closure_stat_uncertainty_fractional[73];
-  // //-----
-  // int n10percent=0;
-  // int n30percent=0;
-  // double avenj1;
-  // double avenj1nb01;
-  // double avenj1nb23;
-  // double avenj2;
-  // double avenj3;
-  // //-----
-  // for (int ibin=1;ibin<=72;ibin++){
-  //   // Stat uncertainty
-  //   searchBin_closure_stat_uncertainty_fractional[ibin]=0.;
-  //   double Unc,Unc1,Unc2;
-  //   if (numerator->GetBinContent(ibin)!=0.){
-  //     searchBin_closure_stat_uncertainty_fractional[ibin] = closureRatio->GetBinError(ibin)/closureRatio->GetBinContent(ibin);
-  //     Unc1=searchBin_closure_stat_uncertainty_fractional[ibin];
-  //   }
-  //   Unc2=fabs(closureRatio->GetBinContent(ibin)-1.);
-  //   Unc = TMath::Max(fabs(closureRatio->GetBinContent(ibin)-1.),searchBin_closure_stat_uncertainty_fractional[ibin]);
-  //   if (Unc>1.) Unc=1.;
-  //   searchBin_closureUncertainty->SetBinContent(ibin,Unc);    
-  //   //----
-  //   printf("%5d, %8.2f, %8.2f, %8.2f\n",ibin,Unc,Unc1,Unc2);
-  //   if (Unc<0.1) n10percent++;
-  //   if (Unc<0.3) n30percent++;
-  //   if (ibin>=1 &&ibin<=24) avenj1+=Unc/24.;
-  //   if (ibin>=1 &&ibin<=12) avenj1nb01+=Unc/12.;
-  //   if (ibin>=13&&ibin<=24) avenj1nb23+=Unc/12.;
-  //   if (ibin>=25&&ibin<=48) avenj2+=Unc/24.;
-  //   if (ibin>=49&&ibin<=72) avenj3+=Unc/24.;
-  //   //-----
-  // }
-  // printf("10percent %5d\n",n10percent);
-  // printf("30precent %5d\n",n30percent);
-  // printf("nj1 average=%8.2f\n",avenj1);
-  // printf("nj1nb01 average=%8.2f\n",avenj1nb01);
-  // printf("nj1nb23 average=%8.2f\n",avenj1nb23);
-  // printf("nj2 average=%8.2f\n",avenj2);
-  // printf("nj3 average=%8.2f\n",avenj3);
-  // //searchBin_closureUncertainty->Print("all");
+  TH1D * closureRatio= static_cast<TH1D*>(GenHist->Clone("closureRatio"));
+  TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
 
-  // // For closure systematics
-  // histname="QCD_Up";
-  // sprintf(tempname,"%s",histname.c_str());
-  // tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
-  // EstHist=(TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
-  // GenHist=(TH1D*) tempstack->GetStack()->Last();
+  TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
+  TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
+  closureRatio->Divide(GenHist_Clone,EstHist_Clone,1,1,"");  // Expectation/Prediction-1 - Non closure
+
+  //EstHist_Clone->Print("all");
+
+  closureRatio->Print("all");
+  
+  double searchBin_closure_stat_uncertainty_fractional[NSearchBinArray];
+  //-----
+  int n10percent=0;
+  int n30percent=0;
+  double avenj1;
+  double avenj1nb01;
+  double avenj1nb23;
+  double avenj2;
+  double avenj3;
+  //-----
+  for (int ibin=1;ibin<=closureRatio->GetNbinsX();ibin++){
+    // Stat uncertainty
+    searchBin_closure_stat_uncertainty_fractional[ibin]=0.;
+    double Unc,Unc1,Unc2;
+    if (closureRatio->GetBinContent(ibin)!=0.){
+      searchBin_closure_stat_uncertainty_fractional[ibin] = closureRatio->GetBinError(ibin)/closureRatio->GetBinContent(ibin);
+      Unc1=searchBin_closure_stat_uncertainty_fractional[ibin];
+    }
+    Unc2=fabs(closureRatio->GetBinContent(ibin)-1.);
+    Unc = TMath::Max(fabs(closureRatio->GetBinContent(ibin)-1.),searchBin_closure_stat_uncertainty_fractional[ibin]);
+    //
+    //
+    double Unc3=searchBin_closureUncertainty_adhoc->GetBinContent(ibin);
+    Unc = pow(Unc3*Unc3+Unc*Unc,0.5); 
+    //
+    //
+    if (Unc>1.) Unc=1.;
+    searchBin_closureUncertainty->SetBinContent(ibin,Unc);    
+    //----
+    printf("%5d, %8.2f, %8.2f, %8.2f\n",ibin,Unc,Unc1,Unc2);
+    if (Unc<0.1) n10percent++;
+    if (Unc<0.3) n30percent++;
+    if (ibin>=1 &&ibin<=24) avenj1+=Unc/24.;
+    if (ibin>=1 &&ibin<=12) avenj1nb01+=Unc/12.;
+    if (ibin>=13&&ibin<=24) avenj1nb23+=Unc/12.;
+    if (ibin>=25&&ibin<=48) avenj2+=Unc/24.;
+    if (ibin>=49&&ibin<=72) avenj3+=Unc/24.;
+    //-----
+  }
+  printf("10percent %5d\n",n10percent);
+  printf("30precent %5d\n",n30percent);
+  printf("nj1 average=%8.2f\n",avenj1);
+  printf("nj1nb01 average=%8.2f\n",avenj1nb01);
+  printf("nj1nb23 average=%8.2f\n",avenj1nb23);
+  printf("nj2 average=%8.2f\n",avenj2);
+  printf("nj3 average=%8.2f\n",avenj3);
+  //searchBin_closureUncertainty->Print("all");
+
+  // For closure systematics
+  histname="QCD_Up";
+  sprintf(tempname,"%s",histname.c_str());
+  tempstack=(THStack*)MCEstFile->Get(tempname)->Clone();
+  EstHist=(TH1D*) tempstack->GetStack()->Last();
+  tempstack=(THStack*)MCGenFile->Get(tempname)->Clone();   
+  GenHist=(TH1D*) tempstack->GetStack()->Last();
 
   // //
   // // Preparing ratio histograms: Expectation/Prediction for closure uncertainty
@@ -2085,7 +2120,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog424_",            
 */
 
   // Closure & Bmistag
-  TH1D* searchBin_closureUncertainty = static_cast<TH1D*>(searchBin_box->Clone("searchBin_closureUncertainty"));
+  //TH1D* searchBin_closureUncertainty = static_cast<TH1D*>(searchBin_box->Clone("searchBin_closureUncertainty"));
   TH1D* searchBin_BMistagUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagUp"));
   TH1D* searchBin_BMistagDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagDn"));
   // Mu
@@ -2595,8 +2630,6 @@ void binMap_QCD(TH1* input, TH1* output){
   }
 
 };
-
-
 
 void combineHighLowHT_searchBin(TH1* default, TH1* lowHT){
 
