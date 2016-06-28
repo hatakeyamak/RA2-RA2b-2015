@@ -23,7 +23,7 @@ bash runmanyWJet.sh  0 20160617
 bash runmanyT.sh     0 20160617
 
 + Data
-bash runmanyData.sh v16b June17
+bash runmanyData.sh v16b 20160623v3
 
 ----- Obsolete -----
 
