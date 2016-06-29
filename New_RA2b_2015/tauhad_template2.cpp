@@ -76,6 +76,7 @@ using namespace std;
 
     char tempname[200];
     char tempname2[200];
+    char tempname3[200];
     char histname[200];
     vector<TH1D > vec, vec_search;
     map<int, string> eventType;
@@ -228,8 +229,7 @@ using namespace std;
     QCD_Up->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * QCD_Up_evt = static_cast<TH1D*>(QCD_Up->Clone("QCD_Up_evt"));
- 
-
+    
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
@@ -504,7 +504,6 @@ using namespace std;
       return 2;
     }
 
-
     // Get a pointer to the Selection class
     Selection * sel = new Selection();
     // For each selection, cut, make a vector containing the same histograms as those in vec
@@ -513,8 +512,7 @@ using namespace std;
       cut_histvec_map_search[sel->cutName()[i]]=vec_search;
     }
 
-
-    bool StudyErrorPropag = false;
+    bool StudyErrorPropag = true;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -522,7 +520,6 @@ using namespace std;
     else if(subSampleKey.find("MTSelPlus")!=string::npos)UncerLoop[0]="MTSelPlus";
     else if(subSampleKey.find("MTSelMinus")!=string::npos)UncerLoop[0]="MTSelMinus";
     else UncerLoop[0]="main";
-    
  
     // get the acceptance systematics
     TFile * AccSysfile, * AccSysfile2;
@@ -582,6 +579,7 @@ using namespace std;
       //eventType[20]="AccMinus";
 
     }
+
     // weights are different for different eventType
     map<string,double> totWeightMap, totWeightMap_lowDphi;
     double dummyWeight=1.;
@@ -595,6 +593,7 @@ using namespace std;
       map_map[eventType[i]]=cut_histvec_map;
       map_map_search[eventType[i]]=cut_histvec_map_search;
     }
+
     // Make another hist to be filled during bootstrapping
     map_map_evt=map_map;
     map_map_evt_search=map_map_search;
@@ -605,7 +604,6 @@ using namespace std;
     }
 
     // Open some files and get the histograms ........................................//
-
 
     // Rate of bTagged tau jet
     //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
@@ -693,7 +691,6 @@ using namespace std;
     TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
     trig_pass->Sumw2();
 
-
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
     //TFile * resp_file = new TFile("TauHad/Stack/Elog404_WithJECUpDown_HadTau_TauResponseTemplates_stacked.root","R");
@@ -714,7 +711,6 @@ using namespace std;
 
     TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
 
-
     // Use Rishi's tau template 
     //TFile * resp_file_Rishi = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
     //TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v01.root","R");
@@ -724,7 +720,9 @@ using namespace std;
     //  vec_resp.push_back( (TH1D*) resp_file_Rishi->Get( histname )->Clone() );
     }
 
-
+    // Use Aditee's muon pt cut correction
+    TFile *fileMuonPtMinCorr  = new TFile("TauHad2/ARElog32_Ratio_HadTauEstimation_stacked_MinMuPt.root","R");
+    TH1D * histMuonPtMinCorr = (TH1D*) fileMuonPtMinCorr->Get("searchH_b")->Clone();
 
     // muMtW Histogram
     TH1D * muMtWHist = new TH1D("muMtW"," MT distribution of muon",40,0,200);
@@ -734,7 +732,6 @@ using namespace std;
     B_rate_all->Sumw2();
     TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_tagged->Sumw2();
-
 
     // see how often gen mu doesn't match reco mu
     int GenRecMu_all=0,GenRecMu_fail=0;
@@ -750,8 +747,6 @@ using namespace std;
     dilepton_all_lowDphi->Sumw2();
     TH1D * dilepton_pass_lowDphi = new TH1D("dilepton_pass_lowDphi"," dilepton pass -- search bin",totNbins,1,totNbins+1);
     dilepton_pass_lowDphi->Sumw2();
-
-
 
     // how often a muon does not match a jet
     double muBin[]={0,20,40,60,80,100,1000};
@@ -804,7 +799,8 @@ using namespace std;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
-      
+
+      // Meant to combine different ttbar samples exclusively
       if(!evt->DataBool_()){
       
         if(sampletype==0){ // TTbar_Inclusive, use only for all-hadronic && HT<600 GeV
@@ -841,7 +837,8 @@ using namespace std;
 
       // Trigger check
       bool trigPass=false;
-      bool lowHTSelection=false;      
+      bool trigPassLowHT=false;
+      bool trigPassHighHT=false;
       //if(isData && 2==1){
       if(isData){
 	/*
@@ -859,29 +856,45 @@ using namespace std;
 	  }
 
           string trigStr;
-          sprintf(tempname,"HLT_Mu15_IsoVVVL_PFHT400_v");
+          sprintf(tempname, "HLT_Mu15_IsoVVVL_PFHT400_v");
           sprintf(tempname2,"HLT_Mu15_IsoVVVL_PFHT350_v");
+          sprintf(tempname3,"HLT_IsoMu22_v");
+	  /*
 	  if (lowHTSelection){
 	    sprintf(tempname,"HLT_IsoMu22_v");
-	    sprintf(tempname2,"HLT_IsoMu22_v");
+	    sprintf(tempname2,"");
 	  }
-
+	  */
           if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
-	      evt->TriggerNames_().at(i).find(tempname2) != string::npos){
+	      evt->TriggerNames_().at(i).find(tempname2) != string::npos ||
+	      evt->TriggerNames_().at(i).find(tempname3) != string::npos){
 
-            trigfound=true; 
+            trigfound=true;
             if(evt->PassTrigger_().at(i)==1)trigPass=true;
-          }
 
-        }
+	    // HighHT selection
+	    if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
+		evt->TriggerNames_().at(i).find(tempname2) != string::npos){
+	      if(evt->PassTrigger_().at(i)==1)trigPassHighHT=true;
+	    }
+	    // HighHT selection
+	    if( evt->TriggerNames_().at(i).find(tempname3) != string::npos){
+	      if(evt->PassTrigger_().at(i)==1)trigPassLowHT=true;
+	    }
+
+	  } // if for both highHT and lowHT triggers
+        }   // looping over trigger information
 
         if(!trigfound ){
           cout << " ####\n ####\n trigger was not found \n ####\n ";
+	  for(int i=0; i< evt->TriggerNames_().size(); i++){ 
+            cout << evt->TriggerNames_().at(i) << " Pass: " << evt->PassTrigger_().at(i) << endl;
+	  }
+	  
         }
         //if(eventN < 100 )cout<< "A temporary selection is in effect \n\n\nA temporary selection is in effect \n\n\nA temporary selection is in effect ";
         if(!trigPass)continue;
       }
-    
  
       // to study some of the uncertainties we need to make some changes from
       // the very beginning and observe how that propagates
@@ -889,8 +902,6 @@ using namespace std;
       if(subSampleKey.find("template")!=string::npos  && (eventN < 10 || eventN % 100000 ==0))cout << " calculating templatePlus/Minus \n ";
       if(subSampleKey.find("MTSel")!=string::npos  && (eventN < 10 || eventN % 100000 ==0))cout << " calculating MTSelPlus/Minus \n ";
       for(int iuncer=0; iuncer<UncerLoop.size() ;iuncer++){
-
-
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Select the control sample:
@@ -908,10 +919,8 @@ using namespace std;
         vec_recoMuon4vec.clear();
         vec_MTActivity.clear();  
 
-  vector<int> MuFromTauVec;//Ahmad33
-  MuFromTauVec.clear();//Ahmad33
-
-
+	vector<int> MuFromTauVec;//Ahmad33
+	MuFromTauVec.clear();//Ahmad33
 
         // Consistancy check
         if(isData==true && TauHadModel<3){
@@ -919,7 +928,7 @@ using namespace std;
           return 2;
         }
         
-        if(TauHadModel>=3){
+        if(TauHadModel>=3){ // Use reco-level muon
           for(int i=0; i< evt->MuPtVec_().size(); i++){ // Ahmad33
             double pt=evt->MuPtVec_().at(i); // Ahmad33
             double eta=evt->MuEtaVec_().at(i); // Ahmad33
@@ -941,7 +950,7 @@ using namespace std;
           }
 
         }
-        else{
+        else{ // Use gen-level muon
           for(int i=0; i< evt->GenMuPtVec_().size(); i++){ // Ahmad33
             double pt=evt->GenMuPtVec_().at(i); // Ahmad33
             double eta=evt->GenMuEtaVec_().at(i); // Ahmad33
@@ -965,19 +974,17 @@ using namespace std;
         ///select electrons with pt>10. eta<2.5 relIso<.2
         vec_recoElec3vec.clear();
 
+	/* Ahmad33
+	   for(int i=0; i< evt->ElecPtVec_().size(); i++){
+	   double pt=evt->ElecPtVec_().at(i);
+	   double eta=evt->ElecEtaVec_().at(i);
+	   double phi=evt->ElecPhiVec_().at(i);
+	   // double mu_mt_w =muonsMtw->at(i);  ????
+	   //        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
+	   // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
+	   Ahmad33 */
 
-  /* Ahmad33
-        for(int i=0; i< evt->ElecPtVec_().size(); i++){
-          double pt=evt->ElecPtVec_().at(i);
-          double eta=evt->ElecEtaVec_().at(i);
-          double phi=evt->ElecPhiVec_().at(i);
-          // double mu_mt_w =muonsMtw->at(i);  ????
-  //        if( pt>10. && fabs(eta)< 2.5 ){   // These are applied at the treemaker level. Also,
-            // we suppose to use supercluster eta. While here for the cut, we are using gsf. 
-  Ahmad33 */
-
-
-        if(TauHadModel < 2){
+        if(TauHadModel < 2){ // Use gen-level electron
           for(int i=0; i< evt->GenElecPtVec_().size(); i++){// Ahmad33
             double pt=evt->GenElecPtVec_().at(i); // Ahmad33
             double eta=evt->GenElecEtaVec_().at(i); // Ahmad33 
@@ -986,13 +993,9 @@ using namespace std;
               if(verbose==2)printf(" \n Electrons: \n pt: %g eta: %g phi: %g \n ",pt,eta,phi);
               temp3vec.SetPtEtaPhi(pt,eta,phi);
               vec_recoElec3vec.push_back(temp3vec);
-
-    //        }
-
           }
         }
 
-        
         if(vec_recoMuMTW.size()>0)muMtW = vec_recoMuMTW[0]; 
         muMtWHist->Fill(muMtW,eventWeight);
 
@@ -1000,37 +1003,30 @@ using namespace std;
 
         //if( template_nMuons == 1 && template_nElectrons == 0 ) {
         bool pass1=false;
-        if(TauHadModel>=2){if( vec_recoMuon4vec.size() == 1)pass1=true;}
+        if(TauHadModel>=2){if( vec_recoMuon4vec.size() == 1)pass1=true;} // Number of reco-level muon=1
         else {if( vec_recoMuon4vec.size() == 1 && vec_recoElec3vec.size() == 0 )pass1=true;} // recoElec is realy GenElec here
 
-        if(pass1){
+        if(pass1){ // pass muon selection
 
           muPt = vec_recoMuon4vec[0].Pt();
           muEta = vec_recoMuon4vec[0].Eta();
           muPhi = vec_recoMuon4vec[0].Phi();
           muE  = vec_recoMuon4vec[0].E();
 
-  //        double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
+	  //double activity= utils->MuActivity(muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),evt->Jets_chargedEmEnergyFraction_(),evt->Jets_chargedHadronEnergyFraction_());
           double activity=vec_MTActivity[0]; 
           if(verbose!=0)cout << " activity: " << activity << endl;
 
-
-
-
           cutflow_preselection->Fill(7.,eventWeight); // 1-mu selection
-
    
-        bool pass1_1=false;
-        // for veto we have a lepton collection with softer requirements. pT > 10 not 20 and eta < 2.4 not 2.1 and also there is no 
-        // mT cut applied. 
-        if(TauHadModel>=2){if(evt->MuPtVec_().size()>1 || evt->ElecPtVec_().size()>0)pass1_1=true;}
-        else{ if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)pass1_1=true;}
-        if(pass1_1)continue;
+	  bool pass1_1=false;
+	  // for veto we have a lepton collection with softer requirements. pT > 10 not 20 and eta < 2.4 not 2.1 and also there is no 
+	  // mT cut applied. 
+	  if(TauHadModel>=2){if(evt->MuPtVec_().size()>1    || evt->ElecPtVec_().size()>0)pass1_1=true;}    // N(reco-muon)<=1, N(reco-ele)=0, 
+	  else{              if(evt->GenMuPtVec_().size()>1 || evt->GenElecPtVec_().size()>0)pass1_1=true;}
+	  if(pass1_1)continue;
 
-
-        cutflow_preselection->Fill(8.,eventWeight); // Lepton vetos
-
-
+	  cutflow_preselection->Fill(8.,eventWeight); // Lepton vetos
 
           // The muon we are using is already part of a jet. (Note: the muon is isolated by 0.2 but jet is much wider.) And,
           // its momentum is used in HT and MHT calculation. We need to subtract this momentum and add the contribution from the simulated tau jet.
@@ -1057,8 +1053,8 @@ using namespace std;
           // start of bootstrapping ( if is on ) 
           for(int l=1; l<=nLoops;l++){
             
-            // Get random number from tau-response template
-            // or if bootstrap is on read the whole template
+            // Get random number from tau-response template,
+            // or if bootstrap is on, read the whole template.
             // The template is chosen according to the muon pt
             double scale, scaleUp, scaleDown;
             if(utils2::bootstrap){
@@ -1073,7 +1069,6 @@ using namespace std;
             else scale = utils->getRandom(muPt,vec_resp );
             Double_t scale_x=0,scale_y=0;
             utils->getRandom2(muPt,vec_resp_xy,scale_x,scale_y );
-
       
             simTauJetPt = scale * muPt;
             simTauJetEta = muEta;
@@ -1098,10 +1093,10 @@ using namespace std;
             }
 
 
-            if(verbose!=0)printf(" \n ######### \n scale_x: %g scale_y: %g \n simTauJetPt_x: %g simTauJetPt_y: %g \n simTauJetPt_xy: %g simTauJetPt: %g \n simTauJetPhi_xy: %g simTauJetPhi: %g \n",scale_x,scale_y,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy,simTauJetPt,simTauJetPhi_xy,simTauJetPhi);
+            if(verbose!=0)printf(" \n ######### \n scale_x: %g scale_y: %g \n simTauJetPt_x: %g simTauJetPt_y: %g \n simTauJetPt_xy: %g simTauJetPt: %g \n simTauJetPhi_xy: %g simTauJetPhi: %g \n",
+				 scale_x,scale_y,simTauJetPt_x,simTauJetPt_y,simTauJetPt_xy,simTauJetPt,simTauJetPhi_xy,simTauJetPhi);
 
-
-    //######################################################################
+	    //######################################################################
 
             // 3Vec of muon and scaledMu 
             TVector3 SimTauJet3Vec,NewTauJet3Vec,Muon3Vec;
@@ -1118,6 +1113,7 @@ using namespace std;
             int slimJetIdx=-1;
             MuJet_all->Fill(muPt,eventWeight);
             utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+
 /*
             printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
             printf(" pT: %g eta: %g phi: %g delR: %g \n "
@@ -1213,7 +1209,6 @@ using namespace std;
             HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
             MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
 
-
             double newHT=0,newMHT=0,newMHTPhi=-1;
             TVector3 newMHT3Vec;
             for(int i=0;i<HT3JetVec.size();i++){
@@ -1227,7 +1222,7 @@ using namespace std;
 
             if(verbose==1)printf("newHT: %g newMHT: %g newMHTPhi: %g \n ",newHT,newMHT,newMHTPhi);
 
-    //######################################################################
+	    //######################################################################
 
             // Calculate muon's btag rate 
             if(!utils2::bootstrap){
@@ -1241,10 +1236,9 @@ using namespace std;
 
             // start of btag on/off for had tau jets ( if is on ) 
             for(int m=0; m<nBtagsForHadTau;m++){
-
               
               // New #b
-              double NewNB=evt->nBtags();
+              int NewNB=evt->nBtags();
 	      //std::cout<<"Number of b tags "<<NewNB<<std::endl;
               // get the rate of tau jet mistagging as a function of pT.
               double bRateError_stat, bRatePlus_stat, bRateMinus_stat;
@@ -1348,15 +1342,13 @@ using namespace std;
                 if(mindpn>fabs(dpnhat[i]))mindpn=fabs(dpnhat[i]);
               } 
 
-
-
-      //#############################################################
+	      //#############################################################
               //New #Jet
 
               int newNJet = HT3JetVec.size(); 
               if(verbose==1)printf("newNJet: %d \n ",newNJet);
 
-      //#############################################################
+	      //#############################################################
 
               // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
               if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
@@ -1428,18 +1420,58 @@ using namespace std;
                 }
               }
 
+	      // 
+	      // newNJet,newHT,newMHT,newNB fully ready
+	      // 
+	      double trigEffCorr=1.;
+	      double NjNbCorr=1.;
+	      double MuonPtMinCorr=1.;
+	      if (isData){
+
+		if (newHT<500.){
+
+		  if (muPt<LeptonAcceptance::muonPtMinLowHT()) trigEffCorr=0.;
+		  else {
+		    if (trigPassLowHT) trigEffCorr=1./0.824;
+		    else               trigEffCorr=0.;
+		  }
+
+		  int index_MuonPtMinSelectionEfficiency = binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()];
+		  double MuonPtMinSelectionEfficiency = 0.9;
+		  if (index_MuonPtMinSelectionEfficiency!=0) MuonPtMinSelectionEfficiency = histMuonPtMinCorr->GetBinContent(index_MuonPtMinSelectionEfficiency); // not underflow bin
+		  if (MuonPtMinSelectionEfficiency<0.5) {std::cout << "warning!" << std::endl;MuonPtMinSelectionEfficiency=0.9;} 
+		  MuonPtMinCorr=1./MuonPtMinSelectionEfficiency;
+
+		} else {
+		  if (trigPassHighHT) trigEffCorr=1./0.927;
+		  else                trigEffCorr=0.;
+		}
+
+		double NjNbCorrArray[16]={
+		  1.08678, 1.1606, 1.21688, 1.38799,
+		  0.99422, 1.03512, 1.09677, 1.15551,
+		  0.960125, 0.99264, 1.04157, 1.22838,
+		  0.863833, 0.803388, 1.01109, 1.12302};
+		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
+	      } // isData ends
+
+	      /*
+              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
+		printf("newNJet:%d NewNB:%d newHT:%7.2f newMHT:%7.2f muonPt:%7.2f: trigEffCorr,NjNbCorr,MuonPtMinCorr: %7.3f %7.3f %7.3f\n",
+		       newNJet,NewNB,newHT,newMHT,muPt,trigEffCorr,NjNbCorr,MuonPtMinCorr);
+	      }
+	      */
 
               // get the effieciencies and acceptance
               // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
               double Eff,Eff_Arne,Reco_error_Arne, Iso_error_Arne, Eff_ArnePlus, Eff_ArneMinus;
-
 
               // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
               Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Reco_error_Arne = hMuRecoPTActivity_Arne->GetBinError(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Iso_error_Arne = hMuIsoPTActivity_Arne->GetBinError(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
-
 
               if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
                 // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
@@ -1477,8 +1509,9 @@ using namespace std;
                 Acc_lowDphi=0.9;
               }
 
-
-              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
+              if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))
+		printf("Eff: %g Acc: %g njet: %d nbtag: %d ht: %g mht: %g binN: %d \n ",
+		       Eff,Acc, newNJet,evt->nBtags(),newHT,newMHT, binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
               if(verbose==2 && sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet))printf("Eff_Arne: %g \n" ,Eff_Arne);
 
               if(Acc==0){Acc=0.9;cout << " Warning! Acc==0 \n ";}
@@ -1493,7 +1526,7 @@ using namespace std;
               if(StudyErrorPropag){
                 double tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
                 double tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
-                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is laways less than 2.1 so we are fine.
+                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is always less than 2.1 so we are fine.
                   tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
                   tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
                 }
@@ -1542,11 +1575,11 @@ using namespace std;
               Prob_Tau_muMinus=Prob_Tau_mu-Prob_Tau_muError;
               Prob_Tau_muPlus_lowDelphi=Prob_Tau_mu_lowDelphi+Prob_Tau_muError_lowDelphi;
               Prob_Tau_muMinus_lowDelphi=Prob_Tau_mu_lowDelphi-Prob_Tau_muError_lowDelphi;
-      //Ahmad33
+	      //Ahmad33
               if(TauHadModel<4){Acc=1.;Acc_lowDphi=1.; }
-      //Ahmad33
+	      //Ahmad33
               if(TauHadModel<3)Eff_Arne=1.; 
-      //Ahmad33
+	      //Ahmad33
               if(TauHadModel < 1)Prob_Tau_mu=0; 
 
 
@@ -1559,32 +1592,37 @@ using namespace std;
 	      if(Prob_Tau_mu_lowDelphi==1)Prob_Tau_mu_lowDelphi=0.1;
 
 
-              double totWeight=( eventWeight )*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
+              double totWeight=( eventWeight )*1*0.64*(1/(Acc*Eff_Arne))*(1-Prob_Tau_mu);//the 0.64 is because only 64% of tau's decay hadronically. 
+	                                                                                 // Here 0.9 is acceptance and 0.75 is efficiencies of both reconstruction and isolation.
               double totWeight_lowDphi=eventWeight*1*0.64*(1/(Acc_lowDphi*Eff_Arne))*(1-Prob_Tau_mu_lowDelphi);
+
               // dilepton contamination
               if(TauHadModel>=3){
                 if(utils2::IsoTrkModel==0){totWeight*= 1./1.02;totWeight_lowDphi*= 1./1.02;}
               }
 
+	      // trigger efficiency. also lowHT vs highHT selection
+	      totWeight *= trigEffCorr*NjNbCorr*MuonPtMinCorr;
+	      
               // if fastsim
               vector<double> prob;
               if(fastsim){
                 totWeight *= fastsimWeight*0.99; // 0.99 is the jet id efficiency correction. 
                 double puWeight = 
-      puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->TrueNumInteractions_(),puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
-    //puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+		  puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->TrueNumInteractions_(),puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
+		//puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
                 double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
                 totWeight*=isrWeight;
                 //
                 prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
-    //
-    if (totWeight>1. && l==1 && m==0) {
-      printf("puWeight=%8.1f, isrWeight=%8.1f, nvtx=%8d, trueNint=%5.1f, Nint=%5d\n",
-       puWeight,isrWeight,evt->NVtx_(),evt->TrueNumInteractions_(),evt->NumInteractions_());
-    }
-              }
+		//
+		if (totWeight>1. && l==1 && m==0) {
+		  printf("puWeight=%8.1f, isrWeight=%8.1f, nvtx=%8d, trueNint=%5.1f, Nint=%5d\n",
+			 puWeight,isrWeight,evt->NVtx_(),evt->TrueNumInteractions_(),evt->NumInteractions_());
+		}
+              } // fastsim ends
 
               weightEffAcc = totWeight;
 
@@ -1608,13 +1646,13 @@ using namespace std;
               }
 
               int binNum_MT = binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT).c_str()];
-        //if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
+	      //if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
               double mtWeightError, mtWeightPlus, mtWeightMinus, mtWeightError_lowDphi, mtWeightPlus_lowDphi, mtWeightMinus_lowDphi;
               double mtWeight = hMT->GetBinContent(binNum_MT);
               mtWeightError = hMT->GetBinError(binNum_MT);
               double mtWeight_lowDphi = hMT_lowDphi->GetBinContent(binNum_MT);
               mtWeightError_lowDphi = hMT_lowDphi->GetBinError(binNum_MT);
-        if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
+	      if(binNum_MT==0){mtWeight_lowDphi=0.;mtWeightError_lowDphi=0.;}
 
 	      if(binNum_MT==0){ // protection in case the bin is not defined.
 		mtWeight        =0.9;mtWeightError=0.;
@@ -1696,7 +1734,11 @@ using namespace std;
 		            << IsoTrkVetoEff_Nb << std::endl;
 		  */
 
-                  if(IsoTrkWeight==0){IsoTrkWeight=0.6; cout << "Warning! IsoTrkWeight==0 \n ";}
+                  if(IsoTrkWeight==0){
+		    IsoTrkWeight=0.6; 
+		    //cout << "Warning! IsoTrkWeight==0 \n ";
+		    //std::cout << newNJet << " " << NewNB << " " << newHT << " " << newMHT << std::endl; 
+		  }
                 }
                 else if(utils2::IsoTrkModel==1){
                   IsoTrkWeight = hIsoEff2->GetBinContent(binNum);
@@ -1911,108 +1953,106 @@ using namespace std;
 
 
               //load totWeightMap
-                // no error propagation
-                totWeightMap["allEvents"]=totWeight;
-                totWeightMap_lowDphi["allEvents"]=totWeight_lowDphi;
-                if(StudyErrorPropag){
-                  // b mistag error propagation
-                  totWeightMap["BMistagPlus"]=totWeight;
-                  totWeightMap["BMistagMinus"]=totWeight;
-                  if(utils2::bootstrap){
-                    totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
-                    totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
-                  }
-                  totWeightMap_lowDphi["BMistagPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["BMistagMinus"]=totWeight_lowDphi;
-                  if(utils2::bootstrap){
-                    totWeightMap_lowDphi["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistagPlus"]*=Prob_Btag_Plus;
-                    totWeightMap_lowDphi["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistagMinus"]*=Prob_Btag_Minus;
-                  }
-                  // Acc 
-                  totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
-                  totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
-                  totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
-                  totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;         
-                  // Acc Systematics
-                  totWeightMap["AccSysPlus"]=totWeight*Acc/AccSysPlus;
-                  totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
-                  totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
-                  totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
-                  totWeightMap["ScaleAccSysPlus"]=totWeight*Acc/ScaleAccSysPlus;
-                  totWeightMap["ScaleAccSysMinus"]=totWeight*Acc/ScaleAccSysMinus;
-                  totWeightMap_lowDphi["ScaleAccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysPlus_lowDphi;
-                  totWeightMap_lowDphi["ScaleAccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysMinus_lowDphi;
-                  // Iso
-                  totWeightMap["IsoPlus"]=totWeight;  
-                  totWeightMap["IsoMinus"]=totWeight;
-                  totWeightMap_lowDphi["IsoPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["IsoMinus"]=totWeight_lowDphi;
-                  // MT
-                  totWeightMap["MTPlus"]=totWeight*mtWeight/mtWeightPlus;
-                  totWeightMap["MTMinus"]=totWeight*mtWeight/mtWeightMinus;
-                  totWeightMap_lowDphi["MTPlus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightPlus_lowDphi;
-                  totWeightMap_lowDphi["MTMinus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightMinus_lowDphi;
-                  // MuFromTau
-                  totWeightMap["MuFromTauPlus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muPlus);
-                  totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
-                  totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
-                  totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
-                  // Iso & Reco effieciency (From Arne)
-                  totWeightMap["MuRecoIsoPlus"]=totWeight*Eff_Arne/Eff_ArnePlus;
-                  totWeightMap["MuRecoIsoMinus"]=totWeight*Eff_Arne/Eff_ArneMinus;
-                  totWeightMap_lowDphi["MuRecoIsoPlus"]=totWeight_lowDphi*Eff_Arne/Eff_ArnePlus;
-                  totWeightMap_lowDphi["MuRecoIsoMinus"]=totWeight_lowDphi*Eff_Arne/Eff_ArneMinus;
-                  // Mistag Rate
-                  totWeightMap["BMistag_statPlus"]=totWeight;
-                  totWeightMap["BMistag_statMinus"]=totWeight;
-                  if(utils2::bootstrap){
-                    totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagPlus"]*=Prob_Btag_Plus_stat;
-                    totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagMinus"]*=Prob_Btag_Minus_stat;
-                  }
-                  totWeightMap_lowDphi["BMistag_statPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["BMistag_statMinus"]=totWeight_lowDphi;
-                  if(utils2::bootstrap){
-                    totWeightMap_lowDphi["BMistag_statPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistag_statPlus"]*=Prob_Btag_Plus_stat;
-                    totWeightMap_lowDphi["BMistag_statMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistag_statMinus"]*=Prob_Btag_Minus_stat;
-                  }
-                  // Tau branching ratio
-                  totWeightMap["Tau_BrRatio_Plus"]=totWeight/0.64*0.65;
-                  totWeightMap["Tau_BrRatio_Minus"]=totWeight/0.64*0.63;   
-                  totWeightMap_lowDphi["Tau_BrRatio_Plus"]=totWeight_lowDphi/0.64*0.65;
-                  totWeightMap_lowDphi["Tau_BrRatio_Minus"]=totWeight_lowDphi/0.64*0.63;
-                  // Dileptonic
-                  if(utils2::IsoTrkModel==0){
-                    totWeightMap["DileptonPlus"]=  totWeight* 1.02/1.04;
-                    totWeightMap["DileptonMinus"]=  totWeight* 1.02/1.0;
-                    totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi* 1.02/1.04;
-                    totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi* 1.02/1.0;
-                  }
-                  else{
-                    totWeightMap["DileptonPlus"]=totWeight;
-                    totWeightMap["DileptonMinus"]=totWeight;
-                    totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi;
-                    totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
-                  }
-                  // Reco & Iso systetmatics
-                  totWeightMap["RecoSysPlus"]=totWeight/IdSFUp;// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["RecoSysMinus"]=totWeight/IdSFDw;
-                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/IdSFUp;
-                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/IdSFDw;
-                  totWeightMap["IsoSysPlus"]=totWeight/IsoSFUp;// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["IsoSysMinus"]=totWeight/IsoSFDw;
-                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/IsoSFUp;
-                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/IsoSFDw;
-
-
-                }
+	      // no error propagation
+	      totWeightMap["allEvents"]=totWeight;
+	      totWeightMap_lowDphi["allEvents"]=totWeight_lowDphi;
+	      if(StudyErrorPropag){
+		// b mistag error propagation
+		totWeightMap["BMistagPlus"]=totWeight;
+		totWeightMap["BMistagMinus"]=totWeight;
+		if(utils2::bootstrap){
+		  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
+		  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
+		}
+		totWeightMap_lowDphi["BMistagPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["BMistagMinus"]=totWeight_lowDphi;
+		if(utils2::bootstrap){
+		  totWeightMap_lowDphi["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistagPlus"]*=Prob_Btag_Plus;
+		  totWeightMap_lowDphi["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistagMinus"]*=Prob_Btag_Minus;
+		}
+		// Acc 
+		totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
+		totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
+		totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
+		totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;         
+		// Acc Systematics
+		totWeightMap["AccSysPlus"]=totWeight*Acc/AccSysPlus;
+		totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
+		totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
+		totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
+		totWeightMap["ScaleAccSysPlus"]=totWeight*Acc/ScaleAccSysPlus;
+		totWeightMap["ScaleAccSysMinus"]=totWeight*Acc/ScaleAccSysMinus;
+		totWeightMap_lowDphi["ScaleAccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysPlus_lowDphi;
+		totWeightMap_lowDphi["ScaleAccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysMinus_lowDphi;
+		// Iso
+		totWeightMap["IsoPlus"]=totWeight;  
+		totWeightMap["IsoMinus"]=totWeight;
+		totWeightMap_lowDphi["IsoPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["IsoMinus"]=totWeight_lowDphi;
+		// MT
+		totWeightMap["MTPlus"]=totWeight*mtWeight/mtWeightPlus;
+		totWeightMap["MTMinus"]=totWeight*mtWeight/mtWeightMinus;
+		totWeightMap_lowDphi["MTPlus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightPlus_lowDphi;
+		totWeightMap_lowDphi["MTMinus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightMinus_lowDphi;
+		// MuFromTau
+		totWeightMap["MuFromTauPlus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muPlus);
+		totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
+		totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
+		totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
+		// Iso & Reco effieciency (From Arne)
+		totWeightMap["MuRecoIsoPlus"]=totWeight*Eff_Arne/Eff_ArnePlus;
+		totWeightMap["MuRecoIsoMinus"]=totWeight*Eff_Arne/Eff_ArneMinus;
+		totWeightMap_lowDphi["MuRecoIsoPlus"]=totWeight_lowDphi*Eff_Arne/Eff_ArnePlus;
+		totWeightMap_lowDphi["MuRecoIsoMinus"]=totWeight_lowDphi*Eff_Arne/Eff_ArneMinus;
+		// Mistag Rate
+		totWeightMap["BMistag_statPlus"]=totWeight;
+		totWeightMap["BMistag_statMinus"]=totWeight;
+		if(utils2::bootstrap){
+		  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus_stat;
+		  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus_stat;
+		}
+		totWeightMap_lowDphi["BMistag_statPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["BMistag_statMinus"]=totWeight_lowDphi;
+		if(utils2::bootstrap){
+		  totWeightMap_lowDphi["BMistag_statPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistag_statPlus"]*=Prob_Btag_Plus_stat;
+		  totWeightMap_lowDphi["BMistag_statMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistag_statMinus"]*=Prob_Btag_Minus_stat;
+		}
+		// Tau branching ratio
+		totWeightMap["Tau_BrRatio_Plus"]=totWeight/0.64*0.65;
+		totWeightMap["Tau_BrRatio_Minus"]=totWeight/0.64*0.63;   
+		totWeightMap_lowDphi["Tau_BrRatio_Plus"]=totWeight_lowDphi/0.64*0.65;
+		totWeightMap_lowDphi["Tau_BrRatio_Minus"]=totWeight_lowDphi/0.64*0.63;
+		// Dileptonic
+		if(utils2::IsoTrkModel==0){
+		  totWeightMap["DileptonPlus"]=  totWeight* 1.02/1.04;
+		  totWeightMap["DileptonMinus"]=  totWeight* 1.02/1.0;
+		  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi* 1.02/1.04;
+		  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi* 1.02/1.0;
+		}
+		else{
+		  totWeightMap["DileptonPlus"]=totWeight;
+		  totWeightMap["DileptonMinus"]=totWeight;
+		  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi;
+		  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
+		}
+		// Reco & Iso systetmatics
+		totWeightMap["RecoSysPlus"]=totWeight/IdSFUp;// this is Eff_Arne/1.1*Eff_Arne
+		totWeightMap["RecoSysMinus"]=totWeight/IdSFDw;
+		totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/IdSFUp;
+		totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/IdSFDw;
+		totWeightMap["IsoSysPlus"]=totWeight/IsoSFUp;// this is Eff_Arne/1.1*Eff_Arne
+		totWeightMap["IsoSysMinus"]=totWeight/IsoSFDw;
+		totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/IsoSFUp;
+		totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/IsoSFDw;
+	      } // StudyErrorPropag ends
 
 
               //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
@@ -2237,10 +2277,8 @@ using namespace std;
       } // loop for uncertainties
     } // end of loop over events
 
-
     double GenRecMu_rate = (double)GenRecMu_fail /((double)GenRecMu_all);
     printf("GenRecMu_all: %d GenRecMu_fail: %d fail rate: %g \n ",GenRecMu_all,GenRecMu_fail,GenRecMu_rate);
-      
 
     if(!utils2::bootstrap){
 
