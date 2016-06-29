@@ -81,175 +81,212 @@ void plot_MuonsFromTaus_forICHEP2016(){
   sprintf(tempnameMod,"TauHad2/Stack/Elog433_modifiedProbability_Tau_mu_stacked.root");
   TFile *file2   = new TFile(tempnameMod,"RECREATE");
 
-  sprintf(tempname,"hProb_Tau_mu");
-  sprintf(tempNum,"hNonW_mu");
-  sprintf(tempDen,"hAll_mu");
-
-  thist = (TH1D*)file->Get(tempname)->Clone();
-  histNum = (TH1D*)file->Get(tempNum)->Clone();
-  histDen = (TH1D*)file->Get(tempDen)->Clone();
-
-  int nbins=histNum->GetNbinsX();
-  std::cout<<"nbins "<<nbins<<endl;
-
-  for(int j=1;j<=nbins;j++){
-    //std::cout<<"..........................."<<endl;                                                                                       
-    double binvalue=0;
-    double ratio=thist->GetBinContent(j);
-    double newN=0;
-    double newD=0;
-    if(j==52 || j==55 ||j==61 || j==64 || j==67 ||j==70 ||j==72){
-      int kbin=j+1;
-      if(j==72) kbin=j-1;
-      newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
-      newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
-      ratio=newN/newD;
-      binvalue=ratio;
-      double ProbMuTauOld = thist->GetBinContent(j);
-      double errOld = thist->GetBinError(j);
-      thist->SetBinContent(j,ratio);
-      thist->SetBinError(j,  thist->GetBinError(kbin) );
-
-      //if(binvalue!=0)
-      std::cout<<" Bin "<< j<< " Numerator("<<j<<") "<< histNum->GetBinContent(j) <<" Numerator("<<kbin<<") "<<histNum->GetBinContent(kbin) <<" newNumerator "<<newN<<" Denominator("<<j<<") "<<histDen->GetBinContent(j)<<" Denominator("<<kbin<<") "<< histDen->GetBinContent(kbin)<<" newDenominator "<<newD<< " oldProbMuTau("<<j<<") " << ProbMuTauOld << " newProbMuTau("<<j<<") " << ratio << " oldErr("<<j<<") " << errOld << " err("<<kbin<<") " <<  thist->GetBinError(kbin) << " newErr("<<j<<") " << thist->GetBinError(j) << endl;
-
+  int NumHistsToCorrect=2;
+  for(int x=1;x<=NumHistsToCorrect;x++){
+    if(x==1){
+      std::cout<<" High delphi regio "<<endl;
+      sprintf(tempname,"hProb_Tau_mu");
+      sprintf(tempNum,"hNonW_mu");
+      sprintf(tempDen,"hAll_mu");
     }
-  }
-  std::cout<<" Before calling shift_bin "<<endl;
-  thist_input = static_cast<TH1D*>(thist->Clone("thist_input"));
-  shift_bin(thist_input,thist);
-  thist_fixed = static_cast<TH1D*>(thist->Clone("thist_fixed"));
-  std::cout<<" shift_bin called "<<endl;
-  /*
-  TH1F *thist_fixed = new TH1F("thist_fixed","thist_fixed",18,1.,19.);
-  for (int ibin=0;ibin<18;ibin++){
-    thist_fixed->SetBinContent(ibin+1,thist->GetBinContent(ibin+1));
-    thist_fixed->SetBinError(ibin+1,thist->GetBinError(ibin+1));
-  }
-  */
+    if(x==2){
+      std::cout<<" Low delphi regio "<<endl;
+      sprintf(tempname,"hProb_Tau_mu_lowDelphi");
+      sprintf(tempNum,"hNonW_mu_lowDelphi");
+      sprintf(tempDen,"hAll_mu_lowDelphi");
+    }
+
+    thist = (TH1D*)file->Get(tempname)->Clone();
+    histNum = (TH1D*)file->Get(tempNum)->Clone();
+    histDen = (TH1D*)file->Get(tempDen)->Clone();
+
+    int nbins=histNum->GetNbinsX();
+    std::cout<<"nbins "<<nbins<<endl;
+
+    for(int j=1;j<=nbins;j++){
+      //std::cout<<"..........................."<<endl;                                                                                       
+      double binvalue=0;
+      double ratio=thist->GetBinContent(j);
+      double newN=0;
+      double newD=0;
+      if(x==1){
+	if(j==52 || j==55 ||j==61 || j==64 || j==67 ||j==70 ||j==72){
+	  int kbin=j+1;
+	  if(j==72) kbin=j-1;
+	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
+	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
+	  ratio=newN/newD;
+	  binvalue=ratio;
+	  double ProbMuTauOld = thist->GetBinContent(j);
+	  double errOld = thist->GetBinError(j);
+	  thist->SetBinContent(j,ratio);
+	  thist->SetBinError(j,  thist->GetBinError(kbin) );
+
+	  //if(binvalue!=0)
+	  std::cout<<" Bin "<< j<< " Numerator("<<j<<") "<< histNum->GetBinContent(j) <<" Numerator("<<kbin<<") "<<histNum->GetBinContent(kbin) <<" newNumerator "<<newN<<" Denominator("<<j<<") "<<histDen->GetBinContent(j)<<" Denominator("<<kbin<<") "<< histDen->GetBinContent(kbin)<<" newDenominator "<<newD<< " oldProbMuTau("<<j<<") " << ProbMuTauOld << " newProbMuTau("<<j<<") " << ratio << " oldErr("<<j<<") " << errOld << " err("<<kbin<<") " <<  thist->GetBinError(kbin) << " newErr("<<j<<") " << thist->GetBinError(j) << endl;
+
+	}
+      }
+      if(x==2){
+	if(j==52 ||j==55 ||j==60 ||j==70){
+	  int kbin=j+1;
+	  if(j==72) kbin=j-1;
+	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
+	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
+	  ratio=newN/newD;
+	  binvalue=ratio;
+	  double ProbMuTauOld = thist->GetBinContent(j);
+	  double errOld = thist->GetBinError(j);
+	  thist->SetBinContent(j,ratio);
+	  thist->SetBinError(j,  thist->GetBinError(kbin) );
+      
+	  //if(binvalue!=0)
+	  std::cout<<" Bin "<< j<< " Numerator("<<j<<") "<< histNum->GetBinContent(j) <<" Numerator("<<kbin<<") "<<histNum->GetBinContent(kbin) <<" newNumerator "<<newN<<" Denominator("<<j<<") "<<histDen->GetBinContent(j)<<" Denominator("<<kbin<<") "<< histDen->GetBinContent(kbin)<<" newDenominator "<<newD<< " oldProbMuTau("<<j<<") " << ProbMuTauOld << " newProbMuTau("<<j<<") " << ratio << " oldErr("<<j<<") " << errOld << " err("<<kbin<<") " <<  thist->GetBinError(kbin) << " newErr("<<j<<") " << thist->GetBinError(j) << endl;
+      
+	}
+      }
+    }
+    std::cout<<" Before calling shift_bin "<<endl;
+    thist_input = static_cast<TH1D*>(thist->Clone("thist_input"));
+    shift_bin(thist_input,thist);
+    thist_fixed = static_cast<TH1D*>(thist->Clone("thist_fixed"));
+    std::cout<<" shift_bin called "<<endl;
+    /*
+      TH1F *thist_fixed = new TH1F("thist_fixed","thist_fixed",18,1.,19.);
+      for (int ibin=0;ibin<18;ibin++){
+      thist_fixed->SetBinContent(ibin+1,thist->GetBinContent(ibin+1));
+      thist_fixed->SetBinError(ibin+1,thist->GetBinError(ibin+1));
+      }
+    */
   
-  thist_fixed->SetLineColor(1);
-  thist_fixed->SetLineWidth(3);
-  thist_fixed->SetStats(kFALSE);
+    thist_fixed->SetLineColor(1);
+    thist_fixed->SetLineWidth(3);
+    thist_fixed->SetStats(kFALSE);
 
-  thist_fixed->SetTitle("");
+    thist_fixed->SetTitle("");
   
-  thist_fixed->SetMaximum(ymax);
-  thist_fixed->SetMinimum(0.0);
-  thist_fixed->GetXaxis()->SetLabelFont(42);
-  thist_fixed->GetXaxis()->SetLabelOffset(0.007);
-  thist_fixed->GetXaxis()->SetLabelSize(0.045);
-  thist_fixed->GetXaxis()->SetTitleSize(0.06);
-  thist_fixed->GetXaxis()->SetTitleOffset(0.9);
-  thist_fixed->GetXaxis()->SetTitleFont(42);
-  thist_fixed->GetYaxis()->SetLabelFont(42);
-  thist_fixed->GetYaxis()->SetLabelOffset(0.007);
-  thist_fixed->GetYaxis()->SetLabelSize(0.045);
-  thist_fixed->GetYaxis()->SetTitleSize(0.06);
-  thist_fixed->GetYaxis()->SetTitleOffset(0.60);
-  thist_fixed->GetYaxis()->SetTitleFont(42);
+    thist_fixed->SetMaximum(ymax);
+    thist_fixed->SetMinimum(0.0);
+    thist_fixed->GetXaxis()->SetLabelFont(42);
+    thist_fixed->GetXaxis()->SetLabelOffset(0.007);
+    thist_fixed->GetXaxis()->SetLabelSize(0.045);
+    thist_fixed->GetXaxis()->SetTitleSize(0.06);
+    thist_fixed->GetXaxis()->SetTitleOffset(0.9);
+    thist_fixed->GetXaxis()->SetTitleFont(42);
+    thist_fixed->GetYaxis()->SetLabelFont(42);
+    thist_fixed->GetYaxis()->SetLabelOffset(0.007);
+    thist_fixed->GetYaxis()->SetLabelSize(0.045);
+    thist_fixed->GetYaxis()->SetTitleSize(0.06);
+    thist_fixed->GetYaxis()->SetTitleOffset(0.60);
+    thist_fixed->GetYaxis()->SetTitleFont(42);
 
-  //KH adhoc
-  //  thist_fixed->SetBinContent(18,0.2);
+    //KH adhoc
+    //  thist_fixed->SetBinContent(18,0.2);
   
-  thist_fixed->GetYaxis()->SetTitle("Fraction of muons from #tau decays");
-  thist_fixed->GetXaxis()->SetTitle("Bin number");
-  thist_fixed->SetMarkerStyle(20);
-  thist_fixed->Draw();
+    thist_fixed->GetYaxis()->SetTitle("Fraction of muons from #tau decays");
+    thist_fixed->GetXaxis()->SetTitle("Bin number");
+    thist_fixed->SetMarkerStyle(20);
+    thist_fixed->Draw();
 
-  //TLatex * ttext1 = new TLatex(6.0 , ytext , "N_{jets}=4");
-  TLatex * ttext1 = new TLatex(6.25 , ytext , "N_{jets}=3");
-  ttext1->SetTextFont(42);
-  ttext1->SetTextSize(0.05);
-  ttext1->SetTextAlign(22);
-  ttext1->Draw();
+    //TLatex * ttext1 = new TLatex(6.0 , ytext , "N_{jets}=4");
+    TLatex * ttext1 = new TLatex(6.25 , ytext , "N_{jets}=3");
+    ttext1->SetTextFont(42);
+    ttext1->SetTextSize(0.05);
+    ttext1->SetTextAlign(22);
+    ttext1->Draw();
 
-  TLatex * ttext2 = new TLatex(18.25 , ytext , "N_{jets}=4");
-  ttext2->SetTextFont(42);
-  ttext2->SetTextSize(0.05);
-  ttext2->SetTextAlign(22);
-  ttext2->Draw();
+    TLatex * ttext2 = new TLatex(18.25 , ytext , "N_{jets}=4");
+    ttext2->SetTextFont(42);
+    ttext2->SetTextSize(0.05);
+    ttext2->SetTextAlign(22);
+    ttext2->Draw();
 
-  TLatex * ttext3 = new TLatex(30.25 , ytext , "N_{jets}=5");
+    TLatex * ttext3 = new TLatex(30.25 , ytext , "N_{jets}=5");
 
-  ttext3->SetTextFont(42);
-  ttext3->SetTextSize(0.05);
-  ttext3->SetTextAlign(22);
-  ttext3->Draw();
+    ttext3->SetTextFont(42);
+    ttext3->SetTextSize(0.05);
+    ttext3->SetTextAlign(22);
+    ttext3->Draw();
 
-  TLatex * ttext4 = new TLatex(42.25, ytext , "N_{jets}=6");
-  ttext4->SetTextFont(42);
-  ttext4->SetTextSize(0.05);
-  ttext4->SetTextAlign(22);
-  ttext4->Draw();
+    TLatex * ttext4 = new TLatex(42.25, ytext , "N_{jets}=6");
+    ttext4->SetTextFont(42);
+    ttext4->SetTextSize(0.05);
+    ttext4->SetTextAlign(22);
+    ttext4->Draw();
 
-  TLatex * ttext5 = new TLatex(54.25 , ytext , "7 #leq N_{jets} #leq 8");
-  ttext5->SetTextFont(42);
-  ttext5->SetTextSize(0.05);
-  ttext5->SetTextAlign(22);
-  ttext5->Draw();
+    TLatex * ttext5 = new TLatex(54.25 , ytext , "7 #leq N_{jets} #leq 8");
+    ttext5->SetTextFont(42);
+    ttext5->SetTextSize(0.05);
+    ttext5->SetTextAlign(22);
+    ttext5->Draw();
 
-  TLatex * ttext6 = new TLatex(66.25 , ytext , "N_{jets} #geq 9");
-  ttext6->SetTextFont(42);
-  ttext6->SetTextSize(0.05);
-  ttext6->SetTextAlign(22);
-  ttext6->Draw();
+    TLatex * ttext6 = new TLatex(66.25 , ytext , "N_{jets} #geq 9");
+    ttext6->SetTextFont(42);
+    ttext6->SetTextSize(0.05);
+    ttext6->SetTextAlign(22);
+    ttext6->Draw();
 
 
-  TLine *tline_1 = new TLine(12.5,ymin,12.5,ymax);
-  tline_1->SetLineStyle(2);
-  tline_1->Draw();
+    TLine *tline_1 = new TLine(12.5,ymin,12.5,ymax);
+    tline_1->SetLineStyle(2);
+    tline_1->Draw();
 
-  TLine *tline_2 = new TLine(24.5,ymin,24.5,ymax);
-  tline_2->SetLineStyle(2);
-  tline_2->Draw();
+    TLine *tline_2 = new TLine(24.5,ymin,24.5,ymax);
+    tline_2->SetLineStyle(2);
+    tline_2->Draw();
   
-  TLine *tline_3 = new TLine(36.5,ymin,36.5,ymax);
-  tline_3->SetLineStyle(2);
-  tline_3->Draw();
+    TLine *tline_3 = new TLine(36.5,ymin,36.5,ymax);
+    tline_3->SetLineStyle(2);
+    tline_3->Draw();
   
-  TLine *tline_4 = new TLine(48.5,ymin,48.5,ymax);
-  tline_4->SetLineStyle(2);
-  tline_4->Draw();
+    TLine *tline_4 = new TLine(48.5,ymin,48.5,ymax);
+    tline_4->SetLineStyle(2);
+    tline_4->Draw();
 
-  TLine *tline_5 = new TLine(60.5,ymin,60.5,ymax);
-  tline_5->SetLineStyle(2);
-  tline_5->Draw();
+    TLine *tline_5 = new TLine(60.5,ymin,60.5,ymax);
+    tline_5->SetLineStyle(2);
+    tline_5->Draw();
  
-  CMS_lumi( c1, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
+    CMS_lumi( c1, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
   
-  double xlatex=0.75;
-  double ylatex=0.55;
-  /*
-  TLatex *   tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
-  tex->SetTextColor(4);
-  tex->SetTextFont(61);
-  tex->SetTextSize(0.055);
-  tex->SetLineColor(4);
-  tex->SetLineWidth(2);
-  //tex->Draw();
-  tex->DrawLatexNDC(xlatex,ylatex-0.2,"arXiv:1602.06581");
-  */
-  /*
-  TPaveText pt(xlatex,ylatex,xlatex+0.19,ylatex+0.1,"NDC");
-  pt.AddText("arXiv:1602.06581");
-  pt.SetFillColor(0);
-  pt.SetLineColor(0);
-  pt.SetLineWidth(0);
-  pt.SetBorderSize(0);
-  pt.SetTextColor(4);
-  pt.SetTextFont(61);
-  pt.SetTextSize(0.055);
-  pt.Draw();
-*/
-  c1->Print("plot_MuonsFromTaus.png");
-  c1->Print("plot_MuonsFromTaus.pdf");
+    double xlatex=0.75;
+    double ylatex=0.55;
+    /*
+      TLatex *   tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+      tex->SetTextColor(4);
+      tex->SetTextFont(61);
+      tex->SetTextSize(0.055);
+      tex->SetLineColor(4);
+      tex->SetLineWidth(2);
+      //tex->Draw();
+      tex->DrawLatexNDC(xlatex,ylatex-0.2,"arXiv:1602.06581");
+    */
+    /*
+      TPaveText pt(xlatex,ylatex,xlatex+0.19,ylatex+0.1,"NDC");
+      pt.AddText("arXiv:1602.06581");
+      pt.SetFillColor(0);
+      pt.SetLineColor(0);
+      pt.SetLineWidth(0);
+      pt.SetBorderSize(0);
+      pt.SetTextColor(4);
+      pt.SetTextFont(61);
+      pt.SetTextSize(0.055);
+      pt.Draw();
+    */
+    if(x==1){
+      c1->Print("plot_MuonsFromTaus.png");
+      c1->Print("plot_MuonsFromTaus.pdf");
+    }
+    if(x==2){
+      c1->Print("plot_MuonsFromTaus_lowDelphi.png");
+      c1->Print("plot_MuonsFromTaus_lowDelphi.pdf");
+    }
 
-  file2->cd();
-  thist->Write();
-  TH1D *thist_lowDphi = (TH1D*)file->Get("hProb_Tau_mu_lowDelphi")->Clone();
-  thist_lowDphi->Write();
-  
+    file2->cd();
+    thist->Write();
+    //  TH1D *thist_lowDphi = (TH1D*)file->Get("hProb_Tau_mu_lowDelphi")->Clone();
+    // thist_lowDphi->Write();
+  }
 }
 
 void shift_bin(TH1* input, TH1* output){
