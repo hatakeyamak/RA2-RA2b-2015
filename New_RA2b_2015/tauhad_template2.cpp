@@ -616,7 +616,8 @@ using namespace std;
 
     // Probability of muon coming from Tau
     //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root","R");
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root","R");
+    //    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog433_modifiedProbability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
     sprintf(histname,"hProb_Tau_mu_lowDelphi");
@@ -628,8 +629,8 @@ using namespace std;
 
     //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
     //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog427_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog433_LostLepton2_MuonEfficienciesFromstacked.root","R");
-
+    //    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog433_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog433_modifiedLostLepton2_MuonEfficienciesFromstacked.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
@@ -1426,6 +1427,12 @@ using namespace std;
 	      double trigEffCorr=1.;
 	      double NjNbCorr=1.;
 	      double MuonPtMinCorr=1.;
+	      double QCD_UpNjNbCorr=1.;
+	      double QCD_LowNjNbCorr=1.;
+
+	      double factor_Up_NjNb=1;
+	      double factor_Low_NjNb=1;
+
 	      if (isData){
 
 		if (newHT<500.){
@@ -1453,6 +1460,24 @@ using namespace std;
 		  0.960125, 0.99264, 1.04157, 1.22838,
 		  0.863833, 0.803388, 1.01109, 1.12302};
 		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
+		double QCD_UpNjNbCorrArray[16]={
+		  1.06067,1.15766,1.21137,1.38428,
+		  0.988007,1.02257,1.05086,1.17749,
+		  0.937987,0.97341,0.99937,1.16912,
+		  0.842024,0.854788,0.97895,1.12172};
+		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+		
+		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
+
+		double QCD_LowNjNbCorrArray[16]={
+		  0.864283,1.04062,1.10166,1.31812,
+		  0.843319,0.915936,0.940394,1.13485,
+		  0.850232,0.866817,0.924276,1.04468,
+		  0.788246,0.804593,0.883932,0.949569};		  
+		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+		
+		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
 
 	      } // isData ends
 
@@ -1737,7 +1762,7 @@ using namespace std;
                   if(IsoTrkWeight==0){
 		    IsoTrkWeight=0.6; 
 		    //cout << "Warning! IsoTrkWeight==0 \n ";
-		    //std::cout << newNJet << " " << NewNB << " " << newHT << " " << newMHT << std::endl; 
+		    //std::cout << newNJet  << " " << NewNB << " " << newHT << " " << newMHT << std::endl; 
 		  }
                 }
                 else if(utils2::IsoTrkModel==1){
@@ -1873,8 +1898,9 @@ using namespace std;
         //KH-Feb2016-ends
 
         // Fill QCD histograms
-        QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
-                  }
+        //QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+	QCD_Up_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*factor_Up_NjNb);
+		  }
                   if(NewNB==0)hPredHTMHT0b_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);  
                   if(NewNB >0)hPredHTMHTwb_evt->Fill( binMap_HTMHT[utils2::findBin_HTMHT(newHT,newMHT).c_str()],searchWeight);
                   hPredNJetBins_evt->Fill(newNJet,searchWeight);
@@ -1943,10 +1969,10 @@ using namespace std;
                   // Fill QCD histograms
                   if(fastsim){
                     for(int iii=0;iii< prob.size();iii++){
-                      QCD_Low_evt->Fill(binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[0]);
+		      QCD_Low_evt->Fill(binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*prob[0]);
                     }
                   }
-                  else QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
+                  else QCD_Low_evt->Fill( binMap_QCD[utils2::findBin_QCD(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight*factor_Low_NjNb);
                 }
 
               }
