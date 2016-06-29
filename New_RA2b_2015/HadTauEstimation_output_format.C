@@ -21,23 +21,27 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 				    string elogForData2="KHElog424_",      // Data
 				    string elogForMCExp="KHElog420_",      // MC expectation
 				    string elogForMCPre="KHElog424_",      // MC prediction
+				    //
 				    string elogForSys="Elog408_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
 				    string elogForMuSys="Elog410_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
 				    string elogForJECSysUp="Elog410V2_",   // JEC Up systematics
 				    string elogForJECSysDn="Elog410V2_",   // JEC Down systematics
 				    string elogForJECSysRef="Elog410_",    // JEC uncertainty reference
+				    string elogForAccPDF="Elog408_",       // Acceptance uncertainty due to PDF
+				    string elogForAccScale="Elog408_",     // Acceptance uncertainty due to scale
+				    //
 				    string elogForIsoTrkVeto="KHElog420_", // Isotrack veto efficiency stat uncertainty
 				    string elogForMuFromTau="Elog433_",    // Muon from tau stat uncertainty
 				    string elogForAccStat="Elog433_",      // Acceptance stat uncertainty
-				    string elogForMTSysRef="Elog397_",     // MT cut efficiency reference (flat error is assigned, so this reference serves only just to provide histogram template)
 				    string elogForMTStat="Elog433_",       // MT cut efficiency
-				    string elogForAccPDF="Elog408_",       // Acceptance uncertainty due to PDF
-				    string elogForAccScale="Elog408_",     // Acceptance uncertainty due to scale
-				    double trigEff=1.000,
-				    double trigEff2=1.000,
+				    //
+				    double trigEff=1.000,                  // Trigger efficiency for highHT selection (now corrected in the tauhad2_templace.cpp code)
+				    double trigEff2=1.000,                 //                    for lowHT  selection
+				    double MtSysFlat=0.01,                 // MT cut efficiency uncertainty
+				    double IsoTrkVetoFlat=0.1,             // IsoTrkVeto efficiency uncertainty
                                     // because 2015C does not have our trigger, we scale 2015D to account for that
-				    double lumiTarget=2.584653,
-				    double lumiControl=2.585297, 
+				    double lumiTarget=2.584653,            // Luminosity of the search trigger sample 
+				    double lumiControl=2.585297,           // Luminosity of the SingleMuon PD used for the control sample
 				    int isys==0){
 
   char tempname[200];
@@ -180,11 +184,11 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 
   //
   // --- Final propagation of isotrack veto efficiency uncertainty
-  isoTrkVetoErrPropagation(searchBin_IsoTrkVetoEff, 0.1, searchBin_one,
+  isoTrkVetoErrPropagation(searchBin_IsoTrkVetoEff, IsoTrkVetoFlat, searchBin_one,
 			   searchBin_IsoTrkVetoEffUncertaintyTot, searchBin_IsoTrkVetoEffUncertaintyStat, searchBin_IsoTrkVetoEffUncertaintySys);
-  isoTrkVetoErrPropagation(QCDBin_HiDphi_IsoTrkVetoEff, 0.1, QCDBin_one,
+  isoTrkVetoErrPropagation(QCDBin_HiDphi_IsoTrkVetoEff, IsoTrkVetoFlat, QCDBin_one,
 			   QCDBin_HiDphi_IsoTrkVetoEffUncertaintyTot, QCDBin_HiDphi_IsoTrkVetoEffUncertaintyStat, QCDBin_HiDphi_IsoTrkVetoEffUncertaintySys);
-  isoTrkVetoErrPropagation(QCDBin_LowDphi_IsoTrkVetoEff, 0.1, QCDBin_one,
+  isoTrkVetoErrPropagation(QCDBin_LowDphi_IsoTrkVetoEff, IsoTrkVetoFlat, QCDBin_one,
 			   QCDBin_LowDphi_IsoTrkVetoEffUncertaintyTot, QCDBin_LowDphi_IsoTrkVetoEffUncertaintyStat, QCDBin_LowDphi_IsoTrkVetoEffUncertaintySys);
 
   KHtmp */
@@ -264,7 +268,6 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 
   // Due to PDF
   //----------
-  /* KHtmp
 
   sprintf(tempname,"TauHad/%sAcceptanceSystematicsFromPDF_AllSamples.root",elogForAccPDF.c_str());
   TFile * AccSysFromPDFFile = new TFile(tempname,"R");
@@ -274,6 +277,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   TH1D * hAccSysPDFUp_LowDphi = (TH1D *) AccSysFromPDFFile->Get("hAccSysMax_lowDphi")->Clone();
   TH1D * hAccSysPDFDn_LowDphi = (TH1D *) AccSysFromPDFFile->Get("hAccSysMin_lowDphi")->Clone();
 
+  /* KHtmp
   TH1D* searchBin_AccSysPDFUp = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_AccSysPDFUp");
   searchBin_AccSysPDFUp->Reset();
   binMap(hAccSysPDFUp,searchBin_AccSysPDFUp);
@@ -301,6 +305,8 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   binMap_QCD(hAccSysPDFDn_LowDphi,QCDBin_LowDphi_AccSysPDFDn);
   accErrPropagation(QCDBin_LowDphi_AccSysPDFDn,QCDBin_LowDphi_Acc);
 
+  KHtmp */
+
   // Due to scale
   //----------
   sprintf(tempname,"TauHad/%sAcceptanceSystematicsFromScale_AllSamples.root",elogForAccScale.c_str());
@@ -310,6 +316,8 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   TH1D * hAccSysScaleDn = (TH1D *) AccSysFromScaleFile->Get("hScaleAccSysMin")->Clone();
   TH1D * hAccSysScaleUp_LowDphi = (TH1D *) AccSysFromScaleFile->Get("hScaleAccSysMax_lowDphi")->Clone();
   TH1D * hAccSysScaleDn_LowDphi = (TH1D *) AccSysFromScaleFile->Get("hScaleAccSysMin_lowDphi")->Clone();
+
+  /* KHtmp
 
   TH1D* searchBin_AccSysScaleUp = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_AccSysScaleUp");
   searchBin_AccSysScaleUp->Reset();
@@ -441,12 +449,12 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysRef");  
   TH1D * QCDBin_LowDphi_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
 
-  effMapConstErrPropagation(searchBin_MTSysRef,+0.01,searchBin_MTSysUp);
-  effMapConstErrPropagation(searchBin_MTSysRef,-0.01,searchBin_MTSysDn);
-  effMapConstErrPropagation(QCDBin_HiDphi_MTSysRef,+0.01,QCDBin_HiDphi_MTSysUp);
-  effMapConstErrPropagation(QCDBin_HiDphi_MTSysRef,-0.01,QCDBin_HiDphi_MTSysDn);
-  effMapConstErrPropagation(QCDBin_LowDphi_MTSysRef,+0.01,QCDBin_LowDphi_MTSysUp);
-  effMapConstErrPropagation(QCDBin_LowDphi_MTSysRef,-0.01,QCDBin_LowDphi_MTSysDn);
+  effMapConstErrPropagation(searchBin_MTSysRef,+MtSysFlat,searchBin_MTSysUp);
+  effMapConstErrPropagation(searchBin_MTSysRef,-MtSysFlat,searchBin_MTSysDn);
+  effMapConstErrPropagation(QCDBin_HiDphi_MTSysRef,+MtSysFlat,QCDBin_HiDphi_MTSysUp);
+  effMapConstErrPropagation(QCDBin_HiDphi_MTSysRef,-MtSysFlat,QCDBin_HiDphi_MTSysDn);
+  effMapConstErrPropagation(QCDBin_LowDphi_MTSysRef,+MtSysFlat,QCDBin_LowDphi_MTSysUp);
+  effMapConstErrPropagation(QCDBin_LowDphi_MTSysRef,-MtSysFlat,QCDBin_LowDphi_MTSysDn);
 
   KHtmp */
 

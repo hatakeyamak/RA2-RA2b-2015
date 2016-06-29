@@ -229,8 +229,7 @@ using namespace std;
     QCD_Up->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * QCD_Up_evt = static_cast<TH1D*>(QCD_Up->Clone("QCD_Up_evt"));
- 
-
+    
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
@@ -513,7 +512,7 @@ using namespace std;
       cut_histvec_map_search[sel->cutName()[i]]=vec_search;
     }
 
-    bool StudyErrorPropag = false;
+    bool StudyErrorPropag = true;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -521,7 +520,6 @@ using namespace std;
     else if(subSampleKey.find("MTSelPlus")!=string::npos)UncerLoop[0]="MTSelPlus";
     else if(subSampleKey.find("MTSelMinus")!=string::npos)UncerLoop[0]="MTSelMinus";
     else UncerLoop[0]="main";
-    
  
     // get the acceptance systematics
     TFile * AccSysfile, * AccSysfile2;
@@ -798,7 +796,7 @@ using namespace std;
       //eventWeight = evt->weight()/evt->puweight();
 
       //if(eventN>10000)break;
-      if(eventN>50)break;
+      if(eventN>5)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
 
@@ -1458,10 +1456,12 @@ using namespace std;
 
 	      } // isData ends
 
+	      /*
               if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
 		printf("newNJet:%d NewNB:%d newHT:%7.2f newMHT:%7.2f muonPt:%7.2f: trigEffCorr,NjNbCorr,MuonPtMinCorr: %7.3f %7.3f %7.3f\n",
 		       newNJet,NewNB,newHT,newMHT,muPt,trigEffCorr,NjNbCorr,MuonPtMinCorr);
 	      }
+	      */
 
               // get the effieciencies and acceptance
               // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
@@ -1526,7 +1526,7 @@ using namespace std;
               if(StudyErrorPropag){
                 double tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
                 double tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
-                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is laways less than 2.1 so we are fine.
+                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is always less than 2.1 so we are fine.
                   tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
                   tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
                 }
@@ -1953,108 +1953,106 @@ using namespace std;
 
 
               //load totWeightMap
-                // no error propagation
-                totWeightMap["allEvents"]=totWeight;
-                totWeightMap_lowDphi["allEvents"]=totWeight_lowDphi;
-                if(StudyErrorPropag){
-                  // b mistag error propagation
-                  totWeightMap["BMistagPlus"]=totWeight;
-                  totWeightMap["BMistagMinus"]=totWeight;
-                  if(utils2::bootstrap){
-                    totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
-                    totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
-                  }
-                  totWeightMap_lowDphi["BMistagPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["BMistagMinus"]=totWeight_lowDphi;
-                  if(utils2::bootstrap){
-                    totWeightMap_lowDphi["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistagPlus"]*=Prob_Btag_Plus;
-                    totWeightMap_lowDphi["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistagMinus"]*=Prob_Btag_Minus;
-                  }
-                  // Acc 
-                  totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
-                  totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
-                  totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
-                  totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;         
-                  // Acc Systematics
-                  totWeightMap["AccSysPlus"]=totWeight*Acc/AccSysPlus;
-                  totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
-                  totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
-                  totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
-                  totWeightMap["ScaleAccSysPlus"]=totWeight*Acc/ScaleAccSysPlus;
-                  totWeightMap["ScaleAccSysMinus"]=totWeight*Acc/ScaleAccSysMinus;
-                  totWeightMap_lowDphi["ScaleAccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysPlus_lowDphi;
-                  totWeightMap_lowDphi["ScaleAccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysMinus_lowDphi;
-                  // Iso
-                  totWeightMap["IsoPlus"]=totWeight;  
-                  totWeightMap["IsoMinus"]=totWeight;
-                  totWeightMap_lowDphi["IsoPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["IsoMinus"]=totWeight_lowDphi;
-                  // MT
-                  totWeightMap["MTPlus"]=totWeight*mtWeight/mtWeightPlus;
-                  totWeightMap["MTMinus"]=totWeight*mtWeight/mtWeightMinus;
-                  totWeightMap_lowDphi["MTPlus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightPlus_lowDphi;
-                  totWeightMap_lowDphi["MTMinus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightMinus_lowDphi;
-                  // MuFromTau
-                  totWeightMap["MuFromTauPlus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muPlus);
-                  totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
-                  totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
-                  totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
-                  // Iso & Reco effieciency (From Arne)
-                  totWeightMap["MuRecoIsoPlus"]=totWeight*Eff_Arne/Eff_ArnePlus;
-                  totWeightMap["MuRecoIsoMinus"]=totWeight*Eff_Arne/Eff_ArneMinus;
-                  totWeightMap_lowDphi["MuRecoIsoPlus"]=totWeight_lowDphi*Eff_Arne/Eff_ArnePlus;
-                  totWeightMap_lowDphi["MuRecoIsoMinus"]=totWeight_lowDphi*Eff_Arne/Eff_ArneMinus;
-                  // Mistag Rate
-                  totWeightMap["BMistag_statPlus"]=totWeight;
-                  totWeightMap["BMistag_statMinus"]=totWeight;
-                  if(utils2::bootstrap){
-                    totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagPlus"]*=Prob_Btag_Plus_stat;
-                    totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap["BMistagMinus"]*=Prob_Btag_Minus_stat;
-                  }
-                  totWeightMap_lowDphi["BMistag_statPlus"]=totWeight_lowDphi;
-                  totWeightMap_lowDphi["BMistag_statMinus"]=totWeight_lowDphi;
-                  if(utils2::bootstrap){
-                    totWeightMap_lowDphi["BMistag_statPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistag_statPlus"]*=Prob_Btag_Plus_stat;
-                    totWeightMap_lowDphi["BMistag_statMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
-                    totWeightMap_lowDphi["BMistag_statMinus"]*=Prob_Btag_Minus_stat;
-                  }
-                  // Tau branching ratio
-                  totWeightMap["Tau_BrRatio_Plus"]=totWeight/0.64*0.65;
-                  totWeightMap["Tau_BrRatio_Minus"]=totWeight/0.64*0.63;   
-                  totWeightMap_lowDphi["Tau_BrRatio_Plus"]=totWeight_lowDphi/0.64*0.65;
-                  totWeightMap_lowDphi["Tau_BrRatio_Minus"]=totWeight_lowDphi/0.64*0.63;
-                  // Dileptonic
-                  if(utils2::IsoTrkModel==0){
-                    totWeightMap["DileptonPlus"]=  totWeight* 1.02/1.04;
-                    totWeightMap["DileptonMinus"]=  totWeight* 1.02/1.0;
-                    totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi* 1.02/1.04;
-                    totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi* 1.02/1.0;
-                  }
-                  else{
-                    totWeightMap["DileptonPlus"]=totWeight;
-                    totWeightMap["DileptonMinus"]=totWeight;
-                    totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi;
-                    totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
-                  }
-                  // Reco & Iso systetmatics
-                  totWeightMap["RecoSysPlus"]=totWeight/IdSFUp;// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["RecoSysMinus"]=totWeight/IdSFDw;
-                  totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/IdSFUp;
-                  totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/IdSFDw;
-                  totWeightMap["IsoSysPlus"]=totWeight/IsoSFUp;// this is Eff_Arne/1.1*Eff_Arne
-                  totWeightMap["IsoSysMinus"]=totWeight/IsoSFDw;
-                  totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/IsoSFUp;
-                  totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/IsoSFDw;
-
-
-                }
+	      // no error propagation
+	      totWeightMap["allEvents"]=totWeight;
+	      totWeightMap_lowDphi["allEvents"]=totWeight_lowDphi;
+	      if(StudyErrorPropag){
+		// b mistag error propagation
+		totWeightMap["BMistagPlus"]=totWeight;
+		totWeightMap["BMistagMinus"]=totWeight;
+		if(utils2::bootstrap){
+		  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus;
+		  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus;
+		}
+		totWeightMap_lowDphi["BMistagPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["BMistagMinus"]=totWeight_lowDphi;
+		if(utils2::bootstrap){
+		  totWeightMap_lowDphi["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistagPlus"]*=Prob_Btag_Plus;
+		  totWeightMap_lowDphi["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistagMinus"]*=Prob_Btag_Minus;
+		}
+		// Acc 
+		totWeightMap["AccPlus"]=totWeight*Acc/AccPlus;
+		totWeightMap["AccMinus"]=totWeight*Acc/AccMinus;
+		totWeightMap_lowDphi["AccPlus"]=totWeight_lowDphi*Acc_lowDphi/AccPlus_lowDphi;
+		totWeightMap_lowDphi["AccMinus"]=totWeight_lowDphi*Acc_lowDphi/AccMinus_lowDphi;         
+		// Acc Systematics
+		totWeightMap["AccSysPlus"]=totWeight*Acc/AccSysPlus;
+		totWeightMap["AccSysMinus"]=totWeight*Acc/AccSysMinus;
+		totWeightMap_lowDphi["AccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/AccSysPlus_lowDphi;
+		totWeightMap_lowDphi["AccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/AccSysMinus_lowDphi; 
+		totWeightMap["ScaleAccSysPlus"]=totWeight*Acc/ScaleAccSysPlus;
+		totWeightMap["ScaleAccSysMinus"]=totWeight*Acc/ScaleAccSysMinus;
+		totWeightMap_lowDphi["ScaleAccSysPlus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysPlus_lowDphi;
+		totWeightMap_lowDphi["ScaleAccSysMinus"]=totWeight_lowDphi*Acc_lowDphi/ScaleAccSysMinus_lowDphi;
+		// Iso
+		totWeightMap["IsoPlus"]=totWeight;  
+		totWeightMap["IsoMinus"]=totWeight;
+		totWeightMap_lowDphi["IsoPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["IsoMinus"]=totWeight_lowDphi;
+		// MT
+		totWeightMap["MTPlus"]=totWeight*mtWeight/mtWeightPlus;
+		totWeightMap["MTMinus"]=totWeight*mtWeight/mtWeightMinus;
+		totWeightMap_lowDphi["MTPlus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightPlus_lowDphi;
+		totWeightMap_lowDphi["MTMinus"]=totWeight_lowDphi*mtWeight_lowDphi/mtWeightMinus_lowDphi;
+		// MuFromTau
+		totWeightMap["MuFromTauPlus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muPlus);
+		totWeightMap["MuFromTauMinus"]=totWeight/(1-Prob_Tau_mu)*(1-Prob_Tau_muMinus);
+		totWeightMap_lowDphi["MuFromTauPlus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muPlus_lowDelphi);
+		totWeightMap_lowDphi["MuFromTauMinus"]=totWeight_lowDphi/(1-Prob_Tau_mu_lowDelphi)*(1-Prob_Tau_muMinus_lowDelphi);
+		// Iso & Reco effieciency (From Arne)
+		totWeightMap["MuRecoIsoPlus"]=totWeight*Eff_Arne/Eff_ArnePlus;
+		totWeightMap["MuRecoIsoMinus"]=totWeight*Eff_Arne/Eff_ArneMinus;
+		totWeightMap_lowDphi["MuRecoIsoPlus"]=totWeight_lowDphi*Eff_Arne/Eff_ArnePlus;
+		totWeightMap_lowDphi["MuRecoIsoMinus"]=totWeight_lowDphi*Eff_Arne/Eff_ArneMinus;
+		// Mistag Rate
+		totWeightMap["BMistag_statPlus"]=totWeight;
+		totWeightMap["BMistag_statMinus"]=totWeight;
+		if(utils2::bootstrap){
+		  totWeightMap["BMistagPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagPlus"]*=Prob_Btag_Plus_stat;
+		  totWeightMap["BMistagMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap["BMistagMinus"]*=Prob_Btag_Minus_stat;
+		}
+		totWeightMap_lowDphi["BMistag_statPlus"]=totWeight_lowDphi;
+		totWeightMap_lowDphi["BMistag_statMinus"]=totWeight_lowDphi;
+		if(utils2::bootstrap){
+		  totWeightMap_lowDphi["BMistag_statPlus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistag_statPlus"]*=Prob_Btag_Plus_stat;
+		  totWeightMap_lowDphi["BMistag_statMinus"]/=Prob_Btag;// Prob_Btag was multiplied before. This is to cancel it.
+		  totWeightMap_lowDphi["BMistag_statMinus"]*=Prob_Btag_Minus_stat;
+		}
+		// Tau branching ratio
+		totWeightMap["Tau_BrRatio_Plus"]=totWeight/0.64*0.65;
+		totWeightMap["Tau_BrRatio_Minus"]=totWeight/0.64*0.63;   
+		totWeightMap_lowDphi["Tau_BrRatio_Plus"]=totWeight_lowDphi/0.64*0.65;
+		totWeightMap_lowDphi["Tau_BrRatio_Minus"]=totWeight_lowDphi/0.64*0.63;
+		// Dileptonic
+		if(utils2::IsoTrkModel==0){
+		  totWeightMap["DileptonPlus"]=  totWeight* 1.02/1.04;
+		  totWeightMap["DileptonMinus"]=  totWeight* 1.02/1.0;
+		  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi* 1.02/1.04;
+		  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi* 1.02/1.0;
+		}
+		else{
+		  totWeightMap["DileptonPlus"]=totWeight;
+		  totWeightMap["DileptonMinus"]=totWeight;
+		  totWeightMap_lowDphi["DileptonPlus"]=totWeight_lowDphi;
+		  totWeightMap_lowDphi["DileptonMinus"]=totWeight_lowDphi;
+		}
+		// Reco & Iso systetmatics
+		totWeightMap["RecoSysPlus"]=totWeight/IdSFUp;// this is Eff_Arne/1.1*Eff_Arne
+		totWeightMap["RecoSysMinus"]=totWeight/IdSFDw;
+		totWeightMap_lowDphi["RecoSysPlus"]=totWeight_lowDphi/IdSFUp;
+		totWeightMap_lowDphi["RecoSysMinus"]=totWeight_lowDphi/IdSFDw;
+		totWeightMap["IsoSysPlus"]=totWeight/IsoSFUp;// this is Eff_Arne/1.1*Eff_Arne
+		totWeightMap["IsoSysMinus"]=totWeight/IsoSFDw;
+		totWeightMap_lowDphi["IsoSysPlus"]=totWeight_lowDphi/IsoSFUp;
+		totWeightMap_lowDphi["IsoSysMinus"]=totWeight_lowDphi/IsoSFDw;
+	      } // StudyErrorPropag ends
 
 
               //build and array that contains the quantities we need a histogram for. Here order is important and must be the same as RA2nocutvec
