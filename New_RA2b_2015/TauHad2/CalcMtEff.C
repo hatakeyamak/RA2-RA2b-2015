@@ -77,7 +77,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 46. , maxVal=2.;
+double XUp = 73. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);
@@ -99,6 +99,7 @@ double XUp = 46. , maxVal=2.;
 //
 //end of drawing options
 //
+    std::cout<<" MtCutEff_tt:after_tt/before_tt being drawn "<<endl;
 MtCutEff_tt->SetLineColor(1);
 MtCutEff_tt->Draw("same");
 MtCutEff_tt->Write();
@@ -113,6 +114,7 @@ thist_wj2 = (TH1D *) stack->GetStack()->Last();
 
 TH1D * MtCutEff_wj = static_cast<TH1D*>(thist_wj->Clone("MtCutEff_wj"));
 MtCutEff_wj->Divide(thist_wj,thist_wj2,1,1,"B");
+ std::cout<<" MtCutEff_wj:after_wj/before_wj being drawn "<<endl;
 MtCutEff_wj->SetLineColor(2);
 MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
@@ -139,10 +141,11 @@ MtCutEff_t->Write();
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot"));
 thist_tot->Add(thist_wj);
-thist_tot->Add(thist_t);
+thist_tot->Add(thist_tt);
+
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2"));
 thist_tot2->Add(thist_wj2);
-thist_tot2->Add(thist_t2);
+thist_tot2->Add(thist_tt2);
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -156,18 +159,21 @@ MtCutEff_tot->Write();
     catLeg1->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg1->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet ","l");
     catLeg1->Draw();
 
-sprintf(tempname,"MtEffi_%s_.png",outStr.c_str());
-c1->Print(tempname);
-
+    //std::cout<<" png file created "<<endl;
+    //sprintf(tempname,"MtEffi_%s_.png",outStr.c_str());
+    //std::cout<<"png file gets printed"<<endl;
+ //c1->Print(tempname);
+ c1->Print("MtEffi.png");
+ c1->Print("MtEffi.pdf");
 //////////
 //////////
 //LowDphi
 //////////
 //////////
-TCanvas* c2 = new TCanvas("name","name",10,10,W,H);
+ TCanvas* c2 = new TCanvas("nameTwo","nameTwo",10,10,W,H);
 c2->SetFillColor(0);
 c2->SetBorderMode(0);
 c2->SetFrameFillStyle(0);
@@ -200,7 +206,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 46. , maxVal=2.;
+double XUp = 73. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);
@@ -225,7 +231,7 @@ double XUp = 46. , maxVal=2.;
 MtCutEff_tt->SetLineColor(1);
 MtCutEff_tt->Draw("same");
 MtCutEff_tt->Write();
-
+ std::cout<<".......MtCutEff_tt drawn ................."<<endl;
 ////////
 // wjet
 ////////
@@ -239,7 +245,7 @@ MtCutEff_wj->Divide(thist_wj,thist_wj2,1,1,"B");
 MtCutEff_wj->SetLineColor(2);
 MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
-
+ std::cout<<".......MtCutEff_wj drawn ................."<<endl;
 ////////
 // top
 ////////
@@ -260,10 +266,10 @@ MtCutEff_t->Write();
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot_lowDphi"));
 thist_tot->Add(thist_wj);
-//thist_tot->Add(thist_t);
+thist_tot->Add(thist_tt);
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2_lowDphi"));
 thist_tot2->Add(thist_wj2);
-//thist_tot2->Add(thist_t2);
+thist_tot2->Add(thist_tt2);
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff_lowDphi"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -271,18 +277,21 @@ MtCutEff_tot->SetLineStyle(2);
 MtCutEff_tot->SetLineWidth(2);
 MtCutEff_tot->Draw("same");
 MtCutEff_tot->Write();
-
+ std::cout<<".......MtCutEff_lowDphi drawn ................."<<endl;
 
     sprintf(tempname,"t#bar{t}");
     catLeg2->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg2->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    //catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet","l");
     catLeg2->Draw();
 
-sprintf(tempname,"MtEff_lowDphi_%s_.png",outStr.c_str());
-c2->Print(tempname);
-
+    //sprintf(tempname,"MtEff_lowDphi_%s_.png",outStr.c_str());
+ std::cout<<"png file(lowDphi) gets printed"<<endl;
+ //c2->Print(tempname);
+ c2->Print("MtEffi_lowDphi.png");
+ c2->Print("MtEffi_lowDphi.pdf");
 
 /*
 stack = (THStack *)after_tt->Get("searchH_lowDphi")->Clone("after_lowDphi");
