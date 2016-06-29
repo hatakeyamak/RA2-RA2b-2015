@@ -311,6 +311,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     for(int i=1;i<=totbins;i++){
       GenHistHtMht +=GenHist->GetBinContent(i);
       EstHistHtMht +=EstHist->GetBinContent(i);
+      std::cout<<" i "<< i<<" GenHist_i "<<GenHist->GetBinContent(i) <<" EstHist_i "<<EstHist->GetBinContent(i) <<" GenHistHtMht "<<GenHistHtMht<<" EstHistHtMht "<<EstHistHtMht<<" ratio "<<GenHistHtMht/EstHistHtMht<<std::endl;
       rem=i%binHtMht;
       std::cout<<" i "<<" rem "<<rem<<endl;
       if(rem==0){
