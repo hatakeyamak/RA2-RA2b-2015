@@ -500,11 +500,13 @@ using namespace std;
     int eventN=0;
     while( evt->loadNext() ){
       eventN++;
+      //      std::cout<<" evt_PDFweights_size "<<evt->PDFweights_()->size()<<" PDFsize "<<PDFsize<<endl;
       if(evt->PDFweights_()->size()!= PDFsize){
         cout << " PDFweights_()->size(): " << evt->PDFweights_()->size() << endl;
         cout << " Please fix the value of the variable \"PDFsize\". \n Turning off the AccSys calculation \n " ;
         CalcAccSys = false;
       }
+      // std::cout<<" evt_Scaleweights_size "<<evt->ScaleWeights_()->size()<<" Scalesize "<<Scalesize<<endl;
       if(evt->ScaleWeights_()->size()!=Scalesize){
         cout << " ScaleWeights_()->size(): " << evt->ScaleWeights_()->size() << endl;
         cout << " Please fix the value of the variable \"Scalesize\". \n Turning off the AccSys calculation \n " ;
@@ -512,7 +514,7 @@ using namespace std;
       }
 
       //if(eventN>100000)break;
-      //if(eventN>50000)break;
+      //if(eventN>5000)break;
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
@@ -735,7 +737,8 @@ using namespace std;
         hAccAll->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight); // the weight has only scaling info.needed for stacking 
         if(evt->nBtags()==0)hAcc_0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if(evt->nBtags()>0)hAcc_non0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
-        if(CalcAccSys){
+	//std::cout<<"CalcAccSys "<<CalcAccSys<<endl;
+	if(CalcAccSys){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
           hAccAllVec.at(iacc)->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
         }

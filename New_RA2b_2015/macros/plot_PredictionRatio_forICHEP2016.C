@@ -133,13 +133,13 @@ void  plot_PredictionRatio_forICHEP2016(string histname="searchH_b",string elog=
   histRatio->GetXaxis()->SetLabelFont(42);
   histRatio->GetXaxis()->SetLabelOffset(0.007);
   histRatio->GetXaxis()->SetLabelSize(0.04);
-  histRatio->GetXaxis()->SetTitleSize(0.05);
+  histRatio->GetXaxis()->SetTitleSize(0.04);
   histRatio->GetXaxis()->SetTitleOffset(1.0);
   histRatio->GetXaxis()->SetTitleFont(42);
   histRatio->GetYaxis()->SetLabelFont(42);
   //histRatio->GetYaxis()->SetLabelOffset(0.007);
   histRatio->GetYaxis()->SetLabelSize(0.04);
-  histRatio->GetYaxis()->SetTitleSize(0.05);
+  histRatio->GetYaxis()->SetTitleSize(0.04);
   //histRatio->GetYaxis()->SetTitleOffset(1.20);
   histRatio->GetYaxis()->SetTitleFont(42);
 
