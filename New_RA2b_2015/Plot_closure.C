@@ -93,7 +93,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   //
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
-  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
+  //  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
+  double lumi     = 3.0;
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
@@ -166,11 +167,13 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad/%sGenInfo_HadTauEstimation_%s.root",elogForExp.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad/Stack/%sGenInfo_HadTauEstimation_%s.root",elogForExp.c_str(),sample.c_str());
+  std::cout<<"cp0 tempname " <<tempname<<std::endl;  
   filevec.push_back(TFile::Open(tempname,"R"));
 
   if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForPre.c_str(),sample.c_str());
   else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForPre.c_str(),sample.c_str());
   // sprintf(tempname,"TauHad2/Storage/HadTauEstimation_TTbar_Feb_17_2015.root");
+  std::cout<<"cp00 tempname " <<tempname<<std::endl;
   filevec.push_back(TFile::Open(tempname,"R"));
 
   //
@@ -247,7 +250,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   TH1D * histTemplate;
 
   double HT_x_max=2500.;
-  double HT_x_min=400.;
+  //double HT_x_min=400.;
+  double HT_x_min=300.;
   double MHT_x_max=1000.;
   double NJet_x_max=11.;
   double NBtag_x_max=3.5;
@@ -257,6 +261,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   double Delphi1_x_max=3.2;
   //Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.}; 
   Double_t NJ_bins[12]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,11.5,19.5}; 
+  Double_t HT_bins[13]={0.,300.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.};
  
   TH1D * GenHist_Clone;
   
@@ -267,11 +272,13 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       if(i==0){
         if(histname=="search"){
           sprintf(tempname,"searchH");
+	  std::cout<<"cp1 tempname " <<tempname<<std::endl;
           GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
         }
         else{
 
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+	  std::cout<<"cp2 tempname " <<tempname<<std::endl;
           tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
           GenHist=(TH1D*) tempstack->GetStack()->Last();
         }
@@ -279,11 +286,13 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       if(i==1){
         if(histname=="search"){
           sprintf(tempname,"searchH");
-          GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
+	  std::cout<<"cp3 tempname " <<tempname<<std::endl;    
+	  GenHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
         }        
         else{
           sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
-          tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
+	  std::cout<<"cp4 tempname " <<tempname<<std::endl;         
+	  tempstack = (THStack*)filevec.at(i)->Get(tempname)->Clone();
           EstHist=(TH1D*) tempstack->GetStack()->Last();
         }
       }
@@ -334,15 +343,33 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 	GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
 	shift_bin(GenHist_input,GenHist);
 	thist=GenHist;
-	if(histname=="NJet")GenHist=(TH1D*)GenHist->Rebin(10,"GenHist",NJ_bins);
-	if(histname=="NJet")thist=(TH1D*) thist->Rebin(10,"thist",NJ_bins);
+	if(histname=="NJet")GenHist=(TH1D*)GenHist->Rebin(11,"GenHist",NJ_bins);
+	if(histname=="NJet")thist=(TH1D*) thist->Rebin(11,"thist",NJ_bins);
       }
       if (i==1){
 	EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
 	shift_bin(EstHist_input,EstHist);
 	thist=EstHist;
-	if(histname=="NJet")EstHist=(TH1D*)EstHist->Rebin(10,"EstHist",NJ_bins);
-	if(histname=="NJet")thist=(TH1D*) thist->Rebin(10,"thist",NJ_bins);
+	if(histname=="NJet")EstHist=(TH1D*)EstHist->Rebin(11,"EstHist",NJ_bins);
+	if(histname=="NJet")thist=(TH1D*) thist->Rebin(11,"thist",NJ_bins);
+      }
+    }
+    if(histname=="HT"){
+      TH1D * GenHist_input;
+      TH1D * EstHist_input;
+      if (i==0){ 
+	//GenHist_input = static_cast<TH1D*>(GenHist->Clone("GenHist_input"));
+	//shift_bin(GenHist_input,GenHist);
+	thist=GenHist;
+	if(histname=="HT")GenHist=(TH1D*)GenHist->Rebin(12,"GenHist",HT_bins);
+	if(histname=="HT")thist=(TH1D*) thist->Rebin(12,"thist",HT_bins);
+      }
+      if (i==1){
+	//EstHist_input = static_cast<TH1D*>(EstHist->Clone("EstHist_input"));
+	//shift_bin(EstHist_input,EstHist);
+	thist=EstHist;
+	if(histname=="HT")EstHist=(TH1D*)EstHist->Rebin(12,"EstHist",HT_bins);
+	if(histname=="HT")thist=(TH1D*) thist->Rebin(12,"thist",HT_bins);
       }
     }
     //KH
@@ -390,7 +417,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       ymax_top = 300000.;
       ymin_top = 0.2.;
       sprintf(xtitlename,"H_{T} [GeV]");
-      sprintf(ytitlename,"Events / 100 GeV");
+      sprintf(ytitlename,"Events / 200 GeV");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
@@ -415,7 +442,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     if(histname=="NBtag"){
       xtext_top = 2.8;
       //y_legend = 3000.;
-      ymax_top = 1400.;
+      //ymax_top = 1400.;
+      ymax_top = 2000.;
       if(cutname=="Njet_9") ymax_top = 100.;
       ymin_top = 0.0;
       ytext_top = 0.65*ymax_top;
@@ -465,8 +493,10 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     if(histname=="DelPhi1"){
       xtext_top = 1.2;
       //y_legend = 1300.;
+      //ymax_top = 10000.;
       ymax_top = 10000.;
-      ymin_top = 1.;
+      //ymin_top = 1.;
+      ymin_top = 0.1;  
       ytext_top = ymax_top*0.05;
       sprintf(xtitlename,"DelPhi1");
       sprintf(ytitlename,"Events");
@@ -478,8 +508,11 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
     if(histname=="DelPhi2"){
       xtext_top = 2.2;
       //y_legend = 1300.;
-      ymax_top = 1000.;
-      ymin_top = 10.;
+      //ymax_top = 1000.;
+      //ymin_top = 10.;
+      ymax_top = 10000.;                                                                                                                                                
+      //ymin_top = 1.;   
+      ymin_top = 0.1;
       ytext_top = ymax_top*0.2;
       sprintf(xtitlename,"DelPhi2");
       sprintf(ytitlename,"Events");
@@ -615,14 +648,14 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 //  ttext->Draw();
 
   
-  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
-  tex->SetTextColor(4);
-  tex->SetTextFont(61);
-  tex->SetTextSize(0.045);
-  tex->SetLineColor(4);
-  tex->SetLineWidth(2);
-  //tex->Draw();
-  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
+//  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+//  tex->SetTextColor(4);
+//  tex->SetTextFont(61);
+//  tex->SetTextSize(0.045);
+//  tex->SetLineColor(4);
+//  tex->SetLineWidth(2);
+//  //tex->Draw();
+//  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
   gPad->RedrawAxis();
 
   //

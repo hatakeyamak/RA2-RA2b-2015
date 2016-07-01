@@ -3,7 +3,7 @@
 using namespace std;
 
 
-CalcMtEff(string outStr=""){
+CalcMtEff(string Elog="Elog433_",string outStr=""){
 gStyle->SetOptStat(0);  ///to avoid the stat. on the plots
 char tempname[200];
 int W = 600;
@@ -46,13 +46,20 @@ TH1D * thist_tt2, * thist_wj2;
 TH1D * thist_t, * thist_t2;
 THStack * stack;
 
-TFile * after_tt = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_TTbar_stacked.root","R");
-TFile * before_tt = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_TTbar_stacked.root","R");
-TFile * after_wj = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_WJet_stacked.root","R");
-TFile * before_wj = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_WJet_stacked.root","R");
-TFile * after_t = new TFile("Stack/Elog410_MTSelMinus_HadTauEstimation_T_stacked.root","R");
-TFile * before_t = new TFile("Stack/Elog410_BeoreMT_HadTauEstimation_T_stacked.root","R");
-
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
+TFile * after_tt = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_TTbar_stacked.root",Elog.c_str());
+TFile * before_tt = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
+TFile * after_wj = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_WJet_stacked.root",Elog.c_str());
+TFile * before_wj = new TFile(tempname,"R");
+/*
+sprintf(tempname,"Stack/%sAfterMT_HadTauEstimation_T_stacked.root",Elog.c_str());
+TFile * after_t = new TFile(tempname,"R");
+sprintf(tempname,"Stack/%sBeforeMT_HadTauEstimation_T_stacked.root",Elog.c_str());
+TFile * before_t = new TFile(tempname,"R");
+*/
 sprintf(tempname,"MtEff_%s_.root",outStr.c_str());
 TFile * outFile = new TFile(tempname,"RECREATE");
 
@@ -70,7 +77,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 46. , maxVal=2.;
+double XUp = 73. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);
@@ -92,6 +99,7 @@ double XUp = 46. , maxVal=2.;
 //
 //end of drawing options
 //
+    std::cout<<" MtCutEff_tt:after_tt/before_tt being drawn "<<endl;
 MtCutEff_tt->SetLineColor(1);
 MtCutEff_tt->Draw("same");
 MtCutEff_tt->Write();
@@ -106,6 +114,7 @@ thist_wj2 = (TH1D *) stack->GetStack()->Last();
 
 TH1D * MtCutEff_wj = static_cast<TH1D*>(thist_wj->Clone("MtCutEff_wj"));
 MtCutEff_wj->Divide(thist_wj,thist_wj2,1,1,"B");
+ std::cout<<" MtCutEff_wj:after_wj/before_wj being drawn "<<endl;
 MtCutEff_wj->SetLineColor(2);
 MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
@@ -114,6 +123,7 @@ MtCutEff_wj->Write();
 ////////
 // single top
 ////////
+/*
 stack = (THStack *) after_t->Get("searchH")->Clone("after");
 thist_t = (TH1D *) stack->GetStack()->Last();
 stack = (THStack *) before_t->Get("searchH")->Clone("before");
@@ -124,17 +134,21 @@ MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
 MtCutEff_t->SetLineColor(2);
 MtCutEff_t->Draw("same");
 MtCutEff_t->Write();
-
+*/
 
 ////////
 // tt+wj
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot"));
 thist_tot->Add(thist_wj);
-thist_tot->Add(thist_t);
+thist_tot->Add(thist_tt);
+ TH1D * thist_totAfter = static_cast<TH1D*>(thist_tot->Clone("thist_totAfter"));
+ thist_totAfter->Write();
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2"));
 thist_tot2->Add(thist_wj2);
-thist_tot2->Add(thist_t2);
+thist_tot2->Add(thist_tt2);
+ TH1D * thist_totBefore = static_cast<TH1D*>(thist_tot2->Clone("thist_totBefore"));
+ thist_totBefore->Write();
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -148,18 +162,21 @@ MtCutEff_tot->Write();
     catLeg1->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg1->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    catLeg1->AddEntry(MtCutEff_tot,"t#bar{t} + WJet ","l");
     catLeg1->Draw();
 
-sprintf(tempname,"MtEffi_%s_.png",outStr.c_str());
-c1->Print(tempname);
-
+    //std::cout<<" png file created "<<endl;
+    //sprintf(tempname,"MtEffi_%s_.png",outStr.c_str());
+    //std::cout<<"png file gets printed"<<endl;
+ //c1->Print(tempname);
+ c1->Print("MtEffi.png");
+ c1->Print("MtEffi.pdf");
 //////////
 //////////
 //LowDphi
 //////////
 //////////
-TCanvas* c2 = new TCanvas("name","name",10,10,W,H);
+ TCanvas* c2 = new TCanvas("nameTwo","nameTwo",10,10,W,H);
 c2->SetFillColor(0);
 c2->SetBorderMode(0);
 c2->SetFrameFillStyle(0);
@@ -192,7 +209,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 46. , maxVal=2.;
+double XUp = 73. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);
@@ -217,7 +234,7 @@ double XUp = 46. , maxVal=2.;
 MtCutEff_tt->SetLineColor(1);
 MtCutEff_tt->Draw("same");
 MtCutEff_tt->Write();
-
+ std::cout<<".......MtCutEff_tt drawn ................."<<endl;
 ////////
 // wjet
 ////////
@@ -231,10 +248,11 @@ MtCutEff_wj->Divide(thist_wj,thist_wj2,1,1,"B");
 MtCutEff_wj->SetLineColor(2);
 MtCutEff_wj->Draw("same");
 MtCutEff_wj->Write();
-
+ std::cout<<".......MtCutEff_wj drawn ................."<<endl;
 ////////
 // top
 ////////
+/*
 stack = (THStack *) after_t->Get("searchH_lowDphi")->Clone("after");
 thist_t = (TH1D *) stack->GetStack()->Last();
 stack = (THStack *) before_t->Get("searchH_lowDphi")->Clone("before");
@@ -245,16 +263,22 @@ MtCutEff_t->Divide(thist_t,thist_t2,1,1,"B");
 MtCutEff_t->SetLineColor(2);
 MtCutEff_t->Draw("same");
 MtCutEff_t->Write();
-
+*/
 ////////
 // tt+wj
 ////////
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot_lowDphi"));
 thist_tot->Add(thist_wj);
-thist_tot->Add(thist_t);
+thist_tot->Add(thist_tt);
+ TH1D * thist_totAfter_lowDphi = static_cast<TH1D*>(thist_tot->Clone("thist_totAfter_lowDphi"));
+ thist_totAfter_lowDphi->Write();
+
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2_lowDphi"));
 thist_tot2->Add(thist_wj2);
-thist_tot2->Add(thist_t2);
+thist_tot2->Add(thist_tt2);
+ TH1D * thist_totBefore_lowDphi = static_cast<TH1D*>(thist_tot2->Clone("thist_totBefore_lowDphi"));
+ thist_totBefore_lowDphi->Write();
+
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff_lowDphi"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -262,18 +286,21 @@ MtCutEff_tot->SetLineStyle(2);
 MtCutEff_tot->SetLineWidth(2);
 MtCutEff_tot->Draw("same");
 MtCutEff_tot->Write();
-
+ std::cout<<".......MtCutEff_lowDphi drawn ................."<<endl;
 
     sprintf(tempname,"t#bar{t}");
     catLeg2->AddEntry(MtCutEff_tt,tempname,"l");
     sprintf(tempname,"WJet");
     catLeg2->AddEntry(MtCutEff_wj,tempname,"l");
-    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    //catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet + top","l");
+    catLeg2->AddEntry(MtCutEff_tot,"t#bar{t} + WJet","l");
     catLeg2->Draw();
 
-sprintf(tempname,"MtEff_lowDphi_%s_.png",outStr.c_str());
-c2->Print(tempname);
-
+    //sprintf(tempname,"MtEff_lowDphi_%s_.png",outStr.c_str());
+ std::cout<<"png file(lowDphi) gets printed"<<endl;
+ //c2->Print(tempname);
+ c2->Print("MtEffi_lowDphi.png");
+ c2->Print("MtEffi_lowDphi.pdf");
 
 /*
 stack = (THStack *)after_tt->Get("searchH_lowDphi")->Clone("after_lowDphi");
