@@ -3,7 +3,8 @@
 void CalcAcceptanceSystematicsFromPDF(){
 
   char tempname[200];
-  TFile * infile = new TFile("LostLepton2_MuonEfficienciesFromAll_Elog408_.root","R");
+  TFile * infile = new TFile("LostLepton2_MuonEfficiencies_hadd.root","R");
+  //  TFile * infile = new TFile("LostLepton2_MuonEfficienciesFromAll_Elog408_.root","R");
   TH1* hAccPass, * hAccAll, * hAccPass_lowDphi, * hAccAll_lowDphi;
   vector<TH1*> hAccVec, hAcc_lowDphiVec, hAcc_DeviationFromNomVec, hAcc_DeviationFromNom_lowDphiVec;
 

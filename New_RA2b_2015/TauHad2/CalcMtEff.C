@@ -142,10 +142,13 @@ MtCutEff_t->Write();
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot"));
 thist_tot->Add(thist_wj);
 thist_tot->Add(thist_tt);
-
+ TH1D * thist_totAfter = static_cast<TH1D*>(thist_tot->Clone("thist_totAfter"));
+ thist_totAfter->Write();
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2"));
 thist_tot2->Add(thist_wj2);
 thist_tot2->Add(thist_tt2);
+ TH1D * thist_totBefore = static_cast<TH1D*>(thist_tot2->Clone("thist_totBefore"));
+ thist_totBefore->Write();
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
@@ -267,9 +270,15 @@ MtCutEff_t->Write();
 TH1D * thist_tot = static_cast<TH1D*>(thist_tt->Clone("thist_tot_lowDphi"));
 thist_tot->Add(thist_wj);
 thist_tot->Add(thist_tt);
+ TH1D * thist_totAfter_lowDphi = static_cast<TH1D*>(thist_tot->Clone("thist_totAfter_lowDphi"));
+ thist_totAfter_lowDphi->Write();
+
 TH1D * thist_tot2 = static_cast<TH1D*>(thist_tt2->Clone("thist_tot2_lowDphi"));
 thist_tot2->Add(thist_wj2);
 thist_tot2->Add(thist_tt2);
+ TH1D * thist_totBefore_lowDphi = static_cast<TH1D*>(thist_tot2->Clone("thist_totBefore_lowDphi"));
+ thist_totBefore_lowDphi->Write();
+
 TH1D * MtCutEff_tot = static_cast<TH1D*>(thist_tot->Clone("MtCutEff_lowDphi"));
 MtCutEff_tot->Divide(thist_tot,thist_tot2,1,1,"B");
 MtCutEff_tot->SetLineColor(3);
