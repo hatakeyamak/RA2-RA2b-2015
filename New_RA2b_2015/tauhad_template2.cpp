@@ -633,8 +633,8 @@ using namespace std;
     TFile * MuAcc_file = new TFile("TauHad/Stack/Elog433_modifiedLostLepton2_MuonEfficienciesFromstacked.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
-    TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
-    TH1D * hAcc_non0b =(TH1D *) MuAcc_file->Get("hAcc_non0b_")->Clone();
+    //    TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
+    //    TH1D * hAcc_non0b =(TH1D *) MuAcc_file->Get("hAcc_non0b_")->Clone();
     TH1D * hAcc_lowDphi =(TH1D *) MuAcc_file->Get("hAcc_lowDphi")->Clone();
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
@@ -647,7 +647,8 @@ using namespace std;
     // Get IsoTrk efficiencies
     //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
     //std::cout<<" IsoEfficiency file is read "<<std::endl;
-    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/Elog433_modifiedIsoEfficiencies_stacked.root","R");
+    //    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
 
@@ -669,10 +670,11 @@ using namespace std;
     // Get MT efficiency that is calculated here in this code
     //TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
     //std::cout<<" MTFile is read "<<std::endl;
-    TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
+    //    TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
+    TFile * MtFile = new TFile("TauHad2/Elog433_modified_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
-    TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff")->Clone();
+    TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
 
 
     // Inroduce two histogram to understand the probability of a muon coming from tau.
