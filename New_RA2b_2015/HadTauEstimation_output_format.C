@@ -44,11 +44,11 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 				    string elogForMCExp="KHElog420_",      // MC expectation
 				    string elogForMCPre="KHElog424_",      // MC prediction
 				    //
-				    string elogForSys="Elog408_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
-				    string elogForMuSys="Elog410_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
-				    string elogForJECSysUp="Elog410V2_",   // JEC Up systematics
-				    string elogForJECSysDn="Elog410V2_",   // JEC Down systematics
-				    string elogForJECSysRef="Elog410_",    // JEC uncertainty reference
+				    string elogForSys="Elog426_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
+				    string elogForMuSys="Elog426_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
+				    string elogForJECSysUp="Elog426_",     // JEC Up systematics
+				    string elogForJECSysDn="Elog426_",     // JEC Down systematics
+				    string elogForJECSysRef="Elog426_",    // JEC uncertainty reference
 				    string elogForAccPDF="ARElog38_",      // Acceptance uncertainty due to PDF
 				    string elogForAccScale="ARElog38_",    // Acceptance uncertainty due to scale
 				    //
@@ -142,14 +142,13 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   //
   // Open MC file including systematics.
   //
-  ///home/borzou/CMSSW_7_4_0_pre1/src/RA2-RA2b-2015/New_RA2b_2015/TauHad2/HadTauEstimation_Elog408_ContainigStatandSysErrors.root
-  sprintf(tempname,"TauHad2/HadTauEstimation_%sContainigStatandSysErrors.root",elogForSys.c_str());
-  //sprintf(tempname,"TauHad2/%sHadTauEstimation_haddedToContainSysErrorFolders_.root",elogForSys.c_str());
+  //sprintf(tempname,"TauHad2/HadTauEstimation_%sContainigStatandSysErrors.root",elogForSys.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_hadd_withSystematics.root",elogForSys.c_str());
   TFile * MCSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
-  sprintf(tempname,"TauHad2/HadTauEstimation_MuonIDIsoSys_AllSamples_%sV2_.root",elogForMuSys.c_str());
-  //sprintf(tempname,"TauHad2/%sHadTauEstimation_haddedToContainSysErrorFolders_.root",elogForSys.c_str());
+  //sprintf(tempname,"TauHad2/HadTauEstimation_MuonIDIsoSys_AllSamples_%sV2_.root",elogForMuSys.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_hadd_withSystematics.root",elogForSys.c_str());
   TFile * MuSysFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
   
@@ -158,18 +157,21 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   //
   //if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
   //else sprintf(tempname,"TauHad2/Stack/%stemplatePlus_HadTauEstimation_%s.root",elogForJECSysUp.c_str(),sample.c_str());
-  sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_.root",elogForJECSysUp.c_str());
+  //sprintf(tempname,"TauHad2/%stemplatePlus_HadTauEstimation_.root",elogForJECSysUp.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_hadd_JECSysUp.root",elogForJECSysUp.c_str());
   TFile * JECSysUpFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
   //if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
   //else sprintf(tempname,"TauHad2/Stack/%stemplateMinus_HadTauEstimation_%s.root",elogForJECSysDn.c_str(),sample.c_str());
-  sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_.root",elogForJECSysDn.c_str());
+  //sprintf(tempname,"TauHad2/%stemplateMinus_HadTauEstimation_.root",elogForJECSysDn.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_hadd_JECSysDn.root",elogForJECSysDn.c_str());
   TFile * JECSysDnFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
-  if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
-  else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
+  //if(sample.find("stack")==string::npos)sprintf(tempname,"TauHad2/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
+  //else sprintf(tempname,"TauHad2/Stack/%sHadTauEstimation_%s.root",elogForJECSysRef.c_str(),sample.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_hadd_JECSysRef.root",elogForJECSysRef.c_str());
   TFile * JECSysRefFile = new TFile(tempname,"R");
   printf("Opened %s\n",tempname);
 
@@ -455,7 +457,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
     searchBin_nominal_fullstatuncertainty->SetBinError(ibin+1,pow(pow(searchBin_nominal->GetBinError(ibin+1),2)+pow(0.460255,2),0.5));
   }
 
-  /*
+  /* KH: no longer used
   TH1D* searchBin_nominal_lowHT = (TH1D*)DataEstFile_lowHT->Get("searchH_b")->Clone("searchBin_nominal_lowHT");
   //searchBin_nominal->Print();
   searchBin_nominal_lowHT->Scale(1/trigEff2*lumiTarget/lumiControl); 
@@ -466,7 +468,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   }
   */
 
-  /* no longer used
+  /* KH: no longer used
   combineHighLowHT_searchBin(searchBin_nominal, searchBin_nominal_lowHT);
   makeNjNbCorr_searchBin(searchBin_nominal);
 
@@ -497,7 +499,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 
   //---
 
-  /*
+  /* KH: no longer used
   TH1D* QCDBin_HiDphi_nominal_lowHT = (TH1D*)DataEstFile->Get("QCD_Up")->Clone("QCDBin_HiDphi_nominal_lowHT");
   QCDBin_HiDphi_nominal_lowHT->Scale(1/trigEff2*lumiTarget/lumiControl);
   TH1D* QCDBin_HiDphi_nominal_fullstatuncertainty_lowHT = (TH1D*)QCDBin_HiDphi_nominal_lowHT->Clone("QCDBin_HiDphi_nominal_fullstatuncertainty_lowHT");
@@ -513,7 +515,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   }
   */
 
-  /* no longer used
+  /* KH: no longer used
   combineHighLowHT_QCDBin(QCDBin_HiDphi_nominal, QCDBin_HiDphi_nominal_lowHT);
   combineHighLowHT_QCDBin(QCDBin_LowDphi_nominal,QCDBin_LowDphi_nominal_lowHT);
   combineHighLowHT_QCDBin(QCDBin_HiDphi_nominal_fullstatuncertainty, QCDBin_HiDphi_nominal_fullstatuncertainty_lowHT);
@@ -528,7 +530,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   double searchBin_uncertainty_correction_stats_dn[NSearchBinArray];
   double searchBin_uncertainty_correction_stats[NSearchBinArray];
 
-  /*
+  /* KH: no longer used
   double searchBin_stat_uncertainty_fractional_lowHT[NSearchBinArray];
   double searchBin_uncertainty_correction_stats_up_lowHT[NSearchBinArray];
   double searchBin_uncertainty_correction_stats_dn_lowHT[NSearchBinArray];
@@ -550,7 +552,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   TH1D* searchBin_StatUncertaintiesFractional = (TH1D*)searchBin_nominal->Clone("searchBin_StatUncertaintiesFractional");
   searchBin_StatUncertaintiesFractional->Reset();
 
-  /*
+  /* KH: no longer used
   TH1D* searchBin_StatUncertainties_lowHT = (TH1D*)searchBin_nominal_lowHT->Clone("searchBin_StatUncertainties_lowHT");
   searchBin_StatUncertainties_lowHT->Reset();
   TH1D* searchBin_StatUncertaintiesFractional_lowHT = (TH1D*)searchBin_nominal_lowHT->Clone("searchBin_StatUncertaintiesFractional_lowHT");
@@ -590,7 +592,7 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
     }
   }
 
-  /*
+  /* KH: no longer used
   for (int ibin=1;ibin<=searchBin_nominal_lowHT->GetNbinsX();ibin++){
     // Stat uncertainty
     searchBin_stat_uncertainty_fractional_lowHT[ibin]=0.;
@@ -683,17 +685,6 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
 
   makeNjNbCorr_searchBin(EstHist);
   
-  //EstHist->Print("all");
-  //GenHist->Print("all");
-
-  /*
-  double NjNbCorrSys[16]={
-  1.08678, 1.1606, 1.21688, 1.38799,
-  0.99422, 1.03512, 1.09677, 1.15551,
-  0.960125, 0.99264, 1.04157, 1.22838,
-  0.863833, 0.803388, 1.01109, 1.12302};
-  */
-
   GenHist->SetFillColor(0);
   GenHist->SetLineColor(1);
   
@@ -898,97 +889,143 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   }
   //QCDBin_LowDphi_closureUncertainty->Print("all");
 
-  // //
-  // // ---- BMistag & MuRecoIso systematics -----
-  // // -----------------------------------------------------
-  // // 
-  // // From MC sys file
-  // //
-  // histname="searchH_b_";
-  // string cutname="delphi";
-  // sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D * searchBin_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
-  // TH1D * searchBin_default2 = (TH1D*)MuSysFile->Get(tempname)->Clone();
-  // //searchBin_default->Print("all");
-  // //searchBin_default2->Print("all");
+  //
+  // ---- BMistag & MuRecoIso systematics -----
+  // -----------------------------------------------------
+  // 
+  // From MC sys file
+  //
+  histname="searchH_b_";
+  string cutname="delphi";
+  sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D * searchBin_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
+  TH1D * searchBin_default2 = (TH1D*)MuSysFile->Get(tempname)->Clone();
+  //searchBin_default->Print("all");
+  //searchBin_default2->Print("all");
 
-  // sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* searchBin_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagUp");
-  // sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* searchBin_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagDn");
+  sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagUp");
+  sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_BMistagDn");
 
-  // sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* searchBin_MuRecoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysUp");
-  // sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* searchBin_MuRecoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysDn");
+  sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_MuRecoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysUp");
+  sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_MuRecoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuRecoSysDn");
 
-  // sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* searchBin_MuIsoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysUp");
-  // sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* searchBin_MuIsoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysDn");
+  sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_MuIsoSysUp = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysUp");
+  sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_MuIsoSysDn = (TH1D*)MuSysFile->Get(tempname)->Clone("searchBin_MuIsoSysDn");
 
-  // sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* searchBin_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoUp");
-  // sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* searchBin_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoDn");
+  sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* searchBin_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoUp");
+  sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* searchBin_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("searchBin_MuRecoIsoDn");
 
-  // //
-  // string histname="QCD_";
-  // string cutname="delphi";
-  // sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D * QCDBin_HiDphi_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
+  TH1D* searchBin_default_input = static_cast<TH1D*>(searchBin_default->Clone("searchBin_default_input")); reformat(searchBin_default_input,searchBin_default);
+  TH1D* searchBin_default2_input = static_cast<TH1D*>(searchBin_default2->Clone("searchBin_default2_input")); reformat(searchBin_default2_input,searchBin_default2);
 
-  // sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_HiDphi_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_BMistagUp");
-  // sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_HiDphi_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_BMistagDn");
+  TH1D* searchBin_BMistagUp_input = static_cast<TH1D*>(searchBin_BMistagUp->Clone("searchBin_BMistagUp_input")); reformat(searchBin_BMistagUp_input,searchBin_BMistagUp);
+  TH1D* searchBin_BMistagDn_input = static_cast<TH1D*>(searchBin_BMistagDn->Clone("searchBin_BMistagDn_input")); reformat(searchBin_BMistagDn_input,searchBin_BMistagDn);
+
+  TH1D* searchBin_MuRecoSysUp_input = static_cast<TH1D*>(searchBin_MuRecoSysUp->Clone("searchBin_MuRecoSysUp_input")); reformat(searchBin_MuRecoSysUp_input,searchBin_MuRecoSysUp);
+  TH1D* searchBin_MuRecoSysDn_input = static_cast<TH1D*>(searchBin_MuRecoSysDn->Clone("searchBin_MuRecoSysDn_input")); reformat(searchBin_MuRecoSysDn_input,searchBin_MuRecoSysDn);
+
+  TH1D* searchBin_MuIsoSysUp_input = static_cast<TH1D*>(searchBin_MuIsoSysUp->Clone("searchBin_MuIsoSysUp_input")); reformat(searchBin_MuIsoSysUp_input,searchBin_MuIsoSysUp);
+  TH1D* searchBin_MuIsoSysDn_input = static_cast<TH1D*>(searchBin_MuIsoSysDn->Clone("searchBin_MuIsoSysDn_input")); reformat(searchBin_MuIsoSysDn_input,searchBin_MuIsoSysDn);
+
+  TH1D* searchBin_MuRecoIsoUp_input = static_cast<TH1D*>(searchBin_MuRecoIsoUp->Clone("searchBin_MuRecoIsoUp_input")); reformat(searchBin_MuRecoIsoUp_input,searchBin_MuRecoIsoUp);
+  TH1D* searchBin_MuRecoIsoDn_input = static_cast<TH1D*>(searchBin_MuRecoIsoDn->Clone("searchBin_MuRecoIsoDn_input")); reformat(searchBin_MuRecoIsoDn_input,searchBin_MuRecoIsoDn);
   
-  // sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_HiDphi_MuRecoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoSysUp");
-  // sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_HiDphi_MuRecoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoSysDn");
+  //
+  string histname="QCD_";
+  string cutname="delphi";
+  sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D * QCDBin_HiDphi_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
 
-  // sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_HiDphi_MuIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuIsoSysUp");
-  // sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_HiDphi_MuIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuIsoSysDn");
-
-  // sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_HiDphi_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoIsoUp");
-  // sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_HiDphi_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoIsoDn");
-
-  // //
-  // string histname="QCD_";
-  // string cutname="low_Dphi";
-  // sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D * QCDBin_LowDphi_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
-
-  // sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_LowDphi_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_BMistagUp");
-  // sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_LowDphi_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_BMistagDn");
+  sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_HiDphi_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_BMistagUp");
+  sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_HiDphi_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_BMistagDn");
   
-  // sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_LowDphi_MuRecoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoSysUp");
-  // sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_LowDphi_MuRecoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoSysDn");
+  sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_HiDphi_MuRecoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoSysUp");
+  sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_HiDphi_MuRecoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoSysDn");
 
-  // sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_LowDphi_MuIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuIsoSysUp");
-  // sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_LowDphi_MuIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuIsoSysDn");
+  sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_HiDphi_MuIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuIsoSysUp");
+  sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_HiDphi_MuIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuIsoSysDn");
 
-  // sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
-  // TH1D* QCDBin_LowDphi_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoIsoUp");
-  // sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
-  // TH1D* QCDBin_LowDphi_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoIsoDn");
+  sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_HiDphi_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoIsoUp");
+  sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_HiDphi_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_HiDphi_MuRecoIsoDn");
 
-  // //
-  // // search bin
-  // // ----------
-  // takeDiffForSys(searchBin_BMistagUp,searchBin_default);
-  // takeDiffForSys(searchBin_BMistagDn,searchBin_default);
+  TH1D* QCDBin_HiDphi_default_input = static_cast<TH1D*>(QCDBin_HiDphi_default->Clone("QCDBin_HiDphi_default_input")); reformat(QCDBin_HiDphi_default_input,QCDBin_HiDphi_default);
+
+  TH1D* QCDBin_HiDphi_BMistagUp_input = static_cast<TH1D*>(QCDBin_HiDphi_BMistagUp->Clone("QCDBin_HiDphi_BMistagUp_input")); reformat(QCDBin_HiDphi_BMistagUp_input,QCDBin_HiDphi_BMistagUp);
+  TH1D* QCDBin_HiDphi_BMistagDn_input = static_cast<TH1D*>(QCDBin_HiDphi_BMistagDn->Clone("QCDBin_HiDphi_BMistagDn_input")); reformat(QCDBin_HiDphi_BMistagDn_input,QCDBin_HiDphi_BMistagDn);
+
+  TH1D* QCDBin_HiDphi_MuRecoSysUp_input = static_cast<TH1D*>(QCDBin_HiDphi_MuRecoSysUp->Clone("QCDBin_HiDphi_MuRecoSysUp_input")); reformat(QCDBin_HiDphi_MuRecoSysUp_input,QCDBin_HiDphi_MuRecoSysUp);
+  TH1D* QCDBin_HiDphi_MuRecoSysDn_input = static_cast<TH1D*>(QCDBin_HiDphi_MuRecoSysDn->Clone("QCDBin_HiDphi_MuRecoSysDn_input")); reformat(QCDBin_HiDphi_MuRecoSysDn_input,QCDBin_HiDphi_MuRecoSysDn);
+
+  TH1D* QCDBin_HiDphi_MuIsoSysUp_input = static_cast<TH1D*>(QCDBin_HiDphi_MuIsoSysUp->Clone("QCDBin_HiDphi_MuIsoSysUp_input")); reformat(QCDBin_HiDphi_MuIsoSysUp_input,QCDBin_HiDphi_MuIsoSysUp);
+  TH1D* QCDBin_HiDphi_MuIsoSysDn_input = static_cast<TH1D*>(QCDBin_HiDphi_MuIsoSysDn->Clone("QCDBin_HiDphi_MuIsoSysDn_input")); reformat(QCDBin_HiDphi_MuIsoSysDn_input,QCDBin_HiDphi_MuIsoSysDn);
+
+  TH1D* QCDBin_HiDphi_MuRecoIsoUp_input = static_cast<TH1D*>(QCDBin_HiDphi_MuRecoIsoUp->Clone("QCDBin_HiDphi_MuRecoIsoUp_input")); reformat(QCDBin_HiDphi_MuRecoIsoUp_input,QCDBin_HiDphi_MuRecoIsoUp);
+  TH1D* QCDBin_HiDphi_MuRecoIsoDn_input = static_cast<TH1D*>(QCDBin_HiDphi_MuRecoIsoDn->Clone("QCDBin_HiDphi_MuRecoIsoDn_input")); reformat(QCDBin_HiDphi_MuRecoIsoDn_input,QCDBin_HiDphi_MuRecoIsoDn);
+
+  //
+  /*
+  string histname="QCD_";
+  string cutname="low_Dphi";
+  sprintf(tempname,"allEvents/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D * QCDBin_LowDphi_default = (TH1D*)MCSysFile->Get(tempname)->Clone();
+
+  sprintf(tempname,"BMistagPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_LowDphi_BMistagUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_BMistagUp");
+  sprintf(tempname,"BMistagMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_LowDphi_BMistagDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_BMistagDn");
+  
+  sprintf(tempname,"RecoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_LowDphi_MuRecoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoSysUp");
+  sprintf(tempname,"RecoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_LowDphi_MuRecoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoSysDn");
+
+  sprintf(tempname,"IsoSysPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_LowDphi_MuIsoSysUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuIsoSysUp");
+  sprintf(tempname,"IsoSysMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_LowDphi_MuIsoSysDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuIsoSysDn");
+
+  sprintf(tempname,"MuRecoIsoPlus/%s/%s",cutname.c_str(),histname.c_str());  
+  TH1D* QCDBin_LowDphi_MuRecoIsoUp = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoIsoUp");
+  sprintf(tempname,"MuRecoIsoMinus/%s/%s",cutname.c_str(),histname.c_str());
+  TH1D* QCDBin_LowDphi_MuRecoIsoDn = (TH1D*)MCSysFile->Get(tempname)->Clone("QCDBin_LowDphi_MuRecoIsoDn");
+
+  TH1D* QCDBin_LowDphi_default_input = static_cast<TH1D*>(QCDBin_LowDphi_default->Clone("QCDBin_LowDphi_default_input")); reformat(QCDBin_LowDphi_default_input,QCDBin_LowDphi_default);
+
+  TH1D* QCDBin_LowDphi_BMistagUp_input = static_cast<TH1D*>(QCDBin_LowDphi_BMistagUp->Clone("QCDBin_LowDphi_BMistagUp_input")); reformat(QCDBin_LowDphi_BMistagUp_input,QCDBin_LowDphi_BMistagUp);
+  TH1D* QCDBin_LowDphi_BMistagDn_input = static_cast<TH1D*>(QCDBin_LowDphi_BMistagDn->Clone("QCDBin_LowDphi_BMistagDn_input")); reformat(QCDBin_LowDphi_BMistagDn_input,QCDBin_LowDphi_BMistagDn);
+
+  TH1D* QCDBin_LowDphi_MuRecoSysUp_input = static_cast<TH1D*>(QCDBin_LowDphi_MuRecoSysUp->Clone("QCDBin_LowDphi_MuRecoSysUp_input")); reformat(QCDBin_LowDphi_MuRecoSysUp_input,QCDBin_LowDphi_MuRecoSysUp);
+  TH1D* QCDBin_LowDphi_MuRecoSysDn_input = static_cast<TH1D*>(QCDBin_LowDphi_MuRecoSysDn->Clone("QCDBin_LowDphi_MuRecoSysDn_input")); reformat(QCDBin_LowDphi_MuRecoSysDn_input,QCDBin_LowDphi_MuRecoSysDn);
+
+  TH1D* QCDBin_LowDphi_MuIsoSysUp_input = static_cast<TH1D*>(QCDBin_LowDphi_MuIsoSysUp->Clone("QCDBin_LowDphi_MuIsoSysUp_input")); reformat(QCDBin_LowDphi_MuIsoSysUp_input,QCDBin_LowDphi_MuIsoSysUp);
+  TH1D* QCDBin_LowDphi_MuIsoSysDn_input = static_cast<TH1D*>(QCDBin_LowDphi_MuIsoSysDn->Clone("QCDBin_LowDphi_MuIsoSysDn_input")); reformat(QCDBin_LowDphi_MuIsoSysDn_input,QCDBin_LowDphi_MuIsoSysDn);
+
+  TH1D* QCDBin_LowDphi_MuRecoIsoUp_input = static_cast<TH1D*>(QCDBin_LowDphi_MuRecoIsoUp->Clone("QCDBin_LowDphi_MuRecoIsoUp_input")); reformat(QCDBin_LowDphi_MuRecoIsoUp_input,QCDBin_LowDphi_MuRecoIsoUp);
+  TH1D* QCDBin_LowDphi_MuRecoIsoDn_input = static_cast<TH1D*>(QCDBin_LowDphi_MuRecoIsoDn->Clone("QCDBin_LowDphi_MuRecoIsoDn_input")); reformat(QCDBin_LowDphi_MuRecoIsoDn_input,QCDBin_LowDphi_MuRecoIsoDn);
+  */
+
+  //
+  // search bin
+  // ----------
+  
+  takeDiffForSys(searchBin_BMistagUp,searchBin_default);
+  takeDiffForSys(searchBin_BMistagDn,searchBin_default);
 
   // //
   // // --- smoothing starts
@@ -1010,21 +1047,21 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   //   }
   // }
   // // --- smoothing ends
+   
+  takeDiffForSys(searchBin_MuRecoSysUp,searchBin_default2);
+  takeDiffForSys(searchBin_MuRecoSysDn,searchBin_default2);
 
-  // takeDiffForSys(searchBin_MuRecoSysUp,searchBin_default2);
-  // takeDiffForSys(searchBin_MuRecoSysDn,searchBin_default2);
+  takeDiffForSys(searchBin_MuIsoSysUp,searchBin_default2);
+  takeDiffForSys(searchBin_MuIsoSysDn,searchBin_default2);
 
-  // takeDiffForSys(searchBin_MuIsoSysUp,searchBin_default2);
-  // takeDiffForSys(searchBin_MuIsoSysDn,searchBin_default2);
+  takeDiffForSys(searchBin_MuRecoIsoUp,searchBin_default);
+  takeDiffForSys(searchBin_MuRecoIsoDn,searchBin_default);
 
-  // takeDiffForSys(searchBin_MuRecoIsoUp,searchBin_default);
-  // takeDiffForSys(searchBin_MuRecoIsoDn,searchBin_default);
-
-  // //
-  // // QCDBin HiDphi
-  // // -------------
-  // takeDiffForSys(QCDBin_HiDphi_BMistagUp,QCDBin_HiDphi_default);
-  // takeDiffForSys(QCDBin_HiDphi_BMistagDn,QCDBin_HiDphi_default);
+  //
+  // QCDBin HiDphi
+  // -------------
+  takeDiffForSys(QCDBin_HiDphi_BMistagUp,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_BMistagDn,QCDBin_HiDphi_default);
 
   // //
   // // --- smoothing starts
@@ -1076,14 +1113,14 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   // }
   // // --- smoothing ends
 
-  // takeDiffForSys(QCDBin_HiDphi_MuRecoSysUp,QCDBin_HiDphi_default);
-  // takeDiffForSys(QCDBin_HiDphi_MuRecoSysDn,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuRecoSysUp,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuRecoSysDn,QCDBin_HiDphi_default);
 
-  // takeDiffForSys(QCDBin_HiDphi_MuIsoSysUp,QCDBin_HiDphi_default);
-  // takeDiffForSys(QCDBin_HiDphi_MuIsoSysDn,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuIsoSysUp,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuIsoSysDn,QCDBin_HiDphi_default);
 
-  // takeDiffForSys(QCDBin_HiDphi_MuRecoIsoUp,QCDBin_HiDphi_default);
-  // takeDiffForSys(QCDBin_HiDphi_MuRecoIsoDn,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuRecoIsoUp,QCDBin_HiDphi_default);
+  takeDiffForSys(QCDBin_HiDphi_MuRecoIsoDn,QCDBin_HiDphi_default);
 
   // //
   // // QCDBin LowDphi
@@ -1152,111 +1189,84 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   // takeDiffForSys(QCDBin_LowDphi_MuRecoIsoUp,QCDBin_LowDphi_default);
   // takeDiffForSys(QCDBin_LowDphi_MuRecoIsoDn,QCDBin_LowDphi_default);
 
-  // //
-  // // ---- JEC & MT cut efficiency systematics -----
-  // // -----------------------------------------------------
-  // //
-  // // JEC & MT cut efficiency
-  // //
+  //
+  // ---- JEC & MT cut efficiency systematics -----
+  // -----------------------------------------------------
+  //
+  // JEC & MT cut efficiency
+  //
 
-  // string histname="searchH_b";
-  // sprintf(tempname,"%s",histname.c_str());
-  // //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
-  // //TH1D * searchBin_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");  
-  // //TH1D * searchBin_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // TH1D * searchBin_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");
-  // TH1D * searchBin_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");
-  // searchBin_JECSysUp->Scale(3000.);
-  // searchBin_JECSysDn->Scale(3000.);
-  // tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("searchBin_JECSysRef");  
-  // TH1D * searchBin_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
-  // /*
-  // tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("searchBin_MTSysUp");  
-  // TH1D * searchBin_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("searchBin_MTSysDn");  
-  // TH1D * searchBin_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("searchBin_MTSysRef");  
-  // TH1D * searchBin_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
-  // */
+  string histname="searchH_b";
+  sprintf(tempname,"%s",histname.c_str());
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");  
+  //TH1D * searchBin_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");  
+  //TH1D * searchBin_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("searchBin_JECSysRef");  
+  //TH1D * searchBin_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * searchBin_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("searchBin_JECSysUp");
+  TH1D * searchBin_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("searchBin_JECSysDn");
+  TH1D * searchBin_JECSysRef = (TH1D*) JECSysRefFile->Get(tempname)->Clone("searchBin_JECSysRef");
+  searchBin_JECSysUp->Scale(3000.);
+  searchBin_JECSysDn->Scale(3000.);
+  searchBin_JECSysRef->Scale(3000.);
 
-  // takeDiffForSys(searchBin_JECSysUp,searchBin_JECSysRef);
-  // takeDiffForSys(searchBin_JECSysDn,searchBin_JECSysRef);
-  // /*
-  // takeDiffForSys(searchBin_MTSysUp,searchBin_MTSysRef);
-  // takeDiffForSys(searchBin_MTSysDn,searchBin_MTSysRef);
-  // */
-
-  // string histname="QCD_Up";
-  // sprintf(tempname,"%s",histname.c_str());
-  // //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");  
-  // //TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");  
-  // //TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");
-  // TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");
-  // QCDBin_HiDphi_JECSysUp->Scale(3000.);
-  // QCDBin_HiDphi_JECSysDn->Scale(3000.);
-  // tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysRef");  
-  // TH1D * QCDBin_HiDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
-  // /*
-  // tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysUp");  
-  // TH1D * QCDBin_HiDphi_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysDn");  
-  // TH1D * QCDBin_HiDphi_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_MTSysRef");  
-  // TH1D * QCDBin_HiDphi_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
-  // */
+  TH1D* searchBin_JECSysUp_input = static_cast<TH1D*>(searchBin_JECSysUp->Clone("searchBin_JECSysUp_input")); reformat(searchBin_JECSysUp_input,searchBin_JECSysUp);
+  TH1D* searchBin_JECSysDn_input = static_cast<TH1D*>(searchBin_JECSysDn->Clone("searchBin_JECSysDn_input")); reformat(searchBin_JECSysDn_input,searchBin_JECSysDn);
+  TH1D* searchBin_JECSysRef_input = static_cast<TH1D*>(searchBin_JECSysRef->Clone("searchBin_JECSysRef_input")); reformat(searchBin_JECSysRef_input,searchBin_JECSysRef);
   
-  // takeDiffForSys(QCDBin_HiDphi_JECSysUp,QCDBin_HiDphi_JECSysRef);
-  // takeDiffForSys(QCDBin_HiDphi_JECSysDn,QCDBin_HiDphi_JECSysRef);
-  // /*
-  // takeDiffForSys(QCDBin_HiDphi_MTSysUp,QCDBin_HiDphi_MTSysRef);
-  // takeDiffForSys(QCDBin_HiDphi_MTSysDn,QCDBin_HiDphi_MTSysRef);
-  // */
+  takeDiffForSys(searchBin_JECSysUp,searchBin_JECSysRef);
+  takeDiffForSys(searchBin_JECSysDn,searchBin_JECSysRef);
 
-  // takeAverage(QCDBin_HiDphi_JECSysUp);
-  // takeAverage(QCDBin_HiDphi_JECSysDn);
-  // /*
-  // takeAverage(QCDBin_HiDphi_MTSysUp);
-  // takeAverage(QCDBin_HiDphi_MTSysDn);
-  // */
+  string histname="QCD_Up";
+  sprintf(tempname,"%s",histname.c_str());
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");  
+  //TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");  
+  //TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysRef");  
+  //TH1D * QCDBin_HiDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * QCDBin_HiDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysUp");
+  TH1D * QCDBin_HiDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysDn");
+  TH1D * QCDBin_HiDphi_JECSysRef = (TH1D*) JECSysRefFile->Get(tempname)->Clone("QCDBin_HiDphi_JECSysRef");
+  QCDBin_HiDphi_JECSysUp->Scale(3000.);
+  QCDBin_HiDphi_JECSysDn->Scale(3000.);
+  QCDBin_HiDphi_JECSysRef->Scale(3000.);
 
-  // string histname="QCD_Low";
-  // sprintf(tempname,"%s",histname.c_str());
-  // //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");  
-  // //TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");  
-  // //TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");
-  // TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");
-  // QCDBin_LowDphi_JECSysUp->Scale(3000.);
-  // QCDBin_LowDphi_JECSysDn->Scale(3000.);
-  // tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysRef");  
-  // TH1D * QCDBin_LowDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
+  TH1D* QCDBin_HiDphi_JECSysUp_input = static_cast<TH1D*>(QCDBin_HiDphi_JECSysUp->Clone("QCDBin_HiDphi_JECSysUp_input")); reformat(QCDBin_HiDphi_JECSysUp_input,QCDBin_HiDphi_JECSysUp);
+  TH1D* QCDBin_HiDphi_JECSysDn_input = static_cast<TH1D*>(QCDBin_HiDphi_JECSysDn->Clone("QCDBin_HiDphi_JECSysDn_input")); reformat(QCDBin_HiDphi_JECSysDn_input,QCDBin_HiDphi_JECSysDn);
+  TH1D* QCDBin_HiDphi_JECSysRef_input = static_cast<TH1D*>(QCDBin_HiDphi_JECSysRef->Clone("QCDBin_HiDphi_JECSysRef_input")); reformat(QCDBin_HiDphi_JECSysRef_input,searchBin_JECSysRef);
+  
+  takeDiffForSys(QCDBin_HiDphi_JECSysUp,QCDBin_HiDphi_JECSysRef);
+  takeDiffForSys(QCDBin_HiDphi_JECSysDn,QCDBin_HiDphi_JECSysRef);
 
-  // /*
-  // tempstack=(THStack*)MTSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysUp");  
-  // TH1D * QCDBin_LowDphi_MTSysUp  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysDn");  
-  // TH1D * QCDBin_LowDphi_MTSysDn  = (TH1D*) tempstack->GetStack()->Last();
-  // tempstack=(THStack*)MTSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_MTSysRef");  
-  // TH1D * QCDBin_LowDphi_MTSysRef = (TH1D*) tempstack->GetStack()->Last();
-  // */
+  takeAverage(QCDBin_HiDphi_JECSysUp);
+  takeAverage(QCDBin_HiDphi_JECSysDn);
 
-  // takeDiffForSys(QCDBin_LowDphi_JECSysUp,QCDBin_LowDphi_JECSysRef);
-  // takeDiffForSys(QCDBin_LowDphi_JECSysDn,QCDBin_LowDphi_JECSysRef);
-  // /*
-  // takeDiffForSys(QCDBin_LowDphi_MTSysUp,QCDBin_LowDphi_MTSysRef);
-  // takeDiffForSys(QCDBin_LowDphi_MTSysDn,QCDBin_LowDphi_MTSysRef);
-  // */
+  string histname="QCD_Low";
+  sprintf(tempname,"%s",histname.c_str());
+  //tempstack=(THStack*)JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");  
+  //TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");  
+  //TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) tempstack->GetStack()->Last();
+  //tempstack=(THStack*)JECSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysRef");  
+  //TH1D * QCDBin_LowDphi_JECSysRef = (TH1D*) tempstack->GetStack()->Last();
+  TH1D * QCDBin_LowDphi_JECSysUp  = (TH1D*) JECSysUpFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysUp");
+  TH1D * QCDBin_LowDphi_JECSysDn  = (TH1D*) JECSysDnFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysDn");
+  TH1D * QCDBin_LowDphi_JECSysRef = (TH1D*) JECSysRefFile->Get(tempname)->Clone("QCDBin_LowDphi_JECSysRef");
+  QCDBin_LowDphi_JECSysUp->Scale(3000.);
+  QCDBin_LowDphi_JECSysDn->Scale(3000.);
+  QCDBin_LowDphi_JECSysRef->Scale(3000.);
 
-  // takeAverage(QCDBin_LowDphi_JECSysUp);
-  // takeAverage(QCDBin_LowDphi_JECSysDn);
-  // /*
-  // takeAverage(QCDBin_LowDphi_MTSysUp);
-  // takeAverage(QCDBin_LowDphi_MTSysDn);
-  // */
+  TH1D* QCDBin_LowDphi_JECSysUp_input = static_cast<TH1D*>(QCDBin_LowDphi_JECSysUp->Clone("QCDBin_LowDphi_JECSysUp_input")); reformat(QCDBin_LowDphi_JECSysUp_input,QCDBin_LowDphi_JECSysUp);
+  TH1D* QCDBin_LowDphi_JECSysDn_input = static_cast<TH1D*>(QCDBin_LowDphi_JECSysDn->Clone("QCDBin_LowDphi_JECSysDn_input")); reformat(QCDBin_LowDphi_JECSysDn_input,QCDBin_LowDphi_JECSysDn);
+  TH1D* QCDBin_LowDphi_JECSysRef_input = static_cast<TH1D*>(QCDBin_LowDphi_JECSysRef->Clone("QCDBin_LowDphi_JECSysRef_input")); reformat(QCDBin_LowDphi_JECSysRef_input,searchBin_JECSysRef);
+
+  takeDiffForSys(QCDBin_LowDphi_JECSysUp,QCDBin_LowDphi_JECSysRef);
+  takeDiffForSys(QCDBin_LowDphi_JECSysDn,QCDBin_LowDphi_JECSysRef);
+
+  takeAverage(QCDBin_LowDphi_JECSysUp);
+  takeAverage(QCDBin_LowDphi_JECSysDn);
 
   // //-----------------------------------------------------------------------------------------------------------------------------------------------------
   // // 
@@ -2136,18 +2146,18 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   // Note: The lines below are used when the systematics are still under evaluation, and just want to give dummy numbers
   // Closure & Bmistag
   //TH1D* searchBin_closureUncertainty = static_cast<TH1D*>(searchBin_box->Clone("searchBin_closureUncertainty"));
-  TH1D* searchBin_BMistagUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagUp"));
-  TH1D* searchBin_BMistagDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagDn"));
+  //TH1D* searchBin_BMistagUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagUp"));
+  //TH1D* searchBin_BMistagDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_BMistagDn"));
   // Mu
-  TH1D* searchBin_MuRecoSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoSysUp"));
-  TH1D* searchBin_MuRecoSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoSysDn"));
-  TH1D* searchBin_MuIsoSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuIsoSysUp"));
-  TH1D* searchBin_MuIsoSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuIsoSysDn"));
-  TH1D* searchBin_MuRecoIsoUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoIsoUp"));
-  TH1D* searchBin_MuRecoIsoDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoIsoDn"));
+  //TH1D* searchBin_MuRecoSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoSysUp"));
+  //TH1D* searchBin_MuRecoSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoSysDn"));
+  //TH1D* searchBin_MuIsoSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuIsoSysUp"));
+  //TH1D* searchBin_MuIsoSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuIsoSysDn"));
+  //TH1D* searchBin_MuRecoIsoUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoIsoUp"));
+  //TH1D* searchBin_MuRecoIsoDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_MuRecoIsoDn"));
   // JEC
-  TH1D* searchBin_JECSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_JECSysUp"));
-  TH1D* searchBin_JECSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_JECSysDn"));
+  //TH1D* searchBin_JECSysUp = static_cast<TH1D*>(searchBin_box->Clone("searchBin_JECSysUp"));
+  //TH1D* searchBin_JECSysDn = static_cast<TH1D*>(searchBin_box->Clone("searchBin_JECSysDn"));
   // MT
   //TH1D* searchBin_MTSysUp = static_cast<TH1D*>(searchBin_one->Clone("searchBin_MTSysUp"));
   //TH1D* searchBin_MTSysDn = static_cast<TH1D*>(searchBin_one->Clone("searchBin_MTSysDn"));
@@ -2242,18 +2252,18 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   // Note: The lines below are used when the systematics are still under evaluation, and just want to give dummy numbers
   // Closure & Bmistag
   //TH1D* QCDBin_HiDphi_closureUncertainty = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_closureUncertainty"));
-  TH1D* QCDBin_HiDphi_BMistagUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_BMistagUp"));
-  TH1D* QCDBin_HiDphi_BMistagDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_BMistagDn"));
+  //TH1D* QCDBin_HiDphi_BMistagUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_BMistagUp"));
+  //TH1D* QCDBin_HiDphi_BMistagDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_BMistagDn"));
   // Mu
-  TH1D* QCDBin_HiDphi_MuRecoSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoSysUp"));
-  TH1D* QCDBin_HiDphi_MuRecoSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoSysDn"));
-  TH1D* QCDBin_HiDphi_MuIsoSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuIsoSysUp"));
-  TH1D* QCDBin_HiDphi_MuIsoSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuIsoSysDn"));
-  TH1D* QCDBin_HiDphi_MuRecoIsoUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoIsoUp"));
-  TH1D* QCDBin_HiDphi_MuRecoIsoDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoIsoDn"));
+  //TH1D* QCDBin_HiDphi_MuRecoSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoSysUp"));
+  //TH1D* QCDBin_HiDphi_MuRecoSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoSysDn"));
+  //TH1D* QCDBin_HiDphi_MuIsoSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuIsoSysUp"));
+  //TH1D* QCDBin_HiDphi_MuIsoSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuIsoSysDn"));
+  //TH1D* QCDBin_HiDphi_MuRecoIsoUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoIsoUp"));
+  //TH1D* QCDBin_HiDphi_MuRecoIsoDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_MuRecoIsoDn"));
   // JEC
-  TH1D* QCDBin_HiDphi_JECSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_JECSysUp"));
-  TH1D* QCDBin_HiDphi_JECSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_JECSysDn"));
+  //TH1D* QCDBin_HiDphi_JECSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_JECSysUp"));
+  //TH1D* QCDBin_HiDphi_JECSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_HiDphi_JECSysDn"));
   // MT
   //TH1D* QCDBin_HiDphi_MTSysUp = static_cast<TH1D*>(QCDBin_one->Clone("QCDBin_HiDphi_MTSysUp"));
   //TH1D* QCDBin_HiDphi_MTSysDn = static_cast<TH1D*>(QCDBin_one->Clone("QCDBin_HiDphi_MTSysDn"));
@@ -2318,8 +2328,8 @@ void HadTauEstimation_output_format(string elogForData="KHElog425_",       // Da
   TH1D* QCDBin_LowDphi_MuRecoIsoUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_MuRecoIsoUp"));
   TH1D* QCDBin_LowDphi_MuRecoIsoDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_MuRecoIsoDn"));
   // JEC
-  TH1D* QCDBin_LowDphi_JECSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_JECSysUp"));
-  TH1D* QCDBin_LowDphi_JECSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_JECSysDn"));
+  //TH1D* QCDBin_LowDphi_JECSysUp = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_JECSysUp"));
+  //TH1D* QCDBin_LowDphi_JECSysDn = static_cast<TH1D*>(QCDBin_box->Clone("QCDBin_LowDphi_JECSysDn"));
   // MT
   //TH1D* QCDBin_LowDphi_MTSysUp = static_cast<TH1D*>(QCDBin_one->Clone("QCDBin_LowDphi_MTSysUp"));
   //TH1D* QCDBin_LowDphi_MTSysDn = static_cast<TH1D*>(QCDBin_one->Clone("QCDBin_LowDphi_MTSysDn"));
