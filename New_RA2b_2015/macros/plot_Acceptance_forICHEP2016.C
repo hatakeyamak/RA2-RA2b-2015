@@ -118,7 +118,7 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
 	double newN=0;
 	double newD=0;
 	//std::cout<<"Bin "<< j<< "thist_j"<<ratio<<endl;
-	if(j==70){
+	if(j==52 || j==55 || j==61 || j==64 || j==67 || j==70){
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(j+1);
 	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(j+1);      
 	  ratio=newN/newD;

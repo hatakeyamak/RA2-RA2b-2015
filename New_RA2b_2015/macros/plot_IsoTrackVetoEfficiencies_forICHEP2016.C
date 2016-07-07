@@ -97,7 +97,7 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
     double newD=0;    
     //std::cout <<" j "<<j << " Num " << histNum->GetBinContent(j) << " Den " << histDen->GetBinContent(j) << " " << thist->GetName() << " bincontent "<< ratio <<endl;
 
-    if(j==43 || j==52 || j==55 || j==70 || j==72){  
+    if(j==43 || j==52 || j==55 || j==61 || j==64 || j==67 || j==70 || j==72){  
 
       int kbin=j+1;
       // bin 61 is low stat and 72 is last, so we use the previous bin

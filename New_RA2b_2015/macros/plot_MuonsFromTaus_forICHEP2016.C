@@ -110,7 +110,7 @@ void plot_MuonsFromTaus_forICHEP2016(){
       double newN=0;
       double newD=0;
       if(x==1){
-	if(j==52 || j==55 ||j==61 || j==64 || j==67 ||j==70 ||j==72){
+	if(j==52 || j==55 || j==61 || j==64 || j==67 ||j==70 ||j==72){
 	  int kbin=j+1;
 	  if(j==72) kbin=j-1;
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
@@ -128,9 +128,9 @@ void plot_MuonsFromTaus_forICHEP2016(){
 	}
       }
       if(x==2){
-	if(j==52 ||j==55 ||j==60 ||j==70){
+	if(j==43 || j==52 || j==55 ||j==60 || j==61 || j==64 || j==67 ||j==70 ||j==72){
 	  int kbin=j+1;
-	  if(j==72) kbin=j-1;
+	  if(j==60 || j==72) kbin=j-1;
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
 	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
 	  ratio=newN/newD;
