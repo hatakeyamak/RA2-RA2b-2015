@@ -512,7 +512,7 @@ using namespace std;
       cut_histvec_map_search[sel->cutName()[i]]=vec_search;
     }
 
-    bool StudyErrorPropag = true;
+    bool StudyErrorPropag = false;
     map<int,string> UncerLoop;
     // Define different event categories
     if(subSampleKey.find("templatePlus")!=string::npos)UncerLoop[0]="templatePlus";
@@ -798,7 +798,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      //if(eventN>10000)break;
+      //if(eventN>5000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
@@ -1456,28 +1456,52 @@ using namespace std;
 		  else                trigEffCorr=0.;
 		}
 
+//		double NjNbCorrArray[16]={
+//		  1.08678, 1.1606, 1.21688, 1.38799,
+//		  0.99422, 1.03512, 1.09677, 1.15551,
+//		  0.960125, 0.99264, 1.04157, 1.22838,
+//		  0.863833, 0.803388, 1.01109, 1.12302};
+//		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+//
 		double NjNbCorrArray[16]={
-		  1.08678, 1.1606, 1.21688, 1.38799,
-		  0.99422, 1.03512, 1.09677, 1.15551,
-		  0.960125, 0.99264, 1.04157, 1.22838,
-		  0.863833, 0.803388, 1.01109, 1.12302};
+  1.06726,1.13884,1.19437,1.36361,
+  0.982114,1.02468,1.08705,1.14535,		  
+  0.954231,0.986859,1.03692,1.221,
+  0.858298, 0.794967, 1.00711, 1.11734};
 		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
+
+//		double QCD_UpNjNbCorrArray[16]={
+//		  1.06067,1.15766,1.21137,1.38428,
+//		  0.988007,1.02257,1.05086,1.17749,
+//		  0.937987,0.97341,0.99937,1.16912,
+//		  0.842024,0.854788,0.97895,1.12172};
+//		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+//
 		double QCD_UpNjNbCorrArray[16]={
-		  1.06067,1.15766,1.21137,1.38428,
-		  0.988007,1.02257,1.05086,1.17749,
-		  0.937987,0.97341,0.99937,1.16912,
-		  0.842024,0.854788,0.97895,1.12172};
+  1.04212,1.13864,1.19202,1.36303,
+  0.980526,1.0161,1.04462,1.17064,
+  0.93641,0.972226,0.998193,1.16753,
+  0.843044,0.856616,0.981188,1.12397};
 		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
 		
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
 
+//		double QCD_LowNjNbCorrArray[16]={
+//		  0.864283,1.04062,1.10166,1.31812,
+//		  0.843319,0.915936,0.940394,1.13485,
+//		  0.850232,0.866817,0.924276,1.04468,
+//		  0.788246,0.804593,0.883932,0.949569};		  
+//		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+//
 		double QCD_LowNjNbCorrArray[16]={
-		  0.864283,1.04062,1.10166,1.31812,
-		  0.843319,0.915936,0.940394,1.13485,
-		  0.850232,0.866817,0.924276,1.04468,
-		  0.788246,0.804593,0.883932,0.949569};		  
+		  0.915218,1.10424,1.17326,1.4113,
+		  0.886127,0.961631,0.987567,1.19345,
+		  0.885528,0.903907,0.965426,1.09268,
+		  0.816972,0.834622,0.917226,0.984751};		  
 		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
 		
 		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
 
