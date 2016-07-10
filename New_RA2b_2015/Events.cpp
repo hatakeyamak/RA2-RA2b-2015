@@ -6,7 +6,7 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=true;
+    DataBool=false;
 
     // Study Tau ID
     StudyTauId=false;
@@ -784,7 +784,7 @@ vector<int>     Events::GenTauHadVec_() const {
   return temp;
 }
 
-  double Events::csv_() const {return 0.890;} 
+  double Events::csv_() const {return 0.80;} 
 
 //int Events::GoodVtx_() const {return GoodVtx;}
   int Events::CSCTightHaloFilter_() const {return CSCTightHaloFilter;}

@@ -608,7 +608,8 @@ using namespace std;
     // Rate of bTagged tau jet
     //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
     //    std::cout<<" bRateFile is read "<<std::endl;
-    TFile * bRateFile = new TFile("TauHad/Stack/Elog433_TauBtaggedRate_WJet_stacked.root","R");
+    //    TFile * bRateFile = new TFile("TauHad/Stack/Elog433_TauBtaggedRate_WJet_stacked.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/ARElog43_TauBtaggedRate_WJet_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     sprintf(histname,"TauBtaggedRate");
