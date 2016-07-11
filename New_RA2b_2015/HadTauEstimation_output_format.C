@@ -128,7 +128,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   //
   // Convenient utility histogram
   //
-  TH1D* searchBin_one = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_one");  
+  TH1D* searchBin_one = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_one");  
   searchBin_one->Reset();
   searchBin_one->SetLineColor(1);
   for (int ibin=0; ibin<searchBin_one->GetNbinsX(); ibin++){
@@ -136,7 +136,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
     searchBin_one->SetBinError(ibin+1,0.);
   }
 
-  TH1D* searchBin_box = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_box");
+  TH1D* searchBin_box = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_box");
   searchBin_box->Reset();
   searchBin_box->SetLineColor(1);
 
@@ -224,7 +224,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   TH1D* IsoTrkVetoEff = (TH1D*)IsoTrkVetoFile->Get("IsoEff")->Clone("IsoTrkVetoEff");
   TH1D* IsoTrkVetoEff_LowDphi = (TH1D*)IsoTrkVetoFile->Get("IsoEff_lowDphi")->Clone("IsoTrkVetoEff_LowDphi");
 
-  TH1D* searchBin_IsoTrkVetoEff = (TH1D*)searchBin_box->Clone("seaerchBin_IsoTrkVetoEff"); //searchBin_box--->searchbin histogram of data file
+  TH1D* searchBin_IsoTrkVetoEff = (TH1D*)searchBin_box->Clone("searchBin_IsoTrkVetoEff"); //searchBin_box--->searchbin histogram of data file
   searchBin_IsoTrkVetoEff->Reset();
   binMap_ICHEP2016(IsoTrkVetoEff,searchBin_IsoTrkVetoEff);
 
@@ -236,9 +236,9 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   QCDBin_LowDphi_IsoTrkVetoEff->Reset();
   binMap_QCD_ICHEP2016(IsoTrkVetoEff_LowDphi,QCDBin_LowDphi_IsoTrkVetoEff);
 
-  TH1D* searchBin_IsoTrkVetoEffUncertaintyTot  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintyTot");
-  TH1D* searchBin_IsoTrkVetoEffUncertaintyStat = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintyStat");
-  TH1D* searchBin_IsoTrkVetoEffUncertaintySys  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("seaerchBin_IsoTrkVetoEffUncertaintySys");
+  TH1D* searchBin_IsoTrkVetoEffUncertaintyTot  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("searchBin_IsoTrkVetoEffUncertaintyTot");
+  TH1D* searchBin_IsoTrkVetoEffUncertaintyStat = (TH1D*)searchBin_IsoTrkVetoEff->Clone("searchBin_IsoTrkVetoEffUncertaintyStat");
+  TH1D* searchBin_IsoTrkVetoEffUncertaintySys  = (TH1D*)searchBin_IsoTrkVetoEff->Clone("searchBin_IsoTrkVetoEffUncertaintySys");
 
   TH1D* QCDBin_HiDphi_IsoTrkVetoEffUncertaintyTot  = (TH1D*)QCDBin_HiDphi_IsoTrkVetoEff->Clone("QCDBin_HiDphi_IsoTrkVetoEffUncertaintyTot");
   TH1D* QCDBin_HiDphi_IsoTrkVetoEffUncertaintyStat = (TH1D*)QCDBin_HiDphi_IsoTrkVetoEff->Clone("QCDBin_HiDphi_IsoTrkVetoEffUncertaintyStat");
@@ -269,7 +269,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   sprintf(tempname,"hProb_Tau_mu_lowDelphi");
   TH1D * hProb_Tau_mu_LowDphi =(TH1D *) Prob_Tau_mu_file->Get(tempname)->Clone();
 
-  TH1D* searchBin_MuFromTau = (TH1D*)searchBin_box->Clone("seaerchBin_MuFromTau");
+  TH1D* searchBin_MuFromTau = (TH1D*)searchBin_box->Clone("searchBin_MuFromTau");
   searchBin_MuFromTau->Reset();
   binMap_ICHEP2016(hProb_Tau_mu,searchBin_MuFromTau);
 
@@ -281,7 +281,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   QCDBin_LowDphi_MuFromTau->Reset();
   binMap_QCD_ICHEP2016(hProb_Tau_mu_LowDphi,QCDBin_LowDphi_MuFromTau);
 
-  TH1D* searchBin_MuFromTauStat  = (TH1D*)searchBin_MuFromTau->Clone("seaerchBin_MuFromTauStat");
+  TH1D* searchBin_MuFromTauStat  = (TH1D*)searchBin_MuFromTau->Clone("searchBin_MuFromTauStat");
   TH1D* QCDBin_HiDphi_MuFromTauStat  = (TH1D*)QCDBin_HiDphi_MuFromTau->Clone("QCDBin_HiDphi_MuFromTauStat");
   TH1D* QCDBin_LowDphi_MuFromTauStat = (TH1D*)QCDBin_LowDphi_MuFromTau->Clone("QCDBin_LowDphi_MuFromTauStat");
 
@@ -302,7 +302,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   sprintf(tempname,"hAcc_lowDphi");
   TH1D * hAcc_LowDphi =(TH1D *) MuAcc_file->Get(tempname)->Clone();
 
-  TH1D* searchBin_Acc = (TH1D*)searchBin_box->Clone("seaerchBin_Acc");
+  TH1D* searchBin_Acc = (TH1D*)searchBin_box->Clone("searchBin_Acc");
   searchBin_Acc->Reset();
   binMap_ICHEP2016(hAcc,searchBin_Acc);
 
@@ -315,7 +315,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   binMap_QCD_ICHEP2016(hAcc_LowDphi,QCDBin_LowDphi_Acc);
 
   //
-  TH1D* searchBin_AccStat  = (TH1D*)searchBin_Acc->Clone("seaerchBin_AccStat");
+  TH1D* searchBin_AccStat  = (TH1D*)searchBin_Acc->Clone("searchBin_AccStat");
   TH1D* QCDBin_HiDphi_AccStat  = (TH1D*)QCDBin_HiDphi_Acc->Clone("QCDBin_HiDphi_AccStat");
   TH1D* QCDBin_LowDphi_AccStat = (TH1D*)QCDBin_LowDphi_Acc->Clone("QCDBin_LowDphi_AccStat");
 
@@ -336,11 +336,11 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   TH1D * hAccSysPDFUp_LowDphi = (TH1D *) AccSysFromPDFFile->Get("hAccSysMax_lowDphi")->Clone();
   TH1D * hAccSysPDFDn_LowDphi = (TH1D *) AccSysFromPDFFile->Get("hAccSysMin_lowDphi")->Clone();
 
-  TH1D* searchBin_AccSysPDFUp = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_AccSysPDFUp");
+  TH1D* searchBin_AccSysPDFUp = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_AccSysPDFUp");
   searchBin_AccSysPDFUp->Reset();
   binMap_ICHEP2016(hAccSysPDFUp,searchBin_AccSysPDFUp);
   accErrPropagation(searchBin_AccSysPDFUp,searchBin_Acc);
-  TH1D* searchBin_AccSysPDFDn = (TH1D*)DataEstFile->Get("searchH_b")->Clone("seaerchBin_AccSysPDFDn");
+  TH1D* searchBin_AccSysPDFDn = (TH1D*)DataEstFile->Get("searchH_b")->Clone("searchBin_AccSysPDFDn");
   searchBin_AccSysPDFDn->Reset();
   binMap_ICHEP2016(hAccSysPDFDn,searchBin_AccSysPDFDn);
   accErrPropagation(searchBin_AccSysPDFDn,searchBin_Acc);
@@ -373,11 +373,11 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   TH1D * hAccSysScaleUp_LowDphi = (TH1D *) AccSysFromScaleFile->Get("hScaleAccSysMax_lowDphi")->Clone();
   TH1D * hAccSysScaleDn_LowDphi = (TH1D *) AccSysFromScaleFile->Get("hScaleAccSysMin_lowDphi")->Clone();
 
-  TH1D* searchBin_AccSysScaleUp = (TH1D*)searchBin_box->Clone("seaerchBin_AccSysScaleUp");
+  TH1D* searchBin_AccSysScaleUp = (TH1D*)searchBin_box->Clone("searchBin_AccSysScaleUp");
   searchBin_AccSysScaleUp->Reset();
   binMap_ICHEP2016(hAccSysScaleUp,searchBin_AccSysScaleUp);
   accErrPropagation(searchBin_AccSysScaleUp,searchBin_Acc);
-  TH1D* searchBin_AccSysScaleDn = (TH1D*)searchBin_box->Clone("seaerchBin_AccSysScaleDn");
+  TH1D* searchBin_AccSysScaleDn = (TH1D*)searchBin_box->Clone("searchBin_AccSysScaleDn");
   searchBin_AccSysScaleDn->Reset();
   binMap_ICHEP2016(hAccSysScaleDn,searchBin_AccSysScaleDn);
   accErrPropagation(searchBin_AccSysScaleDn,searchBin_Acc);
@@ -411,7 +411,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
 
   string histname;  
 
-  TH1D* searchBin_MtEff = (TH1D*)searchBin_box->Clone("seaerchBin_MtEff");
+  TH1D* searchBin_MtEff = (TH1D*)searchBin_box->Clone("searchBin_MtEff");
   searchBin_MtEff->Reset();
   binMap_ICHEP2016(hMT,searchBin_MtEff);
 
@@ -424,7 +424,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   binMap_QCD_ICHEP2016(hMT_LowDphi,QCDBin_LowDphi_MtEff);
 
   //
-  TH1D* searchBin_MtEffStat  = (TH1D*)searchBin_MtEff->Clone("seaerchBin_MtEffStat");
+  TH1D* searchBin_MtEffStat  = (TH1D*)searchBin_MtEff->Clone("searchBin_MtEffStat");
   TH1D* QCDBin_HiDphi_MtEffStat  = (TH1D*)QCDBin_HiDphi_MtEff->Clone("QCDBin_HiDphi_MtEffStat");
   TH1D* QCDBin_LowDphi_MtEffStat = (TH1D*)QCDBin_LowDphi_MtEff->Clone("QCDBin_LowDphi_MtEffStat");
 
