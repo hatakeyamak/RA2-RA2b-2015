@@ -123,7 +123,8 @@ Plot_searchBin_full_Data(string sample="stacked",string histname="searchH_b",
   //    TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_v16b_.root","R");
   //    TFile * EstFile = new TFile("TauHad2/ARElog40_2.6_HadTauEstimation_data_SingleMuon_v17a_.root","R");
   //    TFile * EstFile = new TFile("TauHad2/ARElog41_2.6fb_HadTauEstimation_data_SingleMuon_v17a_.root","R");
-   TFile * EstFile = new TFile("TauHad2/ARElog42_4fb_HadTauEstimation_data_SingleMuon_v16b_.root","R");
+  //TFile * EstFile = new TFile("TauHad2/ARElog42_4fb_HadTauEstimation_data_SingleMuon_v16b_.root","R");
+  TFile * EstFile = new TFile("TauHad2/HadTauEstimation_data_SingleMuon_V9bc_.root","R");
   sprintf(tempname,"TauHad/Stack/GenInfo_HadTauEstimation_%s.root",sample.c_str());
   //cout << "warning:\n Warning \n \n  using elog195 for pre and  exp \n \n ";
   TFile * GenFile = new TFile(tempname,"R");

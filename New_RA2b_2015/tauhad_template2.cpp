@@ -1464,12 +1464,19 @@ using namespace std;
 //		  0.863833, 0.803388, 1.01109, 1.12302};
 //		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 //
-		double NjNbCorrArray[16]={
-  1.06726,1.13884,1.19437,1.36361,
-  0.982114,1.02468,1.08705,1.14535,		  
-  0.954231,0.986859,1.03692,1.221,
-  0.858298, 0.794967, 1.00711, 1.11734};
+//		double NjNbCorrArray[16]={
+//  1.06726,1.13884,1.19437,1.36361,
+//  0.982114,1.02468,1.08705,1.14535,		  
+//  0.954231,0.986859,1.03692,1.221,
+//  0.858298, 0.794967, 1.00711, 1.11734};
+//		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+//
+// from V7 MC after csv moved to 0.80
+		double NjNbCorrArray[16]=
+		{1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
 		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
+
 
 
 //		double QCD_UpNjNbCorrArray[16]={
@@ -1479,14 +1486,17 @@ using namespace std;
 //		  0.842024,0.854788,0.97895,1.12172};
 //		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 //
-		double QCD_UpNjNbCorrArray[16]={
-  1.04212,1.13864,1.19202,1.36303,
-  0.980526,1.0161,1.04462,1.17064,
-  0.93641,0.972226,0.998193,1.16753,
-  0.843044,0.856616,0.981188,1.12397};
-		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
-		
+//		double QCD_UpNjNbCorrArray[16]={
+//  1.04212,1.13864,1.19202,1.36303,
+//  0.980526,1.0161,1.04462,1.17064,
+//  0.93641,0.972226,0.998193,1.16753,
+//  0.843044,0.856616,0.981188,1.12397};
+//		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+
+		double QCD_UpNjNbCorrArray[16]=
+		  {1.07954,1.05912,1.11673,1.13352,1.02719,1.00215,1.00608,0.932549,0.986,0.983652,0.977785,0.979731,0.891571,0.879714,0.96842,0.992207};
+		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
 
 //		double QCD_LowNjNbCorrArray[16]={
@@ -1496,14 +1506,16 @@ using namespace std;
 //		  0.788246,0.804593,0.883932,0.949569};		  
 //		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 //
-		double QCD_LowNjNbCorrArray[16]={
-		  0.915218,1.10424,1.17326,1.4113,
-		  0.886127,0.961631,0.987567,1.19345,
-		  0.885528,0.903907,0.965426,1.09268,
-		  0.816972,0.834622,0.917226,0.984751};		  
-		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+//		double QCD_LowNjNbCorrArray[16]={
+//		  0.915218,1.10424,1.17326,1.4113,
+//		  0.886127,0.961631,0.987567,1.19345,
+//		  0.885528,0.903907,0.965426,1.09268,
+//		  0.816972,0.834622,0.917226,0.984751};		  
+//		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
-		
+		double QCD_LowNjNbCorrArray[16]=
+		  {0.969584,0.960883,1.02801,0.958625,0.938399,0.939326,0.944426,0.913042,0.937141,0.91543,0.945902,0.915756,0.863937,0.856496,0.910216,0.872439};
+		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
 
 	      } // isData ends

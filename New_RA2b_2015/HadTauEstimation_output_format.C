@@ -30,11 +30,13 @@ void reformat(TH1* input, TH1* output);
 //  0.863833, 0.803388, 1.01109, 1.12302};
 //
 
-double NjNbCorr[16]={
-  1.06726,1.13884,1.19437,1.36361,
-  0.982114,1.02468,1.08705,1.14535,
-  0.954231,0.986859,1.03692,1.221,
-  0.858298,0.794967,1.00711,1.11734};
+//double NjNbCorr[16]={
+//  1.06726,1.13884,1.19437,1.36361,
+//  0.982114,1.02468,1.08705,1.14535,
+//  0.954231,0.986859,1.03692,1.221,
+//  0.858298,0.794967,1.00711,1.11734};
+//
+double NjNbCorr[16]={1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
 
 //double NjNbCorr_QCDHDP[16]={
 //  1.06067,1.15766,1.21137,1.38428,
@@ -42,36 +44,40 @@ double NjNbCorr[16]={
 //  0.937987,0.97341,0.99937,1.16912,
 //  0.842024,0.854788,0.97895,1.12172};
 //
-double NjNbCorr_QCDHDP[16]={
-  1.04212,1.13864,1.19202,1.36303,
-  0.980526,1.0161,1.04462,1.17064,
-  0.93641,0.972226,0.998193,1.16753,
-  0.843044,0.856616,0.981188,1.12397};
-                
+//double NjNbCorr_QCDHDP[16]={
+//  1.04212,1.13864,1.19202,1.36303,
+//  0.980526,1.0161,1.04462,1.17064,
+//  0.93641,0.972226,0.998193,1.16753,
+//  0.843044,0.856616,0.981188,1.12397};
+//
+double NjNbCorr_QCDHDP[16]={1.07954,1.05912,1.11673,1.13352,1.02719,1.00215,1.00608,0.932549,0.986,0.983652,0.977785,0.979731,0.891571,0.879714,0.96842,0.992207};                
 //double NjNbCorr_QCDLDP[16]={
 //  0.864283,1.04062,1.10166,1.31812,
 //  0.843319,0.915936,0.940394,1.13485,
 //  0.850232,0.866817,0.924276,1.04468,
 //  0.788246,0.804593,0.883932,0.949569};           
 //
-double NjNbCorr_QCDLDP[16]={
-  0.915218,1.10424,1.17326,1.4113,
-  0.886127,0.961631,0.987567,1.19345,
-  0.885528,0.903907,0.965426,1.09268,
-  0.816972,0.834622,0.917226,0.984751};           
-
-
+//double NjNbCorr_QCDLDP[16]={
+//  0.915218,1.10424,1.17326,1.4113,
+//  0.886127,0.961631,0.987567,1.19345,
+//  0.885528,0.903907,0.965426,1.09268,
+//  0.816972,0.834622,0.917226,0.984751};           
+//
+double NjNbCorr_QCDLDP[16]={0.969584,0.960883,1.02801,0.958625,0.938399,0.939326,0.944426,0.913042,0.937141,0.91543,0.945902,0.915756,0.863937,0.856496,0.910216,0.872439};
 
 void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // Data
 				    //string elogForData="ARElog40_4fb_",
 				    //string elogForData="ARElog41_2.6fb_",
-				    string elogForData="ARElog42_4fb_",
+				    string elogForData="ARElog46_7.6ifb_",
+				    //string elogForData="ARElog42_4fb_",
 				    string elogForData2="KHElog424_",      // Data 
 				    //string elogForMCExp="KHElog420_",      // MC expectation
 				    //string elogForMCPre="KHElog424_",      // MC prediction
-				    string elogForMCExp="ARElog41_",
-				    string elogForMCPre="ARElog41_",
+				    //string elogForMCExp="ARElog41_",
+				    //string elogForMCPre="ARElog41_",
 				    //
+				    string elogForMCExp="ARElog44_",
+				    string elogForMCPre="ARElog44_",
 				    string elogForSys="ARElog40_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
 				    string elogForMuSys="ARElog40_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
 				    //string elogForJECSysUp="Elog426_",     // JEC Up systematics
@@ -101,8 +107,8 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
 				    //double lumiTarget=2.584653,            // Luminosity of the search trigger sample 
 				    //double lumiControl=2.585297,           // Luminosity of the SingleMuon PD used for the control sample
 				    // lumi for V8
-				    double lumiTarget=3.998,
-				    double lumiControl=3.998,
+				    double lumiTarget=7.6,
+				    double lumiControl=7.6,
 				    int isys==0){
 
   char tempname[200];
@@ -115,8 +121,9 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   // Open data files
   //
   //  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_20160624v1_hadd.root",elogForData.c_str());
-    sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v16b_.root",elogForData.c_str());
+  //    sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v16b_.root",elogForData.c_str());
   //sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_.root",elogForData.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_V9bc_.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
   printf("Opened %s\n",tempname);
   /*
