@@ -406,7 +406,7 @@ using namespace std;
     if(subSampleKey.find("fast")!=string::npos){
       cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
       fastsim=true;
-      signalPileUp = new TFile("TauHad/PileupHistograms_1104.root","R");
+      signalPileUp = new TFile("TauHad/PileupHistograms_0704.root","R");
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
@@ -420,23 +420,23 @@ using namespace std;
       //
       sprintf(tempname,
       //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
-      skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
+     "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV9/scan/%s_%s_%s_fast.root",
+      skimInput[0].c_str(),skimInput[1].c_str(),skimInput[2].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){
         cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
         sprintf(tempname,
-        "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+        "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
         skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       }
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << tempname << endl;
-      h_genpt = (TH1*)skimfile->Get("GenPt");
-      isrcorr.SetWeights(h_isr,h_genpt);
+      //h_genpt = (TH1*)skimfile->Get("GenPt");
+      //isrcorr.SetWeights(h_isr,h_genpt);
       //PDG ID for gluino
-      isrcorr.SetMother(1000021);
+      //isrcorr.SetMother(1000021);
       //
     }
    
@@ -1716,7 +1716,8 @@ using namespace std;
 		//puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
-                double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
+                //double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
+		double isrWeight=1.;
                 totWeight*=isrWeight;
                 //
                 prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
