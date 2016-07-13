@@ -293,8 +293,9 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   //std::cout<<" test_2 "<<endl;
   
-  bool AdhocQCD_NjetNbjet=true;
-  //if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
+  //  bool AdhocQCD_NjetNbjet=true;
+  bool AdhocQCD_NjetNbjet=false; 
+ //if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
   if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
     //    std::cout<<"----------------------------------------- "<<std::endl;
     std::cout<<" hist name "<<histname<<std::endl;
@@ -382,7 +383,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   }
 
-  bool Adhoc_NjetNbjet=true;
+  bool Adhoc_NjetNbjet=false;
   if(Adhoc_NjetNbjet && histname.find("searchH_b")!=string::npos){
     //int Nbins=GenHist->GetNbinX();
     std::cout<<"Nbins "<< 160 <<std::endl;  
