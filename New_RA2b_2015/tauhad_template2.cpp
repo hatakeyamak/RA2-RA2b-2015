@@ -459,10 +459,10 @@ using namespace std;
       //
       //
       btagcorr.SetEffs(skimfile);
-      btagcorr.SetCalib("CSVv2_mod.csv");
+      btagcorr.SetCalib("btag/CSVv2_4invfb.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
-      btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
+      btagcorr.SetCalibFastSim("btag/CSV_13TEV_TTJets_11_7_2016.csv");
   
       // determine the weight of fast sim signal
       sprintf(tempname,"SkimSampleXSections.txt");
