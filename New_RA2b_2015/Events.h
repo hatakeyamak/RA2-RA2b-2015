@@ -324,7 +324,7 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    int BadPFMuonFilter_() const;
    int globalTightHalo2016Filter_() const;
    int noMuonJet_() const;
-   //int noFakeJet_() const;
+   int noFakeJet_() const;
 
 };//end of class Events
 #endif
