@@ -1,6 +1,6 @@
 #include "Events.h"
 #include <vector>
-
+#include <utils.h>
 
   //Constructor
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
@@ -47,6 +47,7 @@
      GenEls = 0;
      GenTauNu = 0;
      GenTaus = 0;
+     GenJets = 0;
 
      GenParticles = 0;
      GenParticles_PdgId = 0;  
@@ -147,6 +148,10 @@
        fChain->SetBranchAddress("CSCTightHaloFilter", &CSCTightHaloFilter);
        fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter);
        fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter);
+       fChain->SetBranchAddress("PFCaloMETRatio", &PFCaloMETRatio);
+       fChain->SetBranchAddress("BadChargedCandidateFilter", &BadChargedCandidateFilter);
+       fChain->SetBranchAddress("BadPFMuonFilter", &BadPFMuonFilter);
+       fChain->SetBranchAddress("globalTightHalo2016Filter", &globalTightHalo2016Filter);
      }
      if(!DataBool){
        fChain->SetBranchAddress("GenMus", &GenMus);
@@ -156,6 +161,7 @@
        fChain->SetBranchAddress("GenTaus", &GenTaus);
        fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
        fChain->SetBranchAddress("GenTauNu", &GenTauNu);
+       fChain->SetBranchAddress("GenJets", &GenJets);
        fChain->SetBranchAddress("madHT", &madHT);
        fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
 
@@ -793,6 +799,42 @@ vector<int>     Events::GenTauHadVec_() const {
   int Events::HBHEIsoNoiseFilter_() const {return HBHEIsoNoiseFilter;}
   int Events::EcalDeadCellTriggerPrimitiveFilter_() const {return EcalDeadCellTriggerPrimitiveFilter;}
   int Events::NVtx_() const {return NVtx;}
+  // added on July 12, 2016
+int Events::PFCaloMETRatioFilter_() const{ return (PFCaloMETRatio<5); }
+int Events::BadChargedCandidateFilter_() const {return BadChargedCandidateFilter; }
+int Events::BadPFMuonFilter_() const { return BadPFMuonFilter; }
+int Events::globalTightHalo2016Filter_() const {return globalTightHalo2016Filter; }
+  int Events::noMuonJet_() const {
+    Utils * utils = new Utils();
+    bool noMuonJet = true;
+    for(unsigned j = 0; j < Jets->size(); ++j){
+      if(Jets->at(j).Pt() > 200 && Jets_muonEnergyFraction->at(j) > 0.5 && utils->deltaPhi(Jets->at(j).Phi(),METPhi) > (TMath::Pi() - 0.4)){
+	noMuonJet = false;
+	break;
+      }
+    }
+    return (int)noMuonJet;
+  }
+//int Events::noFakeJet_() const {
+//    bool noFakeJet = true;
+//    //reject events with any jet pt>30, |eta|<2.5 NOT matched to a GenJet (w/in DeltaR<0.3) and chfrac < 0.1
+//    for(unsigned j = 0; j < Jets->size(); ++j){
+//      if(Jets->at(j).Pt() <= 30 || fabs(Jets->at(j).Eta())>=2.5) continue;
+//      bool genMatched = false;
+//      for(unsigned g = 0; g < GenJets->size(); ++g){
+//	if(GenJets->at(g).DeltaR(Jets->at(j)) < 0.3) {
+//	  genMatched = true;
+//	  break;
+//	}
+//      }
+//      if(!genMatched && Jets_chargedHadronEnergyFraction->at(j) < 0.1){
+//	noFakeJet = false;
+//	break;
+//      }
+//    }
+//    return (int)noFakeJet;
+//  }
+
 
 //std::vector<double> Events::Pt_GenMu() const { 
 //    std::vector<double> tempV;

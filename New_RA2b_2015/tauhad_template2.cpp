@@ -77,6 +77,7 @@ using namespace std;
     char tempname[200];
     char tempname2[200];
     char tempname3[200];
+    char tempname4[200];
     char histname[200];
     vector<TH1D > vec, vec_search;
     map<int, string> eventType;
@@ -830,6 +831,33 @@ using namespace std;
       if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
       if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
       if( !fastsim && evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
+
+      //added on July 12, 2016
+      /*
+      if( !fastsim && (evt->BadChargedCandidateFilter_()==0 || evt->BadPFMuonFilter_()==0 
+		       || evt->PFCaloMETRatioFilter_()==0 
+		       || evt->globalTightHalo2016Filter_()==0 || evt->noMuonJet_()==0) ) {
+	if(evt->MuPtVec_().size() >= 1 && evt->met() > 100.0) {
+	  std::cout << "run:lumi:event " << evt->Runnum() 
+		    << ":"<<evt->LumiBlocknum()<<":"<<evt->Evtnum()
+		    << " pfmet " << evt->met() << " muPt,eta,phi " << evt->MuPtVec_().at(0) 
+		    << " " << evt->MuEtaVec_().at(0) << " " << evt->MuPhiVec_().at(0) 
+		    << " BadChargedCandidateFilter " << evt->BadChargedCandidateFilter_()
+		    << " BadPFMuonFilter " << evt->BadPFMuonFilter_()
+		  << " PFCaloMETRatioFilter " << evt->PFCaloMETRatioFilter_()
+		    << " globalTightHalo2016Filter " << evt->globalTightHalo2016Filter_()
+		    << " noMuonJet " << evt->noMuonJet_()
+		  << std::endl;
+	}
+      }
+      */
+      if( evt->DataBool_() && evt->BadChargedCandidateFilter_()==0) continue;
+      if( evt->DataBool_() && evt->BadPFMuonFilter_()==0) continue;
+      if( evt->DataBool_() && evt->globalTightHalo2016Filter_()==0) continue;
+      if( evt->PFCaloMETRatioFilter_()==0) continue;
+      if( evt->noMuonJet_()==0) continue;
+      //if( fastsim && evt->noFakeJet_()==0) continue;
+
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight); 
@@ -863,6 +891,7 @@ using namespace std;
           sprintf(tempname, "HLT_Mu15_IsoVVVL_PFHT400_v");
           sprintf(tempname2,"HLT_Mu15_IsoVVVL_PFHT350_v");
           sprintf(tempname3,"HLT_IsoMu22_v");
+          sprintf(tempname4,"HLT_Mu50_v");
 	  /*
 	  if (lowHTSelection){
 	    sprintf(tempname,"HLT_IsoMu22_v");
@@ -871,7 +900,8 @@ using namespace std;
 	  */
           if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
 	      evt->TriggerNames_().at(i).find(tempname2) != string::npos ||
-	      evt->TriggerNames_().at(i).find(tempname3) != string::npos){
+	      evt->TriggerNames_().at(i).find(tempname3) != string::npos ||
+	      evt->TriggerNames_().at(i).find(tempname4) != string::npos){
 
             trigfound=true;
             if(evt->PassTrigger_().at(i)==1)trigPass=true;
@@ -881,8 +911,9 @@ using namespace std;
 		evt->TriggerNames_().at(i).find(tempname2) != string::npos){
 	      if(evt->PassTrigger_().at(i)==1)trigPassHighHT=true;
 	    }
-	    // HighHT selection
-	    if( evt->TriggerNames_().at(i).find(tempname3) != string::npos){
+	    // LowHT selection
+	    if( evt->TriggerNames_().at(i).find(tempname3) != string::npos ||
+		evt->TriggerNames_().at(i).find(tempname4) != string::npos){
 	      if(evt->PassTrigger_().at(i)==1)trigPassLowHT=true;
 	    }
 
@@ -1442,7 +1473,9 @@ using namespace std;
 
 		  if (muPt<LeptonAcceptance::muonPtMinLowHT()) trigEffCorr=0.;
 		  else {
-		    if (trigPassLowHT) trigEffCorr=1./0.824;
+		    //if (trigPassLowHT) trigEffCorr=1./0.824;
+		    // updated on July 12, 2016, Eff provided by Manuel
+		    if (trigPassLowHT) {trigEffCorr=1./0.813; if(muPt>50.0) trigEffCorr=1./0.880;}
 		    else               trigEffCorr=0.;
 		  }
 
@@ -1472,11 +1505,15 @@ using namespace std;
 //		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 //
 // from V7 MC after csv moved to 0.80
+		//double NjNbCorrArray[16]=
+		//{1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
+		//NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+		// from V9 MC
+
+
 		double NjNbCorrArray[16]=
-		{1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
-		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-
-
+		  {1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02093,0.996454,1.01738,0.990167,1.04041,0.833852,0.818807,0.96625,0.95135};
+		   NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
 
 //		double QCD_UpNjNbCorrArray[16]={
@@ -1495,7 +1532,8 @@ using namespace std;
 //		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
 		double QCD_UpNjNbCorrArray[16]=
-		  {1.07954,1.05912,1.11673,1.13352,1.02719,1.00215,1.00608,0.932549,0.986,0.983652,0.977785,0.979731,0.891571,0.879714,0.96842,0.992207};
+		  {1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.02861,0.998668,0.977091,0.989521,0.966759,1.01327,0.891883,0.843374,0.962022,1.00473};
+
 		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
 
@@ -1514,7 +1552,8 @@ using namespace std;
 //		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
 		double QCD_LowNjNbCorrArray[16]=
-		  {0.969584,0.960883,1.02801,0.958625,0.938399,0.939326,0.944426,0.913042,0.937141,0.91543,0.945902,0.915756,0.863937,0.856496,0.910216,0.872439};
+		  { 0.953996,0.968867,1.05964,1.03167,0.915907,0.947684,0.950087,0.988761,0.918411,0.903336,0.968701,0.958839,0.914316,0.877071,0.883752,0.891303};
+
 		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
 
