@@ -489,6 +489,8 @@ using namespace std;
       else if(subSampleKey.find("T2tt_170_1_fast")!=string::npos)TotNEve=1931165;
       else if(subSampleKey.find("T2tt_172_1_fast")!=string::npos)TotNEve=1890447;
       else if(subSampleKey.find("T2tt_173_1_fast")!=string::npos)TotNEve=1912169;
+      //std::cout << "SampleXS" << SampleXS << std::endl;
+      SampleXS = 1.; // Let's use the weight (XS) stored in ntuples
       fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
