@@ -46,6 +46,12 @@ using namespace std;
    Int_t           eeBadScFilter;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
 
+   // added on July 12, 2016
+   Double_t        PFCaloMETRatio;
+   Bool_t          BadChargedCandidateFilter;
+   Bool_t          BadPFMuonFilter;
+   Int_t           globalTightHalo2016Filter;
+
    UInt_t          RunNum;
    UInt_t          LumiBlockNum;
    ULong64_t       EvtNum;
@@ -79,6 +85,7 @@ using namespace std;
    vector<TLorentzVector> *GenEls;
    vector<TLorentzVector> *GenTaus;
    vector<TLorentzVector> *GenTauNu;
+   vector<TLorentzVector> *GenJets;
 
    vector<TLorentzVector> *GenParticles;
    vector<int>     *GenParticles_PdgId;
@@ -311,6 +318,13 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    int HBHEIsoNoiseFilter_() const;
    int EcalDeadCellTriggerPrimitiveFilter_() const;
    int NVtx_() const;
+   // added on July 12, 2016
+   int PFCaloMETRatioFilter_() const;
+   int BadChargedCandidateFilter_() const;
+   int BadPFMuonFilter_() const;
+   int globalTightHalo2016Filter_() const;
+   int noMuonJet_() const;
+   //int noFakeJet_() const;
 
 };//end of class Events
 #endif
