@@ -72,7 +72,7 @@ using namespace std;
     char filenames[500];
     vector<string> filesVec;
     ifstream fin(InRootList.c_str());
-    TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
+    TChain *sample_AUX = new TChain("tree");
 
     char tempname[200];
     char tempname2[200];
@@ -406,28 +406,29 @@ using namespace std;
     if(subSampleKey.find("fast")!=string::npos){
       cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
       fastsim=true;
-      signalPileUp = new TFile("TauHad/PileupHistograms_1104.root","R");
+      signalPileUp = new TFile("TauHad/PileupHistograms_0704.root","R");
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
       //sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
+      std::cout << skimInput.size() << std::endl;
+      std::cout << " " << skimInput[0].c_str() << " " << skimInput[1].c_str() << " " << skimInput[2].c_str() << " " << skimInput[3].c_str()  << " " << skimInput[4].c_str() << std::endl;
       if(skimInput.size()!=5){
         cout<<"Something is wrong with the naming of the skim file.\nUse an input like T1bbbb_mMother-1500_mLSP-800_fast \n";
         return 2;
       }
       //
       sprintf(tempname,
-      //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-      "/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+      "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
       skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){
         cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
         sprintf(tempname,
-        "/data3/store/user/borzou/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV5/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+        "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
         skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       }
       skimfile = new TFile(tempname,"R");
@@ -439,7 +440,6 @@ using namespace std;
       isrcorr.SetMother(1000021);
       //
     }
-   
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -459,10 +459,10 @@ using namespace std;
       //
       //
       btagcorr.SetEffs(skimfile);
-      btagcorr.SetCalib("CSVv2_mod.csv");
+      btagcorr.SetCalib("btag/CSVv2_4invfb.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
-      btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
+      btagcorr.SetCalibFastSim("btag/CSV_13TEV_TTJets_11_7_2016.csv");
   
       // determine the weight of fast sim signal
       sprintf(tempname,"SkimSampleXSections.txt");
@@ -489,7 +489,9 @@ using namespace std;
       else if(subSampleKey.find("T2tt_170_1_fast")!=string::npos)TotNEve=1931165;
       else if(subSampleKey.find("T2tt_172_1_fast")!=string::npos)TotNEve=1890447;
       else if(subSampleKey.find("T2tt_173_1_fast")!=string::npos)TotNEve=1912169;
-      fastsimWeight = (3000 * SampleXS)/TotNEve;
+      //std::cout << "SampleXS" << SampleXS << std::endl;
+      SampleXS = 1.; // Let's use the weight (XS) stored in ntuples
+      fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
 
@@ -828,8 +830,8 @@ using namespace std;
       cutflow_preselection->Fill(2.,eventWeight);
       if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
-      if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
+      //if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
+      //if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
       if( !fastsim && evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
 
       //added on July 12, 2016
@@ -856,7 +858,7 @@ using namespace std;
       if( evt->DataBool_() && evt->globalTightHalo2016Filter_()==0) continue;
       if( evt->PFCaloMETRatioFilter_()==0) continue;
       if( evt->noMuonJet_()==0) continue;
-      //if( fastsim && evt->noFakeJet_()==0) continue;
+      if( !evt->DataBool_() && fastsim && evt->noFakeJet_()==0) continue;
 
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
