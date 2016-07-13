@@ -815,25 +815,25 @@ int Events::globalTightHalo2016Filter_() const {return globalTightHalo2016Filter
     }
     return (int)noMuonJet;
   }
-//int Events::noFakeJet_() const {
-//    bool noFakeJet = true;
-//    //reject events with any jet pt>30, |eta|<2.5 NOT matched to a GenJet (w/in DeltaR<0.3) and chfrac < 0.1
-//    for(unsigned j = 0; j < Jets->size(); ++j){
-//      if(Jets->at(j).Pt() <= 30 || fabs(Jets->at(j).Eta())>=2.5) continue;
-//      bool genMatched = false;
-//      for(unsigned g = 0; g < GenJets->size(); ++g){
-//	if(GenJets->at(g).DeltaR(Jets->at(j)) < 0.3) {
-//	  genMatched = true;
-//	  break;
-//	}
-//      }
-//      if(!genMatched && Jets_chargedHadronEnergyFraction->at(j) < 0.1){
-//	noFakeJet = false;
-//	break;
-//      }
-//    }
-//    return (int)noFakeJet;
-//  }
+int Events::noFakeJet_() const {
+    bool noFakeJet = true;
+    //reject events with any jet pt>30, |eta|<2.5 NOT matched to a GenJet (w/in DeltaR<0.3) and chfrac < 0.1
+    for(unsigned j = 0; j < Jets->size(); ++j){
+      if(Jets->at(j).Pt() <= 30 || fabs(Jets->at(j).Eta())>=2.5) continue;
+      bool genMatched = false;
+      for(unsigned g = 0; g < GenJets->size(); ++g){
+	if(GenJets->at(g).DeltaR(Jets->at(j)) < 0.3) {
+	  genMatched = true;
+	  break;
+	}
+      }
+      if(!genMatched && Jets_chargedHadronEnergyFraction->at(j) < 0.1){
+	noFakeJet = false;
+	break;
+      }
+    }
+    return (int)noFakeJet;
+  }
 
 
 //std::vector<double> Events::Pt_GenMu() const { 

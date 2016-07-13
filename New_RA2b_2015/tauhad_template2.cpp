@@ -856,7 +856,7 @@ using namespace std;
       if( evt->DataBool_() && evt->globalTightHalo2016Filter_()==0) continue;
       if( evt->PFCaloMETRatioFilter_()==0) continue;
       if( evt->noMuonJet_()==0) continue;
-      //if( fastsim && evt->noFakeJet_()==0) continue;
+      if( !evt->DataBool_() && fastsim && evt->noFakeJet_()==0) continue;
 
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
