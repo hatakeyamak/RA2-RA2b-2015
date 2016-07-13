@@ -72,7 +72,7 @@ using namespace std;
     char filenames[500];
     vector<string> filesVec;
     ifstream fin(InRootList.c_str());
-    TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
+    TChain *sample_AUX = new TChain("tree");
 
     char tempname[200];
     char tempname2[200];
@@ -413,15 +413,16 @@ using namespace std;
       //sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
+      std::cout << skimInput.size() << std::endl;
+      std::cout << " " << skimInput[0].c_str() << " " << skimInput[1].c_str() << " " << skimInput[2].c_str() << " " << skimInput[3].c_str()  << " " << skimInput[4].c_str() << std::endl;
       if(skimInput.size()!=5){
         cout<<"Something is wrong with the naming of the skim file.\nUse an input like T1bbbb_mMother-1500_mLSP-800_fast \n";
         return 2;
       }
       //
       sprintf(tempname,
-      //"/data3/store/user/hatake/ntuples/SusyRA2Analysis2015/Skims/Run2ProductionV4/scan/tree_SLmLoose/tree_%s_%s_%s_fast.root",
-     "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV9/scan/%s_%s_%s_fast.root",
-      skimInput[0].c_str(),skimInput[1].c_str(),skimInput[2].c_str());
+      "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+      skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){
@@ -433,13 +434,12 @@ using namespace std;
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << tempname << endl;
-      //h_genpt = (TH1*)skimfile->Get("GenPt");
-      //isrcorr.SetWeights(h_isr,h_genpt);
+      h_genpt = (TH1*)skimfile->Get("GenPt");
+      isrcorr.SetWeights(h_isr,h_genpt);
       //PDG ID for gluino
-      //isrcorr.SetMother(1000021);
+      isrcorr.SetMother(1000021);
       //
     }
-   
 
     ///read the file names from the .txt files and load them to a vector.
     while(fin.getline(filenames, 500) ){filesVec.push_back(filenames);}
@@ -489,7 +489,7 @@ using namespace std;
       else if(subSampleKey.find("T2tt_170_1_fast")!=string::npos)TotNEve=1931165;
       else if(subSampleKey.find("T2tt_172_1_fast")!=string::npos)TotNEve=1890447;
       else if(subSampleKey.find("T2tt_173_1_fast")!=string::npos)TotNEve=1912169;
-      fastsimWeight = (3000 * SampleXS)/TotNEve;
+      fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
 
@@ -828,8 +828,8 @@ using namespace std;
       cutflow_preselection->Fill(2.,eventWeight);
       if( !fastsim && evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
-      if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
+      //if(evt->DataBool_() && !fastsim && !filter.CheckEvent(evt->Runnum(),evt->LumiBlocknum(),evt->Evtnum()))continue;
+      //if( !fastsim && evt->CSCTightHaloFilter_()==0)continue;
       if( !fastsim && evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
 
       //added on July 12, 2016
@@ -1716,8 +1716,7 @@ using namespace std;
 		//puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
-                //double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
-		double isrWeight=1.;
+                double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
                 totWeight*=isrWeight;
                 //
                 prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());
