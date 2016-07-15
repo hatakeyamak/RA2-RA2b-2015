@@ -11,6 +11,7 @@
 #include "BTagCorrector.h"
 #include "EventListFilter.h"
 
+#include "TTreeCache.h"
 #include "TTree.h"
 #include <cmath>
 #include <string>
@@ -72,7 +73,7 @@ using namespace std;
     char filenames[500];
     vector<string> filesVec;
     ifstream fin(InRootList.c_str());
-    TChain *sample_AUX = new TChain("tree");
+    TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
 
     char tempname[200];
     char tempname2[200];
@@ -410,7 +411,7 @@ using namespace std;
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
-      //sample_AUX = new TChain("tree");
+      sample_AUX = new TChain("tree");
       
       vector<string> skimInput = utils->skimInput(subSampleKey); 
       std::cout << skimInput.size() << std::endl;
@@ -449,6 +450,8 @@ using namespace std;
       sample_AUX->Add(filesVec.at(in).c_str()); 
       //cout<<" filename "<< filesVec.at(in).c_str()<<std::endl;
     }
+    //sample_AUX->SetCacheSize(20*1024*1024);
+    //TTreeCache::SetLearnEntries(1);
 
     // Interface to the event content
     Events * evt = new Events(sample_AUX, subSampleKey,verbose);
@@ -802,7 +805,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      //if(eventN>5000)break;
+      //if(eventN>10000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
