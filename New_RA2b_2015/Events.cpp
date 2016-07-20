@@ -12,8 +12,8 @@
     StudyTauId=false;
 
     // fastsim
-    fastsim=false;
-
+    fastsim=true;
+    
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -22,7 +22,6 @@
      isoElectronTracks=-1;
      isoMuonTracks=-1;
      isoPionTracks=-1;
-     //     Leptons=-1;
      NJets=-1;
      BTags=-1;
      Weight=1;
@@ -126,6 +125,8 @@
      fChain->SetBranchAddress("isoElectronTracks", &isoElectronTracks);
      fChain->SetBranchAddress("isoMuonTracks", &isoMuonTracks);
      fChain->SetBranchAddress("isoPionTracks", &isoPionTracks);
+     //
+     fChain->SetBranchAddress("NJetsISR", &NJetsISR);
      //     fChain->SetBranchAddress("Leptons", &Leptons);
      fChain->SetBranchAddress("NJets", &NJets);
      fChain->SetBranchAddress("BTags", &BTags);
@@ -275,6 +276,8 @@
   double Events::TrueNumInteractions_() const {return TrueNumInteractions; }
   double Events::XS() const { return CrossSection; }
 
+  int Events::NJetsISR_() const {return NJetsISR; }
+
   // Total number of events
   int Events::TotNEve() const { return template_Entries; }   
 
@@ -296,7 +299,6 @@
   // MET 
   double Events::met() const { return MET; }
   double Events::metphi() const { return METPhi; }
-
 
   // Number of HT jets
   int Events::nJets() const { return NJets; }
@@ -516,6 +518,13 @@
       }
       return vec;
     }
+    vector<double>  Events::GenJetPtVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Pt());
+      }
+      return vec;
+    }
     vector<double>  Events::slimJetEtaVec_() const { 
       vector<double> vec;
       for(int i=0;i < Jets->size();i++){
@@ -527,6 +536,14 @@
       
       return vec;
     }
+    vector<double>  Events::GenJetEtaVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Eta());
+      }
+      return vec;
+    }
+
     vector<double>  Events::slimJetPhiVec_() const { 
       vector<double> vec;
       for(int i=0;i < Jets->size();i++){
@@ -534,6 +551,13 @@
       }
       for(int i=0;i < softJets->size();i++){
 	vec.push_back(softJets->at(i).Phi());
+      }
+      return vec;
+    }
+    vector<double>  Events::GenJetPhiVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Phi());
       }
       return vec;
     }
