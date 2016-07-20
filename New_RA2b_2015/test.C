@@ -1,6 +1,6 @@
 {
 //=========Macro generated from canvas: canvas/canvas
-//=========  (Wed Jul 13 02:17:04 2016) by ROOT version5.34/22
+//=========  (Fri Jul 15 12:33:04 2016) by ROOT version5.34/22
    TCanvas *canvas = new TCanvas("canvas", "canvas",0,0,600,600);
    gStyle->SetOptFit(1);
    gStyle->SetOptStat(0);
@@ -499,7 +499,7 @@
    DelPhi2__4->GetZaxis()->SetTitleSize(0.035);
    DelPhi2__4->GetZaxis()->SetTitleFont(42);
    DelPhi2__4->Draw("sameaxis");
-   TLatex *   tex = new TLatex(0.97,0.92,"     3.0 fb^{-1} (13 TeV)");
+   TLatex *   tex = new TLatex(0.97,0.92,"     7.6 fb^{-1} (13 TeV)");
 tex->SetNDC();
    tex->SetTextAlign(31);
    tex->SetTextFont(42);

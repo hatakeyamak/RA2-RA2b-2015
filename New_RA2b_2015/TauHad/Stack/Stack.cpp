@@ -221,7 +221,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     else if(i==2)sprintf(tempname,"../IsoEfficiencies_t_antitop_.root");
     else if(i==3)sprintf(tempname,"../IsoEfficiencies_tW_top_.root");
     else if(i==4)sprintf(tempname,"../IsoEfficiencies_tW_antitop_.root");
-    //    else if(i==5)sprintf(tempname,"../IsoEfficiencies_s_channel_.root");
+    else if(i==5)sprintf(tempname,"../IsoEfficiencies_s_channel_.root");
     else{cout << " Error!! There are only 4 single top ht binned sample " << endl;}
     T_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
@@ -430,7 +430,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     else if(i==2)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromt_antitop_.root");
     else if(i==3)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_top_.root");
     else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_antitop_.root");
-    // else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFroms_channel_.root");
+    else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFroms_channel_.root");
     else{cout << " Error!! There are only 4 T ht binned sample " << endl;}
     T_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
