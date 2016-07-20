@@ -12,8 +12,8 @@
     StudyTauId=false;
 
     // fastsim
-    fastsim=false;
-
+    fastsim=true;
+    
     //Initialize some varaibles
      RunNum=-1;
      LumiBlockNum=-1;
@@ -22,7 +22,6 @@
      isoElectronTracks=-1;
      isoMuonTracks=-1;
      isoPionTracks=-1;
-     //     Leptons=-1;
      NJets=-1;
      BTags=-1;
      Weight=1;
@@ -516,6 +515,13 @@
       }
       return vec;
     }
+    vector<double>  Events::GenJetPtVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Pt());
+      }
+      return vec;
+    }
     vector<double>  Events::slimJetEtaVec_() const { 
       vector<double> vec;
       for(int i=0;i < Jets->size();i++){
@@ -527,6 +533,14 @@
       
       return vec;
     }
+    vector<double>  Events::GenJetEtaVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Eta());
+      }
+      return vec;
+    }
+
     vector<double>  Events::slimJetPhiVec_() const { 
       vector<double> vec;
       for(int i=0;i < Jets->size();i++){
@@ -534,6 +548,13 @@
       }
       for(int i=0;i < softJets->size();i++){
 	vec.push_back(softJets->at(i).Phi());
+      }
+      return vec;
+    }
+    vector<double>  Events::GenJetPhiVec_() const { 
+      vector<double> vec;
+      for(int i=0;i < GenJets->size();i++){
+	vec.push_back(GenJets->at(i).Phi());
       }
       return vec;
     }

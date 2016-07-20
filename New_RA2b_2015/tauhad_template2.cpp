@@ -805,7 +805,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      //if(eventN>10000)break;
+      if(eventN>10000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
@@ -1146,46 +1146,25 @@ using namespace std;
             Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
 
             // New ht and mht 
-            vector<TVector3> HT3JetVec,MHT3JetVec;
+            vector<TVector3> HT3JetVec,MHT3JetVec,GenHT3JetVec,GenMHT3JetVec;
             HT3JetVec.clear();
             MHT3JetVec.clear();
+	    GenHT3JetVec.clear();
+	    GenMHT3JetVec.clear();
+	    
             TVector3 temp3Vec;
             int slimJetIdx=-1;
+	    int GenJetIdx=-1;
             MuJet_all->Fill(muPt,eventWeight);
             utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
-
-/*
-            printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
-            printf(" pT: %g eta: %g phi: %g delR: %g \n "
-                  ,evt->JetsPtVec_()[slimJetIdx],evt->JetsEtaVec_()[slimJetIdx],evt->JetsPhiVec_()[slimJetIdx]
-                  ,sqrt( pow((muEta - evt->slimJetEtaVec_()[slimJetIdx]),2.) + pow((utils->deltaPhi(muPhi,evt->slimJetPhiVec_()[slimJetIdx])),2.) ));
-            if()
-*/
-//            int jetIdx=-1;
-/*  
-          if(slimJetIdx!=-1 && utils->findMatchedObject(jetIdx,evt->slimJetEtaVec_()[slimJetIdx],evt->slimJetPhiVec_()[slimJetIdx],
-            evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),0.1,verbose) &&
-            evt->Jets_muonMultiplicity_()[jetIdx]==1)
-            {
-              //double muFrac = evt->Jets_muonEnergyFraction_()[jetIdx];
-        double jecCorr = evt->Jets_jecFactor1;2c_()[jetIdx];
-              //double muPtModified = (evt->JetsEVec_()[jetIdx]*muFrac/muE)*muPt;
-        double muPtModified = jecCorr*muPt;
-              //printf(" mu: ==> PtModified: %g Pt: %g muPtModified/muPt: %g \n ",muPtModified,muPt,muPtModified/muPt); 
-              if(muPtModified/muPt < 2.)Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
-            }
-*/
+	    // for fastsim	    
+	    if (!evt->DataBool_() && fastsim && utils2::genHTMHT)
+	    utils->findMatchedObject(GenJetIdx,muEta,muPhi,evt->GenJetPtVec_(),evt->GenJetEtaVec_(), evt->GenJetPhiVec_(),deltaRMax,verbose);
 
 	    if (slimJetIdx==-1){
 	      std::cout << "slimJetIdx: " << slimJetIdx << std::endl;
 	      std::cout << muPt << " " << muEta << " " << muPhi << std::endl;
 	    }
-	    /*
-	    for(int i=0;i<evt->slimJetPtVec_().size();i++){
-                temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
-		temp3Vec.Print();
-            }
-	    */
 
 	    if(slimJetIdx!=-1)
 	      { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
@@ -1225,7 +1204,7 @@ using namespace std;
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
               if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
             }
-            for(int i=0;i<evt->slimJetPtVec_().size();i++){
+	    for(int i=0;i<evt->slimJetPtVec_().size();i++){
               if(i!=slimJetIdx){
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
                 if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<2.4)HT3JetVec.push_back(temp3Vec);
@@ -1241,13 +1220,52 @@ using namespace std;
 		NewTauJetEta = NewTauJet3Vec.Eta();
 		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
-              }
-              
+              }              
             }
+	    // for fastsim	    
+	    if (!evt->DataBool_() && fastsim && utils2::genHTMHT){
+	    if(GenJetIdx==-1){
+	      printf("############# \n mu ==> pT: %g eta: %g phi: %g \n ",muPt,muEta,muPhi);
+	      for(int ij=0; ij< evt->JetsPtVec_().size(); ij++){
+		double dphi = utils->deltaPhi(muPhi,evt->JetsPhiVec_()[ij]);
+		double deta = muEta - evt->JetsEtaVec_()[ij];
+		int mumult = evt->Jets_muonMultiplicity_()[ij];
+		if(ij+1 <= evt->JetsPtVec_().size())
+		  printf(" indx: %d pT: %g eta: %g phi: %g delR: %g muMultiplicity: %d \n "
+                         ,ij,evt->JetsPtVec_()[ij],evt->JetsEtaVec_()[ij],evt->JetsPhiVec_()[ij],sqrt( deta*deta + dphi*dphi ), mumult);
+		
+	      }
+	      MuJet_fail->Fill(muPt,eventWeight);
+	      NewTauJet3Vec=SimTauJet3Vec;
+	      NewTauJetPt = NewTauJet3Vec.Pt();
+	      NewTauJetEta = NewTauJet3Vec.Eta();
+	      if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)GenHT3JetVec.push_back(NewTauJet3Vec);
+	      if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)GenMHT3JetVec.push_back(NewTauJet3Vec);
+            }
+	    for(int i=0;i<evt->GenJetPtVec_().size();i++){
+              if(i!=GenJetIdx){
+		temp3Vec.SetPtEtaPhi(evt->GenJetPtVec_()[i],evt->GenJetEtaVec_()[i],evt->GenJetPhiVec_()[i]);
+		if(evt->GenJetPtVec_()[i]>30. && fabs(evt->GenJetEtaVec_()[i])<2.4)GenHT3JetVec.push_back(temp3Vec);
+		if(evt->GenJetPtVec_()[i]>30. && fabs(evt->GenJetEtaVec_()[i])<5.)GenMHT3JetVec.push_back(temp3Vec);
+	      }
+	      else if(i==GenJetIdx){
+		temp3Vec.SetPtEtaPhi(evt->GenJetPtVec_()[i],evt->GenJetEtaVec_()[i],evt->GenJetPhiVec_()[i]);
+		NewTauJet3Vec=temp3Vec+SimTauJet3Vec;
+		NewTauJetPt = NewTauJet3Vec.Pt();
+		NewTauJetEta = NewTauJet3Vec.Eta();
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)GenHT3JetVec.push_back(NewTauJet3Vec);
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)GenMHT3JetVec.push_back(NewTauJet3Vec);
+	      }
+	    }
+	    }
 
             // Order the HT3JetVec and MHT3JetVec based on their pT
             HT3JetVec = utils->Order_the_Vec(HT3JetVec); 
             MHT3JetVec = utils->Order_the_Vec(MHT3JetVec);
+	    if (!evt->DataBool_() && fastsim && utils2::genHTMHT){
+            GenHT3JetVec = utils->Order_the_Vec(GenHT3JetVec); 
+            GenMHT3JetVec = utils->Order_the_Vec(GenMHT3JetVec);
+	    }
 
             double newHT=0,newMHT=0,newMHTPhi=-1;
             TVector3 newMHT3Vec;
@@ -1259,7 +1277,23 @@ using namespace std;
             }        
             newMHT=newMHT3Vec.Pt();
             newMHTPhi=newMHT3Vec.Phi();
-
+	    // for fastsim	    
+            double newGenHT=0,newGenMHT=0,newGenMHTPhi=-1;
+            TVector3 newGenMHT3Vec;
+	    if (!evt->DataBool_() && fastsim && utils2::genHTMHT){
+	    for(int i=0;i<GenHT3JetVec.size();i++){
+	      newGenHT+=GenHT3JetVec[i].Pt();
+	    }        
+	    for(int i=0;i<GenMHT3JetVec.size();i++){
+	      newGenMHT3Vec-=GenMHT3JetVec[i];
+	    }        
+	    newGenMHT=newGenMHT3Vec.Pt();
+	    newGenMHTPhi=newGenMHT3Vec.Phi();
+	    newHT  = newGenHT;
+	    newMHT = newGenMHT;
+	    //KH newMHTPhi = newGenMHTPhi;
+	    }
+	    
             if(verbose==1)printf("newHT: %g newMHT: %g newMHTPhi: %g \n ",newHT,newMHT,newMHTPhi);
 
 	    //######################################################################
@@ -1385,14 +1419,20 @@ using namespace std;
 	      //#############################################################
               //New #Jet
 
-              int newNJet = HT3JetVec.size(); 
+              int newNJet = HT3JetVec.size();
               if(verbose==1)printf("newNJet: %d \n ",newNJet);
+	      // for fastsim	      
+	      int newGenNJet;
+	      if (!evt->DataBool_() && fastsim && utils2::genHTMHT){
+		int newGenNJet = GenHT3JetVec.size();
+		//KH newNJet = newGenNJet;
+	      }
 
 	      //#############################################################
 
               // If the jet is dropped, Nbtag should stay the same. Since the muon jet is not btagged, dropping it should not change #b. 
               if( (int) HT3JetVec.size() < (int) evt->nJets() )NewNB=evt->nBtags(); 
-
+	      
               // if muon jet is dropped and muon is btagged, #original b shoud reduce by 1
               // if muon jet is dropped but muon is not btagged, #b shoud stay the same as original one(no increase).
               // if muon jet is not dropped but is btagged, #b shoud stay the same as original one(no increase).
@@ -1401,7 +1441,7 @@ using namespace std;
               if( (int) HT3JetVec.size() < (int) evt->nJets() ){
                 if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags()-1;
                 else NewNB=evt->nBtags(); 
-              }
+	      }
               else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
 
               // New dphi1, dphi2, and dphi3
@@ -1441,7 +1481,54 @@ using namespace std;
               if(i2!=-1)newDphi2=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i2].Phi() - newMHTPhi ));
               if(i3!=-1)newDphi3=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i3].Phi() - newMHTPhi ));
               if(i4!=-1)newDphi4=fabs(TVector2::Phi_mpi_pi(HT3JetVec[i4].Phi() - newMHTPhi ));
-             
+
+	      // for fastsim -- GenHT,GenMHT,GenNjets,GenDphi[1-4]
+              // New dphi1, dphi2, and dphi3
+              double newGenDphi1=-99.,newGenDphi2=-99.,newGenDphi3=-99.,newGenDphi4=-99.;
+
+	      // if (!evt->DataBool_() && fastsim && utils2::genHTMHT){
+              // //first order the jets based on their pT
+              // p1=0,p2=0,p3=0,p4=0;
+              // i1=-1,i2=-1,i3=-1,i4=-1;
+              // for(int i=0; i < HT3JetVec.size(); i++ ){
+              //   if(GenHT3JetVec[i].Pt()>p1){
+              //     p1=GenHT3JetVec[i].Pt();
+              //     i1=i;
+              //   }
+              // }
+              // for(int i=0; i < GenHT3JetVec.size(); i++ ){
+              //   if(i==i1)continue;
+              //   if(GenHT3JetVec[i].Pt()>p2){
+              //     p2=GenHT3JetVec[i].Pt();
+              //     i2=i;
+              //   }
+              // }
+              // for(int i=0; i < GenHT3JetVec.size(); i++ ){
+              //   if(i==i1 || i==i2)continue;
+              //   if(GenHT3JetVec[i].Pt()>p3){
+              //     p3=GenHT3JetVec[i].Pt();
+              //     i3=i;
+              //   }
+              // }
+              // for(int i=0; i < GenHT3JetVec.size(); i++ ){
+              //   if(i==i1 || i==i2 || i==i3)continue;
+              //   if(GenHT3JetVec[i].Pt()>p4){
+              //     p4=GenHT3JetVec[i].Pt();
+              //     i4=i;
+              //   }
+              // }
+
+              // if(i1!=-1)newGenDphi1=fabs(TVector2::Phi_mpi_pi(GenHT3JetVec[i1].Phi() - newGenMHTPhi ));
+              // if(i2!=-1)newGenDphi2=fabs(TVector2::Phi_mpi_pi(GenHT3JetVec[i2].Phi() - newGenMHTPhi ));
+              // if(i3!=-1)newGenDphi3=fabs(TVector2::Phi_mpi_pi(GenHT3JetVec[i3].Phi() - newGenMHTPhi ));
+              // if(i4!=-1)newGenDphi4=fabs(TVector2::Phi_mpi_pi(GenHT3JetVec[i4].Phi() - newGenMHTPhi ));
+	      // newDphi1 = newGenDphi1;
+	      // newDphi2 = newGenDphi2;
+	      // newDphi3 = newGenDphi3;
+	      // newDphi4 = newGenDphi4;
+	      // }
+	      // // for fastsim ends
+	      
               double simTauJetPhi_ForPlotting=-99.0;
               double tauJet_mht_dlePhi_forPlotting=-99.0;
               if( NewTauJetPt > 30.&& fabs(NewTauJetEta) < 2.4){
@@ -1495,66 +1582,15 @@ using namespace std;
 		  else                trigEffCorr=0.;
 		}
 
-//		double NjNbCorrArray[16]={
-//		  1.08678, 1.1606, 1.21688, 1.38799,
-//		  0.99422, 1.03512, 1.09677, 1.15551,
-//		  0.960125, 0.99264, 1.04157, 1.22838,
-//		  0.863833, 0.803388, 1.01109, 1.12302};
-//		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-//
-//		double NjNbCorrArray[16]={
-//  1.06726,1.13884,1.19437,1.36361,
-//  0.982114,1.02468,1.08705,1.14535,		  
-//  0.954231,0.986859,1.03692,1.221,
-//  0.858298, 0.794967, 1.00711, 1.11734};
-//		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-//
-// from V7 MC after csv moved to 0.80
-		//double NjNbCorrArray[16]=
-		//{1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
-		//NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 		// from V9 MC
-
-
 		double NjNbCorrArray[16]=
 		  {1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02093,0.996454,1.01738,0.990167,1.04041,0.833852,0.818807,0.96625,0.95135};
-		   NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-
-
-//		double QCD_UpNjNbCorrArray[16]={
-//		  1.06067,1.15766,1.21137,1.38428,
-//		  0.988007,1.02257,1.05086,1.17749,
-//		  0.937987,0.97341,0.99937,1.16912,
-//		  0.842024,0.854788,0.97895,1.12172};
-//		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-//
-
-//		double QCD_UpNjNbCorrArray[16]={
-//  1.04212,1.13864,1.19202,1.36303,
-//  0.980526,1.0161,1.04462,1.17064,
-//  0.93641,0.972226,0.998193,1.16753,
-//  0.843044,0.856616,0.981188,1.12397};
-//		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-
+		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
+		
 		double QCD_UpNjNbCorrArray[16]=
 		  {1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.02861,0.998668,0.977091,0.989521,0.966759,1.01327,0.891883,0.843374,0.962022,1.00473};
-
 		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
-
-//		double QCD_LowNjNbCorrArray[16]={
-//		  0.864283,1.04062,1.10166,1.31812,
-//		  0.843319,0.915936,0.940394,1.13485,
-//		  0.850232,0.866817,0.924276,1.04468,
-//		  0.788246,0.804593,0.883932,0.949569};		  
-//		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
-//
-//		double QCD_LowNjNbCorrArray[16]={
-//		  0.915218,1.10424,1.17326,1.4113,
-//		  0.886127,0.961631,0.987567,1.19345,
-//		  0.885528,0.903907,0.965426,1.09268,
-//		  0.816972,0.834622,0.917226,0.984751};		  
-//		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 
 		double QCD_LowNjNbCorrArray[16]=
 		  { 0.953996,0.968867,1.05964,1.03167,0.915907,0.947684,0.950087,0.988761,0.918411,0.903336,0.968701,0.958839,0.914316,0.877071,0.883752,0.891303};
@@ -1563,13 +1599,6 @@ using namespace std;
 		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
 
 	      } // isData ends
-
-	      /*
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
-		printf("newNJet:%d NewNB:%d newHT:%7.2f newMHT:%7.2f muonPt:%7.2f: trigEffCorr,NjNbCorr,MuonPtMinCorr: %7.3f %7.3f %7.3f\n",
-		       newNJet,NewNB,newHT,newMHT,muPt,trigEffCorr,NjNbCorr,MuonPtMinCorr);
-	      }
-	      */
 
               // get the effieciencies and acceptance
               // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
@@ -1581,12 +1610,19 @@ using namespace std;
               Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Iso_error_Arne = hMuIsoPTActivity_Arne->GetBinError(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
-              if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
-                // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
-                Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]); 
-              }else{
-                Eff=0.75;
-              }
+	      //KHKH
+              // if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
+              //   // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
+              //   Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]); 
+              // }else{
+              //   Eff=0.75;
+              // }
+	      // //KHKH
+              // if(sel->ht_500(newGenHT) && sel->mht_200(newGenMHT) && sel->Njet_4(newGenNJet)){
+              //   Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newGenNJet,newGenHT,newGenMHT)]); 
+              // }else{
+              //   Eff=0.75;
+              // }
 
               // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
               double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
@@ -1596,22 +1632,8 @@ using namespace std;
               if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
                 Acc = hAcc->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
                 AccError = hAcc->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                /*
-                if((int)NewNB==0){
-                  Acc = hAcc_0b->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                  AccError = hAcc_0b->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);                  
-                }
-                else if ((int)NewNB>0){
-                  Acc = hAcc_non0b->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                  AccError = hAcc_non0b->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                }
-                else cout << " something is wrong ! \n "; 
-                */
                 Acc_lowDphi = hAcc_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]); 
                 Acc_lowDphiError = hAcc_lowDphi->GetBinError(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                // use original ht mht njet to get acc. Becaue mht is different in 1mu event than hadronic event 
-                // Or use recomputed ht mht ... when making Acc. 
-                //Acc = hAcc->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht())]);
               }else{
                 Acc=0.9;
                 Acc_lowDphi=0.9;
@@ -1659,16 +1681,6 @@ using namespace std;
                 IdSFDw=1.-tempval;
                 //printf(" muPt: %g muEta: %g IsoSFUp: %g IsoSFDw: %g IdSFUp: %g IdSFDw: %g \n",muPt,muEta,IsoSFUp,IsoSFDw,IdSFUp,IdSFDw);
                 
-/*
-                AccSysPlus = Acc + hAccSysMax->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                AccSysMinus = Acc - hAccSysMin->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                AccSysPlus_lowDphi = Acc_lowDphi + hAccSysMax_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                AccSysMinus_lowDphi = Acc_lowDphi - hAccSysMin_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                ScaleAccSysPlus = Acc + hScaleAccSysMax->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                ScaleAccSysMinus = Acc - hScaleAccSysMin->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                ScaleAccSysPlus_lowDphi = Acc_lowDphi + hScaleAccSysMax_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-                ScaleAccSysMinus_lowDphi = Acc_lowDphi - hScaleAccSysMin_lowDphi->GetBinContent(binMap_ForAcc[utils2::findBin_ForAcc(newNJet,newHT,newMHT)]);
-*/
               }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
               Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
@@ -1679,6 +1691,7 @@ using namespace std;
               Prob_Tau_muError = hProb_Tau_mu->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
               double Prob_Tau_mu_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinContent(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
               Prob_Tau_muError_lowDelphi = hProb_Tau_mu_lowDelphi->GetBinError(binMap_ForIso[utils2::findBin_ForIso(newNJet,newHT,newMHT)]);
+	      	      	      
               Prob_Tau_muPlus=Prob_Tau_mu+Prob_Tau_muError;
               Prob_Tau_muMinus=Prob_Tau_mu-Prob_Tau_muError;
               Prob_Tau_muPlus_lowDelphi=Prob_Tau_mu_lowDelphi+Prob_Tau_muError_lowDelphi;
