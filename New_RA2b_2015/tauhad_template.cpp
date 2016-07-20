@@ -514,7 +514,7 @@ using namespace std;
       }
 
       //if(eventN>100000)break;
-      //if(eventN>5000)break;
+      //if(eventN>10000)break;
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
@@ -545,8 +545,16 @@ using namespace std;
       cutflow_preselection->Fill(2.,eventWeight);
       if(evt->eeBadScFilter_()==0)continue;
       cutflow_preselection->Fill(3.,eventWeight);
-      if(evt->CSCTightHaloFilter_()==0)continue;
+      //if(evt->CSCTightHaloFilter_()==0)continue;
       if(evt->EcalDeadCellTriggerPrimitiveFilter_()==0)continue;
+      
+      if( evt->DataBool_() && evt->BadChargedCandidateFilter_()==0) continue;
+      if( evt->DataBool_() && evt->BadPFMuonFilter_()==0) continue;
+      if( evt->DataBool_() && evt->globalTightHalo2016Filter_()==0) continue;
+      if( evt->PFCaloMETRatioFilter_()==0) continue;
+      if( evt->noMuonJet_()==0) continue;
+      //if( !evt->DataBool_() && fastsim && evt->noFakeJet_()==0) continue;
+     
       cutflow_preselection->Fill(4.,eventWeight);
       if(!(evt->NVtx_() >0))continue;
       cutflow_preselection->Fill(5.,eventWeight);

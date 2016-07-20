@@ -91,7 +91,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
   //double lumi     = 2.26198; // normaliza to this lumi (fb-1)
-  double lumi     = 3.0;
+  double lumi     = 7.6;
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //std::cout<<" test_2 "<<endl;
   
   //  bool AdhocQCD_NjetNbjet=true;
-  bool AdhocQCD_NjetNbjet=false; 
+  bool AdhocQCD_NjetNbjet=true; 
  //if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
   if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
     //    std::cout<<"----------------------------------------- "<<std::endl;
@@ -383,7 +383,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
 
   }
 
-  bool Adhoc_NjetNbjet=false;
+  bool Adhoc_NjetNbjet=true;
   if(Adhoc_NjetNbjet && histname.find("searchH_b")!=string::npos){
     //int Nbins=GenHist->GetNbinX();
     std::cout<<"Nbins "<< 160 <<std::endl;  
@@ -693,7 +693,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
     ttext_nb->SetTextSize(0.040);
     ttext_nb->SetTextAlign(22);
     
-    ttext_nb->DrawLatex( 6.-0.5 , ymax_top/12. , "N_{#scale[0.2]{ }b-jet}");
+    ttext_nb->DrawLatex( 8.-0.5 , ymax_top/12. , "N_{#scale[0.2]{ }b-jet}");
     
     ttext_nb->DrawLatex( 6.-0.5 , ymax_top/40. , "0");
     ttext_nb->DrawLatex(16.-0.5 , ymax_top/40. , "1");
