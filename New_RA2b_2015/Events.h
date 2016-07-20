@@ -39,6 +39,7 @@ using namespace std;
    //UChar_t         GoodVtx;
    Int_t           NumInteractions;
    Double_t        TrueNumInteractions;
+   Int_t           NJetsISR;
    //   UChar_t         GoodVtx;
    Int_t          HBHENoiseFilter;
    Int_t          HBHEIsoNoiseFilter;
@@ -109,8 +110,6 @@ using namespace std;
    vector<int>     *Jets_neutralHadronMultiplicity;
    vector<double>  *Jets_photonEnergyFraction;
    vector<int>     *Jets_photonMultiplicity;
-
-   
    
    vector<TLorentzVector> *softJetsJECdown;
    vector<TLorentzVector> *softJetsJECup;
@@ -170,6 +169,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
   int NumInteractions_() const;
   double TrueNumInteractions_() const;
   double XS() const ;
+  int NJetsISR_() const;
+
   bool loadNext();
   int TotNEve() const;
   int Runnum() const;

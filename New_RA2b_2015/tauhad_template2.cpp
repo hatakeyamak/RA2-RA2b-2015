@@ -401,7 +401,7 @@ using namespace std;
 
     bool fastsim=false;
     TFile * signalPileUp, *IsrFile,*skimfile;
-    TH1* puhist,*h_isr, * h_genpt; 
+    TH1* puhist, *h_isr, *h_genpt, *h_njetsisr; 
     ISRCorrector isrcorr;
     BTagCorrector btagcorr;
     if(subSampleKey.find("fast")!=string::npos){
@@ -409,10 +409,11 @@ using namespace std;
       fastsim=true;
       signalPileUp = new TFile("TauHad/PileupHistograms_0704.root","R");
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
+
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
-      sample_AUX = new TChain("tree");
-      
+
+      sample_AUX = new TChain("tree");      
       vector<string> skimInput = utils->skimInput(subSampleKey); 
       std::cout << skimInput.size() << std::endl;
       std::cout << " " << skimInput[0].c_str() << " " << skimInput[1].c_str() << " " << skimInput[2].c_str() << " " << skimInput[3].c_str()  << " " << skimInput[4].c_str() << std::endl;
@@ -435,10 +436,8 @@ using namespace std;
       skimfile = new TFile(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << tempname << endl;
-      h_genpt = (TH1*)skimfile->Get("GenPt");
-      isrcorr.SetWeights(h_isr,h_genpt);
-      //PDG ID for gluino
-      isrcorr.SetMother(1000021);
+      h_njetsisr = (TH1*)skimfile->Get("NJetsISR");
+      isrcorr.SetWeights(h_isr,h_njetsisr);
       //
     }
 
@@ -458,15 +457,14 @@ using namespace std;
     
     double fastsimWeight =1.0;
     if(subSampleKey.find("fast")!=string::npos){
-      //if(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
-      //
+      //f(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
       //
       btagcorr.SetEffs(skimfile);
       btagcorr.SetCalib("btag/CSVv2_4invfb.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
-      btagcorr.SetCalibFastSim("btag/CSV_13TEV_TTJets_11_7_2016.csv");
-  
+      btagcorr.SetCalibFastSim("btag/CSV_13TEV_Combined_14_7_2016.csv");
+
       // determine the weight of fast sim signal
       sprintf(tempname,"SkimSampleXSections.txt");
       if(subSampleKey.find("T2tt")!=string::npos)sprintf(tempname,"SkimSampleXSections_t2tt.txt");
@@ -1734,7 +1732,8 @@ using namespace std;
 		//puhist->GetBinContent(puhist->GetXaxis()->FindBin(min(evt->NVtx_(),(int)puhist->GetBinLowEdge(puhist->GetNbinsX()+1))));
                 totWeight*= puWeight ;
                 //
-                double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
+                //double isrWeight = isrcorr.GetCorrection(evt->genParticles_(),evt->genParticles_PDGid_());
+		double isrWeight = isrcorr.GetCorrection(evt->NJetsISR_());
                 totWeight*=isrWeight;
                 //
                 prob = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->HTJetsMask_());

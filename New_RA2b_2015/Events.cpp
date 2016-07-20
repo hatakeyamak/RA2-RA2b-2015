@@ -125,6 +125,8 @@
      fChain->SetBranchAddress("isoElectronTracks", &isoElectronTracks);
      fChain->SetBranchAddress("isoMuonTracks", &isoMuonTracks);
      fChain->SetBranchAddress("isoPionTracks", &isoPionTracks);
+     //
+     fChain->SetBranchAddress("NJetsISR", &NJetsISR);
      //     fChain->SetBranchAddress("Leptons", &Leptons);
      fChain->SetBranchAddress("NJets", &NJets);
      fChain->SetBranchAddress("BTags", &BTags);
@@ -274,6 +276,8 @@
   double Events::TrueNumInteractions_() const {return TrueNumInteractions; }
   double Events::XS() const { return CrossSection; }
 
+  int Events::NJetsISR_() const {return NJetsISR; }
+
   // Total number of events
   int Events::TotNEve() const { return template_Entries; }   
 
@@ -295,7 +299,6 @@
   // MET 
   double Events::met() const { return MET; }
   double Events::metphi() const { return METPhi; }
-
 
   // Number of HT jets
   int Events::nJets() const { return NJets; }
