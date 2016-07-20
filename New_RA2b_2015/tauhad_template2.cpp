@@ -1463,6 +1463,16 @@ using namespace std;
 	      // 
 	      // newNJet,newHT,newMHT,newNB fully ready
 	      // 
+	     
+	      bool ApplyMETEff=false;
+	      if( isData || fastsim ) ApplyMETEff=true;
+	      int METstatUnc=0;
+	      int METsystUnc=0;
+	     
+	      double METtrigEffCorr=utils2::GetTriggerEffCorr(ApplyMETEff, newMHT, METstatUnc,METsystUnc);
+
+
+
 	      double trigEffCorr=1.;
 	      double NjNbCorr=1.;
 	      double MuonPtMinCorr=1.;
@@ -1710,8 +1720,9 @@ using namespace std;
               }
 
 	      // trigger efficiency. also lowHT vs highHT selection
-	      totWeight *= trigEffCorr*NjNbCorr*MuonPtMinCorr;
-	      
+	      //totWeight *= trigEffCorr*NjNbCorr*MuonPtMinCorr;
+	      totWeight *= METtrigEffCorr*trigEffCorr*NjNbCorr*MuonPtMinCorr;	      
+
               // if fastsim
               vector<double> prob;
               if(fastsim){
