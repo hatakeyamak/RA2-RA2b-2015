@@ -14,7 +14,6 @@ namespace utils2{
   //    and talked about above as weight.
   int IsoTrkModel=0;
 
-
   // Determine which model to work with
   // 0: The most simple model
   // 1: 0 but muon's mother ( W or tau ) is determined using hists not generator info.
@@ -38,7 +37,9 @@ namespace utils2{
   bool applyTrig = false;
 
   bool applyIsoTrk =true; // default true
-//###############################################################################################################
+
+  bool genHTMHT=false; // default false
+  //###############################################################################################################
 
   // get the total # of events for normalization purposes
   int TotNEve(string subSampleKey){

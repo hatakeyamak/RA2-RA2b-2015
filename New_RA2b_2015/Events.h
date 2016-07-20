@@ -28,13 +28,13 @@ using namespace std;
    
    // See if working with Data or MC
    bool DataBool;
-
+   
    // Study Tau ID
    bool StudyTauId;
 
    //fastsim
    bool fastsim;
-
+   
    // Declaration of leaf types
    //UChar_t         GoodVtx;
    Int_t           NumInteractions;
@@ -245,6 +245,11 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetPtVec_() const;
    vector<double>  slimJetEtaVec_() const;
    vector<double>  slimJetPhiVec_() const;
+
+   vector<double>  GenJetPtVec_() const;
+   vector<double>  GenJetEtaVec_() const;
+   vector<double>  GenJetPhiVec_() const;
+
    vector<int>    * Jets_partonFlavor_() const;
    vector<bool>   * HTJetsMask_() const;
 
