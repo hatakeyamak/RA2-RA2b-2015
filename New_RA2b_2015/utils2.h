@@ -38,7 +38,7 @@ namespace utils2{
 
   bool applyIsoTrk =true; // default true
 
-  bool genHTMHT=false; // default false
+  bool genHTMHT=true; // default false
   //###############################################################################################################
 
   // get the total # of events for normalization purposes

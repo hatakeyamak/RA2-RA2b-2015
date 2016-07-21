@@ -644,7 +644,8 @@ using namespace std;
     TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
     //TFile * MuIsoEff_Arne = new TFile("TauHad/New_Efficiencies_Arne.root","R");
-    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon.root","R");
+    //TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon.root","R");
+    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon_v9.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoActivityPT/MuRecoActivityPT");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoActivityPT/MuIsoActivityPT");
 
@@ -676,7 +677,8 @@ using namespace std;
     //TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
     //std::cout<<" MTFile is read "<<std::endl;
     //    TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
-    TFile * MtFile = new TFile("TauHad2/Elog433_modified_MtEff.root","R");
+
+    TFile * MtFile = new TFile("TauHad2/ARElog52_modified_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
     TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
@@ -803,7 +805,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      //if(eventN>10000)break;
+      //if(eventN>5000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
@@ -1550,7 +1552,7 @@ using namespace std;
 	      // 
 	     
 	      bool ApplyMETEff=false;
-	      if( isData || fastsim ) ApplyMETEff=true;
+	      if(( isData || fastsim ) && !utils2::genHTMHT) ApplyMETEff=true;
 	      int METstatUnc=0;
 	      int METsystUnc=0;
 	     
