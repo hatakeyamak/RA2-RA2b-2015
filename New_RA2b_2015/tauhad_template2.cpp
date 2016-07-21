@@ -460,7 +460,7 @@ using namespace std;
       //f(filesVec.size()!=1){cout << " 1 skim file only \n"; return 2;}
       //
       btagcorr.SetEffs(skimfile);
-      btagcorr.SetCalib("btag/CSVv2_4invfb.csv");
+      btagcorr.SetCalib("btag/CSVv2_ichep.csv");
       btagcorr.SetFastSim(true);
       //btagcorr.SetDebug(true);
       btagcorr.SetCalibFastSim("btag/CSV_13TEV_Combined_14_7_2016.csv");
