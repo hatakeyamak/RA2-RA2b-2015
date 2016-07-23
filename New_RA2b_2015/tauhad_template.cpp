@@ -514,7 +514,7 @@ using namespace std;
       }
 
       //if(eventN>100000)break;
-      //if(eventN>10000)break;
+      //if(eventN>5000)break;
 
       eventWeight = evt->weight();
       //eventWeight = evt->weight()/evt->puweight();
