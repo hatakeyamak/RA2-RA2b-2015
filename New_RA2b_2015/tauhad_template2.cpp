@@ -407,7 +407,7 @@ using namespace std;
     if(subSampleKey.find("fast")!=string::npos){
       cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
       fastsim=true;
-      signalPileUp = new TFile("TauHad/PileupHistograms_0704.root","R");
+      signalPileUp = new TFile("TauHad/PileupHistograms_0721_63mb_pm5.root","R");
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
 
       IsrFile = new TFile("TauHad/ISRWeights.root","R");
@@ -531,57 +531,24 @@ using namespace std;
     TH1 * hAccSysMax, * hAccSysMax_lowDphi, * hScaleAccSysMax, * hScaleAccSysMax_lowDphi;
     TH1 * hAccSysMin, * hAccSysMin_lowDphi, * hScaleAccSysMin, * hScaleAccSysMin_lowDphi;
 
-    TFile * MuonIdFile, * MuonIsoFile;
-    TH2F * hMuIdSF, * hMuIsoSF;
     eventType[0]="allEvents";
     if(StudyErrorPropag){
-      MuonIdFile = TFile::Open("TauHad/MuonIDScaleFactor.root","READ");
-      MuonIsoFile = TFile::Open("TauHad/MuonIsoScaleFactor.root","READ");
-      hMuIdSF = (TH2F*) MuonIdFile->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_tag_combRelIsoPF04dBeta_bin0_&_tag_pt_bin0_&_tag_IsoMu20_pass")->Clone();
-      hMuIsoSF = (TH2F*) MuonIsoFile->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_tag_combRelIsoPF04dBeta_bin0_&_tag_pt_bin0_&_PF_pass_&_tag_IsoMu20_pass")->Clone();
-
-/*      
-      AccSysfile = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromPDF_AllSamples.root","READ");
-      AccSysfile2 = TFile::Open("TauHad/Elog408_AcceptanceSystematicsFromScale_AllSamples.root","READ");
-      hAccSysMax = (TH1*) AccSysfile->Get("hAccSysMax")->Clone();
-      hAccSysMax_lowDphi = (TH1*) AccSysfile->Get("hAccSysMax_lowDphi")->Clone();
-      hScaleAccSysMax = (TH1*) AccSysfile2->Get("hScaleAccSysMax")->Clone();
-      hScaleAccSysMax_lowDphi = (TH1*) AccSysfile2->Get("hScaleAccSysMax_lowDphi")->Clone();
-      hAccSysMin = (TH1*) AccSysfile->Get("hAccSysMin")->Clone();
-      hAccSysMin_lowDphi = (TH1*) AccSysfile->Get("hAccSysMin_lowDphi")->Clone();
-      hScaleAccSysMin = (TH1*) AccSysfile2->Get("hScaleAccSysMin")->Clone();
-      hScaleAccSysMin_lowDphi = (TH1*) AccSysfile2->Get("hScaleAccSysMin_lowDphi")->Clone();
-*/
+      
       //////////////////////////
-      eventType[1]="RecoSysPlus";
-      eventType[2]="RecoSysMinus";
-      eventType[3]="IsoSysPlus";
-      eventType[4]="IsoSysMinus";
+      eventType[1]="RecoSysPlus";   // Muon Reco/ID SF uncertainty
+      eventType[2]="RecoSysMinus";  //
+      eventType[3]="IsoSysPlus";    // Muon Iso SF uncertainty
+      eventType[4]="IsoSysMinus";   // 
 /*
-      eventType[1]="BMistagPlus";
-      eventType[2]="BMistagMinus";
-      eventType[7]="MuRecoIsoPlus";
-      eventType[8]="MuRecoIsoMinus";
-      eventType[9]="AccSysPlus";
-      eventType[10]="AccSysMinus";
-      eventType[11]="ScaleAccSysPlus";
-      eventType[12]="ScaleAccSysMinus";
+      eventType[1]="BMistagPlus";   // Bmistag efficiency
+      eventType[2]="BMistagMinus";  //
+      eventType[7]="MuRecoIsoPlus"; // Muon MC-derived efficiency stat uncertainty
+      eventType[8]="MuRecoIsoMinus";//
+      eventType[9]="AccSysPlus";    // Acc uncertainty due to PDF
+      eventType[10]="AccSysMinus";  //
+      eventType[11]="ScaleAccSysPlus";  // Acc uncertanty due to scale
+      eventType[12]="ScaleAccSysMinus"; //
 */
-      //
-      //eventType[5]="IsoPlus";
-      //eventType[6]="IsoMinus";
-      //eventType[7]="MTPlus";
-      //eventType[8]="MTMinus";
-      //eventType[9]="MuFromTauPlus";
-      //eventType[10]="MuFromTauMinus";
-      //eventType[13]="BMistag_statPlus";
-      //eventType[14]="BMistag_statMinus";  
-      //eventType[15]="Tau_BrRatio_Plus";
-      //eventType[16]="Tau_BrRatio_Minus";
-      //eventType[17]="DileptonPlus";
-      //eventType[18]="DileptonMinus";
-      //eventType[19]="AccPlus";
-      //eventType[20]="AccMinus";
 
     }
 
@@ -611,9 +578,6 @@ using namespace std;
     // Open some files and get the histograms ........................................//
 
     // Rate of bTagged tau jet
-    //TFile * bRateFile = new TFile("TauHad/Stack/TauBtaggedRate_WJet_stacked_Elog282.root","R");
-    //    std::cout<<" bRateFile is read "<<std::endl;
-    //    TFile * bRateFile = new TFile("TauHad/Stack/Elog433_TauBtaggedRate_WJet_stacked.root","R");
     TFile * bRateFile = new TFile("TauHad/Stack/ARElog52_TauBtaggedRate_WJet_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
@@ -621,8 +585,6 @@ using namespace std;
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    //TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog401_Probability_Tau_mu_stacked.root","R");
-    //    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/Elog433_Probability_Tau_mu_stacked.root","R");
     TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/ARElog52_modifiedProbability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
@@ -630,30 +592,31 @@ using namespace std;
     TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-    //std::cout<<" acceptance file is read "<<std::endl;
-    TFile * MuEffAcc_file = new TFile("LostLepton/LostLepton2_MuonEfficienciesFromTTbar_Elog212.root","R");
-
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog401_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    //TFile * MuAcc_file = new TFile("TauHad/Stack/Elog427_LostLepton2_MuonEfficienciesFromstacked.root","R");
-    //    TFile * MuAcc_file = new TFile("TauHad/Stack/Elog433_LostLepton2_MuonEfficienciesFromstacked.root","R");
     TFile * MuAcc_file = new TFile("TauHad/Stack/ARElog52_modifiedLostLepton2_MuonEfficienciesFromstacked.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     //    TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
     //    TH1D * hAcc_non0b =(TH1D *) MuAcc_file->Get("hAcc_non0b_")->Clone();
     TH1D * hAcc_lowDphi =(TH1D *) MuAcc_file->Get("hAcc_lowDphi")->Clone();
-    TH1D * hEff =(TH1D *) MuEffAcc_file->Get("hEff")->Clone();
 
-    //TFile * MuIsoEff_Arne = new TFile("TauHad/New_Efficiencies_Arne.root","R");
-    //TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon.root","R");
+    //
+    // Reco and ISO MC efficiencies
     TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon_v9.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoActivityPT/MuRecoActivityPT");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoActivityPT/MuIsoActivityPT");
 
+    // Data/MC scale factors
+    TFile * MediumID_SF = new TFile("TauHad/TnP_MuonID_NUM_MediumID_DENOM_generalTracks_VAR_map_pt_eta.root","R");
+    TH2F *hMuIDSF = (TH2F*)MediumID_SF->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0");
 
-    // Get IsoTrk efficiencies
-    //TFile * IsoEffFile = new TFile("TauHad/Stack/Elog401_IsoEfficiencies_stacked.root","R");
-    //std::cout<<" IsoEfficiency file is read "<<std::endl;
+    TFile * GenTrack_SF = new TFile("TauHad/general_tracks_and_early_general_tracks_corr_ratio.root","R");
+    TH1F *hMuTrkHighPtSF = (TH1F*)GenTrack_SF->Get("mutrksfptg10");
+    TH1F *hMuTrkLowPtSF = (TH1F*)GenTrack_SF->Get("mutrksfptl10");
+
+    TFile * MediumIso_SF = new TFile("TauHad/TnP_MuonID_NUM_MiniIsoTight_DENOM_MediumID_VAR_map_pt_eta.root","R");
+    TH2F *hMuIsoSF = (TH2F*)MediumIso_SF->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
+
+    // Get IsoTrk (veto) efficiencies
     TFile * IsoEffFile = new TFile("TauHad/Stack/ARElog52_modifiedIsoEfficiencies_stacked.root","R");
     //    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
@@ -704,7 +667,6 @@ using namespace std;
 
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
-    //TFile * resp_file = new TFile("TauHad/Stack/Elog404_WithJECUpDown_HadTau_TauResponseTemplates_stacked.root","R");
     TFile * resp_file = new TFile("TauHad/Stack/Elog433_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
@@ -723,8 +685,6 @@ using namespace std;
     TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
 
     // Use Rishi's tau template 
-    //TFile * resp_file_Rishi = new TFile("TauHad/HadTau_TauResponseTemplates_GenTau_Matching04.root","R");
-    //TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v01.root","R");
     TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v02.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
@@ -1620,25 +1580,36 @@ using namespace std;
               // if baseline cuts on the main variables are passed then calculate the efficiencies otherwise simply take 0.75 as the efficiency.
               double Eff,Eff_Arne,Reco_error_Arne, Iso_error_Arne, Eff_ArnePlus, Eff_ArneMinus;
 
+	      //
               // Here Eff is not a good naming. What this really mean is efficiency and also isolation together
               Eff_Arne=hMuRecoPTActivity_Arne->GetBinContent(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Reco_error_Arne = hMuRecoPTActivity_Arne->GetBinError(hMuRecoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuRecoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Eff_Arne*=hMuIsoPTActivity_Arne->GetBinContent(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
               Iso_error_Arne = hMuIsoPTActivity_Arne->GetBinError(hMuIsoPTActivity_Arne->GetXaxis()->FindBin(activity),hMuIsoPTActivity_Arne->GetYaxis()->FindBin(muPt));
 
-	      //KHKH
-              // if(sel->ht_500(newHT) && sel->mht_200(newMHT) && sel->Njet_4(newNJet)){
-              //   // Eff = hEff->GetBinContent(binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT)]);
-              //   Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newNJet,newHT,newMHT)]); 
-              // }else{
-              //   Eff=0.75;
-              // }
-	      // //KHKH
-              // if(sel->ht_500(newGenHT) && sel->mht_200(newGenMHT) && sel->Njet_4(newGenNJet)){
-              //   Eff = hEff->GetBinContent(binMap[utils2::findBin_NoB(newGenNJet,newGenHT,newGenMHT)]); 
-              // }else{
-              //   Eff=0.75;
-              // }
+	      // Data/MC scale factor
+	      if(evt->DataBool_()){
+		// Updating for TrackSF
+		if(muPt>10.0)
+		  Eff_Arne *=utils2::GetSF(hMuTrkHighPtSF,muEta);
+		else
+		  Eff_Arne *=utils2::GetSF(hMuTrkLowPtSF,muEta);
+		
+		// Updating for IDSF 
+		//Eff_Arne *=utils2::GetSF(hMuIDSF,muPt,muEta);
+		
+		// Updating for IsoSF 
+		//Eff_Arne *=utils2::GetSF(hMuIsoSF,muPt,muEta);
+		
+		/*
+		std::cout << muPt << " " 
+			  << utils2::GetSF(hMuTrkHighPtSF,muEta)   << " " 
+			  << utils2::GetSF(hMuTrkLowPtSF,muEta)    << " " 
+			  << utils2::GetSF(hMuIDSF,muPt,muEta)  << " " 
+			  << utils2::GetSF(hMuIsoSF,muPt,muEta) << std::endl;
+		*/
+
+	      }
 
               // if baseline cuts on the main variables are passed then calculate the acceptance otherwise simply take 0.9 as the acceptance.
               double Acc, AccError, AccPlus, AccMinus, Acc_lowDphi, Acc_lowDphiError, AccPlus_lowDphi, AccMinus_lowDphi;
@@ -1670,33 +1641,25 @@ using namespace std;
               AccPlus_lowDphi = Acc_lowDphi+Acc_lowDphiError;
               AccMinus_lowDphi= Acc_lowDphi-Acc_lowDphiError;
               if(StudyErrorPropag){
-                double tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
-                double tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(muPt),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
-                if(muPt>=120.){ // sometimes pT can be higher than 120. Eta is always less than 2.1 so we are fine.
-                  tempval=hMuIsoSF->GetBinContent(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta)));
-                  tempvalErr=fabs(hMuIsoSF->GetBinError(hMuIsoSF->GetXaxis()->FindBin(119.99),hMuIsoSF->GetYaxis()->FindBin(fabs(muEta))));
-                }
-                //printf(" ####\n muPt: %g muEta: %g \n err1: %2.3f err2: %2.3f \n",muPt,muEta,fabs(1.-tempval),pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5)); 
-                tempval=max( fabs(1.-tempval) , pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5) );
-                //printf(" err: %2.3f \n",tempval);
-                IsoSFUp=1.+tempval;
-                IsoSFDw=1.-tempval;
-                
-                tempval=0.;
-                tempvalErr=0.;
-                tempval=hMuIdSF->GetBinContent(hMuIdSF->GetXaxis()->FindBin(muPt),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
-                tempvalErr=hMuIdSF->GetBinError(hMuIdSF->GetXaxis()->FindBin(muPt),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
-                if(muPt>=120.){
-                  tempval=hMuIdSF->GetBinContent(hMuIdSF->GetXaxis()->FindBin(119.99),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
-                  tempvalErr=hMuIdSF->GetBinError(hMuIdSF->GetXaxis()->FindBin(119.99),hMuIdSF->GetYaxis()->FindBin(fabs(muEta)));
-                }
-                //printf(" ####\n muPt: %g muEta: %g \n err1: %2.3f err2: %2.3f \n",muPt,muEta,fabs(1.-tempval),pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5));
-                tempval=max( fabs(1.-tempval) , pow((pow(tempvalErr,2.)+pow(0.01*tempval,2.)),0.5) );
-                //printf(" err: %2.3f \n",tempval);
-                IdSFUp=1.+tempval;
-                IdSFDw=1.-tempval;
-                //printf(" muPt: %g muEta: %g IsoSFUp: %g IsoSFDw: %g IdSFUp: %g IdSFDw: %g \n",muPt,muEta,IsoSFUp,IsoSFDw,IdSFUp,IdSFDw);
-                
+
+		IdSFUp= 1. 
+		  + utils2::GetSFUnc(hMuIDSF, muPt, muEta, true)
+		  + utils2::GetSFUnc(hMuTrkHighPtSF, muEta, false);
+		IdSFDw= 1. 
+		  - utils2::GetSFUnc(hMuIDSF, muPt, muEta, true)
+		  - utils2::GetSFUnc(hMuTrkHighPtSF, muEta, false);
+	
+		IsoSFUp= 1. 
+		  + utils2::GetSFUnc(hMuIsoSF, muPt, muEta, true);
+		IsoSFDw= 1. 
+		  - utils2::GetSFUnc(hMuIsoSF, muPt, muEta, true);
+
+		/*
+		std::cout << utils2::GetSFUnc(hMuIDSF, muPt, muEta, true)  << " " 
+			  << utils2::GetSFUnc(hMuTrkHighPtSF, muEta, false) << " "
+			  << utils2::GetSFUnc(hMuIsoSF, muPt, muEta, true) << std::endl;
+		*/
+
               }
               Eff_ArnePlus = Eff_Arne + (Reco_error_Arne + Iso_error_Arne); 
               Eff_ArneMinus = Eff_Arne - (Reco_error_Arne + Iso_error_Arne);
