@@ -493,6 +493,7 @@ using namespace std;
       //std::cout << "SampleXS" << SampleXS << std::endl;
       SampleXS = 1.; // Let's use the weight (XS) stored in ntuples
       fastsimWeight = (3000. * SampleXS)/TotNEve;
+      //fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
 
@@ -1551,6 +1552,9 @@ using namespace std;
 	      // newNJet,newHT,newMHT,newNB fully ready
 	      // 
 	     
+
+	      //AR------In reality(while collecting data) search region uses MET triggers-HLT PFMET100 PFMHT100 IDTight/HLT PFMETNoMu100 PFMHTNoMu100 IDTight which has MHT dependant efficiency. But in data prediction we just use Single muon trigger and correct for it's efficiency. In addition data prediction should be scaled down by MET trigger efficiency to make it consistent with observed data.
+  
 	      bool ApplyMETEff=false;
 	      if(( isData || fastsim ) && !utils2::genHTMHT) ApplyMETEff=true;
 	      int METstatUnc=0;
@@ -1559,6 +1563,8 @@ using namespace std;
 	      double METtrigEffCorr=utils2::GetTriggerEffCorr(ApplyMETEff, newMHT, METstatUnc,METsystUnc);
 
 
+
+	      //AR--------Single muon trigger efficiencies for control region.
 
 	      double trigEffCorr=1.;
 	      double NjNbCorr=1.;

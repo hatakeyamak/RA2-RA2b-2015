@@ -6,13 +6,13 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=false;
+    DataBool=true;
 
     // Study Tau ID
     StudyTauId=false;
 
     // fastsim
-    fastsim=true;
+    fastsim=false;
     
     //Initialize some varaibles
      RunNum=-1;
