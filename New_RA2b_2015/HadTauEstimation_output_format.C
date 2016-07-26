@@ -37,8 +37,9 @@ void reformat(TH1* input, TH1* output);
 //  0.858298,0.794967,1.00711,1.11734};
 //
 //double NjNbCorr[16]={1.10302,1.05589,1.11467,1.15494,1.02888,1.00077,1.04321,0.921019,1.00569,0.993849,1.01237,1.02326,0.906839,0.815019,0.990902,0.988837};
-double NjNbCorr[16]={1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02093,0.996454,1.01738,0.990167,1.04041,0.833852,0.818807,0.96625,0.95135};
-
+//double NjNbCorr[16]={1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02093,0.996454,1.01738,0.990167,1.04041,0.833852,0.818807,0.96625,0.95135};
+double NjNbCorr[16]=
+		  {1.1207,1.10321,1.14125,1.2758,1.03568,1.03778,1.07653,1.03688,1.00263,1.04462,1.00767,1.06245,0.846192,0.885746,0.991038,0.991126};
 //double NjNbCorr_QCDHDP[16]={
 //  1.06067,1.15766,1.21137,1.38428,
 //  0.988007,1.02257,1.05086,1.17749,
@@ -52,7 +53,9 @@ double NjNbCorr[16]={1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02
 //  0.843044,0.856616,0.981188,1.12397};
 //
 //double NjNbCorr_QCDHDP[16]={1.07954,1.05912,1.11673,1.13352,1.02719,1.00215,1.00608,0.932549,0.986,0.983652,0.977785,0.979731,0.891571,0.879714,0.96842,0.992207};
-double NjNbCorr_QCDHDP[16]={1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.02861,0.998668,0.977091,0.989521,0.966759,1.01327,0.891883,0.843374,0.962022,1.00473};                
+//double NjNbCorr_QCDHDP[16]={1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.02861,0.998668,0.977091,0.989521,0.966759,1.01327,0.891883,0.843374,0.962022,1.00473};                
+double NjNbCorr_QCDHDP[16]={1.09651,1.09637,1.14059,1.20009,1.03098,1.0296,1.04985,1.01684,0.98427,1.01241,0.981604,1.02756,0.87334,0.876462,0.943229,0.999277};
+
 //double NjNbCorr_QCDLDP[16]={
 //  0.864283,1.04062,1.10166,1.31812,
 //  0.843319,0.915936,0.940394,1.13485,
@@ -66,13 +69,15 @@ double NjNbCorr_QCDHDP[16]={1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.0286
 //  0.816972,0.834622,0.917226,0.984751};           
 //
 //double NjNbCorr_QCDLDP[16]={0.969584,0.960883,1.02801,0.958625,0.938399,0.939326,0.944426,0.913042,0.937141,0.91543,0.945902,0.915756,0.863937,0.856496,0.910216,0.872439};
-double NjNbCorr_QCDLDP[16]={0.953996,0.968867,1.05964,1.03167,0.915907,0.947684,0.950087,0.988761,0.918411,0.903336,0.968701,0.958839,0.914316,0.877071,0.883752,0.891303};
+//double NjNbCorr_QCDLDP[16]={0.953996,0.968867,1.05964,1.03167,0.915907,0.947684,0.950087,0.988761,0.918411,0.903336,0.968701,0.958839,0.914316,0.877071,0.883752,0.891303};
+double NjNbCorr_QCDLDP[16]={0.994667,1.00887,1.09966,1.03729,0.957701,0.982594,0.977459,0.983404,0.942112,0.924123,0.985946,1.01246,0.915061,0.870221,0.908097,0.929114};
 
 void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // Data
 				    //string elogForData="ARElog40_4fb_",
 				    //string elogForData="ARElog41_2.6fb_",
 				    //string elogForData="ARElog46_7.6ifb_",
-				    string elogForData="ARElog49_7.6ifb_",
+				    //string elogForData="ARElog49_7.6ifb_",
+				    string elogForData="ARElog60_12.9ifb_",
 				    //string elogForData="ARElog42_4fb_",
 				    string elogForData2="KHElog424_",      // Data 
 				    //string elogForMCExp="KHElog420_",      // MC expectation
@@ -80,10 +85,10 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
 				    //string elogForMCExp="ARElog41_",
 				    //string elogForMCPre="ARElog41_",
 				    //
-				    string elogForMCExp="ARElog47_",
-				    string elogForMCPre="ARElog47_",
-				    string elogForSys="ARElog40_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
-				    string elogForMuSys="ARElog40_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
+				    string elogForMCExp="ARElog57_",
+				    string elogForMCPre="ARElog57_",
+				    string elogForSys="ARElog58_",          // MC-based systematics evaluation for Btag mistag uncertainties and muon efficiency stat uncertainties
+				    string elogForMuSys="ARElog58_",        // MC-based systematics evaluation for muon ID&Iso systematic efficiencies
 				    //string elogForJECSysUp="Elog426_",     // JEC Up systematics
 				    //string elogForJECSysDn="Elog426_",     // JEC Down systematics
 				    //string elogForJECSysRef="Elog426_",    // JEC uncertainty reference
@@ -96,10 +101,10 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
 				    string elogForAccPDF="ARElog38_",      // Acceptance uncertainty due to PDF
 				    string elogForAccScale="ARElog38_",    // Acceptance uncertainty due to scale
 				    //
-				    string elogForIsoTrkVeto="Elog433_",   // Isotrack veto efficiency stat uncertainty
-				    string elogForMuFromTau="Elog433_",    // Muon from tau stat uncertainty
-				    string elogForAccStat="Elog433_",      // Acceptance stat uncertainty
-				    string elogForMTStat="Elog433_",       // MT cut efficiency
+				    string elogForIsoTrkVeto="ARElog52_",   // Isotrack veto efficiency stat uncertainty
+				    string elogForMuFromTau="ARElog52_",    // Muon from tau stat uncertainty
+				    string elogForAccStat="ARElog52_",      // Acceptance stat uncertainty
+				    string elogForMTStat="ARElog52_",       // MT cut efficiency
 				    //
 				    double trigEff=1.000,                  // Trigger efficiency for highHT selection (now corrected in the tauhad2_templace.cpp code)
 				    double trigEff2=1.000,                 //                    for lowHT  selection
@@ -111,8 +116,8 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
 				    //double lumiTarget=2.584653,            // Luminosity of the search trigger sample 
 				    //double lumiControl=2.585297,           // Luminosity of the SingleMuon PD used for the control sample
 				    // lumi for V8
-				    double lumiTarget=7.6,
-				    double lumiControl=7.6,
+				    double lumiTarget=12.9,
+				    double lumiControl=12.9,
 				    int isys==0){
 
   char tempname[200];
@@ -127,7 +132,7 @@ void HadTauEstimation_output_format(//string elogForData="KHElog425_",       // 
   //  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_20160624v1_hadd.root",elogForData.c_str());
   //    sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v16b_.root",elogForData.c_str());
   //sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_v17a_.root",elogForData.c_str());
-  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_V9bc_.root",elogForData.c_str());
+  sprintf(tempname,"TauHad2/%sHadTauEstimation_data_SingleMuon_V9bcd_.root",elogForData.c_str());
   TFile *DataEstFile = TFile::Open(tempname,"R");
   printf("Opened %s\n",tempname);
   /*

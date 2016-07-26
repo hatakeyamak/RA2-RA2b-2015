@@ -1534,9 +1534,10 @@ using namespace std;
 
 	      double factor_Up_NjNb=1;
 	      double factor_Low_NjNb=1;
-
+	      //std::cout<<" eventN "<<eventN<<endl;
 	      if (isData){
-
+		if(eventN<50)
+		  std::cout<<" eventN "<<eventN<< " Make sure you are using the updated NjNb correction factors "<<endl;
 		if (newHT<500.){
 
 		  if (muPt<LeptonAcceptance::muonPtMinLowHT()) trigEffCorr=0.;
@@ -1560,16 +1561,19 @@ using namespace std;
 
 		// from V9 MC
 		double NjNbCorrArray[16]=
-		  {1.09554,1.07391,1.12317,1.25163,1.0102,1.00845,1.05714,1.02093,0.996454,1.01738,0.990167,1.04041,0.833852,0.818807,0.96625,0.95135};
+		  {1.1207,1.10321,1.14125,1.2758,1.03568,1.03778,1.07653,1.03688,1.00263,1.04462,1.00767,1.06245,0.846192,0.885746,0.991038,0.991126};
+
 		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 		
 		double QCD_UpNjNbCorrArray[16]=
-		  {1.0727,1.07053,1.12063,1.17505,1.0059,1.00026,1.02861,0.998668,0.977091,0.989521,0.966759,1.01327,0.891883,0.843374,0.962022,1.00473};
+		   {1.09651,1.09637,1.14059,1.20009,1.03098,1.0296,1.04985,1.01684,0.98427,1.01241,0.981604,1.02756,0.87334,0.876462,0.943229,0.999277};
+
 		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
 
 		double QCD_LowNjNbCorrArray[16]=
-		  { 0.953996,0.968867,1.05964,1.03167,0.915907,0.947684,0.950087,0.988761,0.918411,0.903336,0.968701,0.958839,0.914316,0.877071,0.883752,0.891303};
+		  {0.994667,1.00887,1.09966,1.03729,0.957701,0.982594,0.977459,0.983404,0.942112,0.924123,0.985946,1.01246,0.915061,0.870221,0.908097,0.929114};
+
 
 		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Low_NjNb=QCD_LowNjNbCorr/NjNbCorr;
@@ -1596,7 +1600,7 @@ using namespace std;
 		  Eff_Arne *=utils2::GetSF(hMuTrkLowPtSF,muEta);
 		
 		// Updating for IDSF 
-		//Eff_Arne *=utils2::GetSF(hMuIDSF,muPt,muEta);
+		Eff_Arne *=utils2::GetSF(hMuIDSF,muPt,muEta);
 		
 		// Updating for IsoSF 
 		//Eff_Arne *=utils2::GetSF(hMuIsoSF,muPt,muEta);
