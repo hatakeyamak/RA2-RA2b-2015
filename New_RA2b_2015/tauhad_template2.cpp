@@ -538,7 +538,13 @@ using namespace std;
       eventType[1]="RecoSysPlus";   // Muon Reco/ID SF uncertainty
       eventType[2]="RecoSysMinus";  //
       eventType[3]="IsoSysPlus";    // Muon Iso SF uncertainty
-      eventType[4]="IsoSysMinus";   // 
+      eventType[4]="IsoSysMinus";   //
+
+//      eventType[5]="BMistagPlus";
+//      eventType[6]="BMistagMinus";
+//      eventType[7]="MuRecoIsoPlus";
+//      eventType[8]="MuRecoIsoMinus";
+// 
 /*
       eventType[1]="BMistagPlus";   // Bmistag efficiency
       eventType[2]="BMistagMinus";  //
@@ -1648,10 +1654,10 @@ using namespace std;
 
 		IdSFUp= 1. 
 		  + utils2::GetSFUnc(hMuIDSF, muPt, muEta, true)
-		  + utils2::GetSFUnc(hMuTrkHighPtSF, muEta, false);
+		  + utils2::GetSFUnc(hMuTrkHighPtSF, muEta, true);
 		IdSFDw= 1. 
 		  - utils2::GetSFUnc(hMuIDSF, muPt, muEta, true)
-		  - utils2::GetSFUnc(hMuTrkHighPtSF, muEta, false);
+		  - utils2::GetSFUnc(hMuTrkHighPtSF, muEta, true);
 	
 		IsoSFUp= 1. 
 		  + utils2::GetSFUnc(hMuIsoSF, muPt, muEta, true);
