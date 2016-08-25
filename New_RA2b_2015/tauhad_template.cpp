@@ -73,6 +73,15 @@ using namespace std;
     // The tau response templates
     Utils * utils = new Utils();
 
+
+    //*AR,Aug22,2016-Get pt,eta,phi distributions of gen tau
+    TH1D * GenTau_Pt = new TH1D("GenTau_Pt","Gen Tau pt distribution",50,0,500);
+    TH1D * GenTau_Eta = new TH1D("GenTau_Eta","Gen Tau Eta distribution",42,-2.1,2.1);
+    TH1D * GenTau_Phi = new TH1D("GenTau_Phi","Gen Tau Phi distribution",62.8,-3.14,3.14);
+    TH1D * GenMu_Pt = new TH1D("GenMu_Pt","Gen Mu pt distribution",50,0,500);
+    TH1D * GenMu_Eta = new TH1D("GenMu_Eta","Gen Mu Eta distribution",42,-2.1,2.1);
+    TH1D * GenMu_Phi = new TH1D("GenMu_Phi","Gen Mu Phi distribution",62.8,-3.14,3.14);
+    
     // Introduce two histograms to understand how often a gen tau does not match any jet
     TH1D * GenTau_Jet_all = new TH1D("GenTau_Jet_all","Pt of Gen Tau",utils->NMuPtBins(),0,utils->MaxMuPt());
     GenTau_Jet_all->Sumw2();
@@ -336,31 +345,57 @@ using namespace std;
     Iso_pass_nb_njet9_lowDphi->Sumw2();
         
     // They are filled for different bins in generated tau-lepton pt.
+    //*AR, Jul28,2016---Each vector is of size4 as we will be having 4 templates based on pt.
+    //Named as hTauResp_0,hTauResp_1,hTauResp_2,hTauResp_3
     std::vector<TH1*> hTauResp(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauRespUp(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauRespDown(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauResp_x(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauResp_y(utils->TauResponse_nBins_());
     std::vector<TH2*> hTauResp_xy(utils->TauResponse_nBins_());
+    //*AR, Aug24,2016-This vector of 1D hists is introduced to check whether dphi distribution between gen tau and matching reco tau jet changes significantly for different gen tau pt ranges considered for tau template construction 
+    std::vector<TH1*> htau_GenJetPhi(utils->TauResponse_nBins_());
+    for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
+     htau_GenJetPhi.at(i) = new TH1D(utils->dPhi_name(i),"DPhi between gen tau and reco tau jet",100,-1.0,1.0);
+    }
+
+    //*AR,Aug22,2016---We also want to see how a template looks like if gen jet is used for matching instead of reco jet.Just for check(not used anywhere)
+    std::vector<TH1*> hGenTauResp(utils->TauResponse_nBins_());
+    for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
+      hGenTauResp.at(i) = new TH1D(utils->TauResponse_name(i)+"_gen",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
+      hGenTauResp.at(i)->Sumw2();
+    }
+    //std::cout<<"hTauResp_size" << hTauResp.size() <<std::endl;
 
     for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
       hTauResp.at(i) = new TH1D(utils->TauResponse_name(i),";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauRespUp.at(i) = new TH1D(utils->TauResponse_name(i)+"_Up",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauRespDown.at(i) = new TH1D(utils->TauResponse_name(i)+"_Down",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauResp.at(i)->Sumw2();
+
       hTauResp_x.at(i) = new TH1D(utils->TauResponse_name(i)+"_x",";p_{T}(visible)_x / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauResp_x.at(i)->Sumw2();
       hTauResp_y.at(i) = new TH1D(utils->TauResponse_name(i)+"_y",";p_{T}(visible)_y / p_{T}(generated-#tau);Probability",50,-2.5,2.5);
       hTauResp_y.at(i)->Sumw2();
       hTauResp_xy.at(i) = new TH2D(utils->TauResponse_name(i)+"_xy",";p_{T}(visible)_x / p_{T}(generated-#tau);p_{T}(visible)_y / p_{T}(generated-#tau)",50,0.,2.5,40,-1.,1.);
       hTauResp_xy.at(i)->Sumw2();
+      //std::cout<<" TauResponse_name "<<utils->TauResponse_name(i)<<std::endl;
+      
     }
 
-    // a template for phi of the tau jets
-    TH2D * tau_GenJetPhi = new TH2D("tau_GenJetPhi","DPhi between gen and jet tau vs. their energy ratio",utils->tau_Phi_nbinX(),utils->tau_Phi_lowX(),utils->tau_Phi_upX(),utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
+    // a template for phi of reco tau jets matching gen tau
+    TH2D * tau_GenJetPhi = new TH2D("tau_GenJetPhi","DPhi between gen tau and reco tau jet vs. their energy ratio",utils->tau_Phi_nbinX(),utils->tau_Phi_lowX(),utils->tau_Phi_upX(),utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
+
+    //*AR, Aug24,2016- 1D template for phi of reco tau jets matching gen tau
+    TH1D * OneD_tau_GenJetPhi = new TH1D("OneD_tau_GenJetPhi","DPhi between gen tau and reco tau jet",utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
+
+
+
+    //*AR, Aug24,2016-a template for phi of gen tau jets matching gen tau. This template was added to compare against tau_GenJetPhi
+    TH2D * tau_GenGJetPhi = new TH2D("tau_GenGJetPhi","DPhi between gen tau and gen tau jet vs. their energy ratio",utils->tau_Phi_nbinX(),utils->tau_Phi_lowX(),utils->tau_Phi_upX(),utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
       
     // We would like also to have the pt distribution of the tau Jets
-    TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
+    //TH1D * tauJetPtHist = new TH1D("tauJetPtHist","Pt of the tau hadronic jets",80,0,400);
 
     // Because of bad reconstruction or so, sometimes no jet matches a Gen. hadronic tau. 
     // So we need to add into account the fail rate here. 
@@ -453,20 +488,30 @@ using namespace std;
     // For each selection, cut, make a vector containing the same histograms as those in vec
     //std::cout<<"cutName_size"<<cutName().size()<<endl;
 
+
+    //* AR, Jul28,2016 -vec is vector of histograms of distributions like ht, mht, jet, bjet,pt and phi of tau etc. Here for every cut we define this vector of histograms.cut_histvec_map is a map<string , vector<TH1D> >  
+
     for(int i=0; i<(int) sel->cutName().size();i++){
+      //std::cout<<" sel->cutName()[i] "<<sel->cutName()[i]<<endl;
       cut_histvec_map[sel->cutName()[i]]=vec;
     }
 
     // Define different event categories
+    //*AR, Jul29,2016-As eventType is a map<int, string>
     eventType[0]="allEvents";
 
     //initialize a map between string and maps. copy the map of histvecs into each
+    //*AR, Jul29,2016- As map_map is a map<string, map<string , vector<TH1D> > >
     for(int i=0; i< eventType.size();i++){
+      //      std::cout<<" eventType[i] "<<eventType[i]<<endl;
       map_map[eventType[i]]=cut_histvec_map;
     }
   
     //initialize histobjmap
+    //*AR, Jul29,2016- As histobjmap is a map<string, histClass>
+    //*AR, Jul29,2016- Here why order of sel->cutName()[i] and it->first are different? 
     for(map<string , vector<TH1D> >::iterator it=cut_histvec_map.begin(); it!=cut_histvec_map.end();it++){
+      //std::cout<<" it->first "<<it->first<<endl;
       histobjmap[it->first]=histObj;
     }
     
@@ -478,8 +523,9 @@ using namespace std;
     vector<double> HadTauPhiVec;
 
     // Determine which model to work with
+    //*AR, Jul28, 2016- Currently usingModel=4
     int TauHadModel=utils2::TauHadModel;
-
+    //    std::cout<< " TauHadModel "<<TauHadModel<<std::endl;
 
     int sampletype=-1;
     if(subSampleKey.find("TTbar_Inclusive")!=string::npos)sampletype=0; //TTbar_Inclusive
@@ -513,11 +559,11 @@ using namespace std;
         CalcAccSys = false;
       }
 
-      //if(eventN>100000)break;
-      if(eventN>5000)break;
+      if(eventN>100000)break;
+      //if(eventN>5000)break;
 
       eventWeight = evt->weight();
-      std::cout<<" eventN "<<eventN<<" eventWeight "<<eventWeight<<endl;
+      //std::cout<<" eventN "<<eventN<<" eventWeight "<<eventWeight<<endl;
       //eventWeight = evt->weight()/evt->puweight();
       //if(subSampleKey.find("TTbar_Tbar_SingleLep")!=string::npos)eventWeight = 2.984e-06;
       //if(subSampleKey.find("TTbar_DiLept")!=string::npos)eventWeight = 2.84141e-06;
@@ -603,27 +649,18 @@ using namespace std;
       // Since we don't acount for efficiency and acceptance of Reco. electrons,
       // for the sake of consistency, apply the same pT and eta cuts on the gen.
       // electrons as those applied to Reco. electrons.  
-      int eleN=0;
-      for(int i=0;i<evt->GenElecPtVec_().size();i++){
-        double elept=evt->GenElecPtVec_()[i];
-        double eleeta=evt->GenElecEtaVec_()[i];
-// Ahmad33        if(elept > LeptonAcceptance::electronPtMin() && std::abs(eleeta) < LeptonAcceptance::electronEtaMax())eleN++;
-      eleN++; // Ahmad33
-      }
-
+      int eleN=evt->GenElecPtVec_().size();
+      //std::cout<<" eleN "<<eleN<<endl;
       double muPt=-99;
 
-      //we want to consider events that pass the baseline cuts
+      //*AR,Jul28,2016 -Baseline selection is defined here
       if( sel->ht_500(evt->ht()) && sel->mht_200(evt->mht()) && sel->Njet_4(evt->nJets()) ){
 
         if(verbose!=0)printf("============================================================= \n eventN: %d \n ",eventN);
         if(verbose!=0 && eleN==0 && muN==1)printf("#####################\nNo elec and 1 muon event \n eventN: %d \n ",eventN);
         if(muN==1)muPt=evt->GenMuPtVec_().at(0);
     
-        // If no elec and 1 muon
-        // Fill the hW_mu anyways.
-        // See what is the parent of the mu. if tau fill the tau hist.
-        // If w, see where w is coming from, if tau again, fill the tau hist.
+        // *AR, Jul28,2016-If no elec and 1 muon condition satisfied, fills hW_mu. If this muon has come from tau, then only fill hTau_mu
         if( eleN==0 && muN==1 )hW_mu->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
 
         bool isTau_mu=false;
@@ -638,7 +675,55 @@ using namespace std;
 
 
 
+      //*AR-Aug22,2016-gen muon details are filled here for the purpose of comparison with gen tau
+      double genMuPt=-1.;
+      double genMuEta=-99.;
+      double genMuPhi=-99.;
+      if(evt->GenMuPtVec_().size()!=evt->GenMuEtaVec_().size() || evt->GenMuPtVec_().size()!=evt->GenMuPhiVec_().size())
+      std::cout<<" pt_size "<<evt->GenMuPtVec_().size()<<" eta_size "<<evt->GenMuEtaVec_().size()<<" phi_size "<<evt->GenMuPhiVec_().size()<<endl;
+      for(int i=0; i<evt->GenMuPtVec_().size();i++){
+	double pt=evt->GenMuPtVec_()[i];
+	double eta=evt->GenMuEtaVec_()[i];
+	double phi=evt->GenMuPhiVec_()[i];
+	if(pt > genMuPt){
+	  genMuPt = pt;
+	  //NuIndex = i;
+	  genMuEta = eta;
+	  genMuPhi = phi;
+	}
+      }
+      if( genMuPt > LeptonAcceptance::muonPtMin() && std::abs(genMuEta) < LeptonAcceptance::muonEtaMax() ){
+	GenMu_Pt->Fill(genMuPt);
+	GenMu_Eta->Fill(genMuEta);
+	GenMu_Phi->Fill(genMuPhi);
+      }
 
+
+      double genTauPtAll=-1.;
+      double genTauEtaAll=-99.;
+      double genTauPhiAll=-99.;
+      if(evt->GenTauPtVec_().size()!=evt->GenTauEtaVec_().size() || evt->GenTauPtVec_().size()!=evt->GenTauPhiVec_().size())
+      std::cout<<" pt_size "<<evt->GenTauPtVec_().size()<<" eta_size "<<evt->GenTauEtaVec_().size()<<" phi_size "<<evt->GenTauPhiVec_().size()<<endl;
+      for(int i=0; i<evt->GenTauPtVec_().size();i++){
+	double pt=evt->GenTauPtVec_()[i];
+	double eta=evt->GenTauEtaVec_()[i];
+	double phi=evt->GenTauPhiVec_()[i];
+	if(pt > genTauPtAll){
+	  genTauPtAll = pt;
+	  //NuIndex = i;
+	  genTauEtaAll = eta;
+	  genTauPhiAll = phi;
+	}
+      }
+      if( genTauPtAll > LeptonAcceptance::muonPtMin() && std::abs(genTauEtaAll) < LeptonAcceptance::muonEtaMax() ){
+	GenTau_Pt->Fill(genTauPtAll);
+	GenTau_Eta->Fill(genTauEtaAll);
+	GenTau_Phi->Fill(genTauPhiAll);
+      }
+
+
+
+ 
       // We are interested in hadronically decaying taus only
       bool hadTau=false; 
       double genTauPt=-1.;
@@ -650,8 +735,10 @@ using namespace std;
       HadTauPhiVec.clear();
      
       if(TauHadModel>=4){
-  //std::cout << evt->GenTauHadVec_().size() << std::endl;
+	if(evt->GenTauHadVec_().size()>1)
+	std::cout << " GenTauHadVec_size "<<evt->GenTauHadVec_().size() << std::endl;
         for(int i=0; i<evt->GenTauHadVec_().size();i++){
+	  //std::cout<<" i "<<i<< " GenTauHadVec_()[i] "<<evt->GenTauHadVec_()[i]<< " pt "<< evt->GenTauPtVec_()[i] <<" eta "<< evt->GenTauEtaVec_()[i] <<endl;
           if(evt->GenTauHadVec_()[i]==1){
             double pt=evt->GenTauPtVec_()[i];
             double eta=evt->GenTauEtaVec_()[i];
@@ -659,7 +746,8 @@ using namespace std;
             HadTauPtVec.push_back(pt);
             HadTauEtaVec.push_back(eta);
             HadTauPhiVec.push_back(phi);
-            if(pt > genTauPt){
+	    //* AR, Jul28,2016-genTauPt,genTauEta,genTauPhi are set to hardest tau here
+	    if(pt > genTauPt){
               genTauPt = pt;
               NuIndex = i;
               genTauEta = eta;
@@ -667,6 +755,13 @@ using namespace std;
             }
           }
         }
+	/*
+	if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax() ){
+	  GenTau_Pt->Fill(genTauPt);
+	  GenTau_Eta->Fill(genTauEta);
+	  GenTau_Phi->Fill(genTauPhi);
+	}
+*/
       }
       else{
         for(int i=0; i<evt->GenTauHadVec_().size();i++){
@@ -727,7 +822,9 @@ using namespace std;
       int jet_index=-1;
       int nB = evt->nBtags();
       double deltaR = 0.4;
-      // We don't write the event for nB if the matched tau jet is btaged. 
+      // We don't write the event for nB if the matched tau jet is btaged.
+ 
+      //*AR, Jul28,2016- B mistag rate determined only using Jets(pt>10 GeV or so) and not softJets
       if(utils->findMatchedObject(jet_index,genTauEta,genTauPhi, evt->JetsPtVec_(),evt->JetsEtaVec_(),evt->JetsPhiVec_(),deltaR,verbose)){
         B_rate_all->Fill(evt->JetsPtVec_()[jet_index],eventWeight);
         if(evt->csvVec()[jet_index]>evt->csv_()){
@@ -747,6 +844,9 @@ using namespace std;
         if(evt->nBtags()==0)hAcc_0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
         if(evt->nBtags()>0)hAcc_non0b_All->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight);
 	//std::cout<<"CalcAccSys "<<CalcAccSys<<endl;
+
+	//*AR,Jul29,2016-To calculate accepatance systematics,initially eventweight is multiplied by either of 72 PDFweights/109 ScaleWeights and histograms hAccAllVec,hScaleAccAllVec are filled with resultant value. Note that only difference in hAccAll and hAccAllVec is extra PDF/Scale weight. Simlar is the difference in hAccPass and hAccPassVec.
+
 	if(CalcAccSys){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
           hAccAllVec.at(iacc)->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()] ,eventWeight*evt->PDFweights_()->at(iacc));
@@ -802,12 +902,9 @@ using namespace std;
       //double totWeight = 1.;
     
       // add pileup as weight for MC 
-      if(evt->DataBool_()){
-        //double pu_weight = hPURatio->GetBinContent( hPURatio->FindBin( evt->NVtx_() ) );
-        //totWeight*=pu_weight;
-      }
-
       // Apply IsoTrkVeto
+
+      //* AR,Jul28,2016-passIso is always true for expectation run
       bool passIso=false;
       if(utils2::applyIsoTrk){
         if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0)passIso=true;
@@ -815,6 +912,7 @@ using namespace std;
       else passIso=true;
 
 
+      //* AR,Jul28,2016-pass3 is always true for TauHadModel=4
       bool pass3=false;
       if(TauHadModel>=4)pass3=true;
       else{
@@ -823,6 +921,7 @@ using namespace std;
       }
 
 
+      //* AR, Jul28,2016- Constructs Visible3vec by subtracting GenTauNu pt from GenTau pt. The gen level Visible3vec will be used later to find a matching Reco tau jet(visible reco tau jet) in order to construct a tau template.
 
       // Find the visible part of the hadronic tau 
       TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
@@ -836,6 +935,9 @@ using namespace std;
 
 
       if(pass3){
+
+	//* AR, Jul28,2016-As there is no "continue" condition between cutflow_preselection->Fill(8) and cutflow_preselection->Fill(9) and as pass3 is true for tauHadModel4, we expect same value for Fill(8) and Fill(9) also for Fill(10)
+
 	cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
 
         // Apply low delphi region
@@ -898,12 +1000,18 @@ using namespace std;
 
     //std::cout << "eventN:3 " << eventN << std::endl;
 
-          // Match directly to IsoTrk. But this wouldn't capture all 
+          // Match directly to IsoTrk. But this wouldn't capture all
+
+
+	  //* AR, Jul28,2016- Checks if there is isolated electron matching to visible part of gen tau jet 
           utils->findMatchedObject(IsoElecIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
           // 
           int JetIndex=-1;
           utils->findMatchedObject(JetIndex,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),0.4,verbose);
     //printf("IsoElecIdx: %d \n ",IsoElecIdx);
+
+
+	  //* AR, Jul28,2016- Why IsoEle is matched with reco (matched)Taujet while IsoMu and IsoPion directly matched to Visible Gen Tau?
           if(JetIndex!=-1)utils->findMatchedObject(IsoElecIdx,evt->slimJetEtaVec_()[JetIndex],evt->slimJetPhiVec_()[JetIndex],evt->IsoElecPtVec_(),evt->IsoElecEtaVec_(),evt->IsoElecPhiVec_(),0.4,verbose);
     //printf("IsoElecIdx: %d \n ",IsoElecIdx);
 
@@ -911,6 +1019,14 @@ using namespace std;
           utils->findMatchedObject(IsoPionIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->IsoPionPtVec_(),evt->IsoPionEtaVec_(),evt->IsoPionPhiVec_(),0.4,verbose);
           if( IsoElecIdx==-1 && IsoMuIdx==-1 && IsoPionIdx==-1)
             Iso_pass2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); 
+
+
+
+	  // * AR, Jul28,2016-Here all the ingredients required for efficiency calculation are ready.Also cutflow_preselection histogram is almost filled.
+
+
+
+
 
           if(passIso){
               // Fill Search bin histogram
@@ -941,7 +1057,9 @@ using namespace std;
       }
 
 
+
       // for plotting purposes
+      //* AR,Jul28,2016--Details of a reco jet matching to visible gen tau jet.tau_mht_dlephi_forPlotting gives angle(phi) between matched reco jet and phi of event mht.
       double tauPt_forPlotting=0.0; 
       double tauEta_forPlotting=0.0;
       double tauPhi_forPlotting=-99.0;
@@ -964,6 +1082,9 @@ using namespace std;
 
       // Build and array that contains the quantities we need a histogram for.
       // Here order is important and must be the same as RA2nocutvec
+     
+      //* AR,Jul28,2016--Each of the quantity in this array will go into the histograms that will be under each cut(under event type)
+
       double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),
                             (double)evt->deltaPhi1(),(double)evt->deltaPhi2(),(double)evt->deltaPhi3(),(double)evt->deltaPhi4(),
                             (double) evt->nJets(),(double) evt->nBtags(),
@@ -977,6 +1098,10 @@ using namespace std;
   cutflow_preselection->Fill(10.,eventWeight); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
+
+
+  //* AR,Jul28,2016--This is loop over event types
+  //*AR, Jul29,2016- As map_map is a map<string, map<string , vector<TH1D> > >
         for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){//this will be terminated after the cuts
 
           ////determine what type of background should pass
@@ -984,10 +1109,14 @@ using namespace std;
 
             //Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts//Cuts
 
-            //////loop over cut names and fill the histograms
+            //* AR,Jul28,2016--This is loop over cut names 
             for(map<string , vector<TH1D> >::iterator ite=cut_histvec_map.begin(); ite!=cut_histvec_map.end();ite++){
 
   if(sel->checkcut(ite->first,evt->ht(),evt->mht(),evt->deltaPhi1(),evt->deltaPhi2(),evt->deltaPhi3(),evt->deltaPhi4(),evt->nJets(),evt->nBtags(),evt->nLeptons(),evt->nIsoElec(),evt->nIsoMu(),evt->nIsoPion())==true){
+    //std::cout<<" Nhists "<<Nhists<<endl;
+    //std::cout<<" eveinfvec[0] "<<eveinfvec[0]<<endl;
+
+    //* AR,Jul29,2016--How this command works?
                 histobjmap[ite->first].fill(Nhists,&eveinfvec[0] ,&itt->second[ite->first][0]);
               }
             }//end of loop over cut names
@@ -1006,8 +1135,9 @@ using namespace std;
 
       // Do the matching
       int tauJetIdx = -1;
+      int GenJetMatchIdx = -1;
       double deltaRMax = genTauPt < 50. ? 0.2 : 0.1; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
-      if(inputnumber=="LargerDelR")deltaRMax = genTauPt < 50. ? 0.4 : 0.2; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
+      //if(inputnumber=="LargerDelR")deltaRMax = genTauPt < 50. ? 0.4 : 0.2; // Increase deltaRMax at low pt to maintain high-enought matching efficiency
 
       // Lets write all the gen tau events regardless of if they match a jet or not.
       //we want to consider events that pass the baseline cuts
@@ -1029,10 +1159,32 @@ using namespace std;
         printf("Visible3Vec: pt: %g eta: %g phi: %g \n ",Visible3Vec.Pt(),Visible3Vec.Eta(),Visible3Vec.Phi());
       }
 
+
+      //*AR- Jul28,2016- Skips the event if there is no Reco tau jet found matching to Gen Visible Tau 3 vec. On the other hand if matching Reco tau jet is found, tauJetIdx is set to index of matching reco jet. 
       if( !utils->findMatchedObject(tauJetIdx,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
         if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt,eventWeight);
         continue;
       } // this also determines tauJetIdx
+
+      //*AR, Aug22,2016-For the purpose of constructing gen template by matching gen jet instead of tau jet
+      utils->findMatchedObject(GenJetMatchIdx,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->GenJetPtVec_(), evt->GenJetEtaVec_(), evt->GenJetPhiVec_(),deltaRMax,verbose);
+      if( genTauPt > LeptonAcceptance::muonPtMin() && std::abs(genTauEta) < LeptonAcceptance::muonEtaMax()){
+	for(int GjetIdx = 0; GjetIdx < (int) evt->GenJetPtVec_().size(); ++GjetIdx) { 
+	  if( GjetIdx == GenJetMatchIdx ) {
+	    const double GJetPt = evt->GenJetPtVec_().at(GjetIdx);
+	    const double GJetPhi = evt->GenJetPhiVec_().at(GjetIdx);
+	    const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
+	    hGenTauResp.at(ptBin)->Fill( GJetPt / genTauPt ,eventWeight);
+	    if(TVector2::Phi_mpi_pi( genTauPhi - GJetPhi) < -1.0)tau_GenGJetPhi->Fill(GJetPt / genTauPt ,-1.0 ,eventWeight);
+	    else if(TVector2::Phi_mpi_pi( genTauPhi - GJetPhi) > 1.0)tau_GenGJetPhi->Fill(GJetPt / genTauPt , 1.0 ,eventWeight);
+	    else tau_GenGJetPhi->Fill(GJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - GJetPhi) ,eventWeight);
+	  }
+	}
+      }
+
+
+
+
 
 
       if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",eventN,tauJetIdx);
@@ -1067,7 +1219,7 @@ using namespace std;
 
 
 
-      // Calculate RA2 selection-variables from "cleaned" jets, i.e. jets withouth the tau-jet
+      // *AR, Jul28,2016- selNJet gives number of reco jets with pt > 50 GeV and |eta| < 2.5 which are not tau-jets
       int selNJet = 0; // Number of HT jets (jets pt > 50 GeV and |eta| < 2.5)
       for(int jetIdx = 0; jetIdx <(int) evt->JetsPtVec_().size(); ++jetIdx) { // Loop over reco jets
         // Skip this jet if it is the tau
@@ -1092,31 +1244,52 @@ using namespace std;
           // Get the response pt bin for the tau
           //printf(" slimSize: %d UpSize: %d DownSize: %d \n ",evt->slimJetPtVec_().size(),evt->slimJetJECup_()->size(),evt->slimJetJECdown_()->size());
 
+	  //* AR- Jul28,2016-tauJetPtUp,tauJetPtDown is pt of matching reco tau jet after applying JEC corrections
+
           const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
           const double tauJetPtUp = evt->slimJetJECup_()->at(jetIdx).Pt();
           const double tauJetPtDown = evt->slimJetJECdown_()->at(jetIdx).Pt();
     //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
 
+	  //*AR, Jul28,2016-ptBin decides which tau response template to be filled based on gen tau pt.
+	   
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
-          // Fill the corresponding response template
+          //std::cout<<" genTauPt "<<genTauPt<<" pt_bin "<<ptBin<<endl;
+	  // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
           hTauRespUp.at(ptBin)->Fill( tauJetPtUp / genTauPt ,eventWeight);
           hTauRespDown.at(ptBin)->Fill( tauJetPtDown / genTauPt ,eventWeight);
 
           double tauJetPhi = evt->slimJetPhiVec_().at(jetIdx);
-          const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
+          //* AR, Jul28,2016---tauJetPt_x  - projection of reco matched tau jet pt in gen tau direction, tauJetPt_y -component of reco tau jet pt perpendicular to gen tau jet direction
+	  //* AR, Jul28,2016---TVector2::Phi_mpi_pi(x)--if x>pi--->x-pi, if x<-pi-->x+pi
+	  const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
           const double tauJetPt_y = tauJetPt * sin( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ); 
-          hTauResp_x.at(ptBin)->Fill( tauJetPt_x / genTauPt ,eventWeight);
+	  
+	  hTauResp_x.at(ptBin)->Fill( tauJetPt_x / genTauPt ,eventWeight);
           hTauResp_y.at(ptBin)->Fill( tauJetPt_y / genTauPt ,eventWeight);
-
+	  
           hTauResp_xy.at(ptBin)->Fill(tauJetPt_x / genTauPt , tauJetPt_y / genTauPt ,eventWeight);
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
 
-          if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) < -1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt ,-1.0 ,eventWeight);
-          else if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) > 1.0)tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
-          else tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,eventWeight);
-
+	  //* AR, Jul28,2016--tau_GenJetPhi is a 2D histogram-(x,y)=(tauJetPt / genTauPt,genTauPhi - tauJetPhi). This histogram is used in tauhad_template2.cpp code.
+	  //* AR, Aug24,2016- In addition a vector of histograms htau_GenJetPhi is filled as per ptBin 
+          if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) < -1.0){
+	    tau_GenJetPhi->Fill(tauJetPt / genTauPt ,-1.0 ,eventWeight);
+	    htau_GenJetPhi.at(ptBin)->Fill(-1.0,eventWeight);
+	    OneD_tau_GenJetPhi->Fill(-1.0 ,eventWeight);
+	  }
+          else if(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) > 1.0){
+	    tau_GenJetPhi->Fill(tauJetPt / genTauPt , 1.0 ,eventWeight);
+	    htau_GenJetPhi.at(ptBin)->Fill(1.0,eventWeight);
+	    OneD_tau_GenJetPhi->Fill(1.0 ,eventWeight);
+	  }
+	  else{
+	    tau_GenJetPhi->Fill(tauJetPt / genTauPt , TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,eventWeight);
+	    htau_GenJetPhi.at(ptBin)->Fill(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi),eventWeight);
+	    OneD_tau_GenJetPhi->Fill(TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ,eventWeight);
+	  }
           break; // End the jet loop once the tau jet has been found
         }
       } // End of loop over reco jets
@@ -1262,7 +1435,10 @@ using namespace std;
         sprintf(tempname,"hAcc_lowDphiVec_%d",iacc);
         hAcc_lowDphiVec.push_back(static_cast<TH1*>(hAccPass_lowDphiVec[iacc]->Clone(tempname)));
         hAcc_lowDphiVec[iacc]->Divide(hAccPass_lowDphiVec[iacc],hAccAll_lowDphiVec[iacc],1,1,"B");
-        // calculate the deviation from nominal acceptance 
+        // calculate the deviation from nominal acceptance
+
+
+//*AR-Jul29,2016- From each of hAccVec[i], hAccVec[0] is subtracted 
         hAcc_DeviationFromNomVec.push_back(static_cast<TH1*>(hAccVec[iacc]->Clone("hAcc_DeviationFromNomVec")));// copy
         hAcc_DeviationFromNomVec[iacc]->Add(hAccVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
         // do the same for lowDphi
@@ -1270,6 +1446,8 @@ using namespace std;
         hAcc_DeviationFromNom_lowDphiVec[iacc]->Add(hAcc_lowDphiVec[0],-1.0); // subtract the nominal from each acceptance: Acc - Acc_nom
 
       }
+
+      //*AR-Jul29,2016- The maximum of hAcc_DeviationFromNomVec[iacc] is assigned to hAccSysMax
       for(int ibin=0; ibin < hAccSysMax->GetNbinsX()+2; ibin++){
         for(int iacc=0; iacc < evt->PDFweights_()->size(); iacc++){
           if(hAccSysMax->GetBinContent(ibin)<hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
@@ -1278,6 +1456,8 @@ using namespace std;
           if(hAccSysMax_lowDphi->GetBinContent(ibin)<hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)){
             hAccSysMax_lowDphi->SetBinContent(ibin,hAcc_DeviationFromNom_lowDphiVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
           }
+      //*AR-Jul29,2016- The minimum of hAcc_DeviationFromNomVec[iacc] is assigned to hAccSysMin
+
           if(hAccSysMin->GetBinContent(ibin)>hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)){
             hAccSysMin->SetBinContent(ibin,hAcc_DeviationFromNomVec[iacc]->GetBinContent(ibin)); // sqrt[ sum{ (Acc - Acc_nom)^2 } ]
           }
@@ -1386,6 +1566,12 @@ using namespace std;
     hPredHTMHTwb->Write();
     hPredNJetBins->Write();
     hPredNbBins->Write();
+    GenTau_Pt->Write();
+    GenTau_Eta->Write();
+    GenTau_Phi->Write();
+    GenMu_Pt->Write();
+    GenMu_Eta->Write();
+    GenMu_Phi->Write();
     TDirectory *cdtoitt;
     TDirectory *cdtoit;
 
@@ -1394,6 +1580,10 @@ using namespace std;
     // after delphi cut should be the same
     int w1 = (int) searchH_b->GetSumOfWeights();
     int w2 = (int) map_map["allEvents"]["delphi"][2].GetSumOfWeights();
+
+    //    std::cout<<" weight_1 "<<w1<<endl;
+    //    std::cout<<" weight_2 "<<w2<<endl;
+
     if(w1!=w2){
       for(int j=0;j<11;j++)cout << " Warning! delphi cut is not exactly applied to searchH!\n###\n###\n###\n###\n";
       printf("searchH_b->GetSumOfWeights(): %d ht->GetSumOfWeights(): %d \n ",w1,w2);
@@ -1404,17 +1594,23 @@ using namespace std;
       for(map<string, map<string , vector<TH1D> > >::iterator itt=map_map.begin(); itt!=map_map.end();itt++){
         if (eventType[iet]==itt->first){
           //KH
-          ////std::cout << (itt->first).c_str() << std::endl;
+          //*AR,Jul29,2016-creates a directory of name eventType[iet] under output file
           cdtoitt = resFile->mkdir((itt->first).c_str());
           cdtoitt->cd();
           for(int i=0; i< (int)sel->cutName().size();i++){
             for(map<string , vector<TH1D> >::iterator it=itt->second.begin(); it!=itt->second.end();it++){
               if (sel->cutName()[i]==it->first){
+		//*AR,Jul29,2016-creates a directory of name cutname[i] under evetType[iet] directory
                 cdtoit = cdtoitt->mkdir((it->first).c_str());
                 cdtoit->cd();
                 int nHist = it->second.size();
+		//		std::cout<<" nHist "<<nHist<<endl;
                 for(int i=0; i<nHist; i++){//since we only have 4 type of histograms
-                  sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
+//std::cout<<"second[i].GetName()"<<it->second[i].GetName()<<endl;
+//std::cout<<" (it->first).c_str() "<<(it->first).c_str()<<endl;
+//std::cout<<" (itt->first).c_str() "<<(itt->first).c_str()<<endl;
+		  //*AR,Jul29,2016-format of histogram name-hist_cutname_eventType
+		  sprintf(tempname,"%s_%s_%s",it->second[i].GetName(),(it->first).c_str(),(itt->first).c_str());
                   it->second[i].Write(tempname);
                 }
                 cdtoitt->cd();
@@ -1460,6 +1656,7 @@ using namespace std;
     fgentTau_jet.Close();
 
 
+    //*AR, Jul29, 2016- All tau response templates are scaled to unit area.
 
     // Normalize the response distributions to get the probability density
     for(unsigned int i = 0; i < hTauResp.size(); ++i) {
@@ -1489,6 +1686,24 @@ using namespace std;
       }
     }
 
+    //*AR, Aug22, 2016-For gen template
+    for(unsigned int i = 0; i < hGenTauResp.size(); ++i) {
+      if( hGenTauResp.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hGenTauResp.at(i)->Scale(1./hGenTauResp.at(i)->Integral("width"));
+      }
+    }
+
+    //*AR, Aug24, 2016-For dPhi distribution between gen tau and matching reco tau jet
+    for(unsigned int i = 0; i< htau_GenJetPhi.size(); ++i) {
+      if(  htau_GenJetPhi.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+         htau_GenJetPhi.at(i)->Scale(1./htau_GenJetPhi.at(i)->Integral("width"));
+      }
+    }
+    if(  OneD_tau_GenJetPhi->Integral("width") > 0. )
+      OneD_tau_GenJetPhi->Scale(1./OneD_tau_GenJetPhi->Integral("width"));
+
     // --- Save the Histograms to File -----------------------------------
     sprintf(tempname,"%s/HadTau_TauResponseTemplates_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile(tempname,"RECREATE");
@@ -1509,9 +1724,16 @@ using namespace std;
       
     }
 
-    tauJetPtHist->Write();
+    for(unsigned int i = 0; i < hGenTauResp.size(); ++i) {
+      hGenTauResp.at(i)->Write();
+    }
+    for(unsigned int i = 0; i < htau_GenJetPhi.size(); ++i) {
+      htau_GenJetPhi.at(i)->Write();
+    }
+    //tauJetPtHist->Write();
     tau_GenJetPhi->Write();
-
+    tau_GenGJetPhi->Write();
+    OneD_tau_GenJetPhi->Write();
   }// end of main
 
 

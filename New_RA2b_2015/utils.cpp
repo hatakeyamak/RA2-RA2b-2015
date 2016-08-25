@@ -20,6 +20,13 @@ using namespace std;
       return name;
     }
 
+    TString Utils::dPhi_name(unsigned int ptBin) {
+      TauResponse_checkPtBin(ptBin);
+      TString name = "dPhi_";
+      name += ptBin;
+      return name;
+    }
+
     double Utils::deltaPhi(double phi1, double phi2) {
       return TVector2::Phi_mpi_pi(phi1-phi2);
     }
@@ -147,9 +154,12 @@ using namespace std;
     double Utils::tau_Phi_upX(){return 2.5;}
     double Utils::tau_Phi_nbinX(){return 50;}
 
-    double Utils::tau_Phi_lowY(){return 0.0;}
-    double Utils::tau_Phi_upY(){return 1.0;}
-    double Utils::tau_Phi_nbinY(){return 50;}
+//*AR,Aug23,2016-tau_GenJetPhi is filled such that if ( genTauPhi - tauJetPhi) < -1.0, then (genTauPhi - tauJetPhi)=-1.0. Therefore changing here tau_Phi_lowY from 0 to -1 and number of bins from 50 to 100
+
+
+double Utils::tau_Phi_lowY(){return -1.;}   
+double Utils::tau_Phi_upY(){return 1.0;}
+double Utils::tau_Phi_nbinY(){return 100;}
 
     int Utils::tau_phi_GetBinX(double x){
       double binWidth = ( tau_Phi_upX() - tau_Phi_lowX() )/tau_Phi_nbinX();

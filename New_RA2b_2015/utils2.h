@@ -451,6 +451,28 @@ namespace utils2{
     return nbtagbin; 
   }
 
+
+
+    unsigned int TauResponse_ptBin(double pt) {
+      if( pt < 20.) {
+        std::cerr << "\n\nERROR in TauResponse::ptBin" << std::endl;
+        std::cerr << " No response available for pt = " << pt << " < " << 20 << std::endl;
+        throw std::exception();
+      }
+
+      unsigned int bin=0;
+      if( pt > 30. ) bin = 1;
+      if( pt > 50. ) bin = 2;
+      if( pt > 100. ) bin = 3;
+      return bin;
+    }
+
+    TString dPhi_name(unsigned int ptBin) {
+      TString name = "dPhi_";
+      name += ptBin;
+      return name;
+    }
+
   // Define the Njet&nbtag bin number ()
   int findBin_NJetNBtag(int njet, int nbtag){
 
