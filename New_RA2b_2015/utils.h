@@ -24,8 +24,6 @@ public:
 
     TString TauResponse_name(unsigned int ptBin);
 
-    TString dPhi_name(unsigned int ptBin);
-
     double deltaPhi(double phi1, double phi2);
 
     double deltaR(double eta1, double eta2, double phi1, double phi2);
