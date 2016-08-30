@@ -56,10 +56,10 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
   
   //TFile *file = new TFile("LostLepton2_MuonEfficienciesFromTTbar_Elog213.root","R"); 
   //sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
-  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked_LowStatBinNotcorrected.root",elogForPlot.c_str());
+  sprintf(tempname,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked_Uncorrected.root",elogForPlot.c_str());
   TFile *file   = new TFile(tempname,"R");
 
-  sprintf(tempnameMod,"TauHad/Stack/%smodifiedLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
+  sprintf(tempnameMod,"TauHad/Stack/%sLostLepton2_MuonEfficienciesFromstacked.root",elogForPlot.c_str());
   TFile *file2   = new TFile(tempnameMod,"RECREATE");
 
   int NumHistsToCorrect=2;
@@ -92,7 +92,7 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
 	double newN=0;
 	double newD=0;
 	//std::cout<<"Bin "<< j<< "thist_j"<<ratio<<endl;
-	if(j==52 || j==55 || j==61 || j==64 || j==67){
+	if(j==43 || j==64 || j==67 || j==73 || j==76 || j==79){
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(j+1);
 	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(j+1);      
 	  ratio=newN/newD;
@@ -117,7 +117,7 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
 	double newN=0;
 	double newD=0;
 	//std::cout<<"Bin "<< j<< "thist_j"<<ratio<<endl;
-	if(j==52 || j==55 || j==61 || j==64 || j==67 || j==70 || j==72){
+	if(j==55 || j==67 || j==73 || j==76 || j==79 || j==82 ||j==84){
 	  int kbin=j+1;
 	  if(j==72) kbin=j-1;
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
@@ -144,7 +144,7 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
     thist->SetStats(kFALSE);
 
     thist->SetTitle("");
-    thist->GetXaxis()->SetRangeUser(1,73);
+    thist->GetXaxis()->SetRangeUser(1,85);
 
     thist->SetMaximum(ymax);
     thist->SetMinimum(ymin);

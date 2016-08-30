@@ -293,6 +293,10 @@ using namespace std;
     TH1* Iso_pass_nb_lowDphi = new TH1D("Iso_pass_nb_lowDphi","Isolated Trk efficiency -- pass nb_lowDphi",4,-0.5,3.5);
     Iso_pass_nb_lowDphi->Sumw2();
     */
+    TH1* Iso_all_nb_njet2 = new TH1D("Iso_all_nb_njet2","Isolated Trk efficiency -- all nb_njet2",4,-0.5,3.5);
+    Iso_all_nb_njet2->Sumw2();
+    TH1* Iso_pass_nb_njet2 = new TH1D("Iso_pass_nb_njet2","Isolated Trk efficiency -- pass nb_njet2",4,-0.5,3.5);
+    Iso_pass_nb_njet2->Sumw2();
 
     TH1* Iso_all_nb_njet34 = new TH1D("Iso_all_nb_njet34","Isolated Trk efficiency -- all nb_njet34",4,-0.5,3.5);
     Iso_all_nb_njet34->Sumw2();
@@ -315,6 +319,12 @@ using namespace std;
     Iso_pass_nb_njet9->Sumw2();
         
     //
+    TH1* Iso_all_nb_njet2_lowDphi = new TH1D("Iso_all_nb_njet2_lowDphi","Isolated Trk efficiency -- all nb_njet2_lowDphi",4,-0.5,3.5);
+    Iso_all_nb_njet2_lowDphi->Sumw2();
+    TH1* Iso_pass_nb_njet2_lowDphi = new TH1D("Iso_pass_nb_njet2_lowDphi","Isolated Trk efficiency -- pass nb_njet2_lowDphi",4,-0.5,3.5);
+    Iso_pass_nb_njet2_lowDphi->Sumw2();
+
+
     TH1* Iso_all_nb_njet34_lowDphi = new TH1D("Iso_all_nb_njet34_lowDphi","Isolated Trk efficiency -- all nb_njet34_lowDphi",4,-0.5,3.5);
     Iso_all_nb_njet34_lowDphi->Sumw2();
     TH1* Iso_pass_nb_njet34_lowDphi = new TH1D("Iso_pass_nb_njet34_lowDphi","Isolated Trk efficiency -- pass nb_njet34_lowDphi",4,-0.5,3.5);
@@ -513,7 +523,7 @@ using namespace std;
         CalcAccSys = false;
       }
 
-      //if(eventN>100000)break;
+      //if(eventN>10000)break;
       //if(eventN>5000)break;
 
       eventWeight = evt->weight();
@@ -845,6 +855,7 @@ using namespace std;
 
           Iso_all_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight); // the weight has only scaling info.
           //Iso_all_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	  if (evt->nJets() == 2) Iso_all_nb_njet2_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
@@ -853,6 +864,7 @@ using namespace std;
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
 	    Iso_pass_lowDphi->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
 	    //Iso_pass_nb_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()==2) Iso_pass_nb_njet2_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78_lowDphi->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
@@ -878,6 +890,7 @@ using namespace std;
 
           Iso_all->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           //Iso_all_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	  if (evt->nJets()==2) Iso_all_nb_njet2->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=3 && evt->nJets()<=4) Iso_all_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=5 && evt->nJets()<=6) Iso_all_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
           if (evt->nJets()>=7 && evt->nJets()<=8) Iso_all_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
@@ -886,6 +899,7 @@ using namespace std;
           if(evt->nIsoPion()==0&&evt->nIsoMu()==0&&evt->nIsoElec()==0){
 	    Iso_pass->Fill( binMap_ForAcc[utils2::findBin_ForAcc(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
 	    //Iso_pass_nb->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
+	    if (evt->nJets()==2) Iso_pass_nb_njet2->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=3 && evt->nJets()<=4) Iso_pass_nb_njet34->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=5 && evt->nJets()<=6) Iso_pass_nb_njet56->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
@@ -1161,6 +1175,9 @@ using namespace std;
     IsoNbEff_lowDphi->Divide(Iso_pass_nb_lowDphi,Iso_all_nb_lowDphi,1,1,"B");
     if (Iso_pass_nb_lowDphi->GetSumOfWeights()>0.) IsoNbEff_lowDphi->Scale(Iso_all_nb_lowDphi->GetSumOfWeights()/Iso_pass_nb_lowDphi->GetSumOfWeights());
     */
+    TH1* IsoEff_NbNjet2 = static_cast<TH1*>(Iso_pass_nb_njet2->Clone("IsoEff_NbNjet2"));
+    IsoEff_NbNjet2->Divide(Iso_pass_nb_njet2,Iso_all_nb_njet2,1,1,"B");
+    if (Iso_pass_nb_njet2->GetSumOfWeights()>0.) IsoEff_NbNjet2->Scale(Iso_all_nb_njet2->GetSumOfWeights()/Iso_pass_nb_njet2->GetSumOfWeights());
     TH1* IsoEff_NbNjet34 = static_cast<TH1*>(Iso_pass_nb_njet34->Clone("IsoEff_NbNjet34"));
     IsoEff_NbNjet34->Divide(Iso_pass_nb_njet34,Iso_all_nb_njet34,1,1,"B");
     if (Iso_pass_nb_njet34->GetSumOfWeights()>0.) IsoEff_NbNjet34->Scale(Iso_all_nb_njet34->GetSumOfWeights()/Iso_pass_nb_njet34->GetSumOfWeights());
@@ -1174,6 +1191,9 @@ using namespace std;
     IsoEff_NbNjet9->Divide(Iso_pass_nb_njet9,Iso_all_nb_njet9,1,1,"B");
     if (Iso_pass_nb_njet9->GetSumOfWeights()>0.) IsoEff_NbNjet9->Scale(Iso_all_nb_njet9->GetSumOfWeights()/Iso_pass_nb_njet9->GetSumOfWeights());
 
+    TH1* IsoEff_NbNjet2_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet2_lowDphi->Clone("IsoEff_NbNjet2_lowDphi"));
+    IsoEff_NbNjet2_lowDphi->Divide(Iso_pass_nb_njet2_lowDphi,Iso_all_nb_njet2_lowDphi,1,1,"B");
+    if (Iso_pass_nb_njet2_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet2_lowDphi->Scale(Iso_all_nb_njet2_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet2_lowDphi->GetSumOfWeights());
     TH1* IsoEff_NbNjet34_lowDphi = static_cast<TH1*>(Iso_pass_nb_njet34_lowDphi->Clone("IsoEff_NbNjet34_lowDphi"));
     IsoEff_NbNjet34_lowDphi->Divide(Iso_pass_nb_njet34_lowDphi,Iso_all_nb_njet34_lowDphi,1,1,"B");
     if (Iso_pass_nb_njet34_lowDphi->GetSumOfWeights()>0.) IsoEff_NbNjet34_lowDphi->Scale(Iso_all_nb_njet34_lowDphi->GetSumOfWeights()/Iso_pass_nb_njet34_lowDphi->GetSumOfWeights());
@@ -1215,6 +1235,9 @@ using namespace std;
     Iso_pass_nb_lowDphi->Write();
     Iso_all_nb_lowDphi->Write();
     */
+    IsoEff_NbNjet2->Write();
+    Iso_pass_nb_njet2->Write();
+    Iso_all_nb_njet2->Write();
     IsoEff_NbNjet34->Write();
     Iso_pass_nb_njet34->Write();
     Iso_all_nb_njet34->Write();
@@ -1227,6 +1250,9 @@ using namespace std;
     IsoEff_NbNjet9->Write();    
     Iso_pass_nb_njet9->Write();
     Iso_all_nb_njet9->Write();
+    IsoEff_NbNjet2_lowDphi->Write();
+    Iso_pass_nb_njet2_lowDphi->Write();
+    Iso_all_nb_njet2_lowDphi->Write();
     IsoEff_NbNjet34_lowDphi->Write();
     Iso_pass_nb_njet34_lowDphi->Write();
     Iso_all_nb_njet34_lowDphi->Write();

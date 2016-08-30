@@ -68,11 +68,11 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
 
   //
   
-  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked_LowStatBinNotcorrected.root",elogForPlot.c_str());
+  sprintf(tempname,"TauHad/Stack/%sIsoEfficiencies_stacked_Uncorrected.root",elogForPlot.c_str());
 
   std::cout << "Adjusting " << tempname << std::endl;
   TFile *file   = new TFile(tempname,"R");
-  sprintf(tempnameMod,"TauHad/Stack/%smodifiedIsoEfficiencies_stacked.root",elogForPlot.c_str());
+  sprintf(tempnameMod,"TauHad/Stack/%sIsoEfficiencies_stacked.root",elogForPlot.c_str());
   std::cout << "Adjusted " << tempnameMod << std::endl;
   TFile *file2   = new TFile(tempnameMod,"RECREATE");
 
@@ -112,11 +112,11 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
 	double newD=0;    
 	//std::cout <<" j "<<j << " Num " << histNum->GetBinContent(j) << " Den " << histDen->GetBinContent(j) << " " << thist->GetName() << " bincontent "<< ratio <<endl;
 
-	if(j==55 || j==60 ||j==61 || j==64 || j==67 || j==70 ||j==72){  
+	if(j==24 || j==41 ||j==43 || j==60 || j==67 || j==72 ||j==73 || j==76 || j==79 || j==82 || j==84){  
 
 	  int kbin=j+1;
 	  // bin 61 is low stat and 72 is last, so we use the previous bin
-	  if(j==60 ||j==72) kbin=j-1;
+	  if(j==60 ||j==72 || j==84) kbin=j-1;
 
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
 	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
@@ -140,11 +140,11 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
 	double newD=0;    
 	//std::cout <<" j "<<j << " Num " << histNum->GetBinContent(j) << " Den " << histDen->GetBinContent(j) << " " << thist->GetName() << " bincontent "<< ratio <<endl;
 
-	if(j==43 || j==52 ||j==55 || j==61 || j==64 || j==67 || j==68 || j==70 ||j==72){  
+	if(j==55 || j==64 || j==67 || j==73 || j==76 || j==79 || j==82 || j==84){  
 
 	  int kbin=j+1;
 	  // bin 61 is low stat and 72 is last, so we use the previous bin
-	  if(j==67 ||j==72) kbin=j-1;
+	  if(j==84) kbin=j-1;
 
 	  newN=histNum->GetBinContent(j)+histNum->GetBinContent(kbin);
 	  newD=histDen->GetBinContent(j)+histDen->GetBinContent(kbin);
@@ -172,7 +172,7 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
   thist->SetStats(kFALSE);
 
   thist->SetTitle("");
-  thist->GetXaxis()->SetRangeUser(0.5,72.5);  
+  thist->GetXaxis()->SetRangeUser(0.5,84.5);  
   thist->SetMaximum(ymax);
   thist->SetMinimum(ymin);
   thist->GetXaxis()->SetLabelFont(42);
@@ -280,11 +280,13 @@ void plot_IsoTrackVetoEfficiencies_forICHEP2016(std::string elogForPlot="Elog401
     file2->cd();
     thist->Write();
   }
+  sprintf(tempname,"IsoEff_NbNjet2"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet34"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet56"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet78"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet9");  thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
 
+  sprintf(tempname,"IsoEff_NbNjet2_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet34_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet56_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();
   sprintf(tempname,"IsoEff_NbNjet78_lowDphi"); thist = (TH1D*)file->Get(tempname)->Clone(); thist->Write();

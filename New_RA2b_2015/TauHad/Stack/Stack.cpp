@@ -26,6 +26,7 @@ class mainClass{
   map<int, string> Ttype, WJettype, TTbartype;
   TFile *file, *file2, *file30, *file3;
   TH1D *temphist, *temphist2, * temphist30, *temphistI, *temphistII, *temphistIII, *temphistI_lowDphi, *temphistII_lowDphi, *temphistIII_lowDphi;
+  TH1D *temphistInj2, *temphistIInj2, *temphistIIInj2, *temphistInj2_lowDphi, *temphistIInj2_lowDphi, *temphistIIInj2_lowDphi;
   TH1D *temphistInj34, *temphistIInj34, *temphistIIInj34, *temphistInj34_lowDphi, *temphistIInj34_lowDphi, *temphistIIInj34_lowDphi;
   TH1D *temphistInj56, *temphistIInj56, *temphistIIInj56, *temphistInj56_lowDphi, *temphistIInj56_lowDphi, *temphistIIInj56_lowDphi;
   TH1D *temphistInj78, *temphistIInj78, *temphistIIInj78, *temphistInj78_lowDphi, *temphistIInj78_lowDphi, *temphistIIInj78_lowDphi;
@@ -258,6 +259,12 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="Iso_pass_nb_njet9_lowDphi";
   histname[20]="Iso_all_nb_njet9_lowDphi";
 
+  histname[21]="Iso_pass_nb_njet2";
+  histname[22]="Iso_all_nb_njet2";
+  histname[23]="Iso_pass_nb_njet2_lowDphi";
+  histname[24]="Iso_all_nb_njet2_lowDphi";
+
+
   std::cout<< " Before looping"<< std::endl;
   for(int j=0; j<histname.size(); j++){
 
@@ -299,6 +306,12 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(j==19)temphistInj9_lowDphi=(TH1D*)temphist->Clone();
     if(j==20)temphistIInj9_lowDphi=(TH1D*)temphist->Clone();
 
+    if(j==21)temphistInj2=(TH1D*)temphist->Clone();
+    if(j==22)temphistIInj2=(TH1D*)temphist->Clone();
+    if(j==23)temphistInj2_lowDphi=(TH1D*)temphist->Clone();
+    if(j==24)temphistIInj2_lowDphi=(TH1D*)temphist->Clone();
+
+
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -311,7 +324,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff");
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
-
+  
   temphistIII_lowDphi = static_cast<TH1D*>(temphistI_lowDphi->Clone("IsoEff_lowDphi"));
   temphistIII_lowDphi->Divide(temphistI_lowDphi,temphistII_lowDphi,1,1,"B");
   temphistIII_lowDphi->SetName("IsoEff_lowDphi");
@@ -329,7 +342,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIIInj34_lowDphi->SetName("IsoEff_NbNjet34_lowDphi");
   temphistIIInj34_lowDphi->SetTitle("IsoEff_NbNjet34_lowDphi");
   temphistIIInj34_lowDphi->Write();
-
+  
   temphistIIInj56 = static_cast<TH1D*>(temphistInj56->Clone("IsoEff_NbNjet56"));
   temphistIIInj56->Divide(temphistInj56,temphistIInj56,temphistIInj56->GetSumOfWeights(),temphistInj56->GetSumOfWeights(),"B");
   temphistIIInj56->SetName("IsoEff_NbNjet56");
@@ -365,6 +378,16 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIIInj9_lowDphi->SetName("IsoEff_NbNjet9_lowDphi");
   temphistIIInj9_lowDphi->SetTitle("IsoEff_NbNjet9_lowDphi");
   temphistIIInj9_lowDphi->Write();
+  
+  temphistIIInj2_lowDphi = static_cast<TH1D*>(temphistInj2_lowDphi->Clone("IsoEff_NbNjet2_lowDphi"));
+  std::cout<<"temphistIInj9_lowDphi->GetSumOfWeights()"<<temphistIInj9_lowDphi->GetSumOfWeights()<<endl;
+  std::cout<<"temphistInj9_lowDphi->GetSumOfWeights()"<<temphistInj9_lowDphi->GetSumOfWeights()<<endl;
+
+  temphistIIInj2_lowDphi->Divide(temphistInj2_lowDphi,temphistIInj2_lowDphi,temphistIInj2_lowDphi->GetSumOfWeights(),temphistInj2_lowDphi->GetSumOfWeights(),"B");
+  //std::cout<<"******"<<endl;
+  temphistIIInj2_lowDphi->SetName("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->SetTitle("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->Write();
 
   histname.clear();
   //histname[0]="IsoEff_temp";
@@ -430,7 +453,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     else if(i==2)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromt_antitop_.root");
     else if(i==3)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_top_.root");
     else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFromtW_antitop_.root");
-    else if(i==4)sprintf(tempname,"../LostLepton2_MuonEfficienciesFroms_channel_.root");
+    else if(i==5)sprintf(tempname,"../LostLepton2_MuonEfficienciesFroms_channel_.root");
     else{cout << " Error!! There are only 4 T ht binned sample " << endl;}
     T_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
@@ -1109,6 +1132,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="Iso_pass_nb_njet9_lowDphi";
   histname[20]="Iso_all_nb_njet9_lowDphi";
 
+  histname[21]="Iso_pass_nb_njet2";
+  histname[22]="Iso_all_nb_njet2";
+  histname[23]="Iso_pass_nb_njet2_lowDphi";
+  histname[24]="Iso_all_nb_njet2_lowDphi";
+
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
@@ -1149,6 +1177,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(j==19)temphistInj9_lowDphi=(TH1D*)temphist->Clone();
     if(j==20)temphistIInj9_lowDphi=(TH1D*)temphist->Clone();
 
+    if(j==21)temphistInj2=(TH1D*)temphist->Clone();
+    if(j==22)temphistIInj2=(TH1D*)temphist->Clone();
+    if(j==23)temphistInj2_lowDphi=(TH1D*)temphist->Clone();
+    if(j==24)temphistIInj2_lowDphi=(TH1D*)temphist->Clone();
+
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -1159,13 +1192,31 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII->SetName("IsoEff");
   temphistIII->SetTitle("IsoEff");
   temphistIII->Write();
-
+  //  std::cout<<"******"<<endl;
+  //std::cout<<"temphistII_lowDphi->GetSumOfWeights()"<<temphistII_lowDphi->GetSumOfWeights()<<endl;
+  //std::cout<<"temphistI_lowDphi->GetSumOfWeights()"<<temphistI_lowDphi->GetSumOfWeights()<<endl;
   temphistIII_lowDphi = static_cast<TH1D*>(temphistI_lowDphi->Clone("IsoEff_lowDphi"));
   temphistIII_lowDphi->Divide(temphistI_lowDphi,temphistII_lowDphi,1,1,"B");
   temphistIII_lowDphi->SetName("IsoEff_lowDphi");
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
+  //std::cout<<"******"<<endl;
+  temphistIIInj2 = static_cast<TH1D*>(temphistInj2->Clone("IsoEff_NbNjet2"));
+  temphistIIInj2->Divide(temphistInj2,temphistIInj2,temphistIInj2->GetSumOfWeights(),temphistInj2->GetSumOfWeights(),"B");
+  temphistIIInj2->SetName("IsoEff_NbNjet2");
+  temphistIIInj2->SetTitle("IsoEff_NbNjet2");
+  temphistIIInj2->Write();
 
+  temphistIIInj2_lowDphi = static_cast<TH1D*>(temphistInj2_lowDphi->Clone("IsoEff_NbNjet2_lowDphi"));
+  //std::cout<<"******"<<endl;
+  //std::cout<<"temphistIInj2_lowDphi->GetSumOfWeights()"<<temphistIInj2_lowDphi->GetSumOfWeights()<<endl;
+  //std::cout<<"temphistInj2_lowDphi->GetSumOfWeights()"<<temphistInj2_lowDphi->GetSumOfWeights()<<endl;
+  
+  temphistIIInj2_lowDphi->Divide(temphistInj2_lowDphi,temphistIInj2_lowDphi,temphistIInj2_lowDphi->GetSumOfWeights(),temphistInj2_lowDphi->GetSumOfWeights(),"B");
+  temphistIIInj2_lowDphi->SetName("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->SetTitle("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->Write();
+  //std::cout<<"******"<<endl;
 
   temphistIIInj34 = static_cast<TH1D*>(temphistInj34->Clone("IsoEff_NbNjet34"));
   temphistIIInj34->Divide(temphistInj34,temphistIInj34,temphistIInj34->GetSumOfWeights(),temphistInj34->GetSumOfWeights(),"B");
@@ -1844,6 +1895,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="Iso_pass_nb_njet9_lowDphi";
   histname[20]="Iso_all_nb_njet9_lowDphi";
 
+  histname[21]="Iso_pass_nb_njet2";
+  histname[22]="Iso_all_nb_njet2";
+  histname[23]="Iso_pass_nb_njet2_lowDphi";
+  histname[24]="Iso_all_nb_njet2_lowDphi";
+
   for(int j=0; j<histname.size(); j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
@@ -1886,6 +1942,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     if(j==19)temphistInj9_lowDphi=(TH1D*)temphist->Clone();
     if(j==20)temphistIInj9_lowDphi=(TH1D*)temphist->Clone();
 
+    if(j==21)temphistInj2=(TH1D*)temphist->Clone();
+    if(j==22)temphistIInj2=(TH1D*)temphist->Clone();
+    if(j==23)temphistInj2_lowDphi=(TH1D*)temphist->Clone();
+    if(j==24)temphistIInj2_lowDphi=(TH1D*)temphist->Clone();
+
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -1902,6 +1963,19 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphistIII_lowDphi->SetName("IsoEff_lowDphi");
   temphistIII_lowDphi->SetTitle("IsoEff_lowDphi");
   temphistIII_lowDphi->Write();
+
+  temphistIIInj2 = static_cast<TH1D*>(temphistInj2->Clone("IsoEff_NbNjet2"));
+  temphistIIInj2->Divide(temphistInj2,temphistIInj2,temphistIInj2->GetSumOfWeights(),temphistInj2->GetSumOfWeights(),"B");
+  temphistIIInj2->SetName("IsoEff_NbNjet2");
+  temphistIIInj2->SetTitle("IsoEff_NbNjet2");
+  temphistIIInj2->Write();
+
+  temphistIIInj2_lowDphi = static_cast<TH1D*>(temphistInj2_lowDphi->Clone("IsoEff_NbNjet2_lowDphi"));
+  temphistIIInj2_lowDphi->Divide(temphistInj2_lowDphi,temphistIInj2_lowDphi,temphistIInj2_lowDphi->GetSumOfWeights(),temphistInj2_lowDphi->GetSumOfWeights(),"B");
+  //std::cout<<"****"<<endl;
+  temphistIIInj2_lowDphi->SetName("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->SetTitle("IsoEff_NbNjet2_lowDphi");
+  temphistIIInj2_lowDphi->Write();
 
   temphistIIInj34 = static_cast<TH1D*>(temphistInj34->Clone("IsoEff_NbNjet34"));
   temphistIIInj34->Divide(temphistInj34,temphistIInj34,temphistIInj34->GetSumOfWeights(),temphistInj34->GetSumOfWeights(),"B");
@@ -2520,6 +2594,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[7]="Iso_all_nb_njet78";
   histname[8]="Iso_pass_nb_njet9";
   histname[9]="Iso_all_nb_njet9";
+  histname[10]="Iso_pass_nb_njet2";
+  histname[11]="Iso_all_nb_njet2";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -2564,6 +2640,8 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[7]="Iso_all_nb_njet78_lowDphi";
   histname[8]="Iso_pass_nb_njet9_lowDphi";
   histname[9]="Iso_all_nb_njet9_lowDphi";
+  histname[10]="Iso_pass_nb_njet2_lowDphi";
+  histname[11]="Iso_all_nb_njet2_lowDphi";
 
   for(int j=0; j<histname.size(); j++){
 
@@ -2617,6 +2695,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist->Divide(temphist,temphist2,temphist2->GetSumOfWeights(),temphist->GetSumOfWeights(),"B");
   temphist->SetName("IsoEff_NbNjet9");  temphist->SetTitle("IsoEff_NbNjet9"); temphist->Write();
 
+  sprintf(tempname,"Iso_pass_nb_njet2"); sprintf(tempname2,"Iso_all_nb_njet2");  
+  temphist = (TH1D *) file->Get(tempname)->Clone();  temphist2 = (TH1D *) file2->Get(tempname2)->Clone();
+  temphist->Divide(temphist,temphist2,temphist2->GetSumOfWeights(),temphist->GetSumOfWeights(),"B");
+  temphist->SetName("IsoEff_NbNjet2");  temphist->SetTitle("IsoEff_NbNjet2"); temphist->Write();
+
   /*
   sprintf(tempname,"Iso_pass_temp");
   temphist = (TH1D *) file->Get(tempname)->Clone();
@@ -2656,6 +2739,11 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   temphist = (TH1D *) file->Get(tempname)->Clone();  temphist2 = (TH1D *) file2->Get(tempname2)->Clone();
   temphist->Divide(temphist,temphist2,temphist2->GetSumOfWeights(),temphist->GetSumOfWeights(),"B");
   temphist->SetName("IsoEff_NbNjet9_lowDphi");  temphist->SetTitle("IsoEff_NbNjet9_lowDphi"); temphist->Write();
+
+  sprintf(tempname,"Iso_pass_nb_njet2_lowDphi"); sprintf(tempname2,"Iso_all_nb_njet2_lowDphi");  
+  temphist = (TH1D *) file->Get(tempname)->Clone();  temphist2 = (TH1D *) file2->Get(tempname2)->Clone();
+  temphist->Divide(temphist,temphist2,temphist2->GetSumOfWeights(),temphist->GetSumOfWeights(),"B");
+  temphist->SetName("IsoEff_NbNjet2_lowDphi");  temphist->SetTitle("IsoEff_NbNjet2_lowDphi"); temphist->Write();
 
 
   file->Close();
