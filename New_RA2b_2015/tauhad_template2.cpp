@@ -584,21 +584,21 @@ using namespace std;
     // Open some files and get the histograms ........................................//
 
     // Rate of bTagged tau jet
-    TFile * bRateFile = new TFile("TauHad/Stack/ARElog52_TauBtaggedRate_WJet_stacked.root","R");
+    TFile * bRateFile = new TFile("TauHad/Stack/ARElog63_TauBtaggedRate_WJet_stacked.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     sprintf(histname,"TauBtaggedRate");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/ARElog52_modifiedProbability_Tau_mu_stacked.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/ARElog63_Probability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
     sprintf(histname,"hProb_Tau_mu_lowDelphi");
     TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-    TFile * MuAcc_file = new TFile("TauHad/Stack/ARElog52_modifiedLostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("TauHad/Stack/ARElog63_LostLepton2_MuonEfficienciesFromstacked.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     //    TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
@@ -623,10 +623,13 @@ using namespace std;
     TH2F *hMuIsoSF = (TH2F*)MediumIso_SF->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
 
     // Get IsoTrk (veto) efficiencies
-    TFile * IsoEffFile = new TFile("TauHad/Stack/ARElog52_modifiedIsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("TauHad/Stack/ARElog63_IsoEfficiencies_stacked.root","R");
     //    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
+
+    TH1D * hIsoEff_NbNjet2 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet2")->Clone();
+    TH1D * hIsoEff_NbNjet2_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet2_lowDphi")->Clone();
 
     TH1D * hIsoEff_NbNjet34 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet34")->Clone();
     TH1D * hIsoEff_NbNjet34_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet34_lowDphi")->Clone();
@@ -648,7 +651,7 @@ using namespace std;
     //std::cout<<" MTFile is read "<<std::endl;
     //    TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
 
-    TFile * MtFile = new TFile("TauHad2/ARElog52_modified_MtEff.root","R");
+    TFile * MtFile = new TFile("TauHad2/ARElog63_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
     TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
@@ -772,7 +775,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      //if(eventN>5000)break;
+      //if(eventN>20000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
@@ -1833,6 +1836,7 @@ using namespace std;
 		  //KH
 		  double IsoTrkVetoEff_Nb;
 		  double IsoTrkVetoEff_Nb_Error;
+		  if (evt->nJets()==2) IsoTrkVetoEff_Nb = hIsoEff_NbNjet2->GetBinContent( hIsoEff_NbNjet2->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		  if (evt->nJets()>=3 && evt->nJets()<=4) IsoTrkVetoEff_Nb = hIsoEff_NbNjet34->GetBinContent( hIsoEff_NbNjet34->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		  if (evt->nJets()>=5 && evt->nJets()<=6) IsoTrkVetoEff_Nb = hIsoEff_NbNjet56->GetBinContent( hIsoEff_NbNjet56->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		  if (evt->nJets()>=7 && evt->nJets()<=8) IsoTrkVetoEff_Nb = hIsoEff_NbNjet78->GetBinContent( hIsoEff_NbNjet78->FindBin( utils2::findBin_NBtag(NewNB) ) );
@@ -1872,6 +1876,8 @@ using namespace std;
 
 		double IsoTrkVetoEff_Nb;
 		double IsoTrkVetoEff_Nb_Error;
+
+		if (evt->nJets()==2) IsoTrkVetoEff_Nb = hIsoEff_NbNjet2_lowDphi->GetBinContent( hIsoEff_NbNjet2_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		if (evt->nJets()>=3 && evt->nJets()<=4) IsoTrkVetoEff_Nb = hIsoEff_NbNjet34_lowDphi->GetBinContent( hIsoEff_NbNjet34_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		if (evt->nJets()>=5 && evt->nJets()<=6) IsoTrkVetoEff_Nb = hIsoEff_NbNjet56_lowDphi->GetBinContent( hIsoEff_NbNjet56_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );
 		if (evt->nJets()>=7 && evt->nJets()<=8) IsoTrkVetoEff_Nb = hIsoEff_NbNjet78_lowDphi->GetBinContent( hIsoEff_NbNjet78_lowDphi->FindBin( utils2::findBin_NBtag(NewNB) ) );

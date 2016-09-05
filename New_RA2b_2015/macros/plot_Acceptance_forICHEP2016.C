@@ -166,45 +166,53 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
     thist->SetMarkerStyle(20);
     thist->Draw();
 
-    TLatex * ttext1 = new TLatex(6.5 , ytext , " N_{jets} = 3");
+    TLatex * ttext1 = new TLatex(6.5 , ytext , " N_{jets} = 2");
     //TLatex * ttext1 = new TLatex(5.5 , ytext , " N_{jets} = 3");                                                                                                     
     ttext1->SetTextFont(42);
     ttext1->SetTextSize(0.04);
     ttext1->SetTextAlign(22);
     ttext1->Draw();
-   //TLatex * ttext1 = new TLatex(16.5 , ytext , " N_{jets} = 3");                                                                                                     
-    TLatex * ttext2 = new TLatex(18.5 , ytext , " N_{jets} = 4");
+
+
+    TLatex * ttext2 = new TLatex(18.5 , ytext , " N_{jets} = 3");
+    //TLatex * ttext1 = new TLatex(5.5 , ytext , " N_{jets} = 3");                                                                                                     
     ttext2->SetTextFont(42);
     ttext2->SetTextSize(0.04);
     ttext2->SetTextAlign(22);
     ttext2->Draw();
-
-    //TLatex * ttext1 = new TLatex(27.5 , ytext , " N_{jets} = 3");                                                                                                     
-    TLatex * ttext3 = new TLatex(30.5 , ytext , " N_{jets} = 5");
+   //TLatex * ttext1 = new TLatex(16.5 , ytext , " N_{jets} = 3");                                                                                                     
+    TLatex * ttext3 = new TLatex(30.5 , ytext , " N_{jets} = 4");
     ttext3->SetTextFont(42);
     ttext3->SetTextSize(0.04);
     ttext3->SetTextAlign(22);
     ttext3->Draw();
 
-    //TLatex * ttext1 = new TLatex(38.5 , ytext , " N_{jets} = 3");                                                                                                     
-    TLatex * ttext4 = new TLatex(42.5 , ytext , " N_{jets} = 6");
+    //TLatex * ttext1 = new TLatex(27.5 , ytext , " N_{jets} = 3");                                                                                                     
+    TLatex * ttext4 = new TLatex(42.5 , ytext , " N_{jets} = 5");
     ttext4->SetTextFont(42);
     ttext4->SetTextSize(0.04);
     ttext4->SetTextAlign(22);
     ttext4->Draw();
-    //TLatex * ttext5 = new TLatex(46.5 , ytext , "7 #leq N_{jets} #leq 8");
-    TLatex * ttext5 = new TLatex(54.5 , ytext , "7 #leq N_{jets} #leq 8");
+
+    //TLatex * ttext1 = new TLatex(38.5 , ytext , " N_{jets} = 3");                                                                                                     
+    TLatex * ttext5 = new TLatex(54.5 , ytext , " N_{jets} = 6");
     ttext5->SetTextFont(42);
     ttext5->SetTextSize(0.04);
     ttext5->SetTextAlign(22);
     ttext5->Draw();
-
-    //TLatex * ttext6 = new TLatex(52.5 , ytext , "N_{jets} #geq 9");                                                                                             
-    TLatex * ttext6 = new TLatex(66.5 , ytext , "N_{jets} #geq 9");
+    //TLatex * ttext5 = new TLatex(46.5 , ytext , "7 #leq N_{jets} #leq 8");
+    TLatex * ttext6 = new TLatex(66.5 , ytext , "7 #leq N_{jets} #leq 8");
     ttext6->SetTextFont(42);
     ttext6->SetTextSize(0.04);
     ttext6->SetTextAlign(22);
     ttext6->Draw();
+
+    //TLatex * ttext6 = new TLatex(52.5 , ytext , "N_{jets} #geq 9");                                                                                             
+    TLatex * ttext7 = new TLatex(78.5 , ytext , "N_{jets} #geq 9");
+    ttext7->SetTextFont(42);
+    ttext7->SetTextSize(0.04);
+    ttext7->SetTextAlign(22);
+    ttext7->Draw();
 
 
     TLine *tline_1 = new TLine(13,ymin,13,ymax);
@@ -226,6 +234,10 @@ void plot_Acceptance_forICHEP2016(std::string elogForPlot=""){
     TLine *tline_5 = new TLine(61,ymin,61,ymax);
     tline_5->SetLineStyle(2);
     tline_5->Draw();
+
+    TLine *tline_6 = new TLine(73,ymin,73,ymax);
+    tline_6->SetLineStyle(2);
+    tline_6->Draw();
   
     if(x==1){
       c1->Print("plot_Acceptance.png");

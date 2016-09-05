@@ -77,7 +77,7 @@ MtCutEff_tt->Divide(thist_tt,thist_tt2,1,1,"B");
 //
 //one time drawing options
 //
-double XUp = 73. , maxVal=2.;
+double XUp = 85. , maxVal=2.;
   MtCutEff_tt->SetMaximum(maxVal);
     MtCutEff_tt->SetTitle("");
     MtCutEff_tt->GetXaxis()->SetLabelFont(42);

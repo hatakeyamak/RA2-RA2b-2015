@@ -94,8 +94,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
   //  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
-  double lumi     = 7.6;
-  double lumi_ref = 7.6; // normaliza to 3 (fb-1)
+  double lumi     = 12.9;
+  double lumi_ref = 12.9; // normaliza to 3 (fb-1)
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
   //
@@ -259,7 +259,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   double search_x_min=0.;
   double DelPhiN_x_max=20.;
   double Delphi1_x_max=3.2;
-  //Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.}; 
+  //Double_t NJ_bins[11]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,20.};
+  //*AR-Sep4,2016-Arrays are used to define low edges of variable size binning 
   Double_t NJ_bins[12]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,11.5,19.5}; 
   Double_t HT_bins[13]={0.,300.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.};
  
@@ -467,7 +468,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       sprintf(ytitlename,"Events");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
-      thist->GetXaxis()->SetRangeUser(3.,NJet_x_max);
+      thist->GetXaxis()->SetRangeUser(2.,NJet_x_max);
       gPad->SetLogy();
     }
     if(histname=="MET"){
@@ -725,7 +726,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       }    
       if(histname=="NJet"){
         sprintf(xtitlename,"N_{jet}");
-        numerator->GetXaxis()->SetRangeUser(3.,NJet_x_max);
+        numerator->GetXaxis()->SetRangeUser(2.,NJet_x_max);
         TLine *tline = new TLine(2.5,1.,NJet_x_max,1.);
 	//ymax_bottom=1.5;
 	//ymin_bottom=0.5;
