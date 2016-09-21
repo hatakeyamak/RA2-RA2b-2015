@@ -523,7 +523,7 @@ using namespace std;
         CalcAccSys = false;
       }
 
-      //if(eventN>10000)break;
+      if(eventN>10000)break;
       //if(eventN>5000)break;
 
       eventWeight = evt->weight();

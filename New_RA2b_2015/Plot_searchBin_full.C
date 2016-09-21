@@ -21,6 +21,10 @@ root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Low","Elog365_")'
 root.exe -b -q 'Plot_searchBin_full.C("stacked","QCD_Up","Elog365_")'
 
 */
+void printToCoordinates(int x, int y, const std::string& text)
+{
+  printf("\033[%d;%dH%s\n", x, x, text.c_str());
+}
 
 void shift_bin(TH1* input, TH1* output){
 
@@ -45,7 +49,7 @@ void shift_bin(TH1* input, TH1* output){
 
 }
 
-Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="Elog410_",string elogExp="Elog410_",
+void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string elog="Elog410_",string elogExp="Elog410_",
 		    int pull=0){
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +58,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   // Set basic style
   //
   gROOT->LoadMacro("tdrstyle.C");
-  setTDRStyle();
+  void setTDRStyle();
   gStyle->SetPalette(1) ; // for better color output
   gROOT->LoadMacro("CMS_lumi.C");
 
@@ -124,13 +128,20 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   // Define legend
   //
-  Float_t legendX1 = .70; //.50;
+  //  Float_t legendX1 = .70; //.50;
   //Float_t legendX2 = .95; //.70;
-  Float_t legendX2 = .95;  
+  //Float_t legendX2 = .95;  
+  //Float_t legendY1 = .50; //.65;
+  // Float_t legendY1 = .54;
+  //Float_t legendY2 = .67;
+  //  Float_t legendY2 = .79;
+
+  Float_t legendX1 = .65; //.50;
+  //Float_t legendX2 = .95; //.70;
+  Float_t legendX2 = .90;  
   Float_t legendY1 = .50; //.65;
   // Float_t legendY1 = .54;
   Float_t legendY2 = .67;
-  //  Float_t legendY2 = .79;
 
   TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
   //catLeg1->SetTextSize(0.060);
@@ -194,8 +205,8 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   //
   // draw top figure
   canvas_up->cd();
-
-  TH1D * GenHist, * EstHist,* thist;
+  //  TH1D * GenHist, * EstHist,* thist;
+  TH1D * thist;
   TH1D * GenHist_input, * EstHist_input;
   TH1D * histTemplate;
   THStack *tempstack;
@@ -619,21 +630,31 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
   ex1->Draw();
   GenHist_Normalize->DrawCopy("esame");
   //
-
-  TString line = "";
+  char line[100] = "";
+  //  TString line = "";
   sprintf(tempname,"%8.1f",lumi);
-  line+=tempname;
-  line+=" fb^{-1} (13 TeV)";
+  //line+=tempname;
+  strcat( line, tempname);
   
+  char lumiDetail[100]=" fb^{-1} (13 TeV)";
+  //  line+=" fb^{-1} (13 TeV)";
+  strcat( line, lumiDetail);
   int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
   int iPos=0;
     
-  writeExtraText = true;
-  extraText   = "        Simulation";
+  bool writeExtraText = true;
+  //TString extraText   = "        Simulation";
+  char extraText[100]   = "CMS Simulation                                  ";
+  sprintf(tempname,"%s",extraText);
+  strcat(extraText,line);
+  //  sprintf(tempname,"%8.1f",lumi);
   //extraText   = "        Supplementary";
+  printToCoordinates(10, 80, extraText);
 
-
-  //float extraTextFont = 52;  // default is helvetica-italics
+  TLatex * toptext = new TLatex();
+  toptext->SetTextSize(0.07);
+  toptext->DrawLatex(1.-0.5 , ymax_top , extraText);
+  float extraTextFont = 52;  // default is helvetica-italics
 
   // text sizes and text offsets with respect to the top frame
   // in unit of the top margin size
@@ -1111,7 +1132,7 @@ Plot_searchBin_full(string sample="stacked",string histname="searchH_b",string e
       //
       //
 
-  CMS_lumi( canvas, iPeriod, iPos );
+  void CMS_lumi( TPad* canvas,int iPeriod,int iPos );
 
   sprintf(tempname,"Closure_%s_%s_Full_%s%sPlot.png",histname.c_str(),sample.c_str(),elog.c_str(),elogExp.c_str());
   if (pull==1) 

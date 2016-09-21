@@ -12,56 +12,56 @@ using namespace std;
 
   Usage:
 
-root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog410_","Elog410_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog410_","Elog410_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog410_","Elog410_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog410_","Elog410_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog410_","Elog410_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog410_","Elog410_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog410_","Elog410_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog410_","Elog410_",true)'
 
-.x Plot_closure.C("delphi","NJet","stacked","Elog377_")
-.x Plot_closure.C("delphi","NBtag","stacked","Elog377_")
-.x Plot_closure.C("delphi","HT","stacked","Elog377_")
-.x Plot_closure.C("delphi","MHT","stacked","Elog377_")
-.x Plot_closure.C("delphi","MET","stacked","Elog377_")
+  .x Plot_closure.C("delphi","NJet","stacked","Elog377_")
+  .x Plot_closure.C("delphi","NBtag","stacked","Elog377_")
+  .x Plot_closure.C("delphi","HT","stacked","Elog377_")
+  .x Plot_closure.C("delphi","MHT","stacked","Elog377_")
+  .x Plot_closure.C("delphi","MET","stacked","Elog377_")
 
-root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog401_","Elog381_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog401_","Elog381_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog401_","Elog381_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog401_","Elog381_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog401_","Elog381_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog401_","Elog381_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog401_","Elog381_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog401_","Elog381_",true)'
 
-root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NBtag","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","HT","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","MHT","stacked","Elog377_",true)'
 
-root.exe -b -q 'Plot_closure.C("mht_200","NJet","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("isoPion","NJet","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("delphi_NoIso","NJet","stacked","",true)'
-root.exe -b -q 'Plot_closure.C("met_500","NJet","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("isoPion","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("delphi_NoIso","NJet","stacked","",true)'
+  root.exe -b -q 'Plot_closure.C("met_500","NJet","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","NJet","stacked","Elog377_",true)'
 
-.x Plot_closure.C("delphi","DelPhiN","stacked","Elog365_")
-.x Plot_closure.C("delphi","DelPhi1","stacked","Elog365_")
-.x Plot_closure.C("delphi","DelPhi2","stacked","Elog365_")
-.x Plot_closure.C("delphi","DelPhi3","stacked","Elog365_")
+  .x Plot_closure.C("delphi","DelPhiN","stacked","Elog365_")
+  .x Plot_closure.C("delphi","DelPhi1","stacked","Elog365_")
+  .x Plot_closure.C("delphi","DelPhi2","stacked","Elog365_")
+  .x Plot_closure.C("delphi","DelPhi3","stacked","Elog365_")
 
-root.exe -b -q 'Plot_closure.C("mht_200","DelPhi1","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_200","DelPhi2","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_200","DelPhi3","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_200","DelPhi4","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_200","TauJet_MHT_delPhi","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","DelPhi1","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","DelPhi2","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","DelPhi3","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","DelPhi4","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_200","TauJet_MHT_delPhi","stacked","Elog377_",true,true)'
 
-root.exe -b -q 'Plot_closure.C("mht_500","DelPhi1","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_500","DelPhi2","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_500","DelPhi3","stacked","Elog377_",true,true)'
-root.exe -b -q 'Plot_closure.C("mht_500","DelPhi4","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_500","DelPhi1","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_500","DelPhi2","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_500","DelPhi3","stacked","Elog377_",true,true)'
+  root.exe -b -q 'Plot_closure.C("mht_500","DelPhi4","stacked","Elog377_",true,true)'
 
-root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi1","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi2","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi3","stacked","Elog377_",true)'
-root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi1","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi2","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi3","stacked","Elog377_",true)'
+  root.exe -b -q 'Plot_closure.C("J46_HT5001200_MHT500750","DelPhi4","stacked","Elog377_",true)'
 
- */
+*/
 
 void shift_bin(TH1* input, TH1* output){
 
@@ -86,9 +86,9 @@ void shift_bin(TH1* input, TH1* output){
 
 }
 
-Plot_closure(string cutname="delphi", string histname="NBtag",string sample="stacked",
-	     string elogForPre="Elog410_PlusRare_",string elogForExp="Elog410_PlusRare_",
-	     bool zoom=true, bool debug=true){
+void Plot_closure(string cutname="delphi", string histname="NBtag",string sample="stacked",
+		  string elogForPre="Elog410_PlusRare_",string elogForExp="Elog410_PlusRare_",
+		  bool zoom=true, bool debug=true){
 
   //
   // Luminosity information for scaling
@@ -102,26 +102,31 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   // Set basic style
   //
   gROOT->LoadMacro("tdrstyle.C");
-  setTDRStyle();
+  void setTDRStyle();
   gROOT->LoadMacro("CMS_lumi.C");
 
-  writeExtraText = true;
-  extraText   = "        Supplementary (Simulation)";  // default extra text is "Preliminary"
-  lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
-  lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
-  lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-  cmsTextSize  = 0.60;
-  lumiTextSize = 0.52;
+  bool writeExtraText = true;
+  char extraText[200]   = "CMS Supplementary (Simulation)                                        ";  // default extra text is "Preliminary"
+  char lumi_8TeV[100]  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
+  char lumi_7TeV[100]  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
+  //char lumi_sqrtS[100] = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+  float cmsTextSize  = 0.60;
+  float lumiTextSize = 0.52;
 
   int iPeriod = 0;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses lumi_sqrtS)
   int iPos=0;
 
-  TString line = "";
+  char line[100] = "";
   char tempname[200];
   sprintf(tempname,"%8.1f",lumi);
-  line+=tempname;
-  line+=" fb^{-1} (13 TeV)";
-  lumi_sqrtS = line;
+  strcat( line, tempname);
+  //  line+=tempname;
+  //line+=" fb^{-1} (13 TeV)";
+  char lumiDetail[100]=" fb^{-1} (13 TeV)";
+  strcat( line, lumiDetail);
+  TString lumi_sqrtS = line;
+  sprintf(tempname,"%s",extraText);
+  strcat(extraText,line);
 
   int W = 600;
   int H = 600;
@@ -134,14 +139,18 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 
   //
   // Various vertical line coordinates
-  float ymax_top = 100000.;
-  float ymin_top = 0.04.;
+  float ymax_top = 300000.;
+  float ymin_top = 0.04;
   float ymax_bottom = 2.65;
   float ymin_bottom = 0.0;
   float ytext_top = 2000.;
   float x_legend = 10.;
   float y_legend = 4000.;
   float xtext_top;
+
+  TLatex * toptext = new TLatex();
+  toptext->SetTextSize(0.03);
+  
   
   if (zoom){
     ymax_bottom = 1.7;
@@ -264,8 +273,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   Double_t NJ_bins[12]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,11.5,19.5}; 
   Double_t HT_bins[13]={0.,300.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.};
  
-  TH1D * GenHist_Clone;
-  
+  TH1D* EstHist_Clone;
+  TH1D* GenHist_Clone;
   for(int i=0; i<filevec.size(); i++){
 
     if(sample.find("stacked")!=string::npos){
@@ -319,8 +328,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
         }
       }
       if(i==1){
-  //      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
-  //      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
+	//      if(histname=="NBtag")sprintf(tempname,"allEvents/%s/nB_new_%s_allEvents",cutname.c_str(),cutname.c_str());
+	//      else sprintf(tempname,"allEvents/%s/%s_%s_allEvents",cutname.c_str(),histname.c_str(),cutname.c_str());
         if(histname=="search"){
           sprintf(tempname,"searchH");
           EstHist=(TH1D*) filevec.at(i)->Get(tempname)->Clone();
@@ -389,7 +398,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       //thist->GetXaxis()->SetLabelFont(42);
       //thist->GetXaxis()->SetLabelOffset(0.007);
       //thist->GetXaxis()->SetLabelSize(0.04);
-      thist->GetXaxis()->SetTitleSize(0.05);
+      thist->GetXaxis()->SetTitleSize(0.04);
       thist->GetXaxis()->SetTitleOffset(1.9);
       thist->GetXaxis()->SetLabelOffset(1.2);
       //thist->GetXaxis()->SetTitleOffset(1.2);
@@ -397,9 +406,11 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       //thist->GetYaxis()->SetLabelFont(42);
       //thist->GetYaxis()->SetLabelOffset(0.007);
       //thist->GetYaxis()->SetLabelSize(0.04);
-      thist->GetYaxis()->SetTitleSize(0.06);
+      //      thist->GetYaxis()->SetTitleSize(0.06);
+      thist->GetYaxis()->SetTitleSize(0.04);
       thist->GetYaxis()->SetTitleOffset(1.2);
       thist->GetYaxis()->SetTitleFont(42);
+      //      thist->GetYaxis()->SetLabelSize(0.04);
       thist->GetYaxis()->SetLabelSize(0.04);
     }
     if(histname=="search"){
@@ -409,20 +420,21 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMinimum(0.);
       thist->GetXaxis()->SetRangeUser(search_x_min,search_x_max);
     }
-    
+    double toptext_x=0;
     if(histname=="HT"){
       xtext_top = 1800.;
       //y_legend  = 2000.;
       //xlatex=1896.257;ylatex=11.59619;
       xlatex=0.65;ylatex=0.5;
       ymax_top = 300000.;
-      ymin_top = 0.2.;
+      ymin_top = 0.2;
       sprintf(xtitlename,"H_{T} [GeV]");
       sprintf(ytitlename,"Events / 200 GeV");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
       gPad->SetLogy();
+      toptext_x=300;
       //thist->GetXaxis()->SetLimits(0.,HT_x_max);
     }
     if(histname=="MHT"){
@@ -438,6 +450,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(100.,MHT_x_max);
       gPad->SetLogy();
+      toptext_x=100;
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
     }     
     if(histname=="NBtag"){
@@ -453,8 +466,9 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       sprintf(ytitlename,"Events");
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(0.);
-      thist->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
+      thist->GetXaxis()->SetRangeUser(0,NBtag_x_max);
       thist->GetXaxis()->SetNdivisions(505);
+      toptext_x=0;
     }    
     if(histname=="NJet"){
       xtext_top = 11.;
@@ -470,6 +484,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(2.,NJet_x_max);
       gPad->SetLogy();
+      toptext_x=1.5;
     }
     if(histname=="MET"){
       sprintf(xtitlename,"MET (GeV)");
@@ -477,6 +492,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMaximum(50000);
       thist->GetXaxis()->SetRangeUser(0.,MHT_x_max);
       gPad->SetLogy();
+      toptext_x=0; 
       //thist->GetXaxis()->SetLimits(0.,MHT_x_max);
     }
     if(histname=="DelPhiN"){
@@ -490,6 +506,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMaximum(ymax_top);
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
+      toptext_x=0; 
     }   
     if(histname=="DelPhi1"){
       xtext_top = 1.2;
@@ -505,6 +522,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMinimum(ymin_top);
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
+      toptext_x=0; 
     }
     if(histname=="DelPhi2"){
       xtext_top = 2.2;
@@ -576,7 +594,7 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
       gPad->SetLogy();
     }
-
+    toptext->DrawLatex(toptext_x , ymax_top , extraText);
     //
     // Drawing plots
     //
@@ -586,7 +604,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       //thist->Draw();
       thist->SetMarkerStyle(20);
       thist->SetLineColor(1);
-      thist->DrawCopy("e");      
+      thist->DrawCopy("e");     
+      //      TH1D* GenHist_Clone   = static_cast<TH1D*>(thist->Clone("GenHist_Clone"));
       GenHist_Clone   = static_cast<TH1D*>(thist->Clone("GenHist_Clone"));
       if (debug) {
 	std::cout << "thist print starts" << std::endl;
@@ -600,8 +619,8 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
       thist->SetMarkerStyle(20);
       thist->SetMarkerSize(0.0001);
       thist->DrawCopy("e2same ");
+      //      TH1D* EstHist_Clone   = static_cast<TH1D*>(thist->Clone("EstHist_Clone"));
       EstHist_Clone   = static_cast<TH1D*>(thist->Clone("EstHist_Clone"));
-
       // Troy's trick
       //thist->DrawCopy("esame ");
       TH1D *EstHist_Normalize_Clone = (TH1D*)thist->Clone("EstHist_Normalize_Clone");
@@ -646,17 +665,17 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
   ttext->SetTextFont(42);
   ttext->SetTextSize(0.045);
   ttext->SetTextAlign(22);
-//  ttext->Draw();
+  //  ttext->Draw();
 
   
-//  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
-//  tex->SetTextColor(4);
-//  tex->SetTextFont(61);
-//  tex->SetTextSize(0.045);
-//  tex->SetLineColor(4);
-//  tex->SetLineWidth(2);
-//  //tex->Draw();
-//  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
+  //  TLatex * tex = new TLatex(xlatex,ylatex,"arXiv:1602.06581");
+  //  tex->SetTextColor(4);
+  //  tex->SetTextFont(61);
+  //  tex->SetTextSize(0.045);
+  //  tex->SetLineColor(4);
+  //  tex->SetLineWidth(2);
+  //  //tex->Draw();
+  //  tex->DrawLatexNDC(xlatex,ylatex,"arXiv:1602.06581");
   gPad->RedrawAxis();
 
   //
@@ -666,167 +685,174 @@ Plot_closure(string cutname="delphi", string histname="NBtag",string sample="sta
 
   //if(choice==1){
     
-      GenHist->SetMarkerStyle(20);
-      GenHist->SetLineColor(1);
+  GenHist->SetMarkerStyle(20);
+  GenHist->SetLineColor(1);
 
-      EstHist->SetFillStyle(3144);
-      EstHist->SetFillColor(kRed-10);
-      EstHist->SetMarkerStyle(20);
-      EstHist->SetMarkerSize(0.0001);
+  EstHist->SetFillStyle(3144);
+  EstHist->SetFillColor(kRed-10);
+  EstHist->SetMarkerStyle(20);
+  EstHist->SetMarkerSize(0.0001);
 
-      TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
-      TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
+  TH1D * numerator   = static_cast<TH1D*>(GenHist->Clone("numerator"));
+  TH1D * denominator = static_cast<TH1D*>(EstHist->Clone("denominator"));
+  GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
+  EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
+  //TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
+  //TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
+  TH1D * EstHist_NoError = static_cast<TH1D*>(EstHist->Clone("EstHist_NoError"));
+  for (int ibin=0; ibin<EstHist_NoError->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
+    EstHist_NoError->SetBinError(ibin,0.);
+  }
 
-      TH1D * GenHist_Clone = static_cast<TH1D*>(GenHist->Clone("GenHist_Clone"));
-      TH1D * EstHist_Clone = static_cast<TH1D*>(EstHist->Clone("EstHist_Clone"));
-      TH1D * EstHist_NoError = static_cast<TH1D*>(EstHist->Clone("EstHist_NoError"));
-      for (int ibin=0; ibin<EstHist_NoError->GetNbinsX()+2; ibin++){ // scan including underflow and overflow bins
-	EstHist_NoError->SetBinError(ibin,0.);
-      }
 
+  if(histname=="TauJet_MHT_delPhi"){
+    numerator->Rebin(5);
+    denominator->Rebin(5);
+    GenHist_Clone->Rebin(5);
+    EstHist_Clone->Rebin(5);
+    EstHist_NoError->Rebin(5);
+  }
 
-      if(histname=="TauJet_MHT_delPhi"){
-	numerator->Rebin(5);
-	denominator->Rebin(5);
-	GenHist_Clone->Rebin(5);
-	EstHist_Clone->Rebin(5);
-	EstHist_NoError->Rebin(5);
-      }
+  numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
+  denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
 
-      numerator->Divide(GenHist_Clone,EstHist_NoError,1,1,"");
-      denominator->Divide(EstHist_Clone,EstHist_NoError,1,1,"");
-
-      // draw bottom figure
-      canvas_dw->cd();
-      // font size
-      numerator->GetXaxis()->SetLabelSize(font_size_dw);
-      numerator->GetXaxis()->SetTitleSize(font_size_dw);
-      numerator->GetYaxis()->SetLabelSize(font_size_dw);
-      numerator->GetYaxis()->SetTitleSize(font_size_dw);
+  // draw bottom figure
+  canvas_dw->cd();
+  // font size
+  numerator->GetXaxis()->SetLabelSize(font_size_dw);
+  numerator->GetXaxis()->SetTitleSize(font_size_dw);
+  numerator->GetYaxis()->SetLabelSize(font_size_dw);
+  numerator->GetYaxis()->SetTitleSize(font_size_dw);
       
-      //
-      // Specific to each bottom plot
-      //
-      if(histname=="HT"){
-        sprintf(xtitlename,"H_{T} [GeV]");
-        numerator->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
-        TLine *tline = new TLine(HT_x_min,1.,HT_x_max,1.);
-      }
-      if(histname=="MHT"){
-        sprintf(xtitlename,"H_{T}^{miss} [GeV]");
-        numerator->GetXaxis()->SetRangeUser(100.,MHT_x_max);
-        TLine *tline = new TLine(100.,1.,MHT_x_max,1.);
-      }   
-      if(histname=="NBtag"){
-        sprintf(xtitlename,"N_{b-jet}");
-        numerator->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
-        TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
-	//ymax_bottom=1.5;
-	//ymin_bottom=0.7;
-      }    
-      if(histname=="NJet"){
-        sprintf(xtitlename,"N_{jet}");
-        numerator->GetXaxis()->SetRangeUser(2.,NJet_x_max);
-        TLine *tline = new TLine(2.5,1.,NJet_x_max,1.);
-	//ymax_bottom=1.5;
-	//ymin_bottom=0.5;
-      }
-      if(histname=="MET"){
-        sprintf(xtitlename,"MET (GeV)");
-        numerator->GetXaxis()->SetRangeUser(0.,MHT_x_max);
-        TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
-      }
-      if(histname=="DelPhiN"){
-        sprintf(xtitlename,"DelPhiN");
-        numerator->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
-        TLine *tline = new TLine(0.,1.,DelPhiN_x_max,1.);
-      }
-      if(histname=="DelPhi1"){
-        sprintf(xtitlename,"DelPhi1");
-        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      } 
-      if(histname=="DelPhi2"){
-        sprintf(xtitlename,"DelPhi2");
-        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      }
-      if(histname=="DelPhi3"){
-        sprintf(xtitlename,"DelPhi3");
-        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      }
-      if(histname=="DelPhi4"){
-        sprintf(xtitlename,"DelPhi4");
-        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      }
-      if(histname=="TauJet_MHT_delPhi"){
-        sprintf(xtitlename,"#Phi(tau,MHT)");
-        numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
-        TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
-      }
+  //
+  // Specific to each bottom plot
+  //
+  if(histname=="HT"){
+    sprintf(xtitlename,"H_{T} [GeV]");
+    numerator->GetXaxis()->SetRangeUser(HT_x_min,HT_x_max);
+    TLine *tline = new TLine(HT_x_min,1.,HT_x_max,1.);
+  }
+  if(histname=="MHT"){
+    sprintf(xtitlename,"H_{T}^{miss} [GeV]");
+    numerator->GetXaxis()->SetRangeUser(100.,MHT_x_max);
+    TLine *tline = new TLine(100.,1.,MHT_x_max,1.);
+  }   
+  if(histname=="NBtag"){
+    sprintf(xtitlename,"N_{b-jet}");
+    numerator->GetXaxis()->SetRangeUser(0.,NBtag_x_max);
+    TLine *tline = new TLine(0.,1.,NBtag_x_max,1.);
+    //ymax_bottom=1.5;
+    //ymin_bottom=0.7;
+  }    
+  if(histname=="NJet"){
+    sprintf(xtitlename,"N_{jet}");
+    numerator->GetXaxis()->SetRangeUser(2.,NJet_x_max);
+    TLine *tline = new TLine(2.5,1.,NJet_x_max,1.);
+    //ymax_bottom=1.5;
+    //ymin_bottom=0.5;
+  }
+  if(histname=="MET"){
+    sprintf(xtitlename,"MET (GeV)");
+    numerator->GetXaxis()->SetRangeUser(0.,MHT_x_max);
+    TLine *tline = new TLine(0.,1.,MHT_x_max,1.);
+  }
+  if(histname=="DelPhiN"){
+    sprintf(xtitlename,"DelPhiN");
+    numerator->GetXaxis()->SetRangeUser(0.,DelPhiN_x_max);
+    TLine *tline = new TLine(0.,1.,DelPhiN_x_max,1.);
+  }
+  if(histname=="DelPhi1"){
+    sprintf(xtitlename,"DelPhi1");
+    numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+  } 
+  if(histname=="DelPhi2"){
+    sprintf(xtitlename,"DelPhi2");
+    numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+  }
+  if(histname=="DelPhi3"){
+    sprintf(xtitlename,"DelPhi3");
+    numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+  }
+  if(histname=="DelPhi4"){
+    sprintf(xtitlename,"DelPhi4");
+    numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+  }
+  if(histname=="TauJet_MHT_delPhi"){
+    sprintf(xtitlename,"#Phi(tau,MHT)");
+    numerator->GetXaxis()->SetRangeUser(0.,Delphi1_x_max);
+    TLine *tline = new TLine(0.,1.,Delphi1_x_max,1.);
+  }
 
-      //
-      // Common to all bottom plots
-      //
-      //      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
-      sprintf(ytitlename,"#frac{Direct}{Prediction} ");
-      numerator->SetMaximum(ymax_bottom);
-      numerator->SetMinimum(ymin_bottom);
+  //
+  // Common to all bottom plots
+  //
+  //      sprintf(ytitlename,"#frac{Estimate - #tau_{had} BG}{#tau_{had} BG} ");
+  sprintf(ytitlename,"#frac{Direct}{Prediction} ");
+  numerator->SetMaximum(ymax_bottom);
+  numerator->SetMinimum(ymin_bottom);
 
-      // Setting style
-      //numerator->SetMaximum(1.4);
-      //numerator->GetXaxis()->SetLabelFont(42);
-      //numerator->GetXaxis()->SetLabelOffset(0.007);
-      //numerator->GetXaxis()->SetLabelSize(0.04);
-      numerator->GetXaxis()->SetTitleSize(0.16);
-      numerator->GetXaxis()->SetTitleOffset(0.80);
-      numerator->GetXaxis()->SetTitleFont(42);
-      numerator->GetXaxis()->SetLabelSize(0.12);
-      numerator->GetXaxis()->SetLabelOffset(0.007);
+  // Setting style
+  //numerator->SetMaximum(1.4);
+  //numerator->GetXaxis()->SetLabelFont(42);
+  //numerator->GetXaxis()->SetLabelOffset(0.007);
+  //numerator->GetXaxis()->SetLabelSize(0.04);
+  //  numerator->GetXaxis()->SetTitleSize(0.16);
+  numerator->GetXaxis()->SetTitleSize(0.12);
+  numerator->GetXaxis()->SetTitleOffset(0.80);
+  //numerator->GetXaxis()->SetTitleOffset(0.50);
+  numerator->GetXaxis()->SetTitleFont(42);
+  //  numerator->GetXaxis()->SetLabelSize(0.12);
+  numerator->GetXaxis()->SetLabelSize(0.10);
+  numerator->GetXaxis()->SetLabelOffset(0.007);
 
-      numerator->GetYaxis()->SetTitleSize(0.16);
-      numerator->GetYaxis()->SetTitleOffset(0.4);
-      numerator->GetYaxis()->SetTitleFont(42);
-      numerator->GetYaxis()->SetLabelSize(0.12);
-      numerator->GetYaxis()->SetLabelOffset(0.007);
+  numerator->GetYaxis()->SetTitleSize(0.12);
+  //  numerator->GetYaxis()->SetTitleOffset(0.4);
+  numerator->GetYaxis()->SetTitleOffset(0.35);
+  numerator->GetYaxis()->SetTitleFont(42);
+  numerator->GetYaxis()->SetLabelSize(0.10);
+  numerator->GetYaxis()->SetLabelOffset(0.007);
 
-      numerator->GetXaxis()->SetTitle(xtitlename);
-      numerator->GetYaxis()->SetTitle(ytitlename);
+  numerator->GetXaxis()->SetTitle(xtitlename);
+  numerator->GetYaxis()->SetTitle(ytitlename);
 
-      numerator->GetXaxis()->SetTickSize(0.08);
-      numerator->SetTitle("");
-      if (zoom) numerator->GetYaxis()->SetNdivisions(510);
-      numerator->Draw();
-      if (debug) numerator->Print("all");
+  numerator->GetXaxis()->SetTickSize(0.08);
+  numerator->SetTitle("");
+  if (zoom) numerator->GetYaxis()->SetNdivisions(510);
+  numerator->Draw();
+  if (debug) numerator->Print("all");
 
-      denominator->DrawCopy("e2same");
+  denominator->DrawCopy("e2same");
+      
+  // Troy's trick
+  //denominator->DrawCopy("same");
+  TH1D *denominator_Clone = (TH1D*)denominator->Clone();
+  denominator_Clone->SetFillColor(kWhite);
+  for(int ibin=1; ibin<72; ibin++) {
+    denominator_Clone->SetBinError(ibin,0.00001);
+  }
+  denominator_Clone->Draw("same");
+  // Troy's trick ends
 
-      // Troy's trick
-      //denominator->DrawCopy("same");
-      TH1D *denominator_Clone = (TH1D*)denominator->Clone();
-      denominator_Clone->SetFillColor(kWhite);
-      for(int ibin=1; ibin<72; ibin++) {
-	denominator_Clone->SetBinError(ibin,0.00001);
-      }
-      denominator_Clone->Draw("same");
-      // Troy's trick ends
+  numerator->DrawCopy("same");
+  //TLine* tline;
 
-      numerator->DrawCopy("same");
+  //tline->SetLineStyle(2);
+ 
+  //tline->Draw();
 
-      tline->SetLineStyle(2);
-      tline->Draw();
-
-      gPad->RedrawAxis();
+  gPad->RedrawAxis();
 
   //}
-  {
-    CMS_lumi( canvas_up, iPeriod, iPos );   // writing the lumi information and the CMS "logo"
-  }
+ 
+  void CMS_lumi( TPad* canvas, int iPeriod, int iPos );   // writing the lumi information and the CMS "logo"
+  
   canvas->Update();
   canvas->RedrawAxis();
-
+  
   sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.png",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
   canvas->Print(tempname);
   sprintf(tempname,"Closure_%s_%s_%s_%s%sPlot.pdf",histname.c_str(),cutname.c_str(),sample.c_str(),elogForPre.c_str(),elogForExp.c_str());
