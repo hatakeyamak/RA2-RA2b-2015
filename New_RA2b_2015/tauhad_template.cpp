@@ -352,7 +352,11 @@ using namespace std;
     std::vector<TH1*> hTauResp_x(utils->TauResponse_nBins_());
     std::vector<TH1*> hTauResp_y(utils->TauResponse_nBins_());
     std::vector<TH2*> hTauResp_xy(utils->TauResponse_nBins_());
-
+    //*AR-Sep27,2016-This vector was added in relation with comparison with Wgun templates
+    std::vector<TH1*> hGenPt(utils->TauResponse_nBins_());
+    double genXmin=0.;
+    double genXmax=0.;
+    int genBins=0;
     for(unsigned int i = 0; i < utils->TauResponse_nBins_(); ++i){
       hTauResp.at(i) = new TH1D(utils->TauResponse_name(i),";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
       hTauRespUp.at(i) = new TH1D(utils->TauResponse_name(i)+"_Up",";p_{T}(visible) / p_{T}(generated-#tau);Probability",50,0.,2.5);
@@ -364,7 +368,22 @@ using namespace std;
       hTauResp_y.at(i)->Sumw2();
       hTauResp_xy.at(i) = new TH2D(utils->TauResponse_name(i)+"_xy",";p_{T}(visible)_x / p_{T}(generated-#tau);p_{T}(visible)_y / p_{T}(generated-#tau)",50,0.,2.5,40,-1.,1.);
       hTauResp_xy.at(i)->Sumw2();
+      if(i==0){
+	genXmin=20.;genXmax=30.;genBins=10;
+      }
+      if(i==1){
+	genXmin=30.;genXmax=50.;genBins=20;
+      }
+      if(i==2){
+	genXmin=50.;genXmax=100.;genBins=50;
+      }
+      if(i==3){
+	genXmin=100.;genXmax=400.;genBins=300;
+      }
+      hGenPt.at(i) = new TH1D(utils->TauPt_name(i),";p_{T}(generated-#tau);Probability",genBins,genXmin,genXmax);
     }
+
+    TH1D * tau_GenPt = new TH1D("hGenPt","gen tau pt distribution",400,0,400);
 
     // a template for phi of the tau jets
     TH2D * tau_GenJetPhi = new TH2D("tau_GenJetPhi","DPhi between gen and jet tau vs. their energy ratio",utils->tau_Phi_nbinX(),utils->tau_Phi_lowX(),utils->tau_Phi_upX(),utils->tau_Phi_nbinY(),utils->tau_Phi_lowY(),utils->tau_Phi_upY());
@@ -523,7 +542,7 @@ using namespace std;
         CalcAccSys = false;
       }
 
-      if(eventN>10000)break;
+      //if(eventN>10000)break;
       //if(eventN>5000)break;
 
       eventWeight = evt->weight();
@@ -1116,7 +1135,8 @@ using namespace std;
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
           hTauRespUp.at(ptBin)->Fill( tauJetPtUp / genTauPt ,eventWeight);
           hTauRespDown.at(ptBin)->Fill( tauJetPtDown / genTauPt ,eventWeight);
-
+	  hGenPt.at(ptBin)->Fill( genTauPt ,eventWeight);
+	  tau_GenPt->Fill( genTauPt ,eventWeight);
           double tauJetPhi = evt->slimJetPhiVec_().at(jetIdx);
           const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
           const double tauJetPt_y = tauJetPt * sin( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ); 
@@ -1513,8 +1533,13 @@ using namespace std;
         // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
         hTauResp_xy.at(i)->Scale(1./hTauResp_xy.at(i)->Integral("width"));
       }
+      if( hGenPt.at(i)->Integral("width") > 0. ) {
+        // if option "width" is specified, the integral is the sum of the bin contents multiplied by the bin width in x.
+        hGenPt.at(i)->Scale(1./hGenPt.at(i)->Integral("width"));
+      }
     }
-
+    if( tau_GenPt->Integral("width") > 0. ) 
+      tau_GenPt->Scale(1./tau_GenPt->Integral("width"));
     // --- Save the Histograms to File -----------------------------------
     sprintf(tempname,"%s/HadTau_TauResponseTemplates_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
     TFile outFile(tempname,"RECREATE");
@@ -1532,9 +1557,10 @@ using namespace std;
       hTauResp_y.at(i)->SetLineColor(i);      
       hTauResp_xy.at(i)->Write();
       hTauResp_xy.at(i)->SetLineColor(i);
-      
+      hGenPt.at(i)->Write();
+      hGenPt.at(i)->SetLineColor(i);
     }
-
+    tau_GenPt->Write();
     tauJetPtHist->Write();
     tau_GenJetPhi->Write();
 

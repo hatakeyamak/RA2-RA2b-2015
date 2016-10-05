@@ -673,13 +673,15 @@ using namespace std;
     trig_all->Sumw2();
     TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
     trig_pass->Sumw2();
-
+    //*AR,Oct4,2016-Using taugun templates instead of MC templates
+    TFile * resp_file_taugun = new TFile("TauHad/Stack/hist_taugun_aditee.root","R");
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
     TFile * resp_file = new TFile("TauHad/Stack/Elog433_HadTau_TauResponseTemplates_stacked.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
-      vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      //    vec_resp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
+      vec_resp.push_back( (TH1D*) resp_file_taugun->Get( histname )->Clone() );
       if(subSampleKey.find("template")!=string::npos){
         sprintf(histname,"hTauResp_%d_Up",i);
         vec_respUp.push_back( (TH1D*) resp_file->Get( histname )->Clone() );
@@ -775,7 +777,7 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      if(eventN>10000)break;
+      //if(eventN>10000)break;
       //if(eventN>50)break;
 
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
