@@ -584,10 +584,15 @@ using namespace std;
     // Open some files and get the histograms ........................................//
 
     // Rate of bTagged tau jet
-    TFile * bRateFile = new TFile("TauHad/Stack/ARElog63_TauBtaggedRate_WJet_stacked.root","R");
+    //TFile * bRateFile = new TFile("TauHad/Stack/ARElog63_TauBtaggedRate_WJet_stacked.root","R");
+    //*AR,Oct14,2016-Instead of getting b mistag rate of tau directly we will take the difference between tau and mu mistag rates for reassignment of Nb bins
+    TFile * bRateFile = new TFile("TauHad/Stack/hist_bRateDiff_TauVsMu_WJet.root","R");
+    //TFile * bRateFile = new TFile("TauHad/Stack/hist_AvebRateDiff_TauVsMu.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
-    sprintf(histname,"TauBtaggedRate");
+    //sprintf(histname,"TauBtaggedRate");
+    //sprintf(histname,"hAveDiff");
+    sprintf(histname,"hDiff");
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
@@ -693,8 +698,9 @@ using namespace std;
 
     }
 
-    TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
-
+    //TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
+    //*AR,Oct12,2016-Using Wgun template to get dPhi distribution
+    TH2D * h2tau_phi = (TH2D*) resp_file_taugun->Get("tau_GenJetPhi")->Clone();
     // Use Rishi's tau template 
     TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v02.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
@@ -714,6 +720,11 @@ using namespace std;
     B_rate_all->Sumw2();
     TH1D * B_rate_tagged = new TH1D("B_rate_tagged","Pt of bTagged tau jets",utils->NMuPtBins(),0,utils->MaxMuPt());
     B_rate_tagged->Sumw2();
+
+    TH1D * B_Mu_rate_all = new TH1D("B_Mu_rate_all","Pt of all matched muon jets",utils->NMuPtBins(),0,utils->MaxMuPt());
+    B_Mu_rate_all->Sumw2();
+    TH1D * B_Mu_rate_tagged = new TH1D("B_Mu_rate_tagged","Pt of bTagged muon jets",utils->NMuPtBins(),0,utils->MaxMuPt());
+    B_Mu_rate_tagged->Sumw2();
 
     // see how often gen mu doesn't match reco mu
     int GenRecMu_all=0,GenRecMu_fail=0;
@@ -1085,20 +1096,20 @@ using namespace std;
             simTauJetPt = scale * muPt;
             simTauJetEta = muEta;
             simTauJetPhi = muPhi;
-
             double simTauJetPt_x = scale_x * muPt;  
             double simTauJetPt_y = scale_y * muPt;
             simTauJetPhi_xy = muPhi + TMath::ATan2(simTauJetPt_y,simTauJetPt_x);
             simTauJetPt_xy = sqrt( pow(simTauJetPt_x,2)+pow(simTauJetPt_y,2) ); 
             if(subSampleKey.find("templatePlus")!=string::npos && scale > 2.5)binx = utils->tau_phi_GetBinX(2.49); 
             else binx = utils->tau_phi_GetBinX(scale);
+	    //	    std::cout<<" scale "<<scale<<" binx "<<binx<<endl;
             // when bootstapping we work with 1D template. 
             // It was good if we could use 2D ( we are short in time now ) 
             if(utils2::bootstrap){
               double phi_genTau_tauJet=0.;
               if(binx!=0){
                 if(verbose!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
-                phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();    
+                phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom(); 
               }
               simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;
               simTauJetPt_xy=simTauJetPt; 
@@ -1275,8 +1286,11 @@ using namespace std;
               JetIdx=-1;
               utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
               B_rate_all->Fill(NewTauJetPt,eventWeight);
+	      if(JetIdx!=-1)
+		B_Mu_rate_all->Fill(evt->JetsPtVec_()[JetIdx],eventWeight);
               if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_()){
                 B_rate_tagged->Fill(NewTauJetPt,eventWeight);
+		B_Mu_rate_tagged->Fill(evt->JetsPtVec_()[JetIdx],eventWeight);
               }
             }
 
@@ -1288,7 +1302,10 @@ using namespace std;
 	      //std::cout<<"Number of b tags "<<NewNB<<std::endl;
               // get the rate of tau jet mistagging as a function of pT.
               double bRateError_stat, bRatePlus_stat, bRateMinus_stat;
-              double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+	      //              double bRate =bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+	      //*AR,Oct14,2016-For three bins diff between tau and mu mistag is negative
+	      double absbRate=bRateHist->GetBinContent(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
+              double bRate =abs(absbRate);
               bRateError_stat = bRateHist->GetBinError(bRateHist->GetXaxis()->FindBin(NewTauJet3Vec.Pt()));
               if(bRate==0)bRate=0.0000000000000000001;
               bRatePlus_stat=bRate+bRateError_stat;
@@ -1310,7 +1327,10 @@ using namespace std;
                    Prob_Btag_Minus_stat=(1. - bRateMinus_stat);
                 }
                 else if (m==1){ 
-                  NewNB++;
+		  if(absbRate>0)
+		    NewNB++;
+		  else if(absbRate<0)
+		    NewNB--;
                   Prob_Btag=bRate; // had tau b-tagged
                   Prob_Btag_Plus=bRate_Plus;
                   Prob_Btag_Minus=bRate_Minus;
@@ -1414,7 +1434,8 @@ using namespace std;
                 if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags()-1;
                 else NewNB=evt->nBtags(); 
 	      }
-              else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
+	      //              else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
+	      else if((JetIdx!=-1 && absbRate>0 && evt->csvVec()[JetIdx]>evt->csv_()) || (JetIdx!=-1 && absbRate<0 && evt->csvVec()[JetIdx]<evt->csv_()))NewNB=evt->nBtags();
 
               // New dphi1, dphi2, and dphi3
               double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.,newDphi4=-99.;
@@ -2406,14 +2427,20 @@ using namespace std;
       // Calculate tau mistagged(btagged) rate
       TH1D * TauBtaggedRate = static_cast<TH1D*>(B_rate_tagged->Clone("TauBtaggedRate"));
       TauBtaggedRate->Divide(B_rate_tagged,B_rate_all,1,1,"B");
+      //*AR, Oct13,2016-Calculate mu jet mistagged(btagged) rate
+      TH1D * MuBtaggedRate = static_cast<TH1D*>(B_Mu_rate_tagged->Clone("MuBtaggedRate"));
+      MuBtaggedRate->Divide(B_Mu_rate_tagged,B_Mu_rate_all,1,1,"B");
       // Write the histogram 
       sprintf(tempname,"%s/TauBtaggedRate_%s_%s.root",Outdir.c_str(),subSampleKey.c_str(),inputnumber.c_str());
       TFile btagfile(tempname,"RECREATE");
       TauBtaggedRate->Write();
       B_rate_tagged->Write();
       B_rate_all->Write();
+      MuBtaggedRate->Write();
+      B_Mu_rate_tagged->Write();
+      B_Mu_rate_all->Write();
       btagfile.Close();
-
+   
       // Compute iso efficiencies
       TH1* IsoElecEff = static_cast<TH1*>(IsoElec_pass->Clone("IsoElecEff"));
       IsoElecEff->Divide(IsoElec_pass,IsoElec_all,1,1,"B");

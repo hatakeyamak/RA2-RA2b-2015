@@ -26,7 +26,7 @@ class mainClass{
   map<int, string> cutname, histname,Hname;
   map<int, string> Ttype, WJettype, TTbartype;
   TFile *file, *file2, *file3, *file30;
-  TH1D *temphist, *temphist2, *temphist30, *temphistI, *temphistII, *temphistIII;
+  TH1D *temphist, *temphist2, *temphist30, *temphistI, *temphistII, *temphistIII, *temphistMuI, *temphistMuII, *temphistMuIII;
   THStack * tempstack;
   TDirectory *cdtoitt, *cdtoit;
 
@@ -687,7 +687,11 @@ cout << " flag \n " ;
     if(i==1)sprintf(tempname,"../TauBtaggedRate_WJet_100_200_.root");
     else if(i==2)sprintf(tempname,"../TauBtaggedRate_WJet_200_400_.root");
     else if(i==3)sprintf(tempname,"../TauBtaggedRate_WJet_400_600_.root");
-    else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_inf_.root");
+    else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_800_.root");
+    else if(i==5)sprintf(tempname,"../TauBtaggedRate_WJet_800_1200_.root");
+    else if(i==6)sprintf(tempname,"../TauBtaggedRate_WJet_1200_2500_.root");
+    else if(i==7)sprintf(tempname,"../TauBtaggedRate_WJet_2500_Inf_.root");
+    //else if(i==4)sprintf(tempname,"../TauBtaggedRate_WJet_600_inf_.root");
     else{cout << " Error!! There are only 4 WJet ht binned sample " << endl;}
     WJet_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins
@@ -701,40 +705,86 @@ cout << " flag \n " ;
   histname[0]="TauBtaggedRate";
   histname[1]="B_rate_tagged";
   histname[2]="B_rate_all";
-
-  for(int j=0; j<histname.size(); j++){
+  histname[3]="MuBtaggedRate";
+  histname[4]="B_Mu_rate_tagged";
+  histname[5]="B_Mu_rate_all";
+  
+ 
+  for(int j=0; j<3; j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
     sprintf(tempname,"%s",(histname[j]).c_str());
 
     for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
-
+      std::cout<<" tempname "<<tempname<<endl;
       temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
       else if (luminosity>0&&!doScale) temphist->Scale(3000);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
-
+      std::cout<<" tempstack added "<<endl;
+      
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
+    //if(j==4)temphistMuI=(TH1D*)temphist->Clone();
+    //if(j==5)temphistMuII=(TH1D*)temphist->Clone();
+    //printf(i);
+    printf(" ************** \n ");  
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
 
-  }
+  }//end of for loop
   temphistIII = static_cast<TH1D*>(temphistI->Clone("TauBtaggedRate"));
   temphistIII->Divide(temphistI,temphistII,1,1,"B");
   temphistIII->SetName("TauBtaggedRate");
   temphistIII->SetTitle("TauBtaggedRate");
   temphistIII->Write();
+  
+  printf("Tau mistag rate from WJet calculated. \n ");
+  
+  for(int j=3; j<histname.size(); j++){
 
+    if(j==3)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+    std::cout<<" wjnHT "<<wjnHT<<endl;
+    for(int i=0; i<wjnHT ; i++){ // loop over different HT bins
+      std::cout<<" tempname "<<tempname<<endl;
+      temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
+      printf(" ************** \n ");
+      if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+      std::cout<<" tempstack added "<<endl;
+    }//end of loop over HTbins 1..7
+    printf(" ************** \n ");
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    //if(j==1)temphistI=(TH1D*)temphist->Clone();
+    //if(j==2)temphistII=(TH1D*)temphist->Clone();
+    if(j==4)temphistMuI=(TH1D*)temphist->Clone();
+    if(j==5)temphistMuII=(TH1D*)temphist->Clone();
+    //printf(i);
+    printf(" ************** \n ");  
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
 
+  }//end of for loop
+  
+  temphistMuIII = static_cast<TH1D*>(temphistMuI->Clone("MuBtaggedRate"));
+  temphistMuIII->Divide(temphistMuI,temphistMuII,1,1,"B");
+  temphistMuIII->SetName("MuBtaggedRate");
+  temphistMuIII->SetTitle("MuBtaggedRate");
+  temphistMuIII->Write();
+
+  printf("Mu mistag rate from WJet calculated. \n ");
+ 
   file->Close();
-  printf("WJet mistag rate calculated. \n ");
-
+  
 //..........................................//
 // Trigger Efficiency 
 //..........................................//
@@ -1154,25 +1204,33 @@ cout << " flag \n " ;
   histname[0]="TauBtaggedRate";
   histname[1]="B_rate_tagged";
   histname[2]="B_rate_all";
+  histname[3]="MuBtaggedRate";
+  histname[4]="B_Mu_rate_tagged";
+  histname[5]="B_Mu_rate_all";
 
-  for(int j=0; j<histname.size(); j++){
+
+
+  for(int j=0; j<3; j++){
 
     if(j==0)continue; // Stacking probability histograms has no meaning.
     sprintf(tempname,"%s",(histname[j]).c_str());
 
     for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
-
+      std::cout<<" tempname "<<tempname<<endl;
       temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
       if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
       else if (luminosity>0&&!doScale) temphist->Scale(3000);
       temphist->SetFillColor(i+2);
       tempstack->Add(temphist);
-
+      std::cout<<" tempstack added "<<endl;
     }//end of loop over HTbins 1..7
 
     temphist = (TH1D *) tempstack->GetStack()->Last();
     if(j==1)temphistI=(TH1D*)temphist->Clone();
     if(j==2)temphistII=(TH1D*)temphist->Clone();
+    //if(j==4)temphistMuI=(TH1D*)temphist->Clone();
+    //if(j==5)temphistMuII=(TH1D*)temphist->Clone();
+    
     temphist->Write(tempname);
     delete tempstack;
     tempstack = new THStack("stack","Binned Sample Stack");
@@ -1185,8 +1243,47 @@ cout << " flag \n " ;
   temphistIII->SetTitle("TauBtaggedRate");
   temphistIII->Write();
 
+  printf("Tau mistag rate from WJet calculated. \n ");
+
+
+  for(int j=3; j<histname.size(); j++){
+
+    if(j==3)continue; // Stacking probability histograms has no meaning.
+    sprintf(tempname,"%s",(histname[j]).c_str());
+
+    for(int i=0; i<ttbarnHT ; i++){ // loop over different HT bins
+      std::cout<<" tempname "<<tempname<<endl;
+      temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+      if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
+      else if (luminosity>0&&!doScale) temphist->Scale(3000);
+      temphist->SetFillColor(i+2);
+      tempstack->Add(temphist);
+      std::cout<<" tempstack added "<<endl;
+    }//end of loop over HTbins 1..7
+
+    temphist = (TH1D *) tempstack->GetStack()->Last();
+    //if(j==1)temphistI=(TH1D*)temphist->Clone();
+    //if(j==2)temphistII=(TH1D*)temphist->Clone();
+    if(j==4)temphistMuI=(TH1D*)temphist->Clone();
+    if(j==5)temphistMuII=(TH1D*)temphist->Clone();
+    
+    temphist->Write(tempname);
+    delete tempstack;
+    tempstack = new THStack("stack","Binned Sample Stack");
+
+
+  } //end of for loop
+
+
+  temphistMuIII = static_cast<TH1D*>(temphistMuI->Clone("MuBtaggedRate"));
+  temphistMuIII->Divide(temphistMuI,temphistMuII,1,1,"B");
+  temphistMuIII->SetName("MuBtaggedRate");
+  temphistMuIII->SetTitle("MuBtaggedRate");
+  temphistMuIII->Write();
+  printf("Mu mistag rate from TTbar calculated. \n ");
+
   file->Close();
-  printf("TTbar mistag rate calculated. \n ");
+
 
 
 //..........................................//

@@ -16,6 +16,11 @@ for i in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf ; do
   hadd Probability_Tau_mu_WJet_${i}_.root `ls Probability_Tau_mu_WJet_${i}*00.root `
   cp Probability_Tau_mu_WJet_${i}_.root ../TauHad2
 
+  rm TauBtaggedRate_WJet_${i}_.root
+  hadd TauBtaggedRate_WJet_${i}_.root `ls TauBtaggedRate_WJet_${i}*00.root `
+  cp TauBtaggedRate_WJet_${i}_.root ../TauHad2
+
+
 done 
 
 for i in  t_top tW_top t_antitop tW_antitop s_channel; do
@@ -28,6 +33,10 @@ for i in  t_top tW_top t_antitop tW_antitop s_channel; do
   hadd Probability_Tau_mu_${i}_.root `ls Probability_Tau_mu_${i}*00.root `
   cp Probability_Tau_mu_${i}_.root ../TauHad2
 
+  rm TauBtaggedRate_${i}_.root
+  hadd TauBtaggedRate_${i}_.root `ls TauBtaggedRate_${i}*00.root `
+  cp TauBtaggedRate_${i}_.root ../TauHad2
+
 done
 
 rm HadTauEstimation_TTbar_.root
@@ -37,6 +46,10 @@ cp HadTauEstimation_TTbar_.root ../TauHad2/
 rm Probability_Tau_mu_TTbar_.root
 hadd Probability_Tau_mu_TTbar_.root `ls Probability_Tau_mu_TTbar*00.root `
 cp Probability_Tau_mu_TTbar_.root ../TauHad2
+
+rm TauBtaggedRate_TTbar_.root
+hadd TauBtaggedRate_TTbar_.root `ls TauBtaggedRate_TTbar*00.root `
+cp TauBtaggedRate_TTbar_.root ../TauHad2
 
 cd ..
 
