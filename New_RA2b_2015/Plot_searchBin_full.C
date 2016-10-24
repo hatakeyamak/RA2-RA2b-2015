@@ -98,7 +98,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
   //double lumi     = 2.26198; // normaliza to this lumi (fb-1)
-  double lumi     = 12.9;
+  double lumi     = 24.5;
   double lumi_ref = 3.0; // normaliza to 3 (fb-1)
   
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
   double NJet_x_max=15.;
   double NBtag_x_max=4.;
   //double search_x_max=191.-0.5;//73.-0.5;//108.-0.5
-  double search_x_max=191.-0.5;
+  double search_x_max=175.-0.5;
   if(histname.find("QCD")!=string::npos)search_x_max=224.;
   if(histname.find("QCD")!=string::npos)search_x_max=248.;
   double search_x_min=1.-0.5;
@@ -309,7 +309,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
   //std::cout<<" test_2 "<<endl;
   
   //  bool AdhocQCD_NjetNbjet=true;
-  bool AdhocQCD_NjetNbjet=true; 
+  bool AdhocQCD_NjetNbjet=false; 
  //if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
   if(AdhocQCD_NjetNbjet && histname.find("QCD")!=string::npos){
     //    std::cout<<"----------------------------------------- "<<std::endl;
@@ -318,7 +318,8 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     double EstHistHtMht=0.;
     double rem=0;
     double ratio=0;
-    int binHtMht=13; int totbins=247;
+    int binHtMht=13; int totbins=231;
+    int NjetEnd=0;
     double Correction_Njet2_nb0=0;double Correction_Njet2_nb1=0;double Correction_Njet2_nb2=0;
     double Correction_Njet34_nb0=0;double Correction_Njet34_nb1=0;double Correction_Njet34_nb2=0;double Correction_Njet34_nb3=0;
     double Correction_Njet56_nb0=0;double Correction_Njet56_nb1=0;double Correction_Njet56_nb2=0;double Correction_Njet56_nb3=0;
@@ -326,10 +327,13 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     double Correction_Njet9Above_nb0=0;double Correction_Njet9Above_nb1=0;double Correction_Njet9Above_nb2=0;double Correction_Njet9Above_nb3=0;
 
     for(int i=1;i<=totbins;i++){
+      std::cout<<" i "<< i <<" NjetEnd "<<NjetEnd<<endl;
+      if(i>143)
+	binHtMht=11;
       GenHistHtMht +=GenHist->GetBinContent(i);
       EstHistHtMht +=EstHist->GetBinContent(i);
       std::cout<<" i "<< i<<" GenHist_i "<<GenHist->GetBinContent(i) <<" EstHist_i "<<EstHist->GetBinContent(i) <<" GenHistHtMht "<<GenHistHtMht<<" EstHistHtMht "<<EstHistHtMht<<" ratio "<<GenHistHtMht/EstHistHtMht<<std::endl;
-      rem=i%binHtMht;
+      rem=(i-NjetEnd)%binHtMht;
       std::cout<<" i "<<" rem "<<rem<<endl;
       if(rem==0){
         ratio=GenHistHtMht/EstHistHtMht;
@@ -345,15 +349,15 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
 	if(i==117) Correction_Njet56_nb1=ratio;
 	if(i==130) Correction_Njet56_nb2=ratio;
 	if(i==143) Correction_Njet56_nb3=ratio;
-	if(i==156) Correction_Njet78_nb0=ratio;
-	if(i==169) Correction_Njet78_nb1=ratio;
-	if(i==182) Correction_Njet78_nb2=ratio;
-	if(i==195) Correction_Njet78_nb3=ratio;
-	if(i==208) Correction_Njet9Above_nb0=ratio;
-	if(i==221) Correction_Njet9Above_nb1=ratio;
-	if(i==234) Correction_Njet9Above_nb2=ratio;
-	if(i==247) Correction_Njet9Above_nb3=ratio;
-
+	if(i==154) Correction_Njet78_nb0=ratio;
+	if(i==165) Correction_Njet78_nb1=ratio;
+	if(i==176) Correction_Njet78_nb2=ratio;
+	if(i==187) Correction_Njet78_nb3=ratio;
+	if(i==198) Correction_Njet9Above_nb0=ratio;
+	if(i==209) Correction_Njet9Above_nb1=ratio;
+	if(i==220) Correction_Njet9Above_nb2=ratio;
+	if(i==231) Correction_Njet9Above_nb3=ratio;
+	NjetEnd=i;
 	GenHistHtMht=0;
         EstHistHtMht=0;
       }
@@ -381,7 +385,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     std::cout<<" Correction_Njet9Above_nb2 "<<Correction_Njet9Above_nb2<<endl;
     std::cout<<" Correction_Njet9Above_nb3 "<<Correction_Njet9Above_nb3<<endl;
 
-    for(int j=1;j<=247;j++){
+    for(int j=1;j<=231;j++){
       double oldVal=EstHist->GetBinContent(j);
       double newVal=0;
       if(j<=13) newVal=oldVal*Correction_Njet2_nb0;
@@ -395,23 +399,23 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
       else if(j<=117)newVal=oldVal*Correction_Njet56_nb1;
       else if(j<=130)newVal=oldVal*Correction_Njet56_nb2;
       else if(j<=143)newVal=oldVal*Correction_Njet56_nb3;
-      else if(j<=156)newVal=oldVal*Correction_Njet78_nb0;
-      else if(j<=169)newVal=oldVal*Correction_Njet78_nb1;
-      else if(j<=182)newVal=oldVal*Correction_Njet78_nb2;
-      else if(j<=195)newVal=oldVal*Correction_Njet78_nb3;
-      else if(j<=208)newVal=oldVal*Correction_Njet9Above_nb0;
-      else if(j<=221)newVal=oldVal*Correction_Njet9Above_nb1;
-      else if(j<=234)newVal=oldVal*Correction_Njet9Above_nb2;
+      else if(j<=154)newVal=oldVal*Correction_Njet78_nb0;
+      else if(j<=165)newVal=oldVal*Correction_Njet78_nb1;
+      else if(j<=176)newVal=oldVal*Correction_Njet78_nb2;
+      else if(j<=187)newVal=oldVal*Correction_Njet78_nb3;
+      else if(j<=198)newVal=oldVal*Correction_Njet9Above_nb0;
+      else if(j<=209)newVal=oldVal*Correction_Njet9Above_nb1;
+      else if(j<=220)newVal=oldVal*Correction_Njet9Above_nb2;
       else newVal=oldVal*Correction_Njet9Above_nb3;
       EstHist->SetBinContent(j,newVal);
     }
 
   }
 
-  bool Adhoc_NjetNbjet=true;
+  bool Adhoc_NjetNbjet=false;
   if(Adhoc_NjetNbjet && histname.find("searchH_b")!=string::npos){
     //int Nbins=GenHist->GetNbinX();
-    std::cout<<"Nbins "<< 190 <<std::endl;
+    std::cout<<"Nbins "<< 174 <<std::endl;
   
     double Gen_Njet2_nb0=0; double Gen_Njet2_nb1=0;double Gen_Njet2_nb2=0;
     double Est_Njet2_nb0=0; double Est_Njet2_nb1=0;double Est_Njet2_nb2=0;
@@ -426,7 +430,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     double Correction_Njet9Above_nb0=0;double Correction_Njet9Above_nb1=0;double Correction_Njet9Above_nb2=0;double Correction_Njet9Above_nb3=0;
 
     int HtMhtBins=10;
-    for(int j=1;j<=190;j++){
+    for(int j=1;j<=174;j++){
       if(j<=10){
 	Gen_Njet2_nb0 +=GenHist->GetBinContent(j);
 	Est_Njet2_nb0 +=EstHist->GetBinContent(j);
@@ -483,37 +487,37 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
 	Est_Njet56_nb3 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>110 && j<=120){
+      else if(j>110 && j<=118){
 	Gen_Njet78_nb0 +=GenHist->GetBinContent(j);
 	Est_Njet78_nb0 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>120 && j<=130){
+      else if(j>118 && j<=126){
 	Gen_Njet78_nb1 +=GenHist->GetBinContent(j);
 	Est_Njet78_nb1 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>130 && j<=140){
+      else if(j>126 && j<=134){
 	Gen_Njet78_nb2 +=GenHist->GetBinContent(j);
 	Est_Njet78_nb2 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>140 && j<=150){
+      else if(j>134 && j<=142){
 	Gen_Njet78_nb3 +=GenHist->GetBinContent(j);
 	Est_Njet78_nb3 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>150 && j<=160){
+      else if(j>142 && j<=150){
 	Gen_Njet9Above_nb0 +=GenHist->GetBinContent(j);
 	Est_Njet9Above_nb0 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>160 && j<=170){
+      else if(j>150 && j<=158){
 	Gen_Njet9Above_nb1 +=GenHist->GetBinContent(j);
 	Est_Njet9Above_nb1 +=EstHist->GetBinContent(j);
 	
       }
-      else if(j>170 && j<=180){
+      else if(j>158 && j<=166){
 	Gen_Njet9Above_nb2 +=GenHist->GetBinContent(j);
 	Est_Njet9Above_nb2 +=EstHist->GetBinContent(j);
 	
@@ -568,7 +572,7 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     std::cout<<" Correction_Njet9Above_nb2 "<<Correction_Njet9Above_nb2<<endl;
     std::cout<<" Correction_Njet9Above_nb3 "<<Correction_Njet9Above_nb3<<endl;
   
-    for(int j=1;j<=190;j++){
+    for(int j=1;j<=174;j++){
       double oldVal=EstHist->GetBinContent(j);
       double newVal=0;
 
@@ -583,13 +587,13 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
       else if(j<=90)newVal=oldVal*Correction_Njet56_nb1;
       else if(j<=100)newVal=oldVal*Correction_Njet56_nb2;
       else if(j<=110)newVal=oldVal*Correction_Njet56_nb3;
-      else if(j<=120)newVal=oldVal*Correction_Njet78_nb0;
-      else if(j<=130)newVal=oldVal*Correction_Njet78_nb1;
-      else if(j<=140)newVal=oldVal*Correction_Njet78_nb2;
-      else if(j<=150)newVal=oldVal*Correction_Njet78_nb3;
-      else if(j<=160)newVal=oldVal*Correction_Njet9Above_nb0;
-      else if(j<=170)newVal=oldVal*Correction_Njet9Above_nb1;
-      else if(j<=180)newVal=oldVal*Correction_Njet9Above_nb2;
+      else if(j<=118)newVal=oldVal*Correction_Njet78_nb0;
+      else if(j<=126)newVal=oldVal*Correction_Njet78_nb1;
+      else if(j<=134)newVal=oldVal*Correction_Njet78_nb2;
+      else if(j<=142)newVal=oldVal*Correction_Njet78_nb3;
+      else if(j<=150)newVal=oldVal*Correction_Njet9Above_nb0;
+      else if(j<=158)newVal=oldVal*Correction_Njet9Above_nb1;
+      else if(j<=166)newVal=oldVal*Correction_Njet9Above_nb2;
       else newVal=oldVal*Correction_Njet9Above_nb3;
       EstHist->SetBinContent(j,newVal);
     }
@@ -722,8 +726,8 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     tl_njet->DrawLine(31.-0.5,ymin_top,31.-0.5,ymax_top); 
     tl_njet->DrawLine(71.-0.5,ymin_top,71.-0.5,ymax_top);
     tl_njet->DrawLine(111.-0.5,ymin_top,111.-0.5,ymax_top);
-    tl_njet->DrawLine(151.-0.5,ymin_top,151.-0.5,ymax_top);
-    tl_njet->DrawLine(191.-0.5,ymin_top,191.-0.5,ymax_top);
+    tl_njet->DrawLine(143.-0.5,ymin_top,143.-0.5,ymax_top);
+    tl_njet->DrawLine(175.-0.5,ymin_top,175.-0.5,ymax_top);
     // Njet labels
     TLatex * ttext_njet = new TLatex();
     ttext_njet->SetTextFont(42);
@@ -734,8 +738,8 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     ttext_njet->DrawLatex(16.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} = 2");
     ttext_njet->DrawLatex(51.-0.5 , ymax_top/4. , "3 #leq N_{#scale[0.2]{ }jet} #leq 4");
     ttext_njet->DrawLatex(91.-0.5 , ymax_top/4. , "5 #leq N_{#scale[0.2]{ }jet} #leq 6");
-    ttext_njet->DrawLatex(131.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
-    ttext_njet->DrawLatex(171.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
+    ttext_njet->DrawLatex(127.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
+    ttext_njet->DrawLatex(159.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
     // Nb separation lines
     TLine *tl_nb = new TLine();
     tl_nb->SetLineStyle(3);
@@ -747,12 +751,12 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     tl_nb->DrawLine(81.-0.5,ymin_top,81.-0.5,ymax2_top); 
     tl_nb->DrawLine(91.-0.5,ymin_top,91.-0.5,ymax2_top); 
     tl_nb->DrawLine(101.-0.5,ymin_top,101.-0.5,ymax2_top); 
-    tl_nb->DrawLine(121.-0.5,ymin_top,121.-0.5,ymax2_top); 
-    tl_nb->DrawLine(131.-0.5,ymin_top,131.-0.5,ymax2_top);
-    tl_nb->DrawLine(141.-0.5,ymin_top,141.-0.5,ymax2_top);
-    tl_nb->DrawLine(161.-0.5,ymin_top,161.-0.5,ymax2_top);
-    tl_nb->DrawLine(171.-0.5,ymin_top,171.-0.5,ymax2_top);
-    tl_nb->DrawLine(181.-0.5,ymin_top,181.-0.5,ymax2_top);
+    tl_nb->DrawLine(119.-0.5,ymin_top,119.-0.5,ymax2_top); 
+    tl_nb->DrawLine(127.-0.5,ymin_top,127.-0.5,ymax2_top);
+    tl_nb->DrawLine(135.-0.5,ymin_top,135.-0.5,ymax2_top);
+    tl_nb->DrawLine(151.-0.5,ymin_top,151.-0.5,ymax2_top);
+    tl_nb->DrawLine(159.-0.5,ymin_top,159.-0.5,ymax2_top);
+    tl_nb->DrawLine(167.-0.5,ymin_top,167.-0.5,ymax2_top);
     // Nb labels
     TLatex * ttext_nb = new TLatex();
     ttext_nb->SetTextFont(42);
@@ -776,15 +780,15 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     ttext_nb->DrawLatex(96.-0.5 , ymax_top/40. , "2");
     ttext_nb->DrawLatex(106.-0.5 , ymax_top/40. , "#geq 3");
 
-    ttext_nb->DrawLatex(116.-0.5 , ymax_top/40. , "0");
-    ttext_nb->DrawLatex(126.-0.5 , ymax_top/40. , "1");
-    ttext_nb->DrawLatex(136.-0.5 , ymax_top/40. , "2");
-    ttext_nb->DrawLatex(146.-0.5 , ymax_top/40. , "#geq 3");
+    ttext_nb->DrawLatex(115.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(123.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(131.-0.5 , ymax_top/40. , "2");
+    ttext_nb->DrawLatex(139.-0.5 , ymax_top/40. , "#geq 3");
 
-    ttext_nb->DrawLatex(156.-0.5 , ymax_top/40. , "0");
-    ttext_nb->DrawLatex(166.-0.5 , ymax_top/40. , "1");
-    ttext_nb->DrawLatex(176.-0.5 , ymax_top/40. , "2");
-    ttext_nb->DrawLatex(186.-0.5 , ymax_top/40. , "#geq 3");
+    ttext_nb->DrawLatex(147.-0.5 , ymax_top/40. , "0");
+    ttext_nb->DrawLatex(155.-0.5 , ymax_top/40. , "1");
+    ttext_nb->DrawLatex(163.-0.5 , ymax_top/40. , "2");
+    ttext_nb->DrawLatex(171.-0.5 , ymax_top/40. , "#geq 3");
 
 
     //
@@ -801,8 +805,8 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     tl_njet->DrawLine(40.-0.5,ymin_top,40.-0.5,ymax_top); 
     tl_njet->DrawLine(92.-0.5,ymin_top,92.-0.5,ymax_top); 
     tl_njet->DrawLine(144.-0.5,ymin_top,144.-0.5,ymax_top);
-    tl_njet->DrawLine(196.-0.5,ymin_top,196.-0.5,ymax_top);
-    tl_njet->DrawLine(248.-0.5,ymin_top,248.-0.5,ymax_top); 
+    tl_njet->DrawLine(188.-0.5,ymin_top,188.-0.5,ymax_top);
+    tl_njet->DrawLine(232.-0.5,ymin_top,232.-0.5,ymax_top); 
 
     // Njet labels
     TLatex * ttext_njet = new TLatex();
@@ -813,8 +817,8 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     ttext_njet->DrawLatex(20., ymax_top/4. , "N_{#scale[0.2]{ }jet} = 2");
     ttext_njet->DrawLatex(66.-0.5 , ymax_top/4. , "3 #leq N_{#scale[0.2]{ }jet} #leq 4");
     ttext_njet->DrawLatex(118.-0.5 , ymax_top/4. , "5 #leq N_{#scale[0.2]{ }jet} #leq 6");
-    ttext_njet->DrawLatex(170.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
-    ttext_njet->DrawLatex(222.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
+    ttext_njet->DrawLatex(166.-0.5 , ymax_top/4. , "7 #leq N_{#scale[0.2]{ }jet} #leq 8");
+    ttext_njet->DrawLatex(210.-0.5 , ymax_top/4. , "N_{#scale[0.2]{ }jet} #geq 9");
 
     // Nb separation lines
     TLine *tl_nb = new TLine();
@@ -830,13 +834,13 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     tl_nb->DrawLine(118.-0.5,ymin_top,118.-0.5,ymax2_top); 
     tl_nb->DrawLine(131.-0.5,ymin_top,131.-0.5,ymax2_top); 
     
-    tl_nb->DrawLine(157.-0.5,ymin_top,157.-0.5,ymax2_top); 
-    tl_nb->DrawLine(170.-0.5,ymin_top,170.-0.5,ymax3_top); 
-    tl_nb->DrawLine(183.-0.5,ymin_top,183.-0.5,ymax3_top); 
+    tl_nb->DrawLine(155.-0.5,ymin_top,155.-0.5,ymax2_top); 
+    tl_nb->DrawLine(166.-0.5,ymin_top,166.-0.5,ymax3_top); 
+    tl_nb->DrawLine(177.-0.5,ymin_top,177.-0.5,ymax3_top); 
 
-    tl_nb->DrawLine(209.-0.5,ymin_top,209.-0.5,ymax3_top); 
-    tl_nb->DrawLine(222.-0.5,ymin_top,222.-0.5,ymax3_top);
-    tl_nb->DrawLine(235.-0.5,ymin_top,235.-0.5,ymax3_top);
+    tl_nb->DrawLine(199.-0.5,ymin_top,199.-0.5,ymax3_top); 
+    tl_nb->DrawLine(210.-0.5,ymin_top,210.-0.5,ymax3_top);
+    tl_nb->DrawLine(221.-0.5,ymin_top,221.-0.5,ymax3_top);
 
     // Nb labels
     TLatex * ttext_nb = new TLatex();
@@ -860,15 +864,15 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
     ttext_nb->DrawLatex(124.5-0.5 , ymax_top/50. , "2");
     ttext_nb->DrawLatex(137.5-0.5 , ymax_top/50. , "#geq 3");
 
-    ttext_nb->DrawLatex(150.5-0.5 , ymax_top/50. , "0");
-    ttext_nb->DrawLatex(163.5-0.5 , ymax_top/50. , "1");
-    ttext_nb->DrawLatex(176.5-0.5 , ymax_top/50. , "2");
-    ttext_nb->DrawLatex(189.5-0.5 , ymax_top/50. , "#geq 3");
+    ttext_nb->DrawLatex(149.5-0.5 , ymax_top/50. , "0");
+    ttext_nb->DrawLatex(160.5-0.5 , ymax_top/50. , "1");
+    ttext_nb->DrawLatex(171.5-0.5 , ymax_top/50. , "2");
+    ttext_nb->DrawLatex(182.5-0.5 , ymax_top/50. , "#geq 3");
 
-    ttext_nb->DrawLatex(202.5-0.5 , ymax_top/50. , "0");
-    ttext_nb->DrawLatex(215.5-0.5 , ymax_top/50. , "1");
-    ttext_nb->DrawLatex(228.5-0.5 , ymax_top/50. , "2");
-    ttext_nb->DrawLatex(241.5-0.5 , ymax_top/50. , "#geq 3");
+    ttext_nb->DrawLatex(193.5-0.5 , ymax_top/50. , "0");
+    ttext_nb->DrawLatex(204.5-0.5 , ymax_top/50. , "1");
+    ttext_nb->DrawLatex(215.5-0.5 , ymax_top/50. , "2");
+    ttext_nb->DrawLatex(226.5-0.5 , ymax_top/50. , "#geq 3");
 
     TText * ttext = new TLatex(160. , ymax_top/50. , "Normalized to 10 fb^{-1}");
     ttext->SetTextFont(42);
@@ -1026,9 +1030,11 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
 
       ex1->Draw();
       numerator->DrawCopy("same");
-
+      std::cout<<" numerator*************************** "<<endl;
       numerator->Print("all");
+      std::cout<<" denominator*************************** "<<endl;
       denominator->Print("all");
+      std::cout<<" numerator_fullstaterr*************************** "<<endl;
       numerator_fullstaterr->Print("all");
 
       //
@@ -1049,31 +1055,28 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
       tl_njet->DrawLine(31.-0.5,ymin_top,31.-0.5,ymax_top); 
       tl_njet->DrawLine(71.-0.5,ymin_top,71.-0.5,ymax_top);
       tl_njet->DrawLine(111.-0.5,ymin_top,111.-0.5,ymax_top);
-      tl_njet->DrawLine(151.-0.5,ymin_top,151.-0.5,ymax_top);
-      tl_njet->DrawLine(191.-0.5,ymin_top,191.-0.5,ymax_top);
+      tl_njet->DrawLine(143.-0.5,ymin_top,143.-0.5,ymax_top);
+      tl_njet->DrawLine(175.-0.5,ymin_top,175.-0.5,ymax_top);
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
       tl_nb->SetLineStyle(3);
 
+    tl_nb->DrawLine(11.-0.5,ymin_top,11.-0.5,ymax2_top); 
+    tl_nb->DrawLine(21.-0.5,ymin_top,21.-0.5,ymax2_top); 
+    tl_nb->DrawLine(41.-0.5,ymin_top,41.-0.5,ymax2_top); 
+    tl_nb->DrawLine(51.-0.5,ymin_top,51.-0.5,ymax2_top); 
+    tl_nb->DrawLine(61.-0.5,ymin_top,61.-0.5,ymax2_top); 
+    tl_nb->DrawLine(81.-0.5,ymin_top,81.-0.5,ymax2_top); 
+    tl_nb->DrawLine(91.-0.5,ymin_top,91.-0.5,ymax2_top); 
+    tl_nb->DrawLine(101.-0.5,ymin_top,101.-0.5,ymax2_top); 
+    tl_nb->DrawLine(119.-0.5,ymin_top,119.-0.5,ymax2_top); 
+    tl_nb->DrawLine(127.-0.5,ymin_top,127.-0.5,ymax2_top);
+    tl_nb->DrawLine(135.-0.5,ymin_top,135.-0.5,ymax2_top);
+    tl_nb->DrawLine(151.-0.5,ymin_top,151.-0.5,ymax2_top);
+    tl_nb->DrawLine(159.-0.5,ymin_top,159.-0.5,ymax2_top);
+    tl_nb->DrawLine(167.-0.5,ymin_top,167.-0.5,ymax2_top);
       
-
-      tl_nb->DrawLine(11.-0.5,ymin_top,11.-0.5,ymax2_top); 
-      tl_nb->DrawLine(21.-0.5,ymin_top,21.-0.5,ymax2_top); 
-      tl_nb->DrawLine(41.-0.5,ymin_top,41.-0.5,ymax2_top); 
-      tl_nb->DrawLine(51.-0.5,ymin_top,51.-0.5,ymax2_top); 
-      tl_nb->DrawLine(61.-0.5,ymin_top,61.-0.5,ymax2_top); 
-      tl_nb->DrawLine(81.-0.5,ymin_top,81.-0.5,ymax2_top); 
-      tl_nb->DrawLine(91.-0.5,ymin_top,91.-0.5,ymax2_top); 
-      tl_nb->DrawLine(101.-0.5,ymin_top,101.-0.5,ymax2_top); 
-      tl_nb->DrawLine(121.-0.5,ymin_top,121.-0.5,ymax2_top); 
-      tl_nb->DrawLine(131.-0.5,ymin_top,131.-0.5,ymax2_top);
-      tl_nb->DrawLine(141.-0.5,ymin_top,141.-0.5,ymax2_top);
-      tl_nb->DrawLine(161.-0.5,ymin_top,161.-0.5,ymax2_top);
-      tl_nb->DrawLine(171.-0.5,ymin_top,171.-0.5,ymax2_top);
-      tl_nb->DrawLine(181.-0.5,ymin_top,181.-0.5,ymax2_top);
-      
-
 
 
      
@@ -1098,13 +1101,12 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
       tl_njet->DrawLine(40.-0.5,ymin_top,40.-0.5,ymax_top); 
       tl_njet->DrawLine(92.-0.5,ymin_top,92.-0.5,ymax_top); 
       tl_njet->DrawLine(144.-0.5,ymin_top,144.-0.5,ymax_top);
-      tl_njet->DrawLine(196.-0.5,ymin_top,196.-0.5,ymax_top);
-      tl_njet->DrawLine(248.-0.5,ymin_top,248.-0.5,ymax_top); 
+      tl_njet->DrawLine(188.-0.5,ymin_top,188.-0.5,ymax_top);
+      tl_njet->DrawLine(232.-0.5,ymin_top,232.-0.5,ymax_top); 
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
       tl_nb->SetLineStyle(3);
-
       tl_nb->DrawLine(14.-0.5,ymin_top,14.-0.5,ymax2_top); 
       tl_nb->DrawLine(27.-0.5,ymin_top,27.-0.5,ymax2_top); 
       
@@ -1116,17 +1118,16 @@ void Plot_searchBin_full(string sample="stacked",string histname="searchH_b",str
       tl_nb->DrawLine(118.-0.5,ymin_top,118.-0.5,ymax2_top); 
       tl_nb->DrawLine(131.-0.5,ymin_top,131.-0.5,ymax2_top); 
       
-      tl_nb->DrawLine(157.-0.5,ymin_top,157.-0.5,ymax2_top); 
-      tl_nb->DrawLine(170.-0.5,ymin_top,170.-0.5,ymax3_top); 
-      tl_nb->DrawLine(183.-0.5,ymin_top,183.-0.5,ymax3_top); 
+      tl_nb->DrawLine(155.-0.5,ymin_top,155.-0.5,ymax2_top); 
+      tl_nb->DrawLine(166.-0.5,ymin_top,166.-0.5,ymax3_top); 
+      tl_nb->DrawLine(177.-0.5,ymin_top,177.-0.5,ymax3_top); 
       
-      tl_nb->DrawLine(209.-0.5,ymin_top,209.-0.5,ymax3_top); 
-      tl_nb->DrawLine(222.-0.5,ymin_top,222.-0.5,ymax3_top);
-      tl_nb->DrawLine(235.-0.5,ymin_top,235.-0.5,ymax3_top);
+      tl_nb->DrawLine(199.-0.5,ymin_top,199.-0.5,ymax3_top); 
+      tl_nb->DrawLine(210.-0.5,ymin_top,210.-0.5,ymax3_top);
+      tl_nb->DrawLine(221.-0.5,ymin_top,221.-0.5,ymax3_top);
       
-    
       }
-
+      
       gPad->RedrawAxis();
 
       //

@@ -3,7 +3,8 @@
 void CalcAcceptanceSystematicsFromScale(){
 
   char tempname[200];
-  TFile * infile = new TFile("ARElog38_LostLepton2_MuonEfficiencies_hadd.root","R");
+  //  TFile * infile = new TFile("LostLepton2_MuonEfficiencies_hadd.root","R");
+  TFile * infile = new TFile("/home/arane/work/Analysis_May11/CMSSW_7_4_0_pre1/src/Jun21/RA2-RA2b-2015/New_RA2b_2015/ARElog38_LostLepton2_MuonEfficiencies_hadd.root","R");
   TH1* hScaleAccPass, * hScaleAccAll, * hScaleAccPass_lowDphi, * hScaleAccAll_lowDphi;
   vector<TH1*> hScaleAccVec, hScaleAcc_lowDphiVec, hScaleAcc_DeviationFromNomVec, hScaleAcc_DeviationFromNom_lowDphiVec;
 

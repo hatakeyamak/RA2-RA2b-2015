@@ -94,8 +94,8 @@ void Plot_closure(string cutname="delphi", string histname="NBtag",string sample
   // Luminosity information for scaling
   //double lumi     = 2.109271; // normaliza to this lumi (fb-1)
   //  double lumi     = 2.26198; // normaliza to this lumi (fb-1)
-  double lumi     = 12.9;
-  double lumi_ref = 12.9; // normaliza to 3 (fb-1)
+  double lumi     = 24.5;
+  double lumi_ref = 24.5; // normaliza to 3 (fb-1)
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////Some cosmetic work for official documents. 
   //

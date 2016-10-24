@@ -173,8 +173,12 @@ using namespace std;
 
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
+
+
     int totNbins_b=binMap_b.size();
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
+
+    
     searchH_b->Sumw2();
 
     // some histograms for our presentations
@@ -544,7 +548,7 @@ using namespace std;
 
       //if(eventN>10000)break;
       //if(eventN>5000)break;
-
+     
       eventWeight = evt->weight();
       //std::cout<<" eventN "<<eventN<<" eventWeight "<<eventWeight<<endl;
       //eventWeight = evt->weight()/evt->puweight();
@@ -568,6 +572,7 @@ using namespace std;
         }
 
       }
+      //std::cout<<" eventN "<<eventN<<" *****************************Outside************************ "<<endl;
 
       cutflow_preselection->Fill(1.,eventWeight);
       if(evt->HBHEIsoNoiseFilter_()==0)continue;
@@ -628,7 +633,7 @@ using namespace std;
       // At the end dividing the two histograms give the percentage as a function
       // transverse momentum.
       int muN=evt->GenMuPtVec_().size();
-
+      
       // Since we don't acount for efficiency and acceptance of Reco. electrons,
       // for the sake of consistency, apply the same pT and eta cuts on the gen.
       // electrons as those applied to Reco. electrons.  
@@ -665,7 +670,7 @@ using namespace std;
         
       } // end of baseline cuts
 
-
+      
 
 
       // We are interested in hadronically decaying taus only
@@ -765,7 +770,7 @@ using namespace std;
         }
       }
 
-     
+      
       // Acceptance determination 1: Counter for all events
       // with muons at generator level
       // apply the baseline selection
@@ -823,7 +828,7 @@ using namespace std;
           }
         }
       }      
-
+      
       //std::cout << "eventN:2 " << eventN << std::endl;
 
       // Total weight
@@ -924,7 +929,6 @@ using namespace std;
 	    if (evt->nJets()>=7 && evt->nJets()<=8) Iso_pass_nb_njet78->Fill( utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	    if (evt->nJets()>=9                   ) Iso_pass_nb_njet9->Fill(  utils2::findBin_NBtag(evt->nBtags()),eventWeight );
 	  }          
-
           // we are also interested to see how often the leading tau jet is vetoed by IsoTrk
           Iso_all2->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],eventWeight);
           int IsoElecIdx=-1, IsoMuIdx=-1, IsoPionIdx=-1;
@@ -949,7 +953,8 @@ using namespace std;
               // Fill Search bin histogram
               searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
               QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
-              searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
+	      //	      if(!(evt->nJets()>=7 && evt->mht()<500 && evt->ht()<500))              
+	      searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
               if(evt->nBtags()==0)hPredHTMHT0b->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               if(evt->nBtags() >0)hPredHTMHTwb->Fill( binMap_HTMHT[utils2::findBin_HTMHT(evt->ht(),evt->mht()).c_str()],totWeight);
               hPredNJetBins->Fill(evt->nJets(),totWeight);
@@ -958,7 +963,9 @@ using namespace std;
         }
 
       }
-
+      for (int i=1;i<=174;i++){
+	searchH_b->GetXaxis()->SetBinLabel(i,utils2::RenameBins(i));
+      }
       // Fill QCD histogram
       if(pass3){
         // Fill the histogram in the inverted delta phi region
@@ -972,7 +979,7 @@ using namespace std;
           }
         }
       }
-
+     
 
       // for plotting purposes
       double tauPt_forPlotting=0.0; 
@@ -1004,9 +1011,11 @@ using namespace std;
                            }; 
 
 
-      // Ahmad33 this is to remove acceptance role to check other sources of error. 
-      if(pass3){
+      // Ahmad33 this is to remove acceptance role to check other sources of error.       
 
+      
+      if(pass3){
+	
   cutflow_preselection->Fill(10.,eventWeight); // We may ask genTau within muon acceptance - This should corresponds to "allEvents" in histogram root files
 
         //loop over all the different backgrounds: "allEvents", "Wlv", "Zvv"
@@ -1035,7 +1044,7 @@ using namespace std;
         ///////////////////////////////
 
 
-      } // Ahmad33
+      }//end of loop over pass3 // Ahmad33
 
       // Do the matching
       int tauJetIdx = -1;
@@ -1045,7 +1054,7 @@ using namespace std;
       // Lets write all the gen tau events regardless of if they match a jet or not.
       //we want to consider events that pass the baseline cuts
       if(genTauPt >= 20. && std::abs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_all->Fill(genTauPt,eventWeight);
-
+      
 /*
       // 
       TVector3 TauNu3Vec,Tau3Vec,Visible3Vec;
@@ -1067,12 +1076,14 @@ using namespace std;
         continue;
       } // this also determines tauJetIdx
 
+      //std::cout<<"eventN "<<eventN <<" *****************************Second point************************ "<<endl;
 
       if(verbose!=0){printf("Event: %d, tauJetIdx: %d \n",eventN,tauJetIdx);
         if(tauJetIdx!=-1){
           printf("JetEta: %g ,JetPhi(): %g ,JetPt(): %g \n genTauEta: %g, genTauPhi: %g, genTauPt: %g \n",evt->JetsEtaVec_()[tauJetIdx],evt->JetsPhiVec_()[tauJetIdx],evt->JetsPtVec_()[tauJetIdx],genTauEta,genTauPhi,genTauPt);
         }
       }
+
 /*
       // Fill tauJet Pt histogram
       double failRate = hFailRate_GenTau_Jet->GetBinContent(hFailRate_GenTau_Jet->GetXaxis()->FindBin(genTauPt));
@@ -1114,35 +1125,50 @@ using namespace std;
       if( selNJet < 2 ) continue;
 
       if(verbose!=0)printf("selNJet > 2 passed \n " );  
-
       // Fill histogram with relative visible energy of the tau
       // ("tau response template") for hadronically decaying taus
       for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx) { // Loop over reco jets
         // Select tau jet
-  //std::cout<<"eventN "<<eventN<<"jetid "<<jetIdx<<"tauJetPt "<<evt->slimJetPtVec_().at(jetIdx)<<"tauJetPtUp "<<evt->slimJetJECup_()->at(jetIdx).Pt()<<"tauJetPtDown "<<evt->slimJetJECdown_()->at(jetIdx).Pt()<<std::endl;
-
+  //std::cout<<"eventN "<<eventN<<"jetid "<<jetIdx<<"tauJetPt "<<evt->slimJetPtVec_().at(jetIdx)<<"tauJetPtUp "<<evt->slimJetJECup_().at(jetIdx).Pt()<<"tauJetPtDown "<<evt->slimJetJECdown_().at(jetIdx).Pt()<<std::endl;
+	//std::cout<<"slimJetPtVec_size "<<(int)evt->slimJetPtVec_().size()<<endl;
+	//std::cout<<"slimJetJECUp_size "<<evt->slimJetJECup_().size()<<endl;
+	//std::cout<<"slimJetJECDown_size "<<evt->slimJetJECdown_().size()<<endl;
         if( jetIdx == tauJetIdx ) {
+	  //  std::cout<<"slimJetPtVec_size "<<(int)evt->slimJetPtVec_().size()<<endl;
+	  //std::cout<<"slimJetJECUp_size "<<(int)evt->slimJetJECup_().size()<<endl;
+	  //std::cout<<"slimJetJECDown_size "<<(int)evt->slimJetJECdown_().size()<<endl;
+
           // Get the response pt bin for the tau
-          //printf(" slimSize: %d UpSize: %d DownSize: %d \n ",evt->slimJetPtVec_().size(),evt->slimJetJECup_()->size(),evt->slimJetJECdown_()->size());
+          //printf(" slimSize: %d UpSize: %d DownSize: %d \n ",evt->slimJetPtVec_().size(),evt->slimJetJECup_().size(),evt->slimJetJECdown_().size());
+	 
+	 
 
-          const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
-          const double tauJetPtUp = evt->slimJetJECup_()->at(jetIdx).Pt();
-          const double tauJetPtDown = evt->slimJetJECdown_()->at(jetIdx).Pt();
-    //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
-
+	  const double tauJetPt = evt->slimJetPtVec_().at(jetIdx);
+	  //std::cout<<" tauJetPt "<<tauJetPt<<endl; 
+	  //	  const double tauJetPtUp = evt->slimJetJECup_().at(jetIdx).Pt();
+	  //std::cout<<" tauJetPtUp "<<tauJetPtUp<<endl;
+          //const double tauJetPtDown = evt->slimJetJECdown_().at(jetIdx).Pt();
+	  double tauJetPtDown = tauJetPt;
+	  double tauJetPtUp = tauJetPt;
+	  //std::cout<<" tauJetPtDown "<<tauJetPtDown<<endl;   
+	  //std::cout<<"eventN "<<eventN<<"tauJetIdx "<< tauJetIdx <<"jetid "<<jetIdx<<"tauJetPt "<<tauJetPt<<"tauJetPtUp "<<tauJetPtUp<<"tauJetPtDown "<<tauJetPtDown<<std::endl;
+	  //std::cout<<" eventN "<<eventN<<"*****************************Check Seg Violation************************"<<endl;
+	  
           const unsigned int ptBin = utils->TauResponse_ptBin(genTauPt);
           // Fill the corresponding response template
           hTauResp.at(ptBin)->Fill( tauJetPt / genTauPt ,eventWeight);
           hTauRespUp.at(ptBin)->Fill( tauJetPtUp / genTauPt ,eventWeight);
+
           hTauRespDown.at(ptBin)->Fill( tauJetPtDown / genTauPt ,eventWeight);
 	  hGenPt.at(ptBin)->Fill( genTauPt ,eventWeight);
 	  tau_GenPt->Fill( genTauPt ,eventWeight);
+
           double tauJetPhi = evt->slimJetPhiVec_().at(jetIdx);
           const double tauJetPt_x = tauJetPt * cos( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) );
           const double tauJetPt_y = tauJetPt * sin( TVector2::Phi_mpi_pi( genTauPhi - tauJetPhi) ); 
           hTauResp_x.at(ptBin)->Fill( tauJetPt_x / genTauPt ,eventWeight);
           hTauResp_y.at(ptBin)->Fill( tauJetPt_y / genTauPt ,eventWeight);
-
+	  
           hTauResp_xy.at(ptBin)->Fill(tauJetPt_x / genTauPt , tauJetPt_y / genTauPt ,eventWeight);
 
           if(verbose!=0)printf("ptBin: %d tauJetPt: %g genTauPt: %g \n ",ptBin,tauJetPt,genTauPt); 
@@ -1155,10 +1181,10 @@ using namespace std;
         }
       } // End of loop over reco jets
 
-
+      
 
     } // End of loop over events  
-
+    
     printf("nCleanEve: %d nHadTauEve: %d nNoLepEve: %d \n ",nCleanEve,nHadTauEve,nNoLepEve);
 
     // Calculate trigger efficiency 

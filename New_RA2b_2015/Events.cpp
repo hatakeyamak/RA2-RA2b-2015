@@ -6,7 +6,7 @@
   Events::Events(TTree * ttree_, const std::string sampleKeyString, int verbose) : currentEntry_(-1) {
 
     // Data or MC ?
-    DataBool=false;
+    DataBool=true;
 
     // Study Tau ID
     StudyTauId=false;
@@ -155,16 +155,16 @@
        fChain->SetBranchAddress("globalTightHalo2016Filter", &globalTightHalo2016Filter);
      }
      if(!DataBool){
-       fChain->SetBranchAddress("GenMus", &GenMus);
-       fChain->SetBranchAddress("GenMu_GenMuFromTau", &GenMu_GenMuFromTau);
-       fChain->SetBranchAddress("GenEls", &GenEls);
-       fChain->SetBranchAddress("GenElec_GenElecFromTau", &GenElec_GenElecFromTau);
+       fChain->SetBranchAddress("GenMuons", &GenMus);
+       fChain->SetBranchAddress("GenMuons_fromTau", &GenMu_GenMuFromTau);
+       fChain->SetBranchAddress("GenElectrons", &GenEls);
+       fChain->SetBranchAddress("GenElectrons_fromTau", &GenElec_GenElecFromTau);
        fChain->SetBranchAddress("GenTaus", &GenTaus);
-       fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad);
-       fChain->SetBranchAddress("GenTauNu", &GenTauNu);
+       fChain->SetBranchAddress("GenTaus_had", &GenTau_GenTauHad);
+       fChain->SetBranchAddress("GenTaus_Nu", &GenTauNu);
        fChain->SetBranchAddress("GenJets", &GenJets);
        fChain->SetBranchAddress("madHT", &madHT);
-       fChain->SetBranchAddress("GenMu_MT2Activity", &GenMu_MT2Activity);
+       fChain->SetBranchAddress("GenMuons_MT2Activity", &GenMu_MT2Activity);
 
        fChain->SetBranchAddress("GenParticles", &GenParticles);
        fChain->SetBranchAddress("GenParticles_PdgId", &GenParticles_PdgId);
@@ -193,22 +193,22 @@
 //     fChain->SetBranchAddress("slimmedMuonsPtVec", &slimmedMuonsPtVec);
       fChain->SetBranchAddress("Muons", &Muons);
 //     fChain->SetBranchAddress("selectedIDIsoMuonsPtVec", &selectedIDIsoMuonsPtVec);
-     fChain->SetBranchAddress("selectedIDMuons", &selectedIDMuons);
+     fChain->SetBranchAddress("MuonsNoIso", &selectedIDMuons);
 
 //     fChain->SetBranchAddress("slimmedElectronsPtVec", &slimmedElectronsPtVec);
      fChain->SetBranchAddress("Electrons", &Electrons);
 //     fChain->SetBranchAddress("selectedIDIsoElectronsPtVec", &selectedIDIsoElectronsPtVec);
-     fChain->SetBranchAddress("selectedIDElectrons", &selectedIDElectrons);
-     fChain->SetBranchAddress("softJetsJECdown", &softJetsJECdown);  
+     fChain->SetBranchAddress("ElectronsNoIso", &selectedIDElectrons);
+     fChain->SetBranchAddress("SoftJetsJECdown", &softJetsJECdown);  
      fChain->SetBranchAddress("JetsJECdown", &JetsJECdown);
-     fChain->SetBranchAddress("softJetsJECup", &softJetsJECup);
+     fChain->SetBranchAddress("SoftJetsJECup", &softJetsJECup);
      fChain->SetBranchAddress("JetsJECup", &JetsJECup);
-     fChain->SetBranchAddress("softJets", &softJets);
+     fChain->SetBranchAddress("SoftJets", &softJets);
      fChain->SetBranchAddress("Jets", &Jets);
-     fChain->SetBranchAddress("softJets_ID", &softJets_ID);
+     fChain->SetBranchAddress("SoftJets_ID", &softJets_ID);
      fChain->SetBranchAddress("Jets_ID", &Jets_ID);
      fChain->SetBranchAddress("Jets_jecFactor", &Jets_jecFactor);
-     fChain->SetBranchAddress("softJets_jecFactor", &softJets_jecFactor);
+     fChain->SetBranchAddress("SoftJets_jecFactor", &softJets_jecFactor);
 
      //     fChain->SetBranchAddress("IsolatedElectronTracksVeto", &IsolatedElectronTracksVeto);
      //fChain->SetBranchAddress("IsolatedMuonTracksVeto", &IsolatedMuonTracksVeto);
@@ -218,7 +218,7 @@
      fChain->SetBranchAddress("TAPMuonTracks", &TAPMuonTracks);
      fChain->SetBranchAddress("TAPPionTracks", &TAPPionTracks);
 
-     fChain->SetBranchAddress("selectedIDIsoMuons_MT2Activity", &selectedIDIsoMuons_MT2Activity);
+     fChain->SetBranchAddress("MuonsNoIso_MT2Activity", &selectedIDIsoMuons_MT2Activity);
 
      if(StudyTauId){
        fChain->SetBranchAddress("TauLorVec", &TauLorVec);
@@ -492,19 +492,33 @@
    vector<double>  Events::Jets_photonEnergyFraction_() const {return *Jets_photonEnergyFraction;}
    vector<int>  Events::Jets_photonMultiplicity_() const {return *Jets_photonMultiplicity;}
 
-    vector<TLorentzVector> * Events::slimJetJECdown_() const {
-      vector<TLorentzVector> *vec = JetsJECdown;
-      for(int i=0; i < softJetsJECdown->size(); i++){
-	vec->push_back(softJetsJECdown->at(i));
+    vector<TLorentzVector> Events::slimJetJECdown_() const {
+      //vector<TLorentzVector> *vec = JetsJECdown;
+      vector<TLorentzVector> vec;
+      for(int i=0; i < JetsJECdown->size(); i++){
+	vec.push_back((TLorentzVector)JetsJECdown->at(i));
       }
+      for(int i=0; i < softJetsJECdown->size(); i++){
+	vec.push_back(softJetsJECdown->at(i));
+      }
+      //      std::cout<<" JetJECdown_().size() "<<JetsJECdown->size()<<" ";
+      //std::cout<<" softJetJECdown_().size() "<<softJetsJECdown->size()<<" ";
+      //std::cout<<" slimJetJECdown_().size() "<<vec.size()<<std::endl;
       return vec;
     }
 
-    vector<TLorentzVector> * Events::slimJetJECup_() const {
-      vector<TLorentzVector> *vec = JetsJECup;
-      for(int i=0; i < softJetsJECup->size(); i++){
-	vec->push_back(softJetsJECup->at(i));
+    vector<TLorentzVector> Events::slimJetJECup_() const {
+      //vector<TLorentzVector> *vec1 = JetsJECup;
+      vector<TLorentzVector> vec;  //JetsJECup;
+      for(int i=0; i < JetsJECup->size(); i++){
+	vec.push_back((TLorentzVector)JetsJECup->at(i));
       }
+      for(int i=0; i < softJetsJECup->size(); i++){
+	vec.push_back(softJetsJECup->at(i));
+      }
+      //std::cout<<" JetJECup_().size() "<<JetsJECup->size()<<" ";
+      //std::cout<<" softJetJECup_().size() "<<softJetsJECup->size()<<" ";
+      //std::cout<<" slimJetJECup_().size() "<<vec.size()<<std::endl;
       return vec;
     }
 
@@ -516,7 +530,10 @@
       for(int i=0;i < softJets->size();i++){
 	vec.push_back(softJets->at(i).Pt());
       }
-      return vec;
+      //std::cout<<" Jets.size() "<<Jets->size()<<" ";
+      //std::cout<<" softJets.size() "<<softJets->size()<<" ";
+      //std::cout<<" slimJetPtVec_().size() "<<vec.size()<<std::endl;
+      return vec;      
     }
     vector<double>  Events::GenJetPtVec_() const { 
       vector<double> vec;

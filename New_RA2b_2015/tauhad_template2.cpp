@@ -109,7 +109,7 @@ using namespace std;
 			     1000.,1200.,1500.,2000.,5000.};
     Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
                              700.,1000.,5000.};
-
+    std::cout<<"***********Check seg vio******************"<<endl;
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
     vec.push_back(weight_hist);
@@ -219,7 +219,7 @@ using namespace std;
     searchH_lowDphi->Sumw2();
     // Make another hist to be filled during bootstrapping
     TH1 * searchH_evt_lowDphi = static_cast<TH1D*>(searchH_lowDphi->Clone("searchH_evt_lowDphi"));
-
+    
     // Introduce QCD histogram
     map<string,int> binMap_QCD = utils2::BinMap_QCD();
     int totNbins_QCD=binMap_QCD.size();
@@ -234,6 +234,7 @@ using namespace std;
     
     // Introduce search bin histogram with bTag bins
     map<string,int> binMap_b = utils2::BinMap();
+    //map<string,string> binMap_b = utils2::BinMap();
     int totNbins_b=binMap_b.size();
     TH1* searchH_b = new TH1D("searchH_b","search bin histogram",totNbins_b,1,totNbins_b+1);
     searchH_b->Sumw2();  
@@ -297,7 +298,7 @@ using namespace std;
     QCD_.Sumw2();
     vec_search.push_back(QCD_);
 
-
+    
     // some histograms for our presentations
     map<string,int> binMap_HTMHT = utils2::BinMap_HTMHT();
     int totNbins_HTMHT=binMap_HTMHT.size();
@@ -1592,19 +1593,18 @@ using namespace std;
 		}
 
 		// from V9 MC
-		double NjNbCorrArray[16]=
-		  {1.1207,1.10321,1.14125,1.2758,1.03568,1.03778,1.07653,1.03688,1.00263,1.04462,1.00767,1.06245,0.846192,0.885746,0.991038,0.991126};
-
+		double NjNbCorrArray[19]=
+		  {1.13407,0.952105,0.841536,1.01927,0.976648,0.982884,1.1133,0.984921,0.965307,0.990874,0.961651,0.967893,0.977786,0.952828,1.02572,0.817016,0.852457,0.972134,0.977087};
 		NjNbCorr = NjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)];
 		
-		double QCD_UpNjNbCorrArray[16]=
-		   {1.09651,1.09637,1.14059,1.20009,1.03098,1.0296,1.04985,1.01684,0.98427,1.01241,0.981604,1.02756,0.87334,0.876462,0.943229,0.999277};
+		double QCD_UpNjNbCorrArray[19]=
+		   {1.08152,0.990409,0.811593,1.01563,0.985005,0.994556,1.06122,0.985231,0.962233,0.974464,0.953773,0.959561,0.964621,0.938659,1.00024,0.845226,0.853234,0.937573,0.997093};
 
 		QCD_UpNjNbCorr=QCD_UpNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
 		factor_Up_NjNb=QCD_UpNjNbCorr/NjNbCorr;
 
-		double QCD_LowNjNbCorrArray[16]=
-		  {0.994667,1.00887,1.09966,1.03729,0.957701,0.982594,0.977459,0.983404,0.942112,0.924123,0.985946,1.01246,0.915061,0.870221,0.908097,0.929114};
+		double QCD_LowNjNbCorrArray[19]=
+		  {0.994722,0.974073,1.22361,0.980378,0.986974,1.0485,1.02169,0.945175,0.954779,0.946443,0.970859,0.935585,0.918073,0.966624,0.993365,0.909766,0.867882,0.903327,0.910183};
 
 
 		QCD_LowNjNbCorr=QCD_LowNjNbCorrArray[utils2::findBin_NJetNBtag(newNJet,NewNB)]; 
@@ -2000,6 +2000,9 @@ using namespace std;
 
         searchH_b_evt->Fill( binMap_b[utils2::findBin(newNJet,NewNB,newHT,newMHT).c_str()],searchWeight);
 
+	for (int i=1;i<=174;i++){
+	  searchH_b->GetXaxis()->SetBinLabel(i,utils2::RenameBins(i));
+	}
         //KH-Feb2016-starts
         double newHT_tmp,newMHT_tmp,newNJet_tmp,NewNB_tmp;
         newHT_tmp=newHT; newMHT_tmp=newMHT; newNJet_tmp=newNJet; NewNB_tmp=NewNB;

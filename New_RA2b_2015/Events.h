@@ -259,8 +259,8 @@ Events(TTree * ttree_, const std::string sampleKeyString="ttbar", int verbose=0)
    vector<double>  slimJetjecFactor_() const;
    vector<double>  Jets_jecFactor_() const; 
 
-   vector<TLorentzVector> * slimJetJECdown_() const;
-   vector<TLorentzVector> * slimJetJECup_() const;
+   vector<TLorentzVector> slimJetJECdown_() const;
+   vector<TLorentzVector> slimJetJECup_() const;
    vector<double>  slimmedMuPtVec_() const;
    vector<double>  slimmedMuEtaVec_() const;
    vector<double>  slimmedMuPhiVec_() const;

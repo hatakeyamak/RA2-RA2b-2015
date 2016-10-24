@@ -98,14 +98,23 @@ namespace utils2{
         if(njet==2)bNjet=1;else if(njet >= 3 && njet <=4)bNjet=2;else if(njet >= 5 && njet <=6)bNjet=3;else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5; else bNjet=9;
 
         if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
-
-        if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=2;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=3;
-        else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=4;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=5;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=6;
-	else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=8;
-	else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=9;
-        else if(ht >= 1500 && mht>=750)bHtMht=10;
-	else bHtMht=99;
-
+	if(njet<7){
+	  if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=2;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=3;
+	  else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=4;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=5;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=6;
+	  else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=7;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=8;
+	  else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=9;
+	  else if(ht >= 1500 && mht>=750)bHtMht=10;
+	  else bHtMht=99;
+	}
+	else if(njet>=7){
+	  if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=1;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=2;
+	  else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=3;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=4;
+	  else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=5;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=6;
+	  else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=7;
+	  else if(ht >= 1500 && mht>=750)bHtMht=8;
+	  else bHtMht=99;
+	}
+	//else bHtMht=99;
         binS << 1000*bNjet+100*bNbtag+bHtMht ;
 
         return binS.str();
@@ -113,21 +122,41 @@ namespace utils2{
 
   // A map is needed between strings like "132" or "2143" that specify the searc bins
   // (see findBin fundtion above) and an integer that can take from 1 to 108 (# of search bins)
-  std::map <std::string,int> BinMap(){
-    std::cout<<"-------------------BinMap function getting printed-----------------"<<std::endl;
-      int binN=0;
+      std::map <std::string,int> BinMap(){
+	std::cout<<"-------------------BinMap function getting printed-----------------"<<std::endl;
+	int binN=0;
+	//	string binString[174]={"nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT1","nJet0_nB0_MHT0_HT2","nJet0_nB0_MHT0_HT3","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT0"};
       int Max_bNbtag=0;
+      int Max_bHtMht=0;
+      int nJet=0;
+      int nB=0;
+      int HT=0;
+      int MHT=0;
+      char cname[500];
       std::map <std::string , int> binMap;
+      //std::map <std::string ,std::string> binMap;
       for(int bNjet=1; bNjet<=5;  bNjet++){
+	nJet=bNjet-1;
 	if(bNjet ==1)Max_bNbtag=3;
 	else Max_bNbtag=4;
+	if(bNjet >3)Max_bHtMht=8;
+	else Max_bHtMht=10;
         for(int bNbtag=1; bNbtag<=Max_bNbtag; bNbtag++){
-          for(int bHtMht=1; bHtMht<=10; bHtMht++){
-              std::ostringstream binS;
-              binS << 1000*bNjet+100*bNbtag+bHtMht;
-              binN++;
-              binMap[binS.str()]=binN;
-              std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+	  nB=bNbtag-1;MHT=0;
+          for(int bHtMht=1; bHtMht<=Max_bHtMht; bHtMht++){
+	    HT=bHtMht-1;
+	    std::ostringstream binS;
+	    std::ostringstream newbinS;
+	    binS << 1000*bNjet+100*bNbtag+bHtMht;
+	    binN++;
+	    binMap[binS.str()]=binN;
+	      //    std::cout << "binString: " << binS.str() << " corresponing with binNumber: " <<binN << std::endl;
+	      sprintf(cname, "nJet%i_nB%i_MHT%i_HT%i", nJet,nB,MHT,HT);
+	      std::cout << "binString: " << cname << " corresponing with binNumber: " <<binN << std::endl;
+	      if(Max_bHtMht==10 && (HT==2 || HT==5 || HT==7))MHT++;
+	      else if(Max_bHtMht==8 && (HT==1 || HT==3 || HT==5))MHT++;
+	      //  binS << cname;
+	      //binMap[binS.str()]=cname;
           }
         }
       }
@@ -385,14 +414,24 @@ namespace utils2{
         if(njet == 2)bNjet=1;else if(njet >= 3 && njet <=4)bNjet=2;else if(njet >= 5 && njet <=6)bNjet=3;else if(njet >= 7 && njet <=8)bNjet=4;else if(njet >= 9)bNjet=5; else bNjet=9;
 
         if(nbtag == 0)bNbtag=1;else if(nbtag==1)bNbtag=2;else if(nbtag == 2)bNbtag=3;else if(nbtag >= 3)bNbtag=4;else bNbtag=9;
-
-        if(ht >= 300 && ht <500 && mht>=250 && mht<300)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=250 && mht<300)bHtMht=2;else if(ht >= 1000 && mht>=250 && mht<300)bHtMht=3;
-        else if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=4;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=5;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=6;
-        else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=7;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=8;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=9;
-        else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=10;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=11;
-        else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=12;
-        else if(ht >= 1500 && mht>=750)bHtMht=13;
-        else bHtMht=99;
+	if(njet<7){
+	  if(ht >= 300 && ht <500 && mht>=250 && mht<300)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=250 && mht<300)bHtMht=2;else if(ht >= 1000 && mht>=250 && mht<300)bHtMht=3;
+	  else if(ht >= 300 && ht <500 && mht>=300 && mht<350)bHtMht=4;else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=5;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=6;
+	  else if(ht >= 350 && ht <500 && mht>=350 && mht<500)bHtMht=7;else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=8;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=9;
+	  else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=10;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=11;
+	  else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=12;
+	  else if(ht >= 1500 && mht>=750)bHtMht=13;
+	  else bHtMht=99;
+	}
+	else if(njet>=7){
+	  if(ht >= 300 && ht <500 && mht>=250 && mht<300)bHtMht=1;else if(ht >= 500 && ht <1000 && mht>=250 && mht<300)bHtMht=2;else if(ht >= 1000 && mht>=250 && mht<300)bHtMht=3;
+	  else if(ht >= 500 && ht <1000 && mht>=300 && mht<350)bHtMht=4;else if(ht >= 1000 && mht>=300 && mht<350)bHtMht=5;
+	  else if(ht >=500 && ht<1000 && mht>=350 && mht<500)bHtMht=6;else if(ht >=1000 && mht>=350 && mht<500)bHtMht=7;
+	  else if(ht >= 500 && ht <1000 && mht>=500 && mht<750)bHtMht=8;else if(ht >= 1000 && mht>=500 && mht<750)bHtMht=9;
+	  else if(ht >= 750 && ht<1500 && mht>=750)bHtMht=10;
+	  else if(ht >= 1500 && mht>=750)bHtMht=11;
+	  else bHtMht=99;
+	}
 
         binS << 1000*bNjet+100*bNbtag+bHtMht ;
 
@@ -405,12 +444,15 @@ namespace utils2{
     std::cout<<"-------------------BinMap_QCD function getting printed-----------------"<<std::endl;
       int binN=0;
       int Max_bNbtag=0;
+      int Max_bHtMht=0;
       std::map <std::string , int> binMap;
       for(int bNjet=1; bNjet<=5;  bNjet++){
 	if(bNjet ==1)Max_bNbtag=3;
 	else Max_bNbtag=4;
+	if(bNjet>3)Max_bHtMht=11;
+	else Max_bHtMht=13;
         for(int bNbtag=1; bNbtag<=Max_bNbtag; bNbtag++){
-          for(int bHtMht=1; bHtMht<=13; bHtMht++){
+          for(int bHtMht=1; bHtMht<=Max_bHtMht; bHtMht++){
               std::ostringstream binS;
               binS << 1000*bNjet+100*bNbtag+bHtMht;
               binN++;
@@ -615,6 +657,14 @@ namespace utils2{
     //std::cout << std::abs(1-hist->GetBinContent(nxBin, nyBin)) << " " << std::sqrt(hist->GetBinError(nxBin, nyBin)*hist->GetBinError(nxBin, nyBin) + 0.01*hist->GetBinContent(nxBin, nyBin)*0.01*hist->GetBinContent(nxBin, nyBin)) << " " << hist->GetBinError(nxBin, nyBin)<<std::endl;
 
     return SF;
+  }
+
+
+  const char* RenameBins(int x){
+    const char *binString[174]={
+      "nJet0_nB0_MHT0_HT0","nJet0_nB0_MHT0_HT1","nJet0_nB0_MHT0_HT2","nJet0_nB0_MHT1_HT3","nJet0_nB0_MHT1_HT4","nJet0_nB0_MHT1_HT5","nJet0_nB0_MHT2_HT6","nJet0_nB0_MHT2_HT7","nJet0_nB0_MHT3_HT8","nJet0_nB0_MHT3_HT9","nJet0_nB1_MHT0_HT0","nJet0_nB1_MHT0_HT1","nJet0_nB1_MHT0_HT2","nJet0_nB1_MHT1_HT3","nJet0_nB1_MHT1_HT4","nJet0_nB1_MHT1_HT5","nJet0_nB1_MHT2_HT6","nJet0_nB1_MHT2_HT7","nJet0_nB1_MHT3_HT8","nJet0_nB1_MHT3_HT9","nJet0_nB2_MHT0_HT0","nJet0_nB2_MHT0_HT1","nJet0_nB2_MHT0_HT2","nJet0_nB2_MHT1_HT3","nJet0_nB2_MHT1_HT4","nJet0_nB2_MHT1_HT5","nJet0_nB2_MHT2_HT6","nJet0_nB2_MHT2_HT7","nJet0_nB2_MHT3_HT8","nJet0_nB2_MHT3_HT9","nJet1_nB0_MHT0_HT0","nJet1_nB0_MHT0_HT1","nJet1_nB0_MHT0_HT2","nJet1_nB0_MHT1_HT3","nJet1_nB0_MHT1_HT4","nJet1_nB0_MHT1_HT5","nJet1_nB0_MHT2_HT6","nJet1_nB0_MHT2_HT7","nJet1_nB0_MHT3_HT8","nJet1_nB0_MHT3_HT9","nJet1_nB1_MHT0_HT0","nJet1_nB1_MHT0_HT1","nJet1_nB1_MHT0_HT2","nJet1_nB1_MHT1_HT3","nJet1_nB1_MHT1_HT4","nJet1_nB1_MHT1_HT5","nJet1_nB1_MHT2_HT6","nJet1_nB1_MHT2_HT7","nJet1_nB1_MHT3_HT8","nJet1_nB1_MHT3_HT9","nJet1_nB2_MHT0_HT0","nJet1_nB2_MHT0_HT1","nJet1_nB2_MHT0_HT2","nJet1_nB2_MHT1_HT3","nJet1_nB2_MHT1_HT4","nJet1_nB2_MHT1_HT5","nJet1_nB2_MHT2_HT6","nJet1_nB2_MHT2_HT7","nJet1_nB2_MHT3_HT8","nJet1_nB2_MHT3_HT9","nJet1_nB3_MHT0_HT0","nJet1_nB3_MHT0_HT1","nJet1_nB3_MHT0_HT2","nJet1_nB3_MHT1_HT3","nJet1_nB3_MHT1_HT4","nJet1_nB3_MHT1_HT5","nJet1_nB3_MHT2_HT6","nJet1_nB3_MHT2_HT7","nJet1_nB3_MHT3_HT8","nJet1_nB3_MHT3_HT9","nJet2_nB0_MHT0_HT0","nJet2_nB0_MHT0_HT1","nJet2_nB0_MHT0_HT2","nJet2_nB0_MHT1_HT3","nJet2_nB0_MHT1_HT4","nJet2_nB0_MHT1_HT5","nJet2_nB0_MHT2_HT6","nJet2_nB0_MHT2_HT7","nJet2_nB0_MHT3_HT8","nJet2_nB0_MHT3_HT9","nJet2_nB1_MHT0_HT0","nJet2_nB1_MHT0_HT1","nJet2_nB1_MHT0_HT2","nJet2_nB1_MHT1_HT3","nJet2_nB1_MHT1_HT4","nJet2_nB1_MHT1_HT5","nJet2_nB1_MHT2_HT6","nJet2_nB1_MHT2_HT7","nJet2_nB1_MHT3_HT8","nJet2_nB1_MHT3_HT9","nJet2_nB2_MHT0_HT0","nJet2_nB2_MHT0_HT1","nJet2_nB2_MHT0_HT2","nJet2_nB2_MHT1_HT3","nJet2_nB2_MHT1_HT4","nJet2_nB2_MHT1_HT5","nJet2_nB2_MHT2_HT6","nJet2_nB2_MHT2_HT7","nJet2_nB2_MHT3_HT8","nJet2_nB2_MHT3_HT9","nJet2_nB3_MHT0_HT0","nJet2_nB3_MHT0_HT1","nJet2_nB3_MHT0_HT2","nJet2_nB3_MHT1_HT3","nJet2_nB3_MHT1_HT4","nJet2_nB3_MHT1_HT5","nJet2_nB3_MHT2_HT6","nJet2_nB3_MHT2_HT7","nJet2_nB3_MHT3_HT8","nJet2_nB3_MHT3_HT9","nJet3_nB0_MHT0_HT0","nJet3_nB0_MHT0_HT1","nJet3_nB0_MHT1_HT2","nJet3_nB0_MHT1_HT3","nJet3_nB0_MHT2_HT4","nJet3_nB0_MHT2_HT5","nJet3_nB0_MHT3_HT6","nJet3_nB0_MHT3_HT7","nJet3_nB1_MHT0_HT0","nJet3_nB1_MHT0_HT1","nJet3_nB1_MHT1_HT2","nJet3_nB1_MHT1_HT3","nJet3_nB1_MHT2_HT4","nJet3_nB1_MHT2_HT5","nJet3_nB1_MHT3_HT6","nJet3_nB1_MHT3_HT7","nJet3_nB2_MHT0_HT0","nJet3_nB2_MHT0_HT1","nJet3_nB2_MHT1_HT2","nJet3_nB2_MHT1_HT3","nJet3_nB2_MHT2_HT4","nJet3_nB2_MHT2_HT5","nJet3_nB2_MHT3_HT6","nJet3_nB2_MHT3_HT7","nJet3_nB3_MHT0_HT0","nJet3_nB3_MHT0_HT1","nJet3_nB3_MHT1_HT2","nJet3_nB3_MHT1_HT3","nJet3_nB3_MHT2_HT4","nJet3_nB3_MHT2_HT5","nJet3_nB3_MHT3_HT6","nJet3_nB3_MHT3_HT7","nJet4_nB0_MHT0_HT0","nJet4_nB0_MHT0_HT1","nJet4_nB0_MHT1_HT2","nJet4_nB0_MHT1_HT3","nJet4_nB0_MHT2_HT4","nJet4_nB0_MHT2_HT5","nJet4_nB0_MHT3_HT6","nJet4_nB0_MHT3_HT7","nJet4_nB1_MHT0_HT0","nJet4_nB1_MHT0_HT1","nJet4_nB1_MHT1_HT2","nJet4_nB1_MHT1_HT3","nJet4_nB1_MHT2_HT4","nJet4_nB1_MHT2_HT5","nJet4_nB1_MHT3_HT6","nJet4_nB1_MHT3_HT7","nJet4_nB2_MHT0_HT0","nJet4_nB2_MHT0_HT1","nJet4_nB2_MHT1_HT2","nJet4_nB2_MHT1_HT3","nJet4_nB2_MHT2_HT4","nJet4_nB2_MHT2_HT5","nJet4_nB2_MHT3_HT6","nJet4_nB2_MHT3_HT7","nJet4_nB3_MHT0_HT0","nJet4_nB3_MHT0_HT1","nJet4_nB3_MHT1_HT2","nJet4_nB3_MHT1_HT3","nJet4_nB3_MHT2_HT4","nJet4_nB3_MHT2_HT5","nJet4_nB3_MHT3_HT6","nJet4_nB3_MHT3_HT7"};
+
+    return binString[x-1];
   }
 
 
