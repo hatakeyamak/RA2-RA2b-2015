@@ -799,9 +799,9 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      if(eventN>10000)break;
+      //if(eventN>10000)break;
       //if(eventN>50)break;
-      std::cout<<" eventN "<<eventN<<endl;
+      //std::cout<<" eventN "<<eventN<<endl;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
 
       // Meant to combine different ttbar samples exclusively
@@ -2294,8 +2294,9 @@ using namespace std;
                         )continue;
 */
                       // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
-                      if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" 
-                         && ite->first!="mht_500"&& ite->first!="delphi_NoIso" && ite->first!="J46_HT5001200_MHT500750" && utils2::applyIsoTrk){            
+                      if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_base"
+			 &&ite->first!="mht_base"&&ite->first!="Njet_base" 
+                         && utils2::applyIsoTrk){            
                         if(!PassIso2)continue;
 
                         if(itt->first=="IsoPlus") eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeightPlus;
@@ -2314,7 +2315,10 @@ using namespace std;
                         else eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
 
-                      if(ite->first=="isoPion"){
+                      if(ite->first=="isoPion" || 
+			 ite->first=="NJet2" || ite->first=="NJet34" || ite->first=="NJet56" || 
+			 ite->first=="NJet7up" ||
+			 ite->first=="NJet34_MHT350" || ite->first=="NJet56_350"){
                         if(utils2::applyIsoTrk){
                           eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
                           if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
@@ -2324,7 +2328,7 @@ using namespace std;
                           if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                         }
                       }
-                      if(ite->first=="mht_200" || ite->first=="mht_500" || ite->first=="J46_HT5001200_MHT500750"){
+                      if(ite->first=="mht_base"){
                         eveinfvec[0] = totWeightMap[itt->first];
                         if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }

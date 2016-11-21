@@ -5,8 +5,9 @@ outStr=$2
 
 export SUBMIT_DIR=`pwd -P`
 
-#for TStr in t_top tW_top t_antitop tW_antitop s_channel; do
-for TStr in tW_top; do
+#for TStr in tW_antitop; do
+for TStr in t_top t_antitop tW_top tW_antitop s_channel; do
+#for TStr in tW_top; do
 
     export SubmitFile=submitScriptT_${TStr}.jdl
     if [ -e ${SubmitFile} ]; then
