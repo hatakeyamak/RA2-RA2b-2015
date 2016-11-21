@@ -21,14 +21,17 @@ public:
   map<int, string> cutName() const;
 
   //define different cuts here
-  bool ht_500(double ht_){if(ht_>=300) return true; return false;}
+  bool ht_base(double ht_){if(ht_>=300) return true; return false;}
+  bool ht_500(double ht_){if(ht_>=300) return true; return false;} // <== should get rid of this confusing one
   bool ht_500_800(double ht_){if(ht_>=500 && ht_<800) return true; return false;}
   bool ht_500_1200(double ht_){if(ht_>=500 && ht_<1200)return true; return false;}
   bool ht_800_1200(double ht_){if(ht_>=800 && ht_<1200)return true; return false;}
   bool ht_800(double ht_){if(ht_>=800)return true; return false;}
   bool ht_1200(double ht_){if(ht_>=1200)return true; return false;}
-  bool mht_200(double mht_){if(mht_>=250)return true; return false;}
+  bool mht_base(double mht_){if(mht_>=250)return true; return false;}  
+  bool mht_200(double mht_){if(mht_>=250)return true; return false;} // <== should get rid of this confusing one
   bool mht_500(double mht_){if(mht_>=500)return true; return false;}
+  bool mht_350(double mht_){if(mht_>=350)return true; return false;}
   bool mht_200_500(double mht_){if(mht_>=200 && mht_<500)return true; return false;}
   bool mht_500_750(double mht_){if(mht_>=500 && mht_<750)return true; return false;}
   bool mht_750(double mht_){if(mht_>=750)return true; return false;}
@@ -49,11 +52,13 @@ public:
 //  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 6.)return true; return false;}
 //  bool dphi(double minDeltaPhiN_){if(minDeltaPhiN_ > 4.)return true; return false;} // Ahmad33
 
-
-
   bool nolep(int nLeptons_){if(nLeptons_==0)return true; return false;}
-  bool Njet_4(int nJets_){if(nJets_ >= 2)return true; return false;}
+  bool Njet_base(int nJets_){if(nJets_ >= 2)return true; return false;}
+  bool Njet_4(int nJets_){if(nJets_ >= 2)return true; return false;} // <== should get rid of this confusing one
   bool Njet_2(int nJets_){if(nJets_ == 2)return true; return false;}
+  bool Njet_3_4(int nJets_){if(nJets_ >= 3 && nJets_ <= 4)return true; return false;}
+  bool Njet_5_6(int nJets_){if(nJets_ >= 5 && nJets_ <= 6)return true; return false;}
+  bool Njet_7up(int nJets_){if(nJets_ >= 7)return true; return false;}
   bool Njet_4_6(int nJets_){if(nJets_ >= 4 && nJets_ <= 6)return true; return false;}
   bool Njet_7_8(int nJets_){if(nJets_ >= 7 && nJets_ <= 8)return true; return false;}
   bool Njet_9(int nJets_){if(nJets_ >= 9)return true; return false;}

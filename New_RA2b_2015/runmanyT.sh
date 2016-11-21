@@ -6,8 +6,8 @@ outStr=$2
 export SUBMIT_DIR=`pwd -P`
 
 #for TStr in HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf DiLept Inclusive T_SingleLep Tbar_SingleLep; do
-#for TStr in t_top tW_top t_antitop tW_antitop s_channel; do
-for TStr in tW_top; do
+for TStr in t_top tW_top t_antitop tW_antitop s_channel; do
+#for TStr in tW_top; do
 
     export SubmitFile=submitScriptT_${TStr}.jdl
     if [ -e ${SubmitFile} ]; then
