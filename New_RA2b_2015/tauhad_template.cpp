@@ -511,7 +511,7 @@ int main(int argc, char *argv[]){
     
   // count # events at different stages
   int nCleanEve=0,nHadTauEve=0,nNoLepEve=0;    
-  int dR_lt_Pt4=0;
+
   vector<double> HadTauPtVec;
   vector<double> HadTauEtaVec;
   vector<double> HadTauPhiVec;
@@ -552,9 +552,8 @@ int main(int argc, char *argv[]){
       CalcAccSys = false;
     }
 
-    if(eventN>50000)break;
-    //if(eventN>5000)break;
-    std::cout<<"eventN "<<eventN <<" *****************************First point************************ "<<endl;
+    //if(eventN>10000)break;
+    if(eventN>5000)break;
      
     eventWeight = evt->weight();
     //std::cout<<" eventN "<<eventN<<" eventWeight "<<eventWeight<<endl;
@@ -1084,47 +1083,16 @@ int main(int argc, char *argv[]){
     else {Tau3Vec.SetPtEtaPhi(0,0,0);}
     Visible3Vec=Tau3Vec-TauNu3Vec;
     */
-    std::cout<<"eventN "<<eventN <<" *****************************Second point************************ "<<endl;
-    
+
     if(verbose!=0){      
       printf("TauNu3Vec: pt: %g eta: %g phi: %g \n Tau3Vec: pt: %g eta: %g phi: %g \n",TauNu3Vec.Pt(),TauNu3Vec.Eta(),TauNu3Vec.Phi(),Tau3Vec.Pt(),Tau3Vec.Eta(),Tau3Vec.Phi());
       printf("Visible3Vec: pt: %g eta: %g phi: %g \n ",Visible3Vec.Pt(),Visible3Vec.Eta(),Visible3Vec.Phi());
     }
 
     if( !utils->findMatchedObject(tauJetIdx,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose) ){
-      std::cout<<"eventN "<<eventN <<" *****************************Third point************************ "<<endl;
-    
       if(genTauPt >= 20. && std::fabs(genTauEta) <= 2.1 && evt->nJets() >2 )GenTau_Jet_fail->Fill(genTauPt,eventWeight);
       continue;
     } // this also determines tauJetIdx
-
-    //*AR,Nov8,2016-Check dR between different jets
-    
-    if(tauJetIdx!=-1){
-      // TLorentzVector tlv_taujet;
-      //TLorentzVector tlv_jet;
-      std::cout<<"eventN "<<eventN <<" tauJetIdx "<<tauJetIdx<<" *****************************Fourth point************************ "<<endl;
-    
-      double taujet_eta=evt->JetsEtaVec_()[tauJetIdx];
-      double taujet_phi=evt->JetsPhiVec_()[tauJetIdx];
-      double taujet_pt=evt->JetsPtVec_()[tauJetIdx];
-      //std::cout<<" eventN "<<eventN<<" tauJetIdx "<<tauJetIdx<<" taujet_eta "<<taujet_eta<<" taujet_phi "<<taujet_phi<<" num_slimjets "<<evt->slimJetPtVec_().size()<<endl;
-      		    
-      //tlv_taujet.SetPtEtaPhiM(evt->JetsEtaVec_()[tauJetIdx]
-      for(int jetIdx = 0; jetIdx < (int) evt->slimJetPtVec_().size(); ++jetIdx){
-	if(jetIdx != tauJetIdx){
-	  double jet_eta=evt->slimJetEtaVec_()[jetIdx];
-	  double jet_phi=evt->slimJetPhiVec_()[jetIdx];
-	  double delta_eta_square=(taujet_eta-jet_eta)*(taujet_eta-jet_eta);
-	  double delta_phi_square=(taujet_phi-jet_phi)*(taujet_phi-jet_phi);
-	  double dR_taujet_jet=sqrt(delta_eta_square + delta_phi_square);
-	  if(dR_taujet_jet<0.4)
-	    std::cout<<" eventN "<<eventN<<" tauJetIdx "<<tauJetIdx<<" taujet_pt "<<taujet_pt<<" taujet_eta "<<taujet_eta<<" taujet_phi "<<taujet_phi<<" jetIdx "<<jetIdx<<" jet_eta "<<jet_eta<<" jet_phi "<<jet_phi<<" dR "<<dR_taujet_jet<<endl;
-	    
-	}
-      }
-    }
-    
 
     utils->findMatchedObject(tauJetUpIdx,Visible3Vec.Eta(),Visible3Vec.Phi(),evt->slimJetupPtVec_(), evt->slimJetupEtaVec_(), evt->slimJetupPhiVec_(),deltaRMax,verbose);
     utils->findMatchedObject(tauJetDnIdx,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetdownPtVec_(), evt->slimJetdownEtaVec_(), evt->slimJetdownPhiVec_(),deltaRMax,verbose);
