@@ -147,21 +147,13 @@ for TStr in tW_top; do
 		echo Log = ${Log}>> ${SubmitFile}
 		echo Transfer_Input_Files = ${SUBMIT_DIR}/run_tauHad,${SUBMIT_DIR}/TauHad,${SUBMIT_DIR}/TauHad2,${SUBMIT_DIR}/${ArgTwoB}>> ${SubmitFile}
 
-<<<<<<< HEAD
-		echo Transfer_Output_Files = GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root','FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
-
-#		echo Transfer_Output_Files = GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root','FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root','HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root','IsoEfficiencies_${TStr}_${outStr}_${i}_00.root','LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root','Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root','TauBtaggedRate_${TStr}_${outStr}_${i}_00.root','TriggerEff_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
-		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
-
-#		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root';'HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root';'IsoEfficiencies_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/IsoEfficiencies_${TStr}_${outStr}_${i}_00.root';'LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root = TauHadMultiple/LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root';'Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root';'TauBtaggedRate_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/TauBtaggedRate_${TStr}_${outStr}_${i}_00.root';'TriggerEff_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/TriggerEff_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
-=======
 	#	echo Transfer_Output_Files = GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root','FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
 
 		echo Transfer_Output_Files = GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root','FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root','HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root','IsoEfficiencies_${TStr}_${outStr}_${i}_00.root','LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root','Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root','TauBtaggedRate_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
 #		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
 
 		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root';'HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root';'IsoEfficiencies_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/IsoEfficiencies_${TStr}_${outStr}_${i}_00.root';'LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root = TauHadMultiple/LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root';'Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root';'TauBtaggedRate_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/TauBtaggedRate_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
->>>>>>> AditeeRaneGitHub/RA2b_V10_CMSLPC
+
 		echo queue>> ${SubmitFile}	
 	    fi
 	    
