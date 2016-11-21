@@ -1,26 +1,27 @@
 #!/bin/sh
 
-echo $PBS_O_WORKDIR
-cd $PBS_O_WORKDIR
-hostname
-source ~cmssoft/shrc
-eval `scramv1 runtime -sh`
-#module load root
+ArgOne=$1   # 
+ArgTwo=$2   # 
+ArgThree=$3 # 
+ArgFour=$4  # 
+ArgFive=$5  # 
+ArgSix=$6   # 
+ArgSeven=$7 #  
+
 #
+# first go to the submission dir, and set up the environment
+#
+cd $ArgSeven 
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+eval `scram runtime -sh`
 
+#
+# now go to the condor's scratch area, where we copied the contents of New_RA2b_2015
+#
+cd ${_CONDOR_SCRATCH_DIR} 
 
-
-
-if [ $filenum -lt 10 ]
-then
-      #echo InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_00$filenum
-    ./run_tauHad2 "InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_00$filenum" "TTbar_${TTbarStr}_${outStr}_$filenum" "TauHad2Multiple" "00" "0"
-elif [ $filenum -lt 100 ]
-then
-    ./run_tauHad2 "InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_0$filenum" "TTbar_${TTbarStr}_${outStr}_$filenum" "TauHad2Multiple" "00" "0"
-else
-#    echo InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_$filenum
-    ./run_tauHad2 "InputFiles_TTbar/filelist_Spring15_TTJets_${TTbarStr}_$filenum" "TTbar_${TTbarStr}_${outStr}_$filenum" "TauHad2Multiple" "00" "0"
-fi
-
+#
+# run the job
+#
+$ArgOne $ArgTwo $ArgThree "." $ArgFive $ArgSix
 
