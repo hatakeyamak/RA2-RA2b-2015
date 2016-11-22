@@ -80,6 +80,7 @@ using namespace std;
     char tempname3[200];
     char tempname4[200];
     char histname[200];
+    char prefix[200];
     vector<TH1D > vec, vec_search;
     map<int, string> eventType;
     map<string , vector<TH1D> > cut_histvec_map, cut_histvec_map_search;
@@ -109,6 +110,10 @@ using namespace std;
 			     1000.,1200.,1500.,2000.,5000.};
     Double_t mht_bins[13] = {0., 50.,100.,150.,200.,250.,300.,350.,400.,500.,
                              700.,1000.,5000.};
+
+    sprintf(prefix,"root://cmseos.fnal.gov/");
+    //sprintf(prefix,"/data3/");
+
     std::cout<<"***********Check seg vio******************"<<endl;
     //build a vector of histograms
     TH1D weight_hist = TH1D("weight", "Weight Distribution", 5,0,5);
@@ -433,17 +438,17 @@ using namespace std;
       }
       //
       sprintf(tempname,
-      "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
-      skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
+      "%s/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV10/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+      prefix,skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       //
-      skimfile = new TFile(tempname,"R");
+      skimfile = TFile::Open(tempname,"R");
       if(!skimfile->IsOpen()){
         cout << " \n\n first attempt to find the skim file failed. Trying to find it ... \n\n";
         sprintf(tempname,
-        "/data3/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV9/scan/tree_SLm/tree_%s_%s_%s_fast.root",
-        skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
+        "%s/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV10/scan/tree_SLm/tree_%s_%s_%s_fast.root",
+	prefix,skimInput[1].c_str(),skimInput[2].c_str(),skimInput[3].c_str());
       }
-      skimfile = new TFile(tempname,"R");
+      skimfile = TFile::Open(tempname,"R");
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << tempname << endl;
       h_njetsisr = (TH1*)skimfile->Get("NJetsISR");
@@ -506,6 +511,29 @@ using namespace std;
       //fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
+    else if (!evt->DataBool_()){  // fullsim
+ 
+      std::cout << subSampleKey << std::endl;
+      string skimName;
+      if      (subSampleKey=="TTJets_T_SingleLep")    skimName = "tree_TTJets_SingleLeptFromT.root";
+      else if (subSampleKey=="TTJets_Tbar_SingleLep") skimName = "tree_TTJets_SingleLeptFromTbar.root";
+      else if (subSampleKey=="TTJets_Inclusive")      skimName = "tree_TTJets.root";
+      else if (subSampleKey=="TTJets_DiLept")         skimName = "tree_TTJets_DiLept.root";
+      else if (subSampleKey=="TTJets_HT_600_800")     skimName = "tree_TTJets_HT_600_800.root";
+      else if (subSampleKey=="TTJets_HT_800_1200")    skimName = "tree_TTJets_HT_800_1200.root";
+      else if (subSampleKey=="TTJets_HT_1200_2500")   skimName = "tree_TTJets_HT_1200_2500.root";
+      else if (subSampleKey=="TTJets_HT_2500_Inf")    skimName = "tree_TTJets_HT_2500_Inf.root";
+      else                                            skimName = "tree_TTJets_SingleLeptFromT.root"; // avoid crash
+      sprintf(tempname,
+	      "%s/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV10/tree_SLm/%s",
+	      prefix,skimName.c_str());
+      skimfile = TFile::Open(tempname,"R");
+      if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
+      else cout << " skimfile: " << tempname << endl;
+      btagcorr.SetEffs(skimfile);
+      btagcorr.SetCalib("btag/CSVv2_ichep.csv");      
+    }
+
 
     // --- Analyse the events --------------------------------------------
 
