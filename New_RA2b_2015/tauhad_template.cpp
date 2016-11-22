@@ -20,7 +20,7 @@
 #include "TH1.h"
 #include "TVector2.h" 
 #include "TVector3.h"
-
+#include "BTagCorrector.h"
 using namespace std;
 
 class histClass{
@@ -60,6 +60,7 @@ int main(int argc, char *argv[]){
   vector<string> filesVec;
   ifstream fin(InRootList.c_str());
   TChain *sample_AUX = new TChain("TreeMaker2/PreSelection");
+  TFile *skimfile;
   char tempname[200];
   char histname[200];
   vector<TH1D > vec;
@@ -510,6 +511,8 @@ int main(int argc, char *argv[]){
   vector<double> HadTauEtaVec;
   vector<double> HadTauPhiVec;
 
+  char prefix[200];
+  sprintf(prefix,"root://cmseos.fnal.gov/");
   // Determine which model to work with
   int TauHadModel=utils2::TauHadModel;
 
@@ -527,7 +530,39 @@ int main(int argc, char *argv[]){
     return 2;
   }
 
+  string skimName;
+  BTagCorrector btagcorr;
+  if      (subSampleKey=="TTJets_T_SingleLep")    skimName = "tree_TTJets_SingleLeptFromT.root";
+  else if (subSampleKey=="TTJets_Tbar_SingleLep") skimName = "tree_TTJets_SingleLeptFromTbar.root";
+  else if (subSampleKey=="TTJets_Inclusive")      skimName = "tree_TTJets.root";
+  else if (subSampleKey=="TTJets_DiLept")         skimName = "tree_TTJets_DiLept.root";
+  else if (subSampleKey=="TTJets_HT_600_800")     skimName = "tree_TTJets_HT_600_800.root";
+  else if (subSampleKey=="TTJets_HT_800_1200")    skimName = "tree_TTJets_HT_800_1200.root";
+  else if (subSampleKey=="TTJets_HT_1200_2500")   skimName = "tree_TTJets_HT_1200_2500.root";
+  else if (subSampleKey=="TTJets_HT_2500_Inf")    skimName = "tree_TTJets_HT_2500_Inf.root";
+  else if (subSampleKey=="100_200")    skimName = "tree_WJetsToLNu_HT-100to200.root";
+  else if (subSampleKey=="200_400")    skimName = "tree_WJetsToLNu_HT-200to400.root";
+  else if (subSampleKey=="400_600")    skimName = "tree_WJetsToLNu_HT-400to600.root";
+  else if (subSampleKey=="600_800")    skimName = "tree_WJetsToLNu_HT-600to800.root";
+  else if (subSampleKey=="800_1200")    skimName = "tree_WJetsToLNu_HT-800to1200.root";
+  else if (subSampleKey=="1200_2500")    skimName = "tree_WJetsToLNu_HT-1200to2500.root";
+  else if (subSampleKey=="2500_Inf")    skimName = "tree_WJetsToLNu_HT-2500toInf.root";
+  else if (subSampleKey=="t_top")    skimName = "tree_ST_t-channel_top.root";
+  else if (subSampleKey=="t_antitop")    skimName = "tree_ST_t-channel_antitop.root";
+  else if (subSampleKey=="tW_top")    skimName = "tree_ST_tW_top.root";
+  else if (subSampleKey=="tW_antitop")    skimName = "tree_ST_tW_antitop.root";
+  else if (subSampleKey=="s_channel")    skimName = "tree_ST_s-channel.root";
 
+  sprintf(tempname,
+	  "%s/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV10/tree_SLm/%s",
+	  prefix,skimName.c_str());
+  skimfile = TFile::Open(tempname,"R");
+  if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
+  else cout << " skimfile: " << tempname << endl;
+  btagcorr.SetEffs(skimfile);
+  btagcorr.SetCalib("btag/CSVv2_ichep.csv");  
+  
+  
   // Loop over the events (tree entries)
   double eventWeight = 1.0;
   int eventN=0;

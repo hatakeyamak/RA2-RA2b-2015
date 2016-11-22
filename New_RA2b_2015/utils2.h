@@ -668,6 +668,57 @@ namespace utils2{
   }
 
 
+  static double EvtReweight(vector<double> prob,int NBtag){
+    // double Reweight=0.0;
+    double Loop_i=0.;
+    double Loop_j=0.;
+    double Loop_k=0.;
+    //    double Btag_0=0.;
+
+    if(NBtag==0){
+      Loop_i=1.;
+      for(int i=0;i<prob.size();i++){
+	Loop_i=Loop_i*(1-prob[i]);
+      }
+      return Loop_i;
+    }
+    else if(NBtag==1){
+      for(int i=0;i<prob.size();i++){
+	Loop_j=prob[i];
+	for(int j=0;j<prob.size();j++){
+	  if(j!=i)
+	    Loop_j *=(1-prob[j]);
+	  else
+	    continue;
+	}
+	Loop_i +=Loop_j;
+      }
+      return Loop_i;
+    }
+    else if(NBtag==2){
+      for(int i=0;i<prob.size();i++){
+	Loop_j=prob[i];
+	for(int j=i+1;i<prob.size();i++){
+	  Loop_k=Loop_j*prob[j];
+	  for(int k=0;k<prob.size();k++){
+	    if(k!=i && k!=j)
+	      Loop_k *=(1-prob[k]);
+	    else 
+	      continue;
+	  }
+	}
+	Loop_i +=Loop_k;
+      }
+      return Loop_i;
+    }
+    else{
+      Loop_i=1-EvtReweight(prob,0)-EvtReweight(prob,1)-EvtReweight(prob,2);
+      return Loop_i;
+    }
+  }
+
+
 } // util2
 
 
+  
