@@ -19,6 +19,8 @@ eval `scram runtime -sh`
 # now go to the condor's scratch area, where we copied the contents of New_RA2b_2015
 #
 cd ${_CONDOR_SCRATCH_DIR} 
+mkdir -p TauHadMultiple
+mkdir -p TauHad2Multiple
 pwd
 ls -l
 #mkdir -p HadTauMultiple
@@ -27,5 +29,6 @@ ls -l
 #
 # run the job
 #
+echo $ArgOne $ArgTwo $ArgThree "." $ArgFive $ArgSix
 $ArgOne $ArgTwo $ArgThree "." $ArgFive $ArgSix
 

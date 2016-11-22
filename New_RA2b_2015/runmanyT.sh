@@ -5,9 +5,9 @@ outStr=$2
 
 export SUBMIT_DIR=`pwd -P`
 
-#for TStr in HT_1200_2500 HT_600_800 HT_800_1200 HT_2500_Inf DiLept Inclusive T_SingleLep Tbar_SingleLep; do
-#for TStr in t_top tW_top t_antitop tW_antitop s_channel; do
-for TStr in tW_top; do
+#for TStr in tW_antitop; do
+for TStr in t_top t_antitop tW_top tW_antitop s_channel; do
+#for TStr in tW_top; do
 
     export SubmitFile=submitScriptT_${TStr}.jdl
     if [ -e ${SubmitFile} ]; then
@@ -93,7 +93,7 @@ for TStr in tW_top; do
 		echo Output = ${Output}>> ${SubmitFile}
 		echo Error = ${Error}>> ${SubmitFile}
 		echo Log = ${Log}>> ${SubmitFile}
-		echo Transfer_Input_Files = ${SUBMIT_DIR}/run_tauHad2,${SUBMIT_DIR}/TauHad,${SUBMIT_DIR}/TauHad2,${SUBMIT_DIR}/${ArgTwoB}>> ${SubmitFile}
+		echo Transfer_Input_Files = ${SUBMIT_DIR}/run_tauHad2,${SUBMIT_DIR}/Inputs,${SUBMIT_DIR}/${ArgTwoB}>> ${SubmitFile}
 		echo Transfer_Output_Files = HadTauEstimation_${TStr}_${outStr}_${i}_00.root','MuJetMatchRate_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}
 		#echo Transfer_Output_Files = MuJetMatchRate_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
 		echo transfer_output_remaps = '"'HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHad2Multiple/HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'MuJetMatchRate_${TStr}_${outStr}_${i}_00.root = TauHad2Multiple/MuJetMatchRate_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
@@ -146,7 +146,7 @@ for TStr in tW_top; do
 		echo Output = ${Output}>> ${SubmitFile}
 		echo Error = ${Error}>> ${SubmitFile}
 		echo Log = ${Log}>> ${SubmitFile}
-		echo Transfer_Input_Files = ${SUBMIT_DIR}/run_tauHad,${SUBMIT_DIR}/TauHad,${SUBMIT_DIR}/TauHad2,${SUBMIT_DIR}/${ArgTwoB}>> ${SubmitFile}
+		echo Transfer_Input_Files = ${SUBMIT_DIR}/run_tauHad,${SUBMIT_DIR}/${ArgTwoB}>> ${SubmitFile}
 
 	#	echo Transfer_Output_Files = GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root','FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root>> ${SubmitFile}        
 
@@ -154,6 +154,7 @@ for TStr in tW_top; do
 #		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
 
 		echo transfer_output_remaps = '"'GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/GenInfo_HadTauEstimation_${TStr}_${outStr}_${i}_00.root';'FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/FailRate_GenTau_jet_${TStr}_${outStr}_${i}_00.root';'HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/HadTau_TauResponseTemplates_${TStr}_${outStr}_${i}_00.root';'IsoEfficiencies_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/IsoEfficiencies_${TStr}_${outStr}_${i}_00.root';'LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root = TauHadMultiple/LostLepton2_MuonEfficienciesFrom${TStr}_${outStr}_${i}_00.root';'Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/Probability_Tau_mu_${TStr}_${outStr}_${i}_00.root';'TauBtaggedRate_${TStr}_${outStr}_${i}_00.root = TauHadMultiple/TauBtaggedRate_${TStr}_${outStr}_${i}_00.root'"'>> ${SubmitFile}
+
 		echo queue>> ${SubmitFile}	
 	    fi
 	    

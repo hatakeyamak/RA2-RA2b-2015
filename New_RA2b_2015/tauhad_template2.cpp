@@ -417,10 +417,10 @@ using namespace std;
     if(subSampleKey.find("fast")!=string::npos){
       cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n fastsim Monte Carlo \n "; 
       fastsim=true;
-      signalPileUp = new TFile("TauHad/PileupHistograms_0721_63mb_pm5.root","R");
+      signalPileUp = new TFile("Inputs/PileupHistograms_0721_63mb_pm5.root","R");
       puhist=(TH1*)signalPileUp->Get("pu_weights_central");
 
-      IsrFile = new TFile("TauHad/ISRWeights.root","R");
+      IsrFile = new TFile("Inputs/ISRWeights.root","R");
       h_isr = (TH1*)IsrFile->Get("isr_weights_central");
 
       sample_AUX = new TChain("tree");      
@@ -594,10 +594,10 @@ using namespace std;
     // Open some files and get the histograms ........................................//
 
     // Rate of bTagged tau jet
-    //TFile * bRateFile = new TFile("TauHad/Stack/ARElog63_TauBtaggedRate_WJet_stacked.root","R");
+    //TFile * bRateFile = new TFile("Inputs/ARElog63_TauBtaggedRate_WJet_stacked.root","R");
     //*AR,Oct14,2016-Instead of getting b mistag rate of tau directly we will take the difference between tau and mu mistag rates for reassignment of Nb bins
-    TFile * bRateFile = new TFile("TauHad/Stack/hist_bRateDiff_TauVsMu_WJet.root","R");
-    //TFile * bRateFile = new TFile("TauHad/Stack/hist_AvebRateDiff_TauVsMu.root","R");
+    TFile * bRateFile = new TFile("Inputs/hist_bRateDiff_TauVsMu_WJet.root","R");
+    //TFile * bRateFile = new TFile("Inputs/hist_AvebRateDiff_TauVsMu.root","R");
     cout << " \n\n\n\n\n WJet mistag rate is being applied \n\n\n \n\n\n " ;
 
     //sprintf(histname,"TauBtaggedRate");
@@ -606,14 +606,14 @@ using namespace std;
     TH1D * bRateHist = (TH1D * ) bRateFile->Get(histname)->Clone();
 
     // Probability of muon coming from Tau
-    TFile * Prob_Tau_mu_file = new TFile("TauHad2/Stack/ARElog63_Probability_Tau_mu_stacked.root","R");
+    TFile * Prob_Tau_mu_file = new TFile("Inputs/ARElog63_Probability_Tau_mu_stacked.root","R");
     sprintf(histname,"hProb_Tau_mu");
     TH1D * hProb_Tau_mu =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
     sprintf(histname,"hProb_Tau_mu_lowDelphi");
     TH1D * hProb_Tau_mu_lowDelphi =(TH1D *) Prob_Tau_mu_file->Get(histname)->Clone();
 
     // Acceptance and efficiencies
-    TFile * MuAcc_file = new TFile("TauHad/Stack/ARElog63_LostLepton2_MuonEfficienciesFromstacked.root","R");
+    TFile * MuAcc_file = new TFile("Inputs/ARElog63_LostLepton2_MuonEfficienciesFromstacked.root","R");
     sprintf(histname,"hAcc");
     TH1D * hAcc =(TH1D *) MuAcc_file->Get(histname)->Clone();
     //    TH1D * hAcc_0b =(TH1D *) MuAcc_file->Get("hAcc_0b_")->Clone();
@@ -622,24 +622,24 @@ using namespace std;
 
     //
     // Reco and ISO MC efficiencies
-    TFile * MuIsoEff_Arne = new TFile("TauHad/Efficiencies_Simon_v9.root","R");
+    TFile * MuIsoEff_Arne = new TFile("Inputs/Efficiencies_Simon_v9.root","R");
     TH2F *hMuRecoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuRecoActivityPT/MuRecoActivityPT");
     TH2F *hMuIsoPTActivity_Arne = (TH2F*)MuIsoEff_Arne->Get("Efficiencies/MuIsoActivityPT/MuIsoActivityPT");
 
     // Data/MC scale factors
-    TFile * MediumID_SF = new TFile("TauHad/TnP_MuonID_NUM_MediumID_DENOM_generalTracks_VAR_map_pt_eta.root","R");
+    TFile * MediumID_SF = new TFile("Inputs/TnP_MuonID_NUM_MediumID_DENOM_generalTracks_VAR_map_pt_eta.root","R");
     TH2F *hMuIDSF = (TH2F*)MediumID_SF->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0");
 
-    TFile * GenTrack_SF = new TFile("TauHad/general_tracks_and_early_general_tracks_corr_ratio.root","R");
+    TFile * GenTrack_SF = new TFile("Inputs/general_tracks_and_early_general_tracks_corr_ratio.root","R");
     TH1F *hMuTrkHighPtSF = (TH1F*)GenTrack_SF->Get("mutrksfptg10");
     TH1F *hMuTrkLowPtSF = (TH1F*)GenTrack_SF->Get("mutrksfptl10");
 
-    TFile * MediumIso_SF = new TFile("TauHad/TnP_MuonID_NUM_MiniIsoTight_DENOM_MediumID_VAR_map_pt_eta.root","R");
+    TFile * MediumIso_SF = new TFile("Inputs/TnP_MuonID_NUM_MiniIsoTight_DENOM_MediumID_VAR_map_pt_eta.root","R");
     TH2F *hMuIsoSF = (TH2F*)MediumIso_SF->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
 
     // Get IsoTrk (veto) efficiencies
-    TFile * IsoEffFile = new TFile("TauHad/Stack/ARElog63_IsoEfficiencies_stacked.root","R");
-    //    TFile * IsoEffFile = new TFile("TauHad/Stack/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
+    TFile * IsoEffFile = new TFile("Inputs/ARElog63_IsoEfficiencies_stacked.root","R");
+    //    TFile * IsoEffFile = new TFile("Inputs/KHElog420_modifiedIsoEfficiencies_stacked.root","R");
     TH1D * hIsoEff =(TH1D *) IsoEffFile->Get("IsoEff")->Clone();
     TH1D * hIsoEff_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_lowDphi")->Clone();
 
@@ -658,15 +658,15 @@ using namespace std;
     TH1D * hIsoEff_NbNjet9 =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet9")->Clone();
     TH1D * hIsoEff_NbNjet9_lowDphi =(TH1D *) IsoEffFile->Get("IsoEff_NbNjet9_lowDphi")->Clone();
     
-    TFile * IsoEffFile2 = new TFile("TauHad/IsoEfficiencies_TTbar_Elog271.root","R");
+    TFile * IsoEffFile2 = new TFile("Inputs/IsoEfficiencies_TTbar_Elog271.root","R");
     TH1D * hIsoEff2 =(TH1D *) IsoEffFile2->Get("IsoEff2")->Clone();    
 
     // Get MT efficiency that is calculated here in this code
-    //TFile * MtFile = new TFile("TauHad2/Elog401_MtEff.root","R");
+    //TFile * MtFile = new TFile("Inputs/Elog401_MtEff.root","R");
     //std::cout<<" MTFile is read "<<std::endl;
-    //    TFile * MtFile = new TFile("TauHad2/Elog433_MtEff.root","R");
+    //    TFile * MtFile = new TFile("Inputs/Elog433_MtEff.root","R");
 
-    TFile * MtFile = new TFile("TauHad2/ARElog63_MtEff.root","R");
+    TFile * MtFile = new TFile("Inputs/ARElog63_MtEff.root","R");
     TH1D * hMT = (TH1D *) MtFile->Get("MtCutEff")->Clone();
     //TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
     TH1D * hMT_lowDphi = (TH1D *) MtFile->Get("MtCutEff_lowDphi")->Clone();
@@ -689,10 +689,10 @@ using namespace std;
     TH1D * trig_pass = new TH1D("trig_pass"," trigger pass -- search bin",totNbins,1,totNbins+1);
     trig_pass->Sumw2();
     //*AR,Oct4,2016-Using taugun templates instead of MC templates
-    TFile * resp_file_taugun = new TFile("TauHad/Stack/hist_taugun_aditee.root","R");
+    TFile * resp_file_taugun = new TFile("Inputs/hist_taugun_aditee.root","R");
     // Use Ahmad's tau template
-    TFile * resp_file_temp = new TFile("TauHad/Stack/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
-    TFile * resp_file = new TFile("TauHad/Stack/Elog433_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file_temp = new TFile("Inputs/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file = new TFile("Inputs/Elog433_HadTau_TauResponseTemplates_stacked.root","R");
     
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
@@ -713,14 +713,14 @@ using namespace std;
     //*AR,Oct12,2016-Using Wgun template to get dPhi distribution
     TH2D * h2tau_phi = (TH2D*) resp_file_taugun->Get("tau_GenJetPhi")->Clone();
     // Use Rishi's tau template 
-    TFile * resp_file_Rishi = new TFile("TauHad/template_singletaugun_match04_74x_v02.root","R");
+    TFile * resp_file_Rishi = new TFile("Inputs/template_singletaugun_match04_74x_v02.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
     //  vec_resp.push_back( (TH1D*) resp_file_Rishi->Get( histname )->Clone() );
     }
 
     // Use Aditee's muon pt cut correction
-    TFile *fileMuonPtMinCorr  = new TFile("TauHad2/ARElog32_Ratio_HadTauEstimation_stacked_MinMuPt.root","R");
+    TFile *fileMuonPtMinCorr  = new TFile("Inputs/ARElog32_Ratio_HadTauEstimation_stacked_MinMuPt.root","R");
     TH1D * histMuonPtMinCorr = (TH1D*) fileMuonPtMinCorr->Get("searchH_b")->Clone();
 
     // muMtW Histogram
@@ -799,9 +799,9 @@ using namespace std;
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
 
-      if(eventN>10000)break;
+      //if(eventN>10000)break;
       //if(eventN>50)break;
-      std::cout<<" eventN "<<eventN<<endl;
+      //std::cout<<" eventN "<<eventN<<endl;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
 
       // Meant to combine different ttbar samples exclusively
@@ -2294,8 +2294,9 @@ using namespace std;
                         )continue;
 */
                       // Apply IsoTrkVeto after PreSel, nolep, Njet_4, ht_500 and mht_200
-                      if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_500"&&ite->first!="mht_200"&&ite->first!="Njet_4" 
-                         && ite->first!="mht_500"&& ite->first!="delphi_NoIso" && ite->first!="J46_HT5001200_MHT500750" && utils2::applyIsoTrk){            
+                      if(ite->first!="PreSel" && ite->first!="nolep"&&ite->first!="ht_base"
+			 &&ite->first!="mht_base"&&ite->first!="Njet_base" 
+                         && utils2::applyIsoTrk){            
                         if(!PassIso2)continue;
 
                         if(itt->first=="IsoPlus") eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeightPlus;
@@ -2314,7 +2315,10 @@ using namespace std;
                         else eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
 
-                      if(ite->first=="isoPion"){
+                      if(ite->first=="isoPion" || 
+			 ite->first=="NJet2" || ite->first=="NJet34" || ite->first=="NJet56" || 
+			 ite->first=="NJet7up" ||
+			 ite->first=="NJet34_MHT350" || ite->first=="NJet56_MHT350"){
                         if(utils2::applyIsoTrk){
                           eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
                           if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
@@ -2324,7 +2328,7 @@ using namespace std;
                           if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                         }
                       }
-                      if(ite->first=="mht_200" || ite->first=="mht_500" || ite->first=="J46_HT5001200_MHT500750"){
+                      if(ite->first=="mht_base"){
                         eveinfvec[0] = totWeightMap[itt->first];
                         if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first];
                       }
