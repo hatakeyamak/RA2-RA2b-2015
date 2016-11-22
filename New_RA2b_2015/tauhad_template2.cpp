@@ -2318,7 +2318,7 @@ using namespace std;
                       if(ite->first=="isoPion" || 
 			 ite->first=="NJet2" || ite->first=="NJet34" || ite->first=="NJet56" || 
 			 ite->first=="NJet7up" ||
-			 ite->first=="NJet34_MHT350" || ite->first=="NJet56_350"){
+			 ite->first=="NJet34_MHT350" || ite->first=="NJet56_MHT350"){
                         if(utils2::applyIsoTrk){
                           eveinfvec[0] = totWeightMap[itt->first]*IsoTrkWeight;
                           if(sel->low_dphi(newNJet,newDphi1,newDphi2,newDphi3,newDphi4))eveinfvec[0] = totWeightMap_lowDphi[itt->first]*IsoTrkWeight_lowDphi;
