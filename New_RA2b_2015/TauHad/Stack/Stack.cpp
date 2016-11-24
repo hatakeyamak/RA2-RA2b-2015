@@ -747,6 +747,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
 
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", WJtype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
+	  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
           temphist = (TH1D *) WJet_inputfilevec.at(i)->Get(tempname)->Clone();
           if (luminosity>0&&doScale) temphist->Scale(WJet_scalevec[i]);
@@ -820,6 +821,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="hGenPt_2";
   histname[20]="hGenPt_3";
   histname[21]="hGenPt";
+  histname[22]="tau_GenJetPhiVsEta";
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -1491,7 +1493,9 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
           //cout << "================================" << endl;
           //cout << "HT#: " <<i << ", TTbartype: " << itt->second << ", cutname: " << it->second << ", hist#: " << j << endl;  
           sprintf(tempname,"%s/%s/%s_%s_%s",(itt->second).c_str(),(it->second).c_str(),(histname[j]).c_str(),(it->second).c_str(),(itt->second).c_str());
-          temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+	  std::cout<<" tempname "<<tempname <<endl; 
+	  temphist = (TH1D *) TTbar_inputfilevec.at(i)->Get(tempname)->Clone();
+	  std::cout<<" get tempname " <<endl;
           if (luminosity>0&&doScale) temphist->Scale(TTbar_scalevec[i]);
           else if (luminosity>0&&!doScale) temphist->Scale(scalefactor);
           temphist->SetFillColor(i+2);
@@ -1556,6 +1560,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="hGenPt_2";
   histname[20]="hGenPt_3";
   histname[21]="hGenPt";
+  histname[22]="tau_GenJetPhiVsEta";
 //  histname[4]="genHadTauPtHist";
 
   for(int j=0; j<histname.size(); j++){
@@ -2279,7 +2284,7 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
   histname[19]="hGenPt_2";
   histname[20]="hGenPt_3";
   histname[21]="hGenPt";
-
+  histname[22]="tau_GenJetPhiVsEta";
   // Open the files to read
   sprintf(tempname,"HadTau_TauResponseTemplates_TTbar_stacked.root");
   file = new TFile(tempname,"R");
@@ -2295,12 +2300,12 @@ mainClass(int luminosity=10000){ // luminosity is in /pb unit
     sprintf(tempname,"%s",(histname[j]).c_str());
     temphist = (TH1D *) file->Get(tempname)->Clone();
     temphist2 = (TH1D *) file2->Get(tempname)->Clone();
-
+    
     temphist->Add(temphist,temphist2,1,1);
     
 
     // Normalize the response distributions to get the probability density
-    if( temphist->Integral("width") > 0. && histname[j]!="tau_GenJetPhi" ){
+    if( temphist->Integral("width") > 0. && histname[j]!="tau_GenJetPhi" && histname[j]!="tau_GenJetPhiVsEta" ){
       temphist->Scale(1./temphist->Integral("width"));
     }
 

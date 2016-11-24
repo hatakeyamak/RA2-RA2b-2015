@@ -111,7 +111,7 @@ mainClass(int luminosity=5000){ // luminosity is in /pb unit
     else{cout << " Error!! There are only 6 T ht binned sample " << endl;}
     T_inputfilevec.push_back(TFile::Open(tempname,"R"));
   }//end of loop over HTbins 
-
+  std::cout<<".........Seg Vio........."<<endl;
 
   // Stack
   tempstack = new THStack("stack","Binned Sample Stack");

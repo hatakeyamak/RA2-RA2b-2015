@@ -511,7 +511,8 @@ using namespace std;
       //fastsimWeight = (3000. * SampleXS)/TotNEve;
       printf(" Luminosity 3000/pb fastsimWeight: %g \n",fastsimWeight);
     }
-    else if (!evt->DataBool_()){  // fullsim
+    /*  
+  else if (!evt->DataBool_()){  // fullsim
  
       std::cout << subSampleKey << std::endl;
       string skimName;
@@ -533,7 +534,7 @@ using namespace std;
       btagcorr.SetEffs(skimfile);
       btagcorr.SetCalib("btag/CSVv2_ichep.csv");      
     }
-
+*/
 
     // --- Analyse the events --------------------------------------------
 
@@ -721,6 +722,7 @@ using namespace std;
     // Use Ahmad's tau template
     TFile * resp_file_temp = new TFile("Inputs/Elog371_HadTau_TauResponseTemplates_stacked.root","R");
     TFile * resp_file = new TFile("Inputs/Elog433_HadTau_TauResponseTemplates_stacked.root","R");
+    TFile * resp_file_PhiVsEta = new TFile("Inputs/ARElog90_HadTau_TauResponseTemplates_stacked.root","R");
     
     for(int i=0; i<TauResponse_nBins; i++){
       sprintf(histname,"hTauResp_%d",i);
@@ -740,6 +742,8 @@ using namespace std;
     //TH2D * h2tau_phi = (TH2D*) resp_file_temp->Get("tau_GenJetPhi")->Clone();
     //*AR,Oct12,2016-Using Wgun template to get dPhi distribution
     TH2D * h2tau_phi = (TH2D*) resp_file_taugun->Get("tau_GenJetPhi")->Clone();
+    TH2D * h2tau_phivseta = (TH2D*) resp_file_PhiVsEta->Get("tau_GenJetPhiVsEta")->Clone();
+
     // Use Rishi's tau template 
     TFile * resp_file_Rishi = new TFile("Inputs/template_singletaugun_match04_74x_v02.root","R");
     for(int i=0; i<TauResponse_nBins; i++){
@@ -826,8 +830,7 @@ using namespace std;
       eventWeight = evt->weight();
       if(evt->DataBool_())eventWeight = 1.;
       //eventWeight = evt->weight()/evt->puweight();
-
-      if(eventN>10000)break;
+      //if(eventN>10000)break;
       //if(eventN>50)break;
       //std::cout<<" eventN "<<eventN<<endl;
       cutflow_preselection->Fill(0.,eventWeight); // keep track of all events processed
@@ -1148,8 +1151,8 @@ using namespace std;
               double phi_genTau_tauJet=0.;
               if(binx!=0){
                 if(verbose!=0)cout << "deltaPhi: " << h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom() << endl;
-                phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();
-		
+		//                phi_genTau_tauJet=h2tau_phi->ProjectionY("angularTemplate",binx,binx,"")->GetRandom();
+		phi_genTau_tauJet=h2tau_phivseta->ProjectionY("angularTemplate",muEta,muEta,"")->GetRandom();
 		//std::cout<<" phi_genTau_tauJet "<<phi_genTau_tauJet<<endl; 
               }
               simTauJetPhi_xy=simTauJetPhi + phi_genTau_tauJet ;

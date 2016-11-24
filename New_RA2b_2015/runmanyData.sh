@@ -16,8 +16,8 @@ njobs=`expr $Njobs - $a`
 echo number of jobs: $njobs
 mkdir -p qsub
 
-#for i in `seq 0 $njobs`; do
-for i in 0 100 101 102 103 104 105 106 107 108 109 ; do
+for i in `seq 0 $njobs`; do
+#for i in 0 100 101 102 103 104 105 106 107 108 109 ; do
     
     export filenum=$i
     export sample=$sample
