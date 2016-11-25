@@ -22,8 +22,8 @@ for WJetStr in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do
 	
 	export filenum=$i
 	export outStr=$outStr
-	echo $filenum
-	echo $code 
+	#echo $filenum
+	#echo $code 
 	export WJetStr=$WJetStr
 	export Suffix=${WJetStr}_${outStr}_$filenum
 	if [ $filenum -lt 10 ]
@@ -51,10 +51,10 @@ for WJetStr in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do
 
 	cd $SUBMIT_DIR
 	eval `scram runtime -sh`
-	echo "ROOTSYS"  ${ROOTSYS}
+	#echo "ROOTSYS"  ${ROOTSYS}
 	
 	if [ $type -eq 0 ]; then
-	    echo $filenum
+	    #echo $filenum
 	    export ArgFour=TauHad2Multiple
 	    export ArgOne=./run_tauHad2    
 #   echo $ArgOne
@@ -111,7 +111,7 @@ for WJetStr in 100_200 200_400 400_600 600_800 800_1200 1200_2500 2500_Inf; do
 	
 
 	if [ $type -eq 1 ]; then
-	    echo $filenum
+	    #echo $filenum
 	    export ArgFour=TauHadMultiple
 	    export ArgOne=./run_tauHad
 #	    echo $ArgOne

@@ -48,10 +48,10 @@ for TStr in t_top t_antitop tW_top tW_antitop s_channel; do
 
 	cd $SUBMIT_DIR
 	eval `scram runtime -sh`
-	echo "ROOTSYS"  ${ROOTSYS}
+	#echo "ROOTSYS"  ${ROOTSYS}
 	
 	if [ $type -eq 0 ]; then
-	    echo $filenum
+	    #echo $filenum
 	    export ArgFour=TauHad2Multiple
 	    export ArgOne=./run_tauHad2    
 # echo $ArgOne
@@ -107,7 +107,7 @@ for TStr in t_top t_antitop tW_top tW_antitop s_channel; do
 	
 
 	if [ $type -eq 1 ]; then
-	    echo $filenum
+	    #echo $filenum
 	    export ArgFour=TauHadMultiple
 	    export ArgOne=./run_tauHad
 #	    echo $ArgOne
