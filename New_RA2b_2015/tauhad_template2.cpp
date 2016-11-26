@@ -79,6 +79,8 @@ using namespace std;
     char tempname2[200];
     char tempname3[200];
     char tempname4[200];
+    char tempname5[200];
+    char tempname6[200];
     char histname[200];
     char prefix[200];
     vector<TH1D > vec, vec_search;
@@ -907,6 +909,8 @@ using namespace std;
           sprintf(tempname2,"HLT_Mu15_IsoVVVL_PFHT350_v");
           sprintf(tempname3,"HLT_IsoMu22_v");
           sprintf(tempname4,"HLT_Mu50_v");
+          sprintf(tempname5,"HLT_IsoMu24_v");
+          sprintf(tempname6,"HLT_IsoTkMu24_v");
 	  /*
 	  if (lowHTSelection){
 	    sprintf(tempname,"HLT_IsoMu22_v");
@@ -916,19 +920,24 @@ using namespace std;
           if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
 	      evt->TriggerNames_().at(i).find(tempname2) != string::npos ||
 	      evt->TriggerNames_().at(i).find(tempname3) != string::npos ||
-	      evt->TriggerNames_().at(i).find(tempname4) != string::npos){
+	      evt->TriggerNames_().at(i).find(tempname4) != string::npos ||
+	      evt->TriggerNames_().at(i).find(tempname5) != string::npos ||
+	      evt->TriggerNames_().at(i).find(tempname6) != string::npos){
 
             trigfound=true;
             if(evt->PassTrigger_().at(i)==1)trigPass=true;
 
 	    // HighHT selection
-	    if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || 
-		evt->TriggerNames_().at(i).find(tempname2) != string::npos){
+	    //if( evt->TriggerNames_().at(i).find(tempname)  != string::npos || // Use or of IsoMu22, Is 
+	    //	evt->TriggerNames_().at(i).find(tempname2) != string::npos){
+	    //KH: given the offline HT inefficiency observed in the 2016H period, use or of single mu and mu-HT triggers
 	      if(evt->PassTrigger_().at(i)==1)trigPassHighHT=true;
-	    }
+	    //}
 	    // LowHT selection
-	    if( evt->TriggerNames_().at(i).find(tempname3) != string::npos ||
-		evt->TriggerNames_().at(i).find(tempname4) != string::npos){
+	    if( evt->TriggerNames_().at(i).find(tempname3) != string::npos || // Use or of IsoMu22, Iso(Tk)Mu24, Mu50
+		evt->TriggerNames_().at(i).find(tempname4) != string::npos ||
+		evt->TriggerNames_().at(i).find(tempname5) != string::npos ||
+		evt->TriggerNames_().at(i).find(tempname6) != string::npos){
 	      if(evt->PassTrigger_().at(i)==1)trigPassLowHT=true;
 	    }
 
