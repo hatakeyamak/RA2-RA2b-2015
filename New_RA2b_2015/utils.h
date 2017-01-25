@@ -30,6 +30,8 @@ public:
 
     bool findMatchedObject(int &matchedObjIdx,double genTauEta, double genTauPhi, vector<double> PtVec,vector<double> EtaVec, vector<double> PhiVec,double deltaRMax, int ver);
 
+    bool findObjectConstituent(int &matchedObjIdx, double muPt, double muEta, double muPhi, vector<double> PtVec,vector<double> EtaVec, vector<double> PhiVec,double deltaRMax, int ver);
+
     bool RelPt(double genTauPt, double IsoPt,double relPt);
 
     int TauResponse_nBins_();

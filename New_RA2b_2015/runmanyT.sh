@@ -80,7 +80,7 @@ for TStr in t_top t_antitop tW_top tW_antitop s_channel; do
         #
 		if [ $i -eq 0 ]; then
 		    echo executable = submitScript_condor.sh>> ${SubmitFile}
-		    echo universe =vanilla>> ${SubmitFile}
+		    echo universe = vanilla>> ${SubmitFile}
 		    echo x509userproxy = ${Proxy}>> ${SubmitFile}
 		    echo notification = never>> ${SubmitFile}
 		    echo should_transfer_files = YES>> ${SubmitFile}

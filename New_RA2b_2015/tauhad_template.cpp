@@ -666,15 +666,6 @@ int main(int argc, char *argv[]){
     //we want to consider events that pass the baseline cuts
     if( sel->ht_base(evt->ht()) && sel->mht_base(evt->mht()) && sel->Njet_base(evt->nJets()) ){
 
-      //
-      btagProb = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->Jets_HTMask_());
-      /*
-      std::cout << evt->nBtags() << std::endl;
-      for(int iii=0;iii< btagProb.size();iii++){
-	std::cout << btagProb[iii] << std::endl;
-      }
-      */
-
       if(verbose!=0)printf("============================================================= \n eventN: %d \n ",eventN);
       if(verbose!=0 && eleN==0 && muN==1)printf("#####################\nNo elec and 1 muon event \n eventN: %d \n ",eventN);
       if(muN==1)muPt=evt->GenMuPtVec_().at(0);
@@ -902,7 +893,41 @@ int main(int argc, char *argv[]){
     else {Tau3Vec.SetPtEtaPhi(0,0,0);/* Ahmad33 cout<<"Warning \n Warning \n Tau3Vec=0 \n "; Ahmad33 */}
     Visible3Vec=Tau3Vec-TauNu3Vec;
 
+    // for plotting purposes
+    double tauPt_forPlotting=0.0; 
+    double tauEta_forPlotting=0.0;
+    double tauPhi_forPlotting=-99.0;
+    double tau_mht_delphi_forPlotting=-99.0;
+    int tauJetIdx_forPlotting = -1;
+    double deltaRMax_forPlotting = genTauPt < 50. ? 0.4 : 0.4;
+    if( utils->findMatchedObject(tauJetIdx_forPlotting,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax_forPlotting,verbose) ){
+      tauPt_forPlotting = evt->slimJetPtVec_().at(tauJetIdx_forPlotting);
+      tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);       
+      if(tauPt_forPlotting>30.&& abs(tauEta_forPlotting) < 2.4){
+	tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
+	tau_mht_delphi_forPlotting = fabs(TVector2::Phi_mpi_pi( tauPhi_forPlotting - evt->mhtphi()  ));
+	//tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);
+	//printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_delphi_forPlotting,tauPt_forPlotting,genTauPt);
+      }
+      //printf("tauPt: %g tauPhi: %g \n ",tauPt_forPlotting,tauPhi_forPlotting);
+    }
 
+    //
+    // define btagProb for btagSF
+    //
+    int NbOffset=0;
+    if (!evt->DataBool_() && utils2::btagSF){
+      if(tauJetIdx_forPlotting!=-1 && tauJetIdx_forPlotting<evt->csvVec().size()){
+	btagProb = btagcorr.GetCorrections(evt->JetsLorVec_(),evt->Jets_partonFlavor_(),evt->Jets_HTMask_mod_(tauJetIdx_forPlotting));
+	if (evt->csvVec()[tauJetIdx_forPlotting]>evt->csv_()) NbOffset=1;
+      }
+    }
+    /*
+      std::cout << evt->nBtags() << std::endl;
+      for(int iii=0;iii< btagProb.size();iii++){
+      std::cout << btagProb[iii] << std::endl;
+      }
+    */
 
     if(pass3){
       cutflow_preselection->Fill(9.,eventWeight); // We may ask genTau within muon acceptance
@@ -987,12 +1012,15 @@ int main(int argc, char *argv[]){
 	  // Fill Search bin histogram
 	  searchH->Fill( binMap[utils2::findBin_NoB(evt->nJets(),evt->ht(),evt->mht()).c_str()],totWeight);
 	  
-	  if (utils2::btagSF){
+	  if (!evt->DataBool_() && utils2::btagSF){
 	    for(int iii=0;iii< btagProb.size();iii++){
-	      QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),iii,evt->ht(),evt->mht()).c_str()],totWeight*btagProb[iii]);
-	      searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),iii,evt->ht(),evt->mht()).c_str()],totWeight*btagProb[iii]);
-	    }
-	  } 
+	      int newNbSF = NbOffset+iii; // updated number of b's when using btagProb                          
+	      if (newNbSF<=evt->nJets()){
+	      QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),newNbSF,evt->ht(),evt->mht()).c_str()],totWeight*btagProb[iii]);
+	      searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),newNbSF,evt->ht(),evt->mht()).c_str()],totWeight*btagProb[iii]);
+	      } // newNbSF<=newNJet
+	    } // for(int iii=0;iii< btagProb.size();iii++){     
+	  }   // notdata and btagSF mode on
 	  else { //
 	    QCD_Up->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
 	    searchH_b->Fill( binMap_b[utils2::findBin(evt->nJets(),evt->nBtags(),evt->ht(),evt->mht()).c_str()],totWeight);
@@ -1004,7 +1032,7 @@ int main(int argc, char *argv[]){
 	}
       }
 
-    }
+    } 
     for (int i=1;i<=174;i++){
       searchH_b->GetXaxis()->SetBinLabel(i,utils2::RenameBins(i));
     }
@@ -1016,9 +1044,12 @@ int main(int argc, char *argv[]){
 	// Fill QCD histograms
 	if(passIso){
 
-	  if (utils2::btagSF){
+	  if (!evt->DataBool_() && utils2::btagSF){ 
 	    for(int iii=0;iii< btagProb.size();iii++){	    
+	      int newNbSF = NbOffset+iii; // updated number of b's when using btagProb                         	      
+	      if (newNbSF<=evt->nJets()){	      
 	      QCD_Low->Fill( binMap_QCD[utils2::findBin_QCD(evt->nJets(),iii,evt->ht(),evt->mht()).c_str()],totWeight*btagProb[iii]);
+	      }
 	    }
 	  }
 	  else {
@@ -1030,26 +1061,6 @@ int main(int argc, char *argv[]){
       }
     }
      
-    // for plotting purposes
-    double tauPt_forPlotting=0.0; 
-    double tauEta_forPlotting=0.0;
-    double tauPhi_forPlotting=-99.0;
-    double tau_mht_delphi_forPlotting=-99.0;
-    int tauJetIdx_forPlotting = -1;
-    double deltaRMax_forPlotting = genTauPt < 50. ? 0.4 : 0.4;
-    if( utils->findMatchedObject(tauJetIdx_forPlotting,Visible3Vec.Eta(),Visible3Vec.Phi(), evt->slimJetPtVec_(), evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax_forPlotting,verbose) ){
-      tauPt_forPlotting = evt->slimJetPtVec_().at(tauJetIdx_forPlotting);
-      tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);       
-      if(tauPt_forPlotting>30.&& abs(tauEta_forPlotting) < 2.4){
-	tauPhi_forPlotting = evt->slimJetPhiVec_().at(tauJetIdx_forPlotting);
-	tau_mht_delphi_forPlotting = fabs(TVector2::Phi_mpi_pi( tauPhi_forPlotting - evt->mhtphi()  ));
-	//tauEta_forPlotting = evt->slimJetEtaVec_().at(tauJetIdx_forPlotting);
-	//printf("phi(tau,mht): %g tauJetPt: %g GenTauPt: %g \n ",tau_mht_delphi_forPlotting,tauPt_forPlotting,genTauPt);
-      }
-      //printf("tauPt: %g tauPhi: %g \n ",tauPt_forPlotting,tauPhi_forPlotting);
-    }
-
-
     // Build and array that contains the quantities we need a histogram for.
     // Here order is important and must be the same as RA2nocutvec
     double eveinfvec[] = {totWeight,(double) evt->ht(),(double) evt->ht(),(double) evt->mht(),(double) evt->mht(),(double)evt->met(),

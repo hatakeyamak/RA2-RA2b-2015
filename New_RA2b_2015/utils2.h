@@ -26,7 +26,11 @@ namespace utils2{
   bool bootstrap = true; // default true
 
   // btagSF model
-  bool btagSF=true;
+  bool btagSF=false;
+
+  // Checking delta-R between emulated-tau-jet (visible energy) and nearby-jet (matched to muons)     
+  // If they are apart, split them.  
+  bool tauJetSplit=true;
 
   bool applyMT = true; // default true
   // We calculate MTEff in the same code where it is also being used. 
@@ -114,10 +118,10 @@ namespace utils2{
     else if(subSampleKey.find("WJet_HT_800_1200")!=string::npos)skimName="tree_WJetsToLNu_HT-800to1200.root";
     else if(subSampleKey.find("WJet_HT_1200_2500")!=string::npos)skimName="tree_WJetsToLNu_HT-1200to2500.root";
     else if(subSampleKey.find("WJet_HT_2500_Inf")!=string::npos)skimName="tree_WJetsToLNu_HT-2500toInf.root"; //
-    else if(subSampleKey.find("ST_tW_antitop")!=string::npos)skimName="tree_ST_tW_antitop.root";
-    else if(subSampleKey.find("ST_tW_top")!=string::npos)skimName="tree_ST_tW_top.root";
-    else if(subSampleKey.find("ST_t_top")!=string::npos)skimName="tree_ST_t-channel_top.root";
-    else if(subSampleKey.find("ST_t_antitop")!=string::npos)skimName="tree_ST_t-channel_antitop.root"; //
+    else if(subSampleKey.find("tW_antitop")!=string::npos)skimName="tree_ST_tW_antitop.root";
+    else if(subSampleKey.find("tW_top")!=string::npos)skimName="tree_ST_tW_top.root";
+    else if(subSampleKey.find("t_top")!=string::npos)skimName="tree_ST_t-channel_top.root";
+    else if(subSampleKey.find("t_antitop")!=string::npos)skimName="tree_ST_t-channel_antitop.root"; //
     else if(subSampleKey.find("s_channel")!=string::npos)skimName="tree_ST_s-channel.root"; //
     //else if(subSampleKey.find("ZJet_HT_100_200")!=string::npos);
     //else if(subSampleKey.find("ZJet_HT_200_400")!=string::npos);
@@ -136,6 +140,7 @@ namespace utils2{
     //else if(subSampleKey.find("T1tttt_1200_800")!=string::npos);
     //else if(subSampleKey.find("T1tttt_1500_100")!=string::npos);
     else cout << " there is no skim file for the given smaple. The weight is not correct now! \n " << endl;
+    std::cout << "sumSampleKey: " << subSampleKey << std::endl; 
 
     return skimPath+skimName;
   }

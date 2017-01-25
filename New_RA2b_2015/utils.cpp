@@ -61,6 +61,31 @@ using namespace std;
       return match;
     }
 
+    bool Utils::findObjectConstituent(int &matchedObjIdx, double muPt, double muEta, double muPhi, vector<double> PtVec,vector<double> EtaVec, vector<double> PhiVec,double deltaRMax, int ver){
+      if(PtVec.size() ==0 ) return false;
+      
+      matchedObjIdx = -1;
+      double deltaRMin = 100000.;
+      for(int objIdx = 0; objIdx < (int) EtaVec.size(); ++objIdx){
+        const double dr = deltaR(muEta,EtaVec[objIdx],muPhi,PhiVec[objIdx]);
+        // printf("genTauEta: %g EtaVec[objIdx]: %g genTauPhi: %g PhiVec[objIdx]: %g dr: %g \n ",genTauEta,EtaVec[objIdx],genTauPhi,PhiVec[objIdx],dr);
+        if( dr < deltaRMin && PtVec[objIdx]>muPt*0.5){
+          deltaRMin = dr;
+          matchedObjIdx = objIdx;
+        }
+      } // end of loop over vec
+
+      // printf("matchedObjIdx: %d \n ",matchedObjIdx);
+      bool match = false;
+      if( deltaRMin < deltaRMax ) {
+        match = true;
+        if(ver!=0)printf("\n Mathed recoJet info: deltaRMin: %g matchedIdx: %d Pt: %g eta: %g phi: %g \n ",deltaRMin,matchedObjIdx,PtVec[matchedObjIdx],EtaVec[matchedObjIdx],PhiVec[matchedObjIdx]);
+      } else {
+        matchedObjIdx = -1;
+      }
+      return match;
+    }
+
     bool Utils::RelPt(double genTauPt, double IsoPt,double relPt){
       bool bo=false;
       if( abs(genTauPt-IsoPt)/genTauPt < relPt )bo=true;

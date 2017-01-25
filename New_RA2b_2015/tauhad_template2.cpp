@@ -516,6 +516,7 @@ using namespace std;
     else if (!evt->DataBool_() && utils2::btagSF){  // fullsim
  
       skimfile = TFile::Open(utils2::LFNtoPFN(utils2::skimFileName(subSampleKey)).c_str(),"R");
+      std::cout << skimfile << std::endl;
       if(!skimfile->IsOpen()){cout << "skim file is not open \n " ;return 2;} 
       else cout << " skimfile: " << utils2::LFNtoPFN(utils2::skimFileName(subSampleKey)).c_str() << endl;
       btagcorr.SetEffs(skimfile);
@@ -1093,12 +1094,13 @@ using namespace std;
           //Identify the jet containing the muon
           const double deltaRMax = 0.4; // 0.4 is delR of jet
           int JetIdx=-1;
-          if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+          //KH if(verbose!=0 && utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
+          if(verbose!=0 && utils->findObjectConstituent(JetIdx,muPt,muEta,muPhi,evt->JetsPtVec_(), evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose) ){
             printf(" \n **************************************** \n JetIdx: %d \n ",JetIdx);
           }
 
           GenRecMu_all++;
-          // If muon does not match a GenMuon, drop the event. We do this by applying some corrections 
+          // If muon does not match a GenMuon, give a warning. 
           int GenMuIdx=-1;
           if(!isData && !utils->findMatchedObject(GenMuIdx,muEta,muPhi,evt->GenMuPtVec_(),evt->GenMuEtaVec_(),evt->GenMuPhiVec_(),deltaRMax,verbose)){
             GenRecMu_fail++;
@@ -1177,9 +1179,11 @@ using namespace std;
             int slimJetIdx=-1;
 	    int GenJetIdx=-1;
             MuJet_all->Fill(muPt,eventWeight);
-            utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+            //KH utils->findMatchedObject(slimJetIdx,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+            utils->findObjectConstituent(slimJetIdx,muPt,muEta,muPhi,evt->slimJetPtVec_(),evt->slimJetEtaVec_(), evt->slimJetPhiVec_(),deltaRMax,verbose);
+
 	    double dr = utils->deltaR(muEta,evt->slimJetEtaVec_()[slimJetIdx],muPhi,evt->slimJetPhiVec_()[slimJetIdx]);
-	    if (dr>0.3 && l==1){
+	    if (dr>0.3 && l==1 && verbose){
 	    printf("mupt,mueta,muphi,jetpt,jeteta,jetphi = %6.2f %6.2f %6.2f |  %6.2f %6.2f %6.2f\n",
 		   muPt,muEta,muPhi,
 		   evt->slimJetPtVec_()[slimJetIdx],
@@ -1190,29 +1194,46 @@ using namespace std;
 
 	    // for fastsim	    
 	    if (!evt->DataBool_() && fastsim && utils2::genHTMHT)
-	    utils->findMatchedObject(GenJetIdx,muEta,muPhi,evt->GenJetPtVec_(),evt->GenJetEtaVec_(), evt->GenJetPhiVec_(),deltaRMax,verbose);
+	      utils->findMatchedObject(GenJetIdx,muEta,muPhi,evt->GenJetPtVec_(),evt->GenJetEtaVec_(), evt->GenJetPhiVec_(),deltaRMax,verbose);
 
 	    if (slimJetIdx==-1){
 	      std::cout << "slimJetIdx: " << slimJetIdx << std::endl;
 	      std::cout << muPt << " " << muEta << " " << muPhi << std::endl;
 	    }
 
-	    if(slimJetIdx!=-1)
-	      { double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
-		//KH adhoc correction
+	    //
+	    // Checking delta-R between emulated-tau-jet (visible energy) and nearby-jet (matched to muons)
+	    // If they are apart, split them.
+	    //
+	    double dr_tau_nearbyjet = 0.;
+	    double dr_tau_muon = 0.;
+	    const double dRMax_tau_nearbyjet = 0.4; // 0.4 is delR of jet
+	    if (utils2::tauJetSplit){
+	    if(slimJetIdx!=-1){ 
+	      double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+	      Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
+	      temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[slimJetIdx],evt->slimJetEtaVec_()[slimJetIdx],evt->slimJetPhiVec_()[slimJetIdx]);
+	      if (jecCorr==0.) jecCorr=1.;
+	      temp3Vec *= 1./jecCorr; temp3Vec -= Muon3Vec; temp3Vec *= jecCorr;
+              NewTauJet3Vec=SimTauJet3Vec;
+	      dr_tau_nearbyjet = utils->deltaR(temp3Vec.Eta(),NewTauJet3Vec.Eta(),temp3Vec.Phi(),NewTauJet3Vec.Phi());
+	      dr_tau_muon = utils->deltaR(Muon3Vec.Eta(),NewTauJet3Vec.Eta(),Muon3Vec.Phi(),NewTauJet3Vec.Phi());
+	      if (dr_tau_nearbyjet>dRMax_tau_nearbyjet){
 		/*
-		if (jecCorr<1.05) jecCorr=1.05;
-		double muPtModified = jecCorr*muPt;
-		Muon3Vec.SetPtEtaPhi(muPtModified,muEta,muPhi);
-		if(muPtModified/muPt > 2.)std::cout<<"something is wrong"<<std::endl;
+		printf("mupt,mueta,muphi,jetpt,jeteta,jetphi = %6.2f %6.2f %6.2f |  %6.2f %6.2f %6.2f\n",
+		       muPt,muEta,muPhi,
+		       evt->slimJetPtVec_()[slimJetIdx],
+		       evt->slimJetEtaVec_()[slimJetIdx],
+		       evt->slimJetPhiVec_()[slimJetIdx]
+		       );
+		printf("taujetpt,eta,phi,jet-muon pt,eta,phi = %6.2f %6.2f %6.2f |  %6.2f %6.2f %6.2f\n",
+		       NewTauJet3Vec.Pt(),NewTauJet3Vec.Eta(),NewTauJet3Vec.Phi(),
+		       temp3Vec.Pt(),temp3Vec.Eta(),temp3Vec.Phi());
+		printf("dr(muon,jet),dr(tau,nearbyjet),dr(tau,mu)=%6.2f %6.2f %6.2f\n",dr,dr_tau_nearbyjet,dr_tau_muon);
 		*/
-		Muon3Vec.SetPtEtaPhi(muPt,muEta,muPhi);
-		/*
-		std::cout << jecCorr << " " 
-			  << evt->JetsPtVec_()[slimJetIdx] << " "
-			  << evt->JetsEtaVec_()[slimJetIdx] << std::endl;
-		*/
-	      }
+	      }	      
+	    }
+	    } // utils2::tauJetSplit
 
             // If there is no match, add the tau jet as a new one
             if(slimJetIdx==-1){
@@ -1242,6 +1263,28 @@ using namespace std;
                 if(evt->slimJetPtVec_()[i]>30. && fabs(evt->slimJetEtaVec_()[i])<5.)MHT3JetVec.push_back(temp3Vec);
               }
               else if(i==slimJetIdx){
+
+		// if emulated-tau and nearby jet originally including muon are far apart, split them
+		if (utils2::tauJetSplit && dr_tau_nearbyjet>dRMax_tau_nearbyjet){
+
+                temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
+		double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
+		if (jecCorr==0.) jecCorr=1.;
+		temp3Vec *= 1./jecCorr; temp3Vec -= Muon3Vec; temp3Vec *= jecCorr;
+                NewTauJet3Vec=temp3Vec;
+                NewTauJetPt = NewTauJet3Vec.Pt();
+		NewTauJetEta = NewTauJet3Vec.Eta();
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+                if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+		
+		NewTauJet3Vec=SimTauJet3Vec;
+		NewTauJetPt = NewTauJet3Vec.Pt();
+		NewTauJetEta = NewTauJet3Vec.Eta();
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
+		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
+		  
+		} else {
+
                 temp3Vec.SetPtEtaPhi(evt->slimJetPtVec_()[i],evt->slimJetEtaVec_()[i],evt->slimJetPhiVec_()[i]);
 		double jecCorr = evt->slimJetjecFactor_()[slimJetIdx];
 		if (jecCorr==0.) jecCorr=1.;
@@ -1251,8 +1294,11 @@ using namespace std;
 		NewTauJetEta = NewTauJet3Vec.Eta();
 		if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<2.4)HT3JetVec.push_back(NewTauJet3Vec);
                 if(NewTauJet3Vec.Pt()>30. && fabs(NewTauJet3Vec.Eta())<5.)MHT3JetVec.push_back(NewTauJet3Vec);
-              }              
-            }
+
+		} 
+
+              } // i == or != slimJetIdx 
+            } // for(int i=0;i<evt->slimJetPtVec_().size();i++)
       
 
 	    // for fastsim	    
@@ -1335,7 +1381,8 @@ using namespace std;
             // Calculate muon's btag rate 
             if(!utils2::bootstrap){
               JetIdx=-1;
-              utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+              //KH utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+              utils->findObjectConstituent(JetIdx,muPt,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
               B_rate_all->Fill(NewTauJetPt,eventWeight);
 	      if(JetIdx!=-1)
 		B_Mu_rate_all->Fill(evt->JetsPtVec_()[JetIdx],eventWeight);
@@ -1481,10 +1528,18 @@ using namespace std;
               // if muon jet is not dropped but is btagged, #b shoud stay the same as original one(no increase).
 	      int NbOffset=m;	      
               JetIdx=-1;
-              utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
-	      if (JetIdx!=slimJetIdx && JetIdx!=-1){
-		printf("JetIdx and slimJetIdx are inconsistent? JetIdx & slimJetIdx = %3d %3d\n",JetIdx,slimJetIdx);
-	      }
+              //KH utils->findMatchedObject(JetIdx,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+              utils->findObjectConstituent(JetIdx,muPt,muEta,muPhi,evt->JetsPtVec_(),evt->JetsEtaVec_(), evt->JetsPhiVec_(),deltaRMax,verbose);  
+	      if (JetIdx!=slimJetIdx && JetIdx!=-1 && slimJetIdx!=-1){
+		double dr_muJet     = utils->deltaR(muEta,evt->JetsEtaVec_()[JetIdx],        muPhi,evt->JetsPhiVec_()[JetIdx]);
+		double dr_muslimJet = utils->deltaR(muEta,evt->slimJetEtaVec_()[slimJetIdx],muPhi,evt->slimJetPhiVec_()[slimJetIdx]);
+		double dr_JetslimJet = utils->deltaR(evt->slimJetEtaVec_()[slimJetIdx],evt->JetsEtaVec_()[JetIdx],evt->slimJetPhiVec_()[slimJetIdx],evt->JetsPhiVec_()[JetIdx]);
+		printf("JetIdx and slimJetIdx are different. Expected? JetIdx & slimJetIdx = %3d %3d\n",JetIdx,slimJetIdx);
+		printf("deltaR(muon,Jet) & deltaR(muon,slimJet) & deltaR(Jet,slimJet) = %8.3f %8.3f %8.3f\n",dr_muJet,dr_muslimJet,dr_JetslimJet);
+		printf("muon                pt,eta,phi = %8.3f %8.3f %8.3f\n",muPt,muEta,muPhi);
+		printf("Jet(JetIdx)         pt,eta,phi = %8.3f %8.3f %8.3f\n",evt->JetsPtVec_()[JetIdx],evt->JetsEtaVec_()[JetIdx],evt->JetsPhiVec_()[JetIdx]);
+		printf("slimJet(slimJetIdx) pt,eta,phi = %8.3f %8.3f %8.3f\n",evt->slimJetPtVec_()[slimJetIdx],evt->slimJetEtaVec_()[slimJetIdx],evt->slimJetPhiVec_()[slimJetIdx]);
+	      } else {
               if( (int) HT3JetVec.size() < (int) evt->nJets() ){
 		NbOffset=0;
                 if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags()-1;
@@ -1492,6 +1547,7 @@ using namespace std;
 	      }
 	      //              else if(JetIdx!=-1 && evt->csvVec()[JetIdx]>evt->csv_())NewNB=evt->nBtags();
 	      else if((JetIdx!=-1 && absbRate>0 && evt->csvVec()[JetIdx]>evt->csv_()) || (JetIdx!=-1 && absbRate<0 && evt->csvVec()[JetIdx]<evt->csv_())){ NewNB=evt->nBtags(); NbOffset=1;}
+	      } // if (JetIdx!=slimJetIdx && JetIdx!=-1){
 
               // New dphi1, dphi2, and dphi3
               double newDphi1=-99.,newDphi2=-99.,newDphi3=-99.,newDphi4=-99.;
